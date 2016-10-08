@@ -1,0 +1,10 @@
+php-git - v0.0.0
+--------------------------------------------------------------------------------
+This project provides PHP bindings for libgit2. The extension dynamically links
+to libgit2 installed in the usual way on your system. We also expect the git2
+headers to be installed in the usual locations.
+
+Primary author:
+    Roger Gee <rpg11a@acu.edu>
+
+--------------------------------------------------------------------------------
