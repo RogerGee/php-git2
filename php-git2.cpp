@@ -1,5 +1,9 @@
 #include "php-git2.h"
+#include "git2-resource.h"
 #include <cstdio>
+#include <cstdarg>
+using namespace std;
+using namespace php_git2;
 
 ZEND_DECLARE_MODULE_GLOBALS(git2)
 
@@ -61,6 +65,9 @@ PHP_GSHUTDOWN_FUNCTION(git2)
 
 PHP_MINIT_FUNCTION(git2)
 {
+    // Define all resource types types. This call associates destructor
+    // functions with all resource types (see git2-resource.h).
+    php_git2_define_resource_types(module_number);
 
     return SUCCESS;
 }
@@ -120,6 +127,17 @@ PHP_FUNCTION(git2_version)
         major,minor,rev);
 
     RETURN_STRING(buf,1);
+}
+
+// php_git2_exception
+
+php_git2_exception::php_git2_exception(const char* format, ...)
+    : message(4096,0)
+{
+    va_list args;
+    va_start(args,format);
+    vsnprintf(&message[0],message.size(),format,args);
+    va_end(args);
 }
 
 /*
