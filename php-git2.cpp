@@ -1,5 +1,5 @@
 #include "php-git2.h"
-#include "git2-resource.h"
+#include "repository.h"
 #include <cstdio>
 #include <cstdarg>
 using namespace std;
@@ -65,8 +65,12 @@ PHP_GSHUTDOWN_FUNCTION(git2)
 
 PHP_MINIT_FUNCTION(git2)
 {
-    // Define all resource types types. This call associates destructor
-    // functions with all resource types (see git2-resource.h).
+    // Call the function to register all resource types. Whenever a resource
+    // type is added, the libgit2 data type name should be added to the list of
+    // template parameters.
+    php_git2_define_resource_types<
+        git_repository >(module_number);
+
     php_git2_define_resource_types(module_number);
 
     return SUCCESS;

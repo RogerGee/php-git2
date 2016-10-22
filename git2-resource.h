@@ -7,6 +7,7 @@
 #ifndef PHPGIT2_GIT2_RESOURCE_H
 #define PHPGIT2_GIT2_RESOURCE_H
 #include "php-git2.h"
+#include <new>
 #include <typeinfo>
 
 namespace php_git2
@@ -24,9 +25,16 @@ namespace php_git2
             handle(nullptr)
         {
         }
+        virtual ~git2_resource()
+        {
+            throw php_git2_exception(
+                "resource type was not implemented correctly");
+        }
 
         git2_type get_handle() const
         { return handle; }
+        git2_type* get_handle_byref() const
+        { return &handle; }
 
         static void define_resource_type(int moduleNumber)
         {
@@ -43,34 +51,30 @@ namespace php_git2
 
         static void destroy_resource(zend_rsrc_list_entry* rsrc TSRMLS_DC)
         {
+            // We must explicitly call the object's destructor, then free the
+            // object itself.
+
             git2_resource* thisObj = reinterpret_cast<git2_resource*>(rsrc->ptr);
 
-            if (thisObj->handle != nullptr) {
-                thisObj->free();
-                thisObj->handle = nullptr;
-            }
+            thisObj->~git2_resource();
+            efree(thisObj);
         }
 
         // This is a pointer to the libgit2 type that the object wraps as a PHP
         // resource. These types are opaque and require explicit deletion by
         // libgit2 routines.
         git2_type handle;
-
-        void free()
-        {
-            throw php_git2_exception(
-                "resource type was not implemented correctly");
-        }
     };
     template<typename git_type>
     int git2_resource<git_type>::le = 0;
 
-    // Explicitly specialize git2_resource::free() for the various resource
-    // types.
-
-    template<>
-    void git2_resource<git_repository>::free()
-    { git_repository_free(handle); }
+    template<typename GitResource>
+    GitResource* php_git2_create_resource()
+    {
+        GitResource* obj;
+        obj = new (emalloc(sizeof(GitResource))) GitResource;
+        return obj;
+    }
 
     template<typename... Args>
     void php_git2_define_resource_types(int moduleNumber)
@@ -85,13 +89,6 @@ namespace php_git2
             i += 1;
         }
     }
-
-    // Instantiate the function to register all resource types. Whenever a
-    // resource type is added, the libgit2 data type name should be added to the
-    // list of template parameters.
-    template void php_git2_define_resource_types<
-        git_repository >(int moduleNumber);
-
 
 } // namespace php_git2
 
