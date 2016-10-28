@@ -20,10 +20,23 @@ static PHP_RSHUTDOWN_FUNCTION(git2);
 PHP_FUNCTION(git_libgit2_version);
 PHP_FUNCTION(git2_version);
 
+template void zif_php_git2_function<
+    func_wrapper<int>::func<git_libgit2_features>,
+    local_pack<>,
+    0 >(INTERNAL_FUNCTION_PARAMETERS);
+
 // Functions exported by this extension into PHP.
 static zend_function_entry php_git2_functions[] = {
+    // General libgit2 functions:
     PHP_FE(git_libgit2_version,NULL)
     PHP_FE(git2_version,NULL)
+    PHP_GIT2_FE(git_libgit2_features,
+        (zif_php_git2_function<
+            func_wrapper<int>::func<git_libgit2_features>,
+            local_pack<>,
+            0 >),
+        NULL)
+
     PHP_FE_END
 };
 
@@ -71,7 +84,13 @@ PHP_MINIT_FUNCTION(git2)
     php_git2_define_resource_types<
         git_repository >(module_number);
 
-    php_git2_define_resource_types(module_number);
+    // Define constants.
+
+    // GIT_FEATURE_*
+    REGISTER_LONG_CONSTANT("GIT_FEATURE_THREADS",GIT_FEATURE_THREADS,CONST_CS|CONST_PERSISTENT);
+    REGISTER_LONG_CONSTANT("GIT_FEATURE_HTTPS",GIT_FEATURE_HTTPS,CONST_CS|CONST_PERSISTENT);
+    REGISTER_LONG_CONSTANT("GIT_FEATURE_SSH",GIT_FEATURE_SSH,CONST_CS|CONST_PERSISTENT);
+    REGISTER_LONG_CONSTANT("GIT_FEATURE_NSEC",GIT_FEATURE_NSEC,CONST_CS|CONST_PERSISTENT);
 
     return SUCCESS;
 }
