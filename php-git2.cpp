@@ -1,4 +1,9 @@
-#include "php-git2.h"
+/*
+ * php-git2.cpp
+ *
+ * This file is a part of php-git2.
+ */
+
 #include "repository.h"
 #include <cstdio>
 #include <cstdarg>
@@ -20,11 +25,6 @@ static PHP_RSHUTDOWN_FUNCTION(git2);
 PHP_FUNCTION(git_libgit2_version);
 PHP_FUNCTION(git2_version);
 
-template void zif_php_git2_function<
-    func_wrapper<int>::func<git_libgit2_features>,
-    local_pack<>,
-    0 >(INTERNAL_FUNCTION_PARAMETERS);
-
 // Functions exported by this extension into PHP.
 static zend_function_entry php_git2_functions[] = {
     // General libgit2 functions:
@@ -37,6 +37,7 @@ static zend_function_entry php_git2_functions[] = {
             0 >),
         NULL)
 
+    GIT_REPOSITORY_FE
     PHP_FE_END
 };
 
@@ -161,6 +162,14 @@ php_git2_exception::php_git2_exception(const char* format, ...)
     va_start(args,format);
     vsnprintf(&message[0],message.size(),format,args);
     va_end(args);
+}
+
+// php_git2::git_error()
+
+void php_git2::git_error()
+{
+    const ::git_error* err = giterr_last();
+    throw php_git2_exception("libgit2 error: %s: %s",err->klass,err->message);
 }
 
 /*

@@ -156,7 +156,7 @@ namespace php_git2
         sequence<Ns...>&& seq,
         sequence<Ps...>&& pos)
     {
-        return FuncWrapper::name(pack.template get<Ns>().byval_git2(Ps + 1)...);
+        return FuncWrapper::name(pack.template get<Ns>().byval_git2(Ps)...);
     }
 
     // Provide a function to handle return values. We enable different
@@ -206,6 +206,10 @@ namespace php_git2
         (void)return_value;
     }
 
+    // Provide a function to handle a generic libgit2 error.
+
+    void git_error();
+
 } // namespace php_git2
 
 // We need a function entry macro that supports naming the PHP userspace
@@ -213,7 +217,7 @@ namespace php_git2
 // template).
 
 #define PHP_GIT2_FE(name,func,arginfo) \
-    ZEND_FENTRY(name,&(func),arginfo,0)
+    ZEND_FENTRY(name,(func),arginfo,0)
 
 // Define the base function template for php_git2. It's name has the typical
 // prefix (though this may be unimportant). We cannot use the normal macros
@@ -227,11 +231,28 @@ namespace php_git2
 //  4. Perform any housekeeping and optionally return a value.
 
 template<
+    // The function wrapper type used to call the wrapped function.
     typename FuncWrapper,
+
+    // The local variable pack type to instantiate local variables for the call.
     typename LocalVars,
+
+    // The position of the local pack variable to return. If -1 then no value
+    // is returned. If 0 then the actual return value is returned (must be an
+    // integer in this case).
     int ReturnPos = -1,
+
+    // The sequence used to forward the local pack variables into
+    // zend_get_arguments().
     typename PHPForward = php_git2::make_seq<LocalVars::size()>,
+
+    // The sequence used to forward the local pack variables into the call to
+    // the wrapped library function.
     typename GitForward = php_git2::make_seq<LocalVars::size()>,
+
+    // The sequence that describes the position of the arguments in the
+    // GitForward set relative to the PHP function call. This pack must be the
+    // same length as GitForward.
     typename AllParams = php_git2::make_seq<FuncWrapper::arg_count()> >
 void zif_php_git2_function(INTERNAL_FUNCTION_PARAMETERS)
 {
@@ -251,11 +272,40 @@ void zif_php_git2_function(INTERNAL_FUNCTION_PARAMETERS)
             GitForward(),
             AllParams());
 
+        // Check for errors (when return value is less than zero).
+        if (retval < 0) {
+            php_git2::git_error();
+        }
+
         // Handle the return value.
         php_git2::php_return<ReturnPos>(
             std::forward<typename FuncWrapper::return_type>(retval),
             std::forward<LocalVars>(vars),
             return_value);
+    } catch (php_git2::php_git2_exception ex) {
+        zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+    }
+}
+
+// Provide a similar function for wrapped library calls that have return type
+// void.
+
+template<
+    typename FuncWrapper,
+    typename LocalVars,
+    typename PHPForward = php_git2::make_seq<LocalVars::size()>,
+    typename GitForward = php_git2::make_seq<LocalVars::size()>,
+    typename AllParams = php_git2::make_seq<FuncWrapper::arg_count()> >
+void zif_php_git2_function_void(INTERNAL_FUNCTION_PARAMETERS)
+{
+    LocalVars vars;
+    try {
+        php_git2::php_extract_args(std::forward<LocalVars>(vars),PHPForward());
+        php_git2::library_call(
+            FuncWrapper(),
+            std::forward<LocalVars>(vars),
+            GitForward(),
+            AllParams());
     } catch (php_git2::php_git2_exception ex) {
         zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
     }

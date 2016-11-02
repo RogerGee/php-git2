@@ -149,7 +149,7 @@ namespace php_git2
     {
     public:
         typename GitResource::git2_type
-        byval_git2(unsigned argno = std::numeric_limits<unsigned>::max()) const
+        byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
             GitResource* rsrc;
 
@@ -165,17 +165,6 @@ namespace php_git2
                 throw php_git2_exception("resource is invalid");
             }
             return rsrc->get_handle();
-        }
-
-        void destroy()
-        {
-            // Force the resource to be cleaned up by Zend.
-
-            if (value == nullptr) {
-                throw php_git2_exception("resource is invalid");
-            }
-
-            zend_hash_index_del(&EG(regular_list),Z_RESVAL_P(value));
         }
 
         void ret(zval* return_value) const
@@ -206,6 +195,7 @@ namespace php_git2
                 r = zend_register_resource(value,
                     rsrc,
                     GitResource::resource_le());
+                (void)r;
             }
             else {
                 // Fetch the resource handle.
@@ -220,21 +210,49 @@ namespace php_git2
             (void)argno;
         }
 
-        void destroy()
-        {
-            // Force the resource to be cleaned up by Zend.
-
-            if (value == nullptr) {
-                throw php_git2_exception("resource is invalid");
-            }
-
-            zend_hash_index_del(&EG(regular_list),Z_RESVAL_P(value));
-        }
-
         void ret(zval* return_value) const
         {
             RETVAL_RESOURCE(Z_RESVAL_P(value));
         }
+    };
+
+    // Provide a type that cleans up the resource before it returns the
+    // underlying git2 handle type.
+
+    template<typename GitResource>
+    class php_resource_cleanup:
+        public php_resource<GitResource>
+    {
+    public:
+        typename GitResource::git2_type
+        byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            GitResource* rsrc;
+            typename GitResource::git2_type handle;
+
+            // Make sure this is a resource zval.
+            if (Z_TYPE_P(value) != IS_RESOURCE) {
+                php_value_base::error("resource",argno);
+            }
+
+            // Fetch the resource handle.
+            rsrc = (GitResource*)zend_fetch_resource(&value,-1,
+                GitResource::resource_name(),NULL,1,GitResource::resource_le());
+            if (rsrc == nullptr) {
+                throw php_git2_exception("resource is invalid");
+            }
+
+            // Release the git2 handle from the resource handle; then we cause
+            // PHP to destroy the resource zval.
+            handle = rsrc->get_handle();
+            rsrc->release();
+            zend_hash_index_del(&EG(regular_list),Z_RESVAL_P(value));
+            value = nullptr;
+
+            return handle;
+        }
+    protected:
+        using php_resource<GitResource>::value;
     };
 
 } // namespace php_git2

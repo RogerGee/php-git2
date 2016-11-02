@@ -31,10 +31,12 @@ namespace php_git2
                 "resource type was not implemented correctly");
         }
 
-        git2_type get_handle() const
+        git2_type get_handle()
         { return handle; }
-        git2_type* get_handle_byref() const
+        git2_type* get_handle_byref()
         { return &handle; }
+        void release()
+        { handle = nullptr; }
 
         static void define_resource_type(int moduleNumber)
         {
