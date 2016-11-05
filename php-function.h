@@ -73,7 +73,7 @@ namespace php_git2
             typename type_selector<K,
                 local_pack<T,Ts...> >::type&>::type get()
         {
-            return ((local_pack<Ts...>*)this)->get<K-1>();
+            return ((local_pack<Ts...>*)this)->template get<K-1>();
         }
 
         // Provide the size of the pack as a constant function expression.
@@ -123,6 +123,15 @@ namespace php_git2
         if (zend_get_parameters(0,int(sizeof...(Ns)),pack.template get<Ns>().byref_php()...) == FAILURE) {
             throw php_git2_exception("incorrect number of arguments passed to function");
         }
+    }
+
+    template<typename... Ts>
+    inline void php_extract_args(local_pack<Ts...>&& pack,sequence<>&& seq)
+    {
+        // Specialize call for empty sequence where no args need to be extracted
+        // from userspace.
+        (void)pack;
+        (void)seq;
     }
 
     // Provide a template type that contains the function pointer and signature
@@ -178,7 +187,7 @@ namespace php_git2
     }
 
     // This case assigns the return value from the actual libgit2 library
-    // call. We have specializations for: int.
+    // call. We have specializations for: int, char*.
     template<int ReturnPos,
         typename... Ts>
     inline typename std::enable_if<ReturnPos == 0,void>::type
@@ -189,6 +198,23 @@ namespace php_git2
     {
         RETVAL_LONG(long(retval));
         (void)pack;
+    }
+
+    template<int ReturnPos,
+        typename... Ts>
+    inline typename std::enable_if<ReturnPos == 0,void>::type
+    php_return(
+        char*&& retval,
+        local_pack<Ts...>&& pack,
+        zval* return_value)
+    {
+        if (retval != nullptr) {
+            RETVAL_STRING(retval,strlen(retval));
+        }
+        else {
+            // Just in case.
+            RETVAL_NULL();
+        }
     }
 
     // Otherwise, no action is taken.
@@ -209,6 +235,23 @@ namespace php_git2
     // Provide a function to handle a generic libgit2 error.
 
     void git_error();
+
+    // Provide a function that specializes checking return values from php
+    // functions. These only work in the general case so be mindful.
+
+    template<typename T>
+    inline bool check_return(const T&)
+    {
+        // By default, everything succeeds.
+        return true;
+    }
+
+    template<>
+    inline bool check_return(const int& retval)
+    {
+        // Most libgit2 functions are in error if they return less than 0.
+        return retval >= 0;
+    }
 
 } // namespace php_git2
 
@@ -273,15 +316,16 @@ void zif_php_git2_function(INTERNAL_FUNCTION_PARAMETERS)
             AllParams());
 
         // Check for errors (when return value is less than zero).
-        if (retval < 0) {
+        if (php_git2::check_return(retval)) {
+            // Handle the return value.
+            php_git2::php_return<ReturnPos>(
+                std::forward<typename FuncWrapper::return_type>(retval),
+                std::forward<LocalVars>(vars),
+                return_value);
+        }
+        else {
             php_git2::git_error();
         }
-
-        // Handle the return value.
-        php_git2::php_return<ReturnPos>(
-            std::forward<typename FuncWrapper::return_type>(retval),
-            std::forward<LocalVars>(vars),
-            return_value);
     } catch (php_git2::php_git2_exception ex) {
         zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
     }

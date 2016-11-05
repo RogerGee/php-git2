@@ -5,6 +5,7 @@
  */
 
 #include "repository.h"
+#include "reference.h"
 #include <cstdio>
 #include <cstdarg>
 using namespace std;
@@ -38,6 +39,7 @@ static zend_function_entry php_git2_functions[] = {
         NULL)
 
     GIT_REPOSITORY_FE
+    GIT_REFERENCE_FE
     PHP_FE_END
 };
 
@@ -83,7 +85,8 @@ PHP_MINIT_FUNCTION(git2)
     // type is added, the libgit2 data type name should be added to the list of
     // template parameters.
     php_git2_define_resource_types<
-        git_repository >(module_number);
+        git_repository,
+        git_reference >(module_number);
 
     // Define constants.
 
@@ -169,7 +172,10 @@ php_git2_exception::php_git2_exception(const char* format, ...)
 void php_git2::git_error()
 {
     const ::git_error* err = giterr_last();
-    throw php_git2_exception("libgit2 error: %s: %s",err->klass,err->message);
+    if (err == nullptr) {
+        throw php_git2_exception("libgit2 no error?");
+    }
+    throw php_git2_exception("libgit2 error: (%d): %s",err->klass,err->message);
 }
 
 /*

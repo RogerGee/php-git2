@@ -255,6 +255,39 @@ namespace php_git2
         using php_resource<GitResource>::value;
     };
 
+    // Wrap 'git_strarray' and provide conversions to PHP userspace array. Note
+    // that we never accept this type as an argument from userspace. The
+    // strarray structure itself is also created on the stack.
+
+    class php_strarray
+    {
+    public:
+        ~php_strarray()
+        {
+            git_strarray_free(&arr);
+        }
+
+        git_strarray* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            return &arr;
+        }
+
+        void ret(zval* return_value) const
+        {
+            // Convert the strarray to a PHP array.
+            array_init(return_value);
+            for (size_t i = 0;i < arr.count;++i) {
+                add_next_index_string(return_value,arr.strings[i],1);
+            }
+        }
+    private:
+        git_strarray arr;
+    };
+
+    // Enumerate all resource types that we'll care about.
+    using php_git_repository = git2_resource<git_repository>;
+    using php_git_reference = git2_resource<git_reference>;
+
 } // namespace php_git2
 
 #endif
