@@ -217,6 +217,25 @@ namespace php_git2
         }
     }
 
+    // Specialize php_return() for 'const git_oid*'.
+    template<int ReturnPos,
+        typename... Ts>
+    inline typename std::enable_if<ReturnPos == 0,void>::type
+    php_return(
+        const git_oid*&& retval,
+        local_pack<Ts...>&& pack,
+        zval* return_value)
+    {
+        if (retval != nullptr) {
+            char buf[GIT_OID_HEXSZ + 1];
+            git_oid_tostr(buf,sizeof(buf),retval);
+            RETVAL_STRING(buf,strlen(buf));
+        }
+        else {
+            RETVAL_NULL();
+        }
+    }
+
     // Otherwise, no action is taken.
     template<int ReturnPos,
         typename T,

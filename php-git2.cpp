@@ -6,6 +6,7 @@
 
 #include "repository.h"
 #include "reference.h"
+#include "object.h"
 #include <cstdio>
 #include <cstdarg>
 using namespace std;
@@ -40,6 +41,7 @@ static zend_function_entry php_git2_functions[] = {
 
     GIT_REPOSITORY_FE
     GIT_REFERENCE_FE
+    GIT_OBJECT_FE
     PHP_FE_END
 };
 
@@ -79,6 +81,9 @@ PHP_GSHUTDOWN_FUNCTION(git2)
 {
 }
 
+#define PHP_GIT2_CONSTANT(name) \
+    REGISTER_LONG_CONSTANT(#name,name,CONST_CS|CONST_PERSISTENT)
+
 PHP_MINIT_FUNCTION(git2)
 {
     // Call the function to register all resource types. Whenever a resource
@@ -86,15 +91,28 @@ PHP_MINIT_FUNCTION(git2)
     // template parameters.
     php_git2_define_resource_types<
         git_repository,
-        git_reference >(module_number);
+        git_reference,
+        git_object >(module_number);
 
-    // Define constants.
+    // Register libgit2 constants:
 
     // GIT_FEATURE_*
-    REGISTER_LONG_CONSTANT("GIT_FEATURE_THREADS",GIT_FEATURE_THREADS,CONST_CS|CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("GIT_FEATURE_HTTPS",GIT_FEATURE_HTTPS,CONST_CS|CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("GIT_FEATURE_SSH",GIT_FEATURE_SSH,CONST_CS|CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("GIT_FEATURE_NSEC",GIT_FEATURE_NSEC,CONST_CS|CONST_PERSISTENT);
+    PHP_GIT2_CONSTANT(GIT_FEATURE_THREADS);
+    PHP_GIT2_CONSTANT(GIT_FEATURE_HTTPS);
+    PHP_GIT2_CONSTANT(GIT_FEATURE_SSH);
+    PHP_GIT2_CONSTANT(GIT_FEATURE_NSEC);
+
+    // GIT_OBJ_*
+    PHP_GIT2_CONSTANT(GIT_OBJ_ANY);
+    PHP_GIT2_CONSTANT(GIT_OBJ_BAD);
+    PHP_GIT2_CONSTANT(GIT_OBJ__EXT1);
+    PHP_GIT2_CONSTANT(GIT_OBJ_COMMIT);
+    PHP_GIT2_CONSTANT(GIT_OBJ_TREE);
+    PHP_GIT2_CONSTANT(GIT_OBJ_BLOB);
+    PHP_GIT2_CONSTANT(GIT_OBJ_TAG);
+    PHP_GIT2_CONSTANT(GIT_OBJ__EXT2);
+    PHP_GIT2_CONSTANT(GIT_OBJ_OFS_DELTA);
+    PHP_GIT2_CONSTANT(GIT_OBJ_REF_DELTA);
 
     return SUCCESS;
 }

@@ -35,7 +35,7 @@ namespace php_git2
         {
             if (argno != std::numeric_limits<unsigned>::max()) {
                 throw php_git2_exception(
-                    "expected '%s' for argument '%d'",
+                    "expected '%s' for argument position %d",
                     typeName,
                     argno);
             }
@@ -136,6 +136,19 @@ namespace php_git2
     using php_long = php_value<long>;
     using php_double = php_value<double>;
     using php_string = php_value<char*>;
+
+    // Provide a type that casts a php_long to any arbitrary integer type
+    template<typename IntType>
+    class php_long_cast:
+        public php_long
+    {
+    public:
+        IntType byval_git2(unsigned argno = std::numeric_limits<unsigned>::max()) const
+        {
+            long t = php_long::byval_git2(argno);
+            return (IntType)t;
+        }
+    };
 
     // Provide generic resource types for libgit2 objects. The parameter should
     // be instantiated with some instantiation of 'git2_resource<>' (or some
@@ -255,6 +268,24 @@ namespace php_git2
         using php_resource<GitResource>::value;
     };
 
+    class php_git_oid
+    {
+    public:
+        git_oid* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            return &oid;
+        }
+
+        void ret(zval* return_value)
+        {
+            char buf[GIT_OID_HEXSZ + 1];
+            git_oid_tostr(buf,sizeof(buf),&oid);
+            RETVAL_STRING(buf,strlen(buf));
+        }
+    private:
+        git_oid oid;
+    };
+
     // Wrap 'git_strarray' and provide conversions to PHP userspace array. Note
     // that we never accept this type as an argument from userspace. The
     // strarray structure itself is also created on the stack.
@@ -287,6 +318,7 @@ namespace php_git2
     // Enumerate all resource types that we'll care about.
     using php_git_repository = git2_resource<git_repository>;
     using php_git_reference = git2_resource<git_reference>;
+    using php_git_object = git2_resource<git_object>;
 
 } // namespace php_git2
 
