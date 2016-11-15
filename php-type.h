@@ -286,6 +286,24 @@ namespace php_git2
         git_oid oid;
     };
 
+    class php_git_oid_fromstr:
+        public php_value_base
+    {
+    public:
+        git_oid* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            if (Z_TYPE_P(value) == IS_STRING) {
+                // Convert PHP string to git_oid.
+                git_oid_fromstr(&oid,Z_STRVAL_P(value));
+                return &oid;
+            }
+            error("string",argno);
+            return nullptr;
+        }
+    private:
+        git_oid oid;
+    };
+
     // Wrap 'git_strarray' and provide conversions to PHP userspace array. Note
     // that we never accept this type as an argument from userspace. The
     // strarray structure itself is also created on the stack.
@@ -319,6 +337,7 @@ namespace php_git2
     using php_git_repository = git2_resource<git_repository>;
     using php_git_reference = git2_resource<git_reference>;
     using php_git_object = git2_resource<git_object>;
+    using php_git_revwalk = git2_resource<git_revwalk>;
 
 } // namespace php_git2
 

@@ -27,7 +27,9 @@ static constexpr auto ZIF_GIT_OBJECT_ID = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_object> >,
     0,
-    php_git2::sequence<0>, php_git2::sequence<0>, php_git2::sequence<1> >;
+    php_git2::sequence<0>,
+    php_git2::sequence<0>,
+    php_git2::sequence<1> >;
 
 static constexpr auto ZIF_GIT_OBJECT_FREE = zif_php_git2_function_void<
     php_git2::func_wrapper<
@@ -35,7 +37,9 @@ static constexpr auto ZIF_GIT_OBJECT_FREE = zif_php_git2_function_void<
         git_object*>::func<git_object_free>,
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_object> >,
-    php_git2::sequence<0>, php_git2::sequence<0>, php_git2::sequence<0> >;
+    php_git2::sequence<0>,
+    php_git2::sequence<0>,
+    php_git2::sequence<0> >;
 
 // Function Entries:
 

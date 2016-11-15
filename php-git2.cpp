@@ -7,6 +7,7 @@
 #include "repository.h"
 #include "reference.h"
 #include "object.h"
+#include "revwalk.h"
 #include <cstdio>
 #include <cstdarg>
 using namespace std;
@@ -42,6 +43,7 @@ static zend_function_entry php_git2_functions[] = {
     GIT_REPOSITORY_FE
     GIT_REFERENCE_FE
     GIT_OBJECT_FE
+    GIT_REVWALK_FE
     PHP_FE_END
 };
 
@@ -92,7 +94,8 @@ PHP_MINIT_FUNCTION(git2)
     php_git2_define_resource_types<
         git_repository,
         git_reference,
-        git_object >(module_number);
+        git_object,
+        git_revwalk >(module_number);
 
     // Register libgit2 constants:
 

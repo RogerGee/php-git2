@@ -8,3 +8,49 @@ Primary author:
     Roger Gee <rpg11a@acu.edu>
 
 --------------------------------------------------------------------------------
+API Coverage
+
+We document API coverage in this section, including the major differences
+between the PHP userspace API and the original C library API. The API is divided
+(roughly) by the kind of opaque libgit2 object on which the API function
+operates (e.g. git_repository, git_reference, ETC.). In most cases the PHP API
+uses resource values for the major git2 opaque data types.
+
+Since PHP has native exception handling, most API calls are reworked to return
+the main result value. For example, git_repository_new() returns a resource to
+the repository which originally is assigned to the first parameter.
+
+Please consult the official libgit2 documentation for descriptions of the
+behavior of the functions and their arguments. This section only details the PHP
+interface.
+
+Opaque, resource type values:
+
+[git_repository]
+
+git_repository_init(string,bool)                - returns git_repository resource
+git_repository_new()                            - returns git_repository resource
+git_repository_free(resource)
+git_repository_open(string)                     - returns git_repository resource
+git_repository_open_bare(string)                - returns git_repository resource
+
+[git_reference]
+
+git_reference_list(resource)                    - returns array of string
+git_reference_lookup(resource,string)           - returns git_reference resource
+git_reference_free(resource)
+git_reference_peel(resource,long)               - returns git_reference resource
+git_reference_name_to_id(resource,string)       - returns string
+
+[git_object]
+
+git_object_id(resource)                         - returns string
+git_object_free(resource)
+
+[git_revwalk]
+
+git_revwalk_new(resource)
+git_revwalk_push(resource,string)
+git_revwalk_next(resource)                      - returns string or false on iterover
+git_revwalk_reset(resource)
+git_revwalk_free(resource)

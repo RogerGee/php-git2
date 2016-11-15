@@ -291,6 +291,9 @@ namespace php_git2
 //  2. Modify them so that we can set up a call to the wrapped function.
 //  3. Call the wrapped library function with the correct arguments.
 //  4. Perform any housekeeping and optionally return a value.
+//
+// We provide different variations of this template to meet certain
+// requirements, but all of them are based on the following primary template:
 
 template<
     // The function wrapper type used to call the wrapped function.
@@ -343,6 +346,51 @@ void zif_php_git2_function(INTERNAL_FUNCTION_PARAMETERS)
                 return_value);
         }
         else {
+            php_git2::git_error();
+        }
+    } catch (php_git2::php_git2_exception ex) {
+        zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+    }
+}
+
+// Provide a variant for less intuitive but more fine-tuned return value
+// handling. It should be used in exceptional cases. A type (ReturnHandler) is
+// provided that contains a member function 'ReturnHandler::ret()' that is
+// called to handle the return value. This function accepts the following
+// parameters:
+//  1. return value from libgit2 function
+//  2. return_value zval from php function handler
+//  3. local variable pack
+// The function should return 'true' if it handled the return value, 
+
+template<
+    typename FuncWrapper,
+    typename LocalVars,
+    typename ReturnHandler,
+    typename PHPForward = php_git2::make_seq<LocalVars::size()>,
+    typename GitForward = php_git2::make_seq<LocalVars::size()>,
+    typename AllParams = php_git2::make_seq<FuncWrapper::arg_count()> >
+void zif_php_git2_function_rethandler(INTERNAL_FUNCTION_PARAMETERS)
+{
+    // Create a local_pack object that houses all the variables we need for the
+    // call. The constructors take care of any initialization.
+    LocalVars vars;
+    typename FuncWrapper::return_type retval;
+
+    try {
+        // Obtain values from PHP userspace.
+        php_git2::php_extract_args(std::forward<LocalVars>(vars),PHPForward());
+
+        // Call wrapped function.
+        retval = php_git2::library_call(
+            FuncWrapper(),
+            std::forward<LocalVars>(vars),
+            GitForward(),
+            AllParams());
+
+        // Instantiate a return value handler to handle the return value.
+        ReturnHandler rethandler;
+        if (!rethandler.ret(retval,return_value,std::forward<LocalVars>(vars))) {
             php_git2::git_error();
         }
     } catch (php_git2::php_git2_exception ex) {
