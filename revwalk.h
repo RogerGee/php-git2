@@ -49,7 +49,8 @@ static constexpr auto ZIF_GIT_REVWALK_NEW = zif_php_git2_function<
         php_git2::php_resource<php_git2::php_git_repository> >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1> >;
+    php_git2::sequence<0,1>,
+    php_git2::sequence<0,0> >;
 
 static constexpr auto ZIF_GIT_REVWALK_PUSH = zif_php_git2_function<
     php_git2::func_wrapper<
@@ -69,7 +70,9 @@ static constexpr auto ZIF_GIT_REVWALK_NEXT = zif_php_git2_function_rethandler<
         php_git2::php_git_oid,
         php_git2::php_resource<php_git2::php_git_revwalk> >,
     php_git2::revwalk_next_rethandler,
-    php_git2::sequence<1> >;
+    php_git2::sequence<1>,
+    php_git2::sequence<0,1>,
+    php_git2::sequence<0,0> >;
 
 static constexpr auto ZIF_GIT_REVWALK_RESET = zif_php_git2_function_void<
     php_git2::func_wrapper<

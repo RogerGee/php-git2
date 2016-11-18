@@ -54,3 +54,12 @@ git_revwalk_push(resource,string)
 git_revwalk_next(resource)                      - returns string or false on iterover
 git_revwalk_reset(resource)
 git_revwalk_free(resource)
+
+[git_packbuilder]
+
+git_packbuilder_new(resource)                   - returns git_packbuilder resource
+git_packbuilder_free(resource)
+git_packbuilder_hash(resource)
+git_packbuilder_insert_commit(resource,string)
+git_packbuilder_insert(resource,string,string|null)
+git_packbuilder_foreach(resource,callable,*any*)

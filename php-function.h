@@ -117,12 +117,27 @@ namespace php_git2
 
     // Provide a function that extracts zvals into a local pack.
 
+    template<typename... Ts,unsigned... Ns,unsigned... Ps>
+    inline void php_extract_args_impl(local_pack<Ts...>&& pack,
+        sequence<Ns...>&& seq,
+        sequence<Ps...>&& pos)
+    {
+        if (zend_get_parameters(0,int(sizeof...(Ns)),
+                pack.template get<Ns>().byref_php(Ps)...) == FAILURE)
+        {
+            throw php_git2_exception("incorrect number of arguments "
+                "passed to function");
+        }
+    }
+
     template<typename... Ts,unsigned... Ns>
     inline void php_extract_args(local_pack<Ts...>&& pack,sequence<Ns...>&& seq)
     {
-        if (zend_get_parameters(0,int(sizeof...(Ns)),pack.template get<Ns>().byref_php()...) == FAILURE) {
-            throw php_git2_exception("incorrect number of arguments passed to function");
-        }
+        // Produce a meta-construct that contains the position parameters.
+        php_extract_args_impl(std::forward<local_pack<Ts...> >(pack),
+            std::forward<sequence<Ns...> >(seq),
+            std::forward<make_seq<sizeof...(Ns)> >(
+                make_seq<sizeof...(Ns)>()));
     }
 
     template<typename... Ts>
@@ -165,7 +180,7 @@ namespace php_git2
         sequence<Ns...>&& seq,
         sequence<Ps...>&& pos)
     {
-        return FuncWrapper::name(pack.template get<Ns>().byval_git2(Ps)...);
+        return FuncWrapper::name(pack.template get<Ns>().byval_git2(Ps+1)...);
     }
 
     // Provide a function to handle return values. We enable different

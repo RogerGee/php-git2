@@ -31,7 +31,9 @@ static constexpr auto ZIF_GIT_REFERENCE_LIST = zif_php_git2_function<
         php_git2::php_strarray,
         php_git2::php_resource<php_git2::php_git_repository> >,
     1,
-    php_git2::sequence<1> >;
+    php_git2::sequence<1>,
+    php_git2::sequence<0,1>,
+    php_git2::sequence<0,0> >;
 
 static constexpr auto ZIF_GIT_REFERENCE_LOOKUP = zif_php_git2_function<
     php_git2::func_wrapper<
@@ -44,15 +46,16 @@ static constexpr auto ZIF_GIT_REFERENCE_LOOKUP = zif_php_git2_function<
         php_git2::php_resource<php_git2::php_git_repository>,
         php_git2::php_string>,
     1,
-    php_git2::sequence<1,2> >;
+    php_git2::sequence<1,2>,
+    php_git2::sequence<0,1,2>,
+    php_git2::sequence<0,0,1> >;
 
 static constexpr auto ZIF_GIT_REFERENCE_FREE = zif_php_git2_function_void<
     php_git2::func_wrapper<
         void,
         git_reference*>::func<git_reference_free>,
     php_git2::local_pack<
-        php_git2::php_resource_cleanup<php_git2::php_git_reference> >,
-    php_git2::sequence<0>, php_git2::sequence<0>, php_git2::sequence<0> >;
+        php_git2::php_resource_cleanup<php_git2::php_git_reference> > >;
 
 static constexpr auto ZIF_GIT_REFERENCE_PEEL = zif_php_git2_function<
     php_git2::func_wrapper<
@@ -65,7 +68,9 @@ static constexpr auto ZIF_GIT_REFERENCE_PEEL = zif_php_git2_function<
         php_git2::php_resource<php_git2::php_git_reference>,
         php_git2::php_long_cast<git_otype> >,
     1,
-    php_git2::sequence<1,2> >;
+    php_git2::sequence<1,2>,
+    php_git2::sequence<0,1,2>,
+    php_git2::sequence<0,0,1> >;
 
 static constexpr auto ZIF_GIT_REFERENCE_NAME_TO_ID = zif_php_git2_function<
     php_git2::func_wrapper<
@@ -78,7 +83,9 @@ static constexpr auto ZIF_GIT_REFERENCE_NAME_TO_ID = zif_php_git2_function<
         php_git2::php_resource<php_git2::php_git_repository>,
         php_git2::php_string>,
     1,
-    php_git2::sequence<1,2> >;
+    php_git2::sequence<1,2>,
+    php_git2::sequence<0,1,2>,
+    php_git2::sequence<0,0,1> >;
 
 // Function Entries:
 

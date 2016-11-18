@@ -34,9 +34,10 @@ extern "C" {
 #include <git2.h>
 }
 
-// Include any C++ standard libraries.
+// Include any C/C++ standard libraries.
 #include <string>
 #include <exception>
+#include <cstring>
 
 // Module globals
 ZEND_BEGIN_MODULE_GLOBALS(git2)

@@ -6,8 +6,6 @@
 
 #ifndef PHPGIT2_REPOSITORY_H
 #define PHPGIT2_REPOSITORY_H
-#include "php-git2.h"
-#include "php-function.h"
 extern "C" {
 #include "git2/sys/repository.h"
 }
@@ -38,7 +36,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_INIT = zif_php_git2_function<
     1,
     php_git2::sequence<1,2>,
     php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,1,2> >;
+    php_git2::sequence<0,0,1> >;
 
 static constexpr auto ZIF_GIT_REPOSITORY_NEW = zif_php_git2_function<
     php_git2::func_wrapper<
@@ -69,7 +67,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_OPEN = zif_php_git2_function<
     1,
     php_git2::sequence<1>,
     php_git2::sequence<0,1>,
-    php_git2::sequence<0,1> >;
+    php_git2::sequence<0,0> >;
 
 static constexpr auto ZIF_GIT_REPOSITORY_OPEN_BARE = zif_php_git2_function<
     php_git2::func_wrapper<
@@ -82,7 +80,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_OPEN_BARE = zif_php_git2_function<
     1,
     php_git2::sequence<1>,
     php_git2::sequence<0,1>,
-    php_git2::sequence<0,1> >;
+    php_git2::sequence<0,0> >;
 
 // Function Entries:
 
