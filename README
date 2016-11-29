@@ -33,6 +33,12 @@ git_repository_new()                            - returns git_repository resourc
 git_repository_free(resource)
 git_repository_open(string)                     - returns git_repository resource
 git_repository_open_bare(string)                - returns git_repository resource
+git_repository__cleanup(resource)
+git_repository_detach_head(resource)
+git_repository_discover(string,bool,string)     - returns string
+git_repository_get_namespace(resource)          - returns string
+git_repository_hashfile(resource,string,        - returns string
+    long,string)
 
 [git_reference]
 
@@ -63,3 +69,9 @@ git_packbuilder_hash(resource)
 git_packbuilder_insert_commit(resource,string)
 git_packbuilder_insert(resource,string,string|null)
 git_packbuilder_foreach(resource,callable,*any*)
+
+The following structures are not represented as resources in the PHP
+API. Instead a primitive type is used:
+
+    git_buf     ==>     string
+    git_oid     ==>     string

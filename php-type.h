@@ -349,6 +349,30 @@ namespace php_git2
         git_strarray arr;
     };
 
+    // Wrap 'git_buf' and make it to convert to a PHP string.
+
+    class php_git_buf
+    {
+    public:
+        ~php_git_buf()
+        {
+            git_buf_free(&buf);
+        }
+
+        git_buf* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            return &buf;
+        }
+
+        void ret(zval* return_value) const
+        {
+            // Convert the git_buf into a PHP string.
+            RETVAL_STRINGL(buf.ptr,buf.size,1);
+        }
+    private:
+        git_buf buf;
+    };
+
     // Enumerate all resource types that we'll care about.
     using php_git_repository = git2_resource<git_repository>;
     using php_git_reference = git2_resource<git_reference>;

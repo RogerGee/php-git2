@@ -219,7 +219,7 @@ namespace php_git2
         typename... Ts>
     inline typename std::enable_if<ReturnPos == 0,void>::type
     php_return(
-        char*&& retval,
+        const char*&& retval,
         local_pack<Ts...>&& pack,
         zval* return_value)
     {
