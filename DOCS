@@ -1,0 +1,165 @@
+PHP libgit2 bindings API documentation
+--------------------------------------------------------------------------------
+The API is divided (roughly) by the kind of opaque, libgit2 object on which the
+API function operates (e.g. git_repository, git_reference, ETC.). In most cases
+the PHP API uses resource values for the major libgit2 opaque data types.
+
+Since PHP has native exception handling, most API calls are reworked to return
+the main result value. For example, git_repository_new() returns a resource to
+the repository (originally assigned to the first by-reference parameter). We
+also rework the structure of some library calls due to inherent difficulties
+porting the C interface to PHP (e.g. when pointers are used). Sometimes this
+requires adding API routines not originally in the libgit2 specification.
+
+Please consult the official libgit2 documentation for descriptions of the
+behavior of the functions and their arguments. This section only details the PHP
+interface.
+
+--------------------------------------------------------------------------------
+Core API routines operate on opaque, resource values. They try to conform to the
+original, C library calls they wrap.
+
+----------------------------------------
+[git_repository]
+----------------------------------------
+git_repository_init(string,bool)
+
+    Returns git_repository resource
+
+----------------------------------------
+git_repository_new()
+
+    Returns git_repository resource
+
+----------------------------------------
+git_repository_free(resource)
+
+----------------------------------------
+git_repository_open(string)
+
+    Returns git_repository resource
+
+----------------------------------------
+git_repository_open_bare(string)
+
+    Returns git_repository resource
+
+----------------------------------------
+git_repository__cleanup(resource)
+
+----------------------------------------
+git_repository_detach_head(resource)
+
+----------------------------------------
+git_repository_discover(string,bool,string)
+
+    Returns string
+
+----------------------------------------
+git_repository_get_namespace(resource)
+
+    Returns string
+
+----------------------------------------
+git_repository_hashfile(resource,string,long,string)
+
+    Returns string
+
+----------------------------------------
+git_repository_path(resource)
+
+    Returns string
+
+----------------------------------------
+[git_reference]
+----------------------------------------
+git_reference_list(resource)
+
+    Returns array of string
+
+----------------------------------------
+git_reference_lookup(resource,string)
+
+    Returns git_reference resource
+
+----------------------------------------
+git_reference_free(resource)
+
+----------------------------------------
+git_reference_peel(resource,long)
+
+    Returns git_reference resource
+
+----------------------------------------
+git_reference_name_to_id(resource,string)
+
+    Returns string
+
+----------------------------------------
+[git_object]
+----------------------------------------
+git_object_id(resource)
+
+    Returns string
+
+----------------------------------------
+git_object_free(resource)
+
+----------------------------------------
+[git_revwalk]
+----------------------------------------
+git_revwalk_new(resource)
+
+----------------------------------------
+git_revwalk_push(resource,string)
+
+----------------------------------------
+git_revwalk_next(resource)
+
+    Returns string or false when on iterover
+
+----------------------------------------
+git_revwalk_reset(resource)
+
+----------------------------------------
+git_revwalk_free(resource)
+
+----------------------------------------
+[git_packbuilder]
+----------------------------------------
+git_packbuilder_new(resource)
+
+    Returns git_packbuilder resource
+
+----------------------------------------
+git_packbuilder_free(resource)
+
+----------------------------------------
+git_packbuilder_hash(resource)
+
+    Returns string
+
+----------------------------------------
+git_packbuilder_insert_commit(resource,string)
+
+----------------------------------------
+git_packbuilder_insert(resource,string,string|null)
+
+----------------------------------------
+git_packbuilder_foreach(resource,callable|stream,mixed)
+
+    ** The 2nd parameter may optionally be a stream resource instead of a
+       callable. In this case the data is written to the stream at each
+       iteration. Payload data is ignored. **
+
+    Callback signature: callback(string $data,long $length,mixed $payload)
+
+--------------------------------------------------------------------------------
+The following structures are not represented as resources in the PHP
+API. Instead a primitive type is used:
+
+   git2 type           PHP type
+   ---------           --------
+
+    git_buf     ==>     string
+    git_oid     ==>     string

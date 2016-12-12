@@ -121,6 +121,14 @@ static constexpr auto ZIF_GIT_REPOSITORY_GET_NAMESPACE = zif_php_git2_function<
         php_git2::php_resource<php_git2::php_git_repository> >,
     0 >;
 
+static constexpr auto ZIF_GIT_REPOSITORY_PATH = zif_php_git2_function<
+    php_git2::func_wrapper<
+        const char*,
+        git_repository*>::func<git_repository_path>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_repository> >,
+    0 >;
+
 static constexpr auto ZIF_GIT_REPOSITORY_HASHFILE = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
@@ -152,6 +160,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_HASHFILE = zif_php_git2_function<
     PHP_GIT2_FE(git_repository_detach_head,ZIF_GIT_REPOSITORY_DETACH_HEAD,NULL) \
     PHP_GIT2_FE(git_repository_discover,ZIF_GIT_REPOSITORY_DISCOVER,NULL) \
     PHP_GIT2_FE(git_repository_get_namespace,ZIF_GIT_REPOSITORY_GET_NAMESPACE,NULL) \
+    PHP_GIT2_FE(git_repository_path,ZIF_GIT_REPOSITORY_PATH,NULL) \
     PHP_GIT2_FE(git_repository_hashfile,ZIF_GIT_REPOSITORY_HASHFILE,NULL)
 
 #endif

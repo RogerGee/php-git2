@@ -8,70 +8,23 @@ Primary author:
     Roger Gee <rpg11a@acu.edu>
 
 --------------------------------------------------------------------------------
+Versioning
+
+Since we do not bundle the libgit2 dependency, it up to the user to provide the
+correct version of libgit2 required by their version of php-git. On Linux,
+php-git has the libgit2 version soname embedded into it, so it should always
+load the correct version. To avoid ambiguity, we have provided a listing of what
+version of libgit2 covers php-git:
+
+    php-git                 libgit2
+    -------                 -------
+
+    minimum                 v0.24.0
+
+--------------------------------------------------------------------------------
 API Coverage
 
-We document API coverage in this section, including the major differences
-between the PHP userspace API and the original C library API. The API is divided
-(roughly) by the kind of opaque libgit2 object on which the API function
-operates (e.g. git_repository, git_reference, ETC.). In most cases the PHP API
-uses resource values for the major git2 opaque data types.
-
-Since PHP has native exception handling, most API calls are reworked to return
-the main result value. For example, git_repository_new() returns a resource to
-the repository which originally is assigned to the first parameter.
-
-Please consult the official libgit2 documentation for descriptions of the
-behavior of the functions and their arguments. This section only details the PHP
-interface.
-
-Opaque, resource type values:
-
-[git_repository]
-
-git_repository_init(string,bool)                - returns git_repository resource
-git_repository_new()                            - returns git_repository resource
-git_repository_free(resource)
-git_repository_open(string)                     - returns git_repository resource
-git_repository_open_bare(string)                - returns git_repository resource
-git_repository__cleanup(resource)
-git_repository_detach_head(resource)
-git_repository_discover(string,bool,string)     - returns string
-git_repository_get_namespace(resource)          - returns string
-git_repository_hashfile(resource,string,        - returns string
-    long,string)
-
-[git_reference]
-
-git_reference_list(resource)                    - returns array of string
-git_reference_lookup(resource,string)           - returns git_reference resource
-git_reference_free(resource)
-git_reference_peel(resource,long)               - returns git_reference resource
-git_reference_name_to_id(resource,string)       - returns string
-
-[git_object]
-
-git_object_id(resource)                         - returns string
-git_object_free(resource)
-
-[git_revwalk]
-
-git_revwalk_new(resource)
-git_revwalk_push(resource,string)
-git_revwalk_next(resource)                      - returns string or false on iterover
-git_revwalk_reset(resource)
-git_revwalk_free(resource)
-
-[git_packbuilder]
-
-git_packbuilder_new(resource)                   - returns git_packbuilder resource
-git_packbuilder_free(resource)
-git_packbuilder_hash(resource)
-git_packbuilder_insert_commit(resource,string)
-git_packbuilder_insert(resource,string,string|null)
-git_packbuilder_foreach(resource,callable,*any*)
-
-The following structures are not represented as resources in the PHP
-API. Instead a primitive type is used:
-
-    git_buf     ==>     string
-    git_oid     ==>     string
+We document API coverage in the DOCS file, including the major differences
+between the PHP userspace API and the original C library API. Please consult
+this documentation before using these bindings, as there are some differences
+that need to be understood.
