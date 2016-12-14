@@ -12,6 +12,7 @@
 #include "object.h"
 #include "revwalk.h"
 #include "packbuilder.h"
+#include "indexer.h"
 #include <cstdio>
 #include <cstdarg>
 using namespace std;
@@ -34,9 +35,11 @@ PHP_FUNCTION(git2_version);
 
 // Functions exported by this extension into PHP.
 static zend_function_entry php_git2_functions[] = {
+    // Functions that do not directly wrap libgit2 exports:
+    PHP_FE(git2_version,NULL)
+
     // General libgit2 functions:
     PHP_FE(git_libgit2_version,NULL)
-    PHP_FE(git2_version,NULL)
     PHP_GIT2_FE(git_libgit2_features,
         (zif_php_git2_function<
             func_wrapper<int>::func<git_libgit2_features>,
@@ -44,11 +47,14 @@ static zend_function_entry php_git2_functions[] = {
             0 >),
         NULL)
 
+    // Include template specializations for the different library wrappers. The
+    // compiler will instantiate these into this compilation unit.
     GIT_REPOSITORY_FE
     GIT_REFERENCE_FE
     GIT_OBJECT_FE
     GIT_REVWALK_FE
     GIT_PACKBUILDER_FE
+    GIT_INDEXER_FE
     PHP_FE_END
 };
 
@@ -101,7 +107,8 @@ PHP_MINIT_FUNCTION(git2)
         git_reference,
         git_object,
         git_revwalk,
-        git_packbuilder >(module_number);
+        git_packbuilder,
+        git_indexer >(module_number);
 
     // Register libgit2 constants:
 

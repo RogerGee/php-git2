@@ -16,6 +16,16 @@ behavior of the functions and their arguments. This section only details the PHP
 interface.
 
 --------------------------------------------------------------------------------
+Functions provided by the extension that are not git2 wrappers (have the form
+'git2_*'):
+
+git2_version()
+
+    Gets a version string
+
+    Returns string
+
+--------------------------------------------------------------------------------
 Core API routines operate on opaque, resource values. They try to conform to the
 original, C library calls they wrap.
 
@@ -153,6 +163,35 @@ git_packbuilder_foreach(resource,callable|stream,mixed)
        iteration. Payload data is ignored. **
 
     Callback signature: callback(string $data,long $length,mixed $payload)
+
+----------------------------------------
+[git_indexer]
+----------------------------------------
+git_indexer_new(string,long,resource|null,callable,mixed)
+
+    ** The 3rd parameter may be null. **
+
+    Callback signature: callback(array $stats,mixed $payload)
+
+----------------------------------------
+git_indexer_hash(resource)
+
+    Returns string
+
+----------------------------------------
+git_indexer_append(resource,string)
+
+    ** Transfer progress is stored in the resource. As such it is not passed to
+       this function. **
+
+----------------------------------------
+git_indexer_commit(resource)
+
+    ** Transfer progress is stored in the resource. As such it is not passed to
+       this function. **
+
+----------------------------------------
+git_indexer_free(resource)
 
 --------------------------------------------------------------------------------
 The following structures are not represented as resources in the PHP

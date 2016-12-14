@@ -147,6 +147,27 @@ namespace php_git2
         }
     };
 
+    // Provide a string connector that returns the string length.
+    template<typename IntType>
+    class php_string_length_connector
+    {
+    public:
+        using connect_t = php_string;
+        typedef IntType target_t;
+
+        php_string_length_connector(connect_t&& obj):
+            conn(std::forward<connect_t>(obj))
+        {
+        }
+
+        target_t byval_git2(unsigned p)
+        {
+            return Z_STRLEN_P(conn.byval_php(p));
+        }
+    private:
+        connect_t&& conn;
+    };
+
     // Provide a type that casts a php_long to any arbitrary integer type
     template<typename IntType>
     class php_long_cast:
@@ -155,8 +176,7 @@ namespace php_git2
     public:
         IntType byval_git2(unsigned argno = std::numeric_limits<unsigned>::max()) const
         {
-            long t = php_long::byval_git2(argno);
-            return (IntType)t;
+            return (IntType)php_long::byval_git2(argno);
         }
     };
 
@@ -171,29 +191,50 @@ namespace php_git2
         public php_value_base
     {
     public:
+        php_resource():
+            rsrc(nullptr)
+        {
+        }
+
         typename GitResource::git2_type
         byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
-            GitResource* rsrc;
-
-            // Make sure this is a resource zval.
-            if (Z_TYPE_P(value) != IS_RESOURCE) {
-                error("resource",argno);
-            }
-
-            // Fetch the resource handle. Zend will perform error checking on
-            // the resource type.
-            rsrc = (GitResource*)zend_fetch_resource(&value,-1,
-                GitResource::resource_name(),NULL,1,GitResource::resource_le());
-            if (rsrc == nullptr) {
-                throw php_git2_exception("resource is invalid");
-            }
+            lookup(argno);
             return rsrc->get_handle();
         }
 
         void ret(zval* return_value) const
         {
             RETVAL_RESOURCE(Z_RESVAL_P(value));
+        }
+
+        // This member function is used to retrieve the resource object. We must
+        // make sure it has been fetched from the resource value.
+        GitResource* get_object(unsigned argno)
+        {
+            lookup(argno);
+            return rsrc;
+        }
+    private:
+        // Store the resource object.
+        GitResource* rsrc;
+
+        void lookup(unsigned argno)
+        {
+            if (rsrc == nullptr) {
+                // Make sure this is a resource zval.
+                if (Z_TYPE_P(value) != IS_RESOURCE) {
+                    error("resource",argno);
+                }
+
+                // Fetch the resource handle. Zend will perform error checking
+                // on the resource type.
+                rsrc = (GitResource*)zend_fetch_resource(&value,-1,
+                    GitResource::resource_name(),NULL,1,GitResource::resource_le());
+                if (rsrc == nullptr) {
+                    throw php_git2_exception("resource is invalid");
+                }
+            }
         }
     };
 
@@ -202,11 +243,40 @@ namespace php_git2
         public php_value_base
     {
     public:
+        php_resource_ref():
+            rsrc(nullptr)
+        {
+        }
+
         typename GitResource::git2_type*
         byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
+            lookup(argno);
+            return rsrc->get_handle_byref();
+            (void)argno;
+        }
+
+        void ret(zval* return_value) const
+        {
+            RETVAL_RESOURCE(Z_RESVAL_P(value));
+        }
+
+        // This member function is used to retrieve the resource object. We must
+        // make sure it has been created.
+        GitResource* get_object(unsigned argno)
+        {
+            lookup(argno);
+            return rsrc;
+        }
+    private:
+        GitResource* rsrc;
+
+        void lookup(unsigned argno)
+        {
             int r;
-            GitResource* rsrc;
+            if (rsrc != nullptr) {
+                return;
+            }
 
             // Create the resource if it doesn't exist (which should most likely
             // be the case). Our assumption is that since this value is being
@@ -222,6 +292,9 @@ namespace php_git2
                 (void)r;
             }
             else {
+                // NOTE: in practice this shouldn't happen, since this type is
+                // used to create new resources.
+
                 // Make sure this is a resource zval.
                 if (Z_TYPE_P(value) != IS_RESOURCE) {
                     error("resource",argno);
@@ -236,13 +309,50 @@ namespace php_git2
                 }
             }
 
-            return rsrc->get_handle_byref();
-            (void)argno;
+        }
+    };
+
+    // Provide a type that represents an optional resource value (one that could
+    // be null).
+
+    template<typename GitResource>
+    class php_resource_null:
+        public php_value_base
+    {
+    public:
+        typename GitResource::git2_type
+        byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            GitResource* rsrc;
+
+            // Resource may be null.
+            if (Z_TYPE_P(value) == IS_NULL) {
+                return nullptr;
+            }
+
+            // Make sure this is a resource zval.
+            if (Z_TYPE_P(value) != IS_RESOURCE) {
+                error("resource or null",argno);
+            }
+
+            // Fetch the resource handle. Zend will perform error checking on
+            // the resource type.
+            rsrc = (GitResource*)zend_fetch_resource(&value,-1,
+                GitResource::resource_name(),NULL,1,GitResource::resource_le());
+            if (rsrc == nullptr) {
+                throw php_git2_exception("resource is invalid");
+            }
+            return rsrc->get_handle();
         }
 
         void ret(zval* return_value) const
         {
-            RETVAL_RESOURCE(Z_RESVAL_P(value));
+            if (Z_TYPE_P(value) == IS_NULL) {
+                RETVAL_NULL();
+            }
+            else {
+                RETVAL_RESOURCE(Z_RESVAL_P(value));
+            }
         }
     };
 
@@ -379,6 +489,8 @@ namespace php_git2
     using php_git_object = git2_resource<git_object>;
     using php_git_revwalk = git2_resource<git_revwalk>;
     using php_git_packbuilder = git2_resource<git_packbuilder>;
+    using php_git_indexer = git2_resource<git_indexer>;
+    using php_git_odb = git2_resource<git_odb>;
 
 } // namespace php_git2
 

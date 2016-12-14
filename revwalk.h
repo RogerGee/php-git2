@@ -26,7 +26,7 @@ namespace php_git2
                 RETVAL_FALSE;
             }
             else if (retval == 0) {
-                pack.template get<0>().ret(return_value);
+                pack.get<0>().ret(return_value);
             }
             else {
                 return false;

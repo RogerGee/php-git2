@@ -97,6 +97,13 @@ namespace php_git2
         {
             int r;
             zval* ps[Count];
+
+            // We allow null callables, which do nothing.
+            if (Z_TYPE_P(func) == IS_NULL) {
+                return;
+            }
+
+            // Otherwise assume the zval is a callable and attempt to call it.
             for (unsigned i = 0;i < Count;++i) {
                 ps[i] = params + i;
             }
@@ -123,7 +130,7 @@ namespace php_git2
 
     /**
      * Synchronous Callbacks
-     * 
+     *
      * A synchronous callback is one that is executed by libgit2 within a single
      * library call. As such, we can allocate the callback data on the
      * stack. The object holds two zvals: one to represent the PHP userspace
@@ -138,8 +145,18 @@ namespace php_git2
     {
     public:
         php_callback_sync():
-            func(nullptr), data(nullptr),p(std::numeric_limits<unsigned>::max())
+            func(nullptr), data(nullptr), p(std::numeric_limits<unsigned>::max())
         {
+        }
+
+        ~php_callback_sync()
+        {
+            // Delete our references to the variables. Member 'p' is negative
+            // when we've upped the count.
+            if (p < 0) {
+                Z_DELREF_P(func);
+                Z_DELREF_P(data);
+            }
         }
 
         zval** byref_php(unsigned pos)
@@ -159,11 +176,20 @@ namespace php_git2
                 std::swap(func,data);
             }
 
-            // Make sure the function zval is either a string or an array.
-            if (Z_TYPE_P(func) != IS_STRING && Z_TYPE_P(func) != IS_ARRAY) {
+            // Make sure the function zval is either a string or an array. We
+            // allow the user to omit a callable if NULL is given.
+            if (Z_TYPE_P(func) != IS_NULL && Z_TYPE_P(func) != IS_STRING
+                && Z_TYPE_P(func) != IS_ARRAY)
+            {
                 php_value_base::error("callable",argno);
             }
 
+            // Up reference count. This is really only needed for when this
+            // class is wrapped by php_callback_async so that the PHP values
+            // with exist between function calls.
+            Z_ADDREF_P(func);
+            Z_ADDREF_P(data);
+            p = -1;
             return this;
         }
 
@@ -171,6 +197,53 @@ namespace php_git2
         zval* data;
     private:
         unsigned p;
+    };
+
+    /**
+     * Asynchronous Callbacks
+     *
+     * An asynchronous callback is one that is allocated dynamically on the
+     * per-request memory heap. We implement this by allocating a
+     * php_callback_sync instance dynamically. This means that the async
+     * callback object (which is allocated on the stack) goes away while the
+     * sync callback object persists. To avoid leaks during the lifetime of the
+     * request, the async object is also a connector type so users can attach an
+     * asynchronous callback object to a resource. In this way the lifetime of
+     * the callback is the same as the lifetime of the resource.
+     */
+
+    template<typename GitResource>
+    class php_callback_async
+    {
+    public:
+        // Connect to an arbitrary resource type. It must be a newly created
+        // resource (i.e. resource ref).
+        using connect_t = php_resource_ref<GitResource>;
+        typedef void* target_t;
+
+        php_callback_async(connect_t&& conn)
+        {
+            // Allocate php_callback_sync object.
+            cb = new (emalloc(sizeof(php_callback_sync))) php_callback_sync;
+
+            // Assign php_callback_sync object to resource object. It must have
+            // a member called 'cb' to which it has access.
+            GitResource* rsrc = conn.get_object(
+                std::numeric_limits<unsigned>::max());
+            rsrc->cb = cb;
+        }
+
+        zval** byref_php(unsigned pos)
+        {
+            return cb->byref_php(pos);
+        }
+
+        void* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            return cb->byval_git2(argno);
+        }
+    private:
+        php_callback_sync* cb;
     };
 
     // Define a type to represent a callback function handler. All this does is
@@ -185,6 +258,21 @@ namespace php_git2
             // Return the static address of the wrapped callback function.
             return &CallbackFunc::callback;
         }
+    };
+
+    // Here we define all the callbacks used by the library. Some are specific
+    // to a particular operation whereas others are more generic.
+
+    struct packbuilder_foreach_callback
+    {
+        typedef int (*type)(void*,size_t,void*);
+        static int callback(void* buf,size_t size,void* payload);
+    };
+
+    struct transfer_progress_callback
+    {
+        typedef int (*type)(const git_transfer_progress* stats,void* payload);
+        static int callback(const git_transfer_progress* stats,void* payload);
     };
 
 } // namespace php_git2

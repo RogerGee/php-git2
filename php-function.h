@@ -84,6 +84,93 @@ namespace php_git2
         T local;
     };
 
+    // Provide a type to connect adjacent variables in a local_pack. This will
+    // merely serve as a wrapper for connectors defined in the different
+    // implementations. The wrapper's template parameter must define a
+    // byval_git2() member function and two member types called 'target_t' and
+    // 'connect_t'. We must specialize local_pack for this type.
+
+    template<typename T>
+    class connector_wrapper
+    {
+    public:
+        connector_wrapper(typename T::connect_t&& obj):
+            connector(std::forward<typename T::connect_t>(obj))
+        {
+        }
+
+        zval** byref_php(unsigned pos)
+        {
+            return connector.byref_php(pos);
+        }
+
+        typename T::target_t
+        byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            return connector.byval_git2(argno);
+        }
+    private:
+        T connector;
+    };
+
+    template<typename T,typename... Ts>
+    class local_pack<connector_wrapper<T>,Ts...>:
+        local_pack<Ts...>
+    {
+    protected:
+        // Provide some meta-constructs to access an arbitrary type from a
+        // parameter pack.
+
+        template<unsigned K,typename U>
+        struct type_selector;
+
+        template<typename U,typename... Us>
+        struct type_selector<0,local_pack<U,Us...> >
+        {
+            typedef U type;
+        };
+
+        template<unsigned K,typename U,typename... Us>
+        struct type_selector<K,local_pack<U,Us...> >
+        {
+            typedef typename type_selector<K-1,
+                local_pack<Us...> >::type type;
+        };
+    public:
+        // Initialize to default. This is important if PHP assumes default
+        // values for some parameters.
+        local_pack():
+            local(std::forward<typename T::connect_t>(get<1>()))
+        {
+        }
+
+        // The get<K> member function is used to extract a reference to the
+        // zero-based, Kth element in the local variable pack.
+
+        template<unsigned K>
+        typename std::enable_if<K == 0,
+            typename type_selector<0,
+                local_pack<connector_wrapper<T>,Ts...> >::type&>::type get()
+        {
+            return local;
+        }
+
+        template<unsigned K>
+        typename std::enable_if<(K != 0),
+            typename type_selector<K,
+                local_pack<connector_wrapper<T>,Ts...> >::type&>::type get()
+        {
+            return ((local_pack<Ts...>*)this)->template get<K-1>();
+        }
+
+        // Provide the size of the pack as a constant function expression.
+
+        static constexpr unsigned size()
+        { return sizeof...(Ts) + 1; }
+    private:
+        connector_wrapper<T> local;
+    };
+
     // Provide some meta-constructs to generate a zero-based, integer sequence
     // parameter pack.
 
@@ -376,7 +463,7 @@ void zif_php_git2_function(INTERNAL_FUNCTION_PARAMETERS)
 //  1. return value from libgit2 function
 //  2. return_value zval from php function handler
 //  3. local variable pack
-// The function should return 'true' if it handled the return value, 
+// The function should return 'true' if it handled the return value,
 
 template<
     typename FuncWrapper,
