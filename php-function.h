@@ -1,7 +1,7 @@
 /*
  * php_function.h
  *
- * This file is a part of php-git.
+ * This file is a part of php-git2.
  */
 
 #ifndef PHPGIT2_FUNCTION_H
@@ -13,7 +13,7 @@
 namespace php_git2
 {
 
-    // Here we provide a type to contain the local variables used in a php-git
+    // Here we provide a type to contain the local variables used in a php-git2
     // wrapper function.
 
     // Base object is empty.

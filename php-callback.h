@@ -1,7 +1,7 @@
 /*
  * php-callback.h
  *
- * This file is a part of php-git.
+ * This file is a part of php-git2.
  */
 
 #ifndef PHPGIT2_PHP_CALLBACK_H
@@ -151,20 +151,25 @@ namespace php_git2
 
         ~php_callback_sync()
         {
-            // Delete our references to the variables. Member 'p' is negative
-            // when we've upped the count.
-            if (p < 0) {
-                Z_DELREF_P(func);
-                Z_DELREF_P(data);
-            }
+            // Delete our references to the variables. We always assume that
+            // byval_git2() ran successfully.
+            Z_DELREF_P(func);
+            Z_DELREF_P(data);
         }
 
         zval** byref_php(unsigned pos)
         {
+            // If 'p' is max_value then we haven't had a call to this function
+            // yet and we store the parameter position. Otherwise we compare the
+            // existing parameter position with the new one. We want 'p' set to
+            // the value zero if the parameters need to be swapped such that the
+            // function zval is first.
+
             if (p == std::numeric_limits<unsigned>::max()) {
                 p = pos;
                 return &func;
             }
+
             p = (p < pos);
             return &data;
         }
@@ -189,7 +194,6 @@ namespace php_git2
             // with exist between function calls.
             Z_ADDREF_P(func);
             Z_ADDREF_P(data);
-            p = -1;
             return this;
         }
 

@@ -81,6 +81,11 @@ git_repository_path(resource)
     Returns string
 
 ----------------------------------------
+git_repository_odb(resource)
+
+    Returns git_odb resource
+
+----------------------------------------
 [git_reference]
 ----------------------------------------
 git_reference_list(resource)

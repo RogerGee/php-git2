@@ -1,8 +1,8 @@
 /*
  * php-callback.cpp
  *
- * This file is a part of php-git. It contains the out-of-line implementations
- * of the various callback routines used by php-git.
+ * This file is a part of php-git2. It contains the out-of-line implementations
+ * of the various callback routines used by php-git2.
  */
 
 #include "php-callback.h"

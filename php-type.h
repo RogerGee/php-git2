@@ -1,7 +1,7 @@
 /*
  * php-type.h
  *
- * This file is a part of php-git.
+ * This file is a part of php-git2.
  */
 
 #ifndef PHPGIT2_TYPE_H
