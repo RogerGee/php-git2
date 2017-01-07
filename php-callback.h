@@ -11,22 +11,6 @@
 namespace php_git2
 {
 
-    static inline void init_zvals(zval* z,unsigned n)
-    {
-        for (unsigned i = 0;i < n;++i) {
-            zval* p = z+i;
-            INIT_PZVAL(p);
-            ZVAL_NULL(p);
-        }
-    }
-
-    static inline void delete_zvals(zval* z,unsigned n)
-    {
-        for (unsigned i = 0;i < n;++i) {
-            zval_dtor(z + i);
-        }
-    }
-
     // Provide a type that contains an array of zvals converted from arbitrary
     // git2 values.
 
@@ -36,12 +20,9 @@ namespace php_git2
     public:
         zval_array()
         {
-            init_zvals(params,Count);
-        }
-
-        ~zval_array()
-        {
-            delete_zvals(params,Count);
+            for (unsigned i = 0;i < Count;++i) {
+                ALLOC_INIT_ZVAL(params[i]);
+            }
         }
 
         // Create a member function for assigning to the zvals from git2
@@ -57,28 +38,28 @@ namespace php_git2
         template<unsigned I,typename... Ts>
         void assign(long&& h,Ts&&... ts)
         {
-            ZVAL_LONG(params+I,h);
+            ZVAL_LONG(params[I],h);
             assign<I+1>(std::forward<Ts>(ts)...);
         }
 
         template<unsigned I,typename... Ts>
         void assign(double&& h,Ts&&... ts)
         {
-            ZVAL_DOUBLE(params+I,h);
+            ZVAL_DOUBLE(params[I],h);
             assign<I+1>(std::forward<Ts>(ts)...);
         }
 
         template<unsigned I,typename... Ts>
         void assign(const char*&& h,Ts&&... ts)
         {
-            ZVAL_STRING(params+I,h,1);
+            ZVAL_STRING(params[I],h,1);
             assign<I+1>(std::forward<Ts>(ts)...);
         }
 
         template<unsigned I,typename... Ts>
         void assign(const void*&& a,size_t&& b,Ts&&... ts)
         {
-            ZVAL_STRINGL(params+I,(const char*)a,b,1);
+            ZVAL_STRINGL(params[I],(const char*)a,b,1);
             assign<I+1>(std::forward<Ts>(ts)...);
         }
 
@@ -86,9 +67,8 @@ namespace php_git2
         void assign(zval*&& h,Ts&&... ts)
         {
             if (h != nullptr) {
-                // Perform a deep copy of the zval.
-                params[I] = *h;
-                zval_copy_ctor(params + I);
+                zval_dtor(params[I]);
+                params[I] = h;
             }
             assign<I+1>(std::forward<Ts>(ts)...);
         }
@@ -96,36 +76,26 @@ namespace php_git2
         void call(zval* func,zval* ret)
         {
             int r;
-            zval* ps[Count];
 
             // We allow null callables, which do nothing.
             if (Z_TYPE_P(func) == IS_NULL) {
                 return;
             }
 
-            // Otherwise assume the zval is a callable and attempt to call it.
-            for (unsigned i = 0;i < Count;++i) {
-                ps[i] = params + i;
-            }
             ZVAL_NULL(ret);
-            r = call_user_function(EG(function_table),NULL,func,ret,Count,ps TSRMLS_CC);
+            r = call_user_function(EG(function_table),NULL,func,ret,Count,params TSRMLS_CC);
             if (r == FAILURE) {
                 throw php_git2_exception("unable to call userspace function: "
                     "expected a callable");
             }
         }
 
-        zval* get_params()
-        { return params; }
-        const zval* get_params() const
-        { return params; }
-
         zval* operator [](unsigned index)
-        { return params + index; }
+        { return params[index]; }
         const zval* operator [](unsigned index) const
-        { return params + index; }
+        { return params[index]; }
     private:
-        zval params[Count];
+        zval* params[Count];
     };
 
     /**
@@ -191,7 +161,7 @@ namespace php_git2
 
             // Up reference count. This is really only needed for when this
             // class is wrapped by php_callback_async so that the PHP values
-            // with exist between function calls.
+            // will exist between function calls.
             Z_ADDREF_P(func);
             Z_ADDREF_P(data);
             return this;
@@ -212,8 +182,9 @@ namespace php_git2
      * callback object (which is allocated on the stack) goes away while the
      * sync callback object persists. To avoid leaks during the lifetime of the
      * request, the async object is also a connector type so users can attach an
-     * asynchronous callback object to a resource. In this way the lifetime of
-     * the callback is the same as the lifetime of the resource.
+     * asynchronous callback object to a resource or object. In this way the
+     * lifetime of the callback is the same as the lifetime of the
+     * resource/object.
      */
 
     template<typename GitResource>
@@ -248,6 +219,39 @@ namespace php_git2
         }
     private:
         php_callback_sync* cb;
+    };
+
+    // This alternate form of php_callback_async works for a non-resource
+    // type. This means it doesn't have to perform a lookup on an underlying
+    // resource object. Instead it uses the connected object directly.
+
+    template<typename ConnectType>
+    class php_callback_async_ex
+    {
+    public:
+        using connect_t = ConnectType;
+        typedef void* target_t;
+
+        php_callback_async_ex(connect_t&& conn):
+            stor(std::forward<connect_t>(conn))
+        {
+            // Allocate php_callback_sync object. Assign a new php_callback_sync
+            // object to the connected object. It must have a member called 'cb'
+            // to which it has access.
+            conn.cb = new (emalloc(sizeof(php_callback_sync))) php_callback_sync;
+        }
+
+        zval** byref_php(unsigned pos)
+        {
+            return stor.cb->byref_php(pos);
+        }
+
+        void* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            return stor.cb->byval_git2(argno);
+        }
+    private:
+        connect_t&& stor;
     };
 
     // Define a type to represent a callback function handler. All this does is

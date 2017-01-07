@@ -1,0 +1,7 @@
+php-callback.lo: php-callback.cpp php-callback.h php-type.h php-git2.h \
+ git2-resource.h
+php-git2.lo: php-git2.cpp php-git2.h php-function.h php-type.h \
+ git2-resource.h php-callback.h php-object.h repository.h reference.h \
+ object.h revwalk.h packbuilder.h indexer.h odb.h
+php-object.lo: php-object.cpp php-object.h php-callback.h php-type.h \
+ php-git2.h git2-resource.h

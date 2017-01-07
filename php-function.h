@@ -394,6 +394,13 @@ namespace php_git2
 //  3. Call the wrapped library function with the correct arguments.
 //  4. Perform any housekeeping and optionally return a value.
 //
+// The function template accepts lists of integer position values called
+// sequences. These sequences describe the position of parameters in the local
+// pack as well as the order of parameters to the PHP userspace
+// function. Sequences are zero-based, meaning the first position is always
+// denoted with a zero. Despite being called sequences, sequences are actually
+// ordered multisets in disguise (sorry).
+//
 // We provide different variations of this template to meet certain
 // requirements, but all of them are based on the following primary template:
 
@@ -409,17 +416,19 @@ template<
     // integer in this case).
     int ReturnPos = -1,
 
-    // The sequence used to forward the local pack variables into
-    // zend_get_arguments().
+    // The sequence used to forward the local pack variables into the
+    // zend_get_arguments() call.
     typename PHPForward = php_git2::make_seq<LocalVars::size()>,
 
     // The sequence used to forward the local pack variables into the call to
-    // the wrapped library function.
+    // the wrapped libgit2 function.
     typename GitForward = php_git2::make_seq<LocalVars::size()>,
 
     // The sequence that describes the position of the arguments in the
     // GitForward set relative to the PHP function call. This pack must be the
-    // same length as GitForward.
+    // same length as GitForward. For example, if GitForward is <2> and
+    // AllParams is <0> then this means that the third pack variable was the
+    // first argument to the PHP function.
     typename AllParams = php_git2::make_seq<FuncWrapper::arg_count()> >
 void zif_php_git2_function(INTERNAL_FUNCTION_PARAMETERS)
 {

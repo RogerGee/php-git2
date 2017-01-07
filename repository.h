@@ -148,6 +148,21 @@ static constexpr auto ZIF_GIT_REPOSITORY_HASHFILE = zif_php_git2_function<
     php_git2::sequence<0,1,2,3,4>,
     php_git2::sequence<0,0,1,2,3> >;
 
+static constexpr auto ZIF_GIT_REPOSITORY_ODB = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_odb**,
+        git_repository*>::func<git_repository_odb>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_odb>,
+        php_git2::php_resource<php_git2::php_git_repository>
+        >,
+    1,
+    php_git2::sequence<1>,
+    php_git2::sequence<0,1>,
+    php_git2::sequence<0,0>
+    >;
+
 // Function Entries:
 
 #define GIT_REPOSITORY_FE \
@@ -161,7 +176,8 @@ static constexpr auto ZIF_GIT_REPOSITORY_HASHFILE = zif_php_git2_function<
     PHP_GIT2_FE(git_repository_discover,ZIF_GIT_REPOSITORY_DISCOVER,NULL) \
     PHP_GIT2_FE(git_repository_get_namespace,ZIF_GIT_REPOSITORY_GET_NAMESPACE,NULL) \
     PHP_GIT2_FE(git_repository_path,ZIF_GIT_REPOSITORY_PATH,NULL) \
-    PHP_GIT2_FE(git_repository_hashfile,ZIF_GIT_REPOSITORY_HASHFILE,NULL)
+    PHP_GIT2_FE(git_repository_hashfile,ZIF_GIT_REPOSITORY_HASHFILE,NULL) \
+    PHP_GIT2_FE(git_repository_odb,ZIF_GIT_REPOSITORY_ODB,NULL)
 
 #endif
 

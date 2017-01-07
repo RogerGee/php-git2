@@ -1,8 +1,10 @@
 /*
  * php-callback.cpp
  *
- * This file is a part of php-git2. It contains the out-of-line implementations
- * of the various callback routines used by php-git2.
+ * This file is a part of php-git2.
+ *
+ * This unit provides the out-of-line implementations of the various callback
+ * routines used by php-git2.
  */
 
 #include "php-callback.h"
@@ -73,13 +75,13 @@ transfer_progress_callback::callback(const git_transfer_progress* stats,void* pa
         zstats = params[0];
         params.assign<1>(std::forward<zval*>(cb->data));
         array_init(zstats);
-        add_assoc_long_ex(zstats,"total_objects",13,stats->total_objects);
-        add_assoc_long_ex(zstats,"indexed_objects",15,stats->indexed_objects);
-        add_assoc_long_ex(zstats,"received_objects",16,stats->received_objects);
-        add_assoc_long_ex(zstats,"local_objects",13,stats->local_objects);
-        add_assoc_long_ex(zstats,"total_objects",13,stats->total_objects);
-        add_assoc_long_ex(zstats,"indexed_deltas",14,stats->indexed_deltas);
-        add_assoc_long_ex(zstats,"received_bytes",14,stats->received_bytes);
+        add_assoc_long_ex(zstats,"total_objects",14,stats->total_objects);
+        add_assoc_long_ex(zstats,"indexed_objects",16,stats->indexed_objects);
+        add_assoc_long_ex(zstats,"received_objects",17,stats->received_objects);
+        add_assoc_long_ex(zstats,"local_objects",14,stats->local_objects);
+        add_assoc_long_ex(zstats,"total_objects",14,stats->total_objects);
+        add_assoc_long_ex(zstats,"indexed_deltas",15,stats->indexed_deltas);
+        add_assoc_long_ex(zstats,"received_bytes",15,stats->received_bytes);
         params.call(cb->func,&retval);
         convert_to_long(&retval);
         r = Z_LVAL(retval);
@@ -89,3 +91,10 @@ transfer_progress_callback::callback(const git_transfer_progress* stats,void* pa
 
     return GIT_EUSER;
 }
+
+/*
+ * Local Variables:
+ * indent-tabs-mode:nil
+ * tab-width:4
+ * End:
+ */

@@ -4,7 +4,7 @@ PHP_ARG_ENABLE(git2, Whether to enable the "git2" extension,
 	[  --enable-git2      Enable "git2" extension support])
 
 if test $PHP_GIT2 != "no"; then
-    CXXFLAGS="-Wfatal-errors -Wall -Wno-deprecated-register -O3 -std=c++11"
+    CXXFLAGS="-O3 -Wfatal-errors -Wall -Wno-deprecated-register -std=c++11"
     PHP_REQUIRE_CXX()
     PHP_ADD_LIBRARY(stdc++, 1, GIT2_SHARED_LIBADD)
 
@@ -19,7 +19,7 @@ if test $PHP_GIT2 != "no"; then
     PHP_SUBST([CXXFLAGS])
     PHP_SUBST([GIT2_SHARED_LIBADD])
 
-    PHP_NEW_EXTENSION(git2,php-git2.cpp php-callback.cpp,$ext_shared)
+    PHP_NEW_EXTENSION(git2,php-git2.cpp php-callback.cpp php-object.cpp,$ext_shared)
 fi
 
 #

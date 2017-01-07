@@ -25,10 +25,10 @@ namespace php_git2
         {
         }
 
-        zval** byref_php(unsigned)
+        zval** byref_php(unsigned argno = std::numeric_limits<unsigned>::max())
         { return &value; }
 
-        zval* byval_php(unsigned) const
+        zval* byval_php(unsigned argno = std::numeric_limits<unsigned>::max()) const
         { return value; }
 
         static inline void error(const char* typeName,unsigned argno)
@@ -476,7 +476,8 @@ namespace php_git2
 
         void ret(zval* return_value) const
         {
-            // Convert the git_buf into a PHP string.
+            // Convert the git_buf into a PHP string. Make sure to copy the
+            // buffer since the destructor will free the git_buf.
             RETVAL_STRINGL(buf.ptr,buf.size,1);
         }
     private:
@@ -491,6 +492,7 @@ namespace php_git2
     using php_git_packbuilder = git2_resource<git_packbuilder>;
     using php_git_indexer = git2_resource<git_indexer>;
     using php_git_odb = git2_resource<git_odb>;
+    using php_git_odb_backend = git2_resource<git_odb_backend>;
 
 } // namespace php_git2
 

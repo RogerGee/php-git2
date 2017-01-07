@@ -7,12 +7,14 @@
 #include "php-git2.h"
 #include "php-function.h"
 #include "php-callback.h"
+#include "php-object.h"
 #include "repository.h"
 #include "reference.h"
 #include "object.h"
 #include "revwalk.h"
 #include "packbuilder.h"
 #include "indexer.h"
+#include "odb.h"
 #include <cstdio>
 #include <cstdarg>
 using namespace std;
@@ -55,6 +57,7 @@ static zend_function_entry php_git2_functions[] = {
     GIT_REVWALK_FE
     GIT_PACKBUILDER_FE
     GIT_INDEXER_FE
+    GIT_ODB_FE
     PHP_FE_END
 };
 
@@ -99,6 +102,9 @@ PHP_GSHUTDOWN_FUNCTION(git2)
 
 PHP_MINIT_FUNCTION(git2)
 {
+    // Initialize git2 library.
+    git_libgit2_init();
+
     // Call the function to register all resource types. Whenever a resource
     // type is added, the libgit2 data type name should be added to the list of
     // template parameters.
@@ -108,7 +114,12 @@ PHP_MINIT_FUNCTION(git2)
         git_object,
         git_revwalk,
         git_packbuilder,
-        git_indexer >(module_number);
+        git_indexer,
+        git_odb,
+        git_odb_backend >(module_number);
+
+    // Register all classes provided by this extension:
+    php_git2_register_classes();
 
     // Register libgit2 constants:
 
@@ -137,7 +148,6 @@ PHP_MINIT_FUNCTION(git2)
 
 PHP_RINIT_FUNCTION(git2)
 {
-    git_libgit2_init();
     return SUCCESS;
 }
 
@@ -160,12 +170,16 @@ PHP_MINFO_FUNCTION(git2)
 
 PHP_MSHUTDOWN_FUNCTION(git2)
 {
+    // Deinitialize libgit2. At this point, all resources should have been
+    // freed. This means they would call their destructors and all libgit2
+    // memory should be freed.
+    git_libgit2_shutdown();
+
     return SUCCESS;
 }
 
 PHP_RSHUTDOWN_FUNCTION(git2)
 {
-    git_libgit2_shutdown();
     return SUCCESS;
 }
 

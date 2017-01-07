@@ -32,55 +32,45 @@ original, C library calls they wrap.
 ----------------------------------------
 [git_repository]
 ----------------------------------------
+
 git_repository_init(string,bool)
 
     Returns git_repository resource
 
-----------------------------------------
 git_repository_new()
 
     Returns git_repository resource
 
-----------------------------------------
 git_repository_free(resource)
 
-----------------------------------------
 git_repository_open(string)
 
     Returns git_repository resource
 
-----------------------------------------
 git_repository_open_bare(string)
 
     Returns git_repository resource
 
-----------------------------------------
 git_repository__cleanup(resource)
 
-----------------------------------------
 git_repository_detach_head(resource)
 
-----------------------------------------
 git_repository_discover(string,bool,string)
 
     Returns string
 
-----------------------------------------
 git_repository_get_namespace(resource)
 
     Returns string
 
-----------------------------------------
 git_repository_hashfile(resource,string,long,string)
 
     Returns string
 
-----------------------------------------
 git_repository_path(resource)
 
     Returns string
 
-----------------------------------------
 git_repository_odb(resource)
 
     Returns git_odb resource
@@ -88,24 +78,21 @@ git_repository_odb(resource)
 ----------------------------------------
 [git_reference]
 ----------------------------------------
+
 git_reference_list(resource)
 
     Returns array of string
 
-----------------------------------------
 git_reference_lookup(resource,string)
 
     Returns git_reference resource
 
-----------------------------------------
 git_reference_free(resource)
 
-----------------------------------------
 git_reference_peel(resource,long)
 
     Returns git_reference resource
 
-----------------------------------------
 git_reference_name_to_id(resource,string)
 
     Returns string
@@ -117,7 +104,6 @@ git_object_id(resource)
 
     Returns string
 
-----------------------------------------
 git_object_free(resource)
 
 ----------------------------------------
@@ -125,42 +111,34 @@ git_object_free(resource)
 ----------------------------------------
 git_revwalk_new(resource)
 
-----------------------------------------
 git_revwalk_push(resource,string)
 
-----------------------------------------
 git_revwalk_next(resource)
 
     Returns string or false when on iterover
 
-----------------------------------------
 git_revwalk_reset(resource)
 
-----------------------------------------
 git_revwalk_free(resource)
 
 ----------------------------------------
 [git_packbuilder]
 ----------------------------------------
+
 git_packbuilder_new(resource)
 
     Returns git_packbuilder resource
 
-----------------------------------------
 git_packbuilder_free(resource)
 
-----------------------------------------
 git_packbuilder_hash(resource)
 
     Returns string
 
-----------------------------------------
 git_packbuilder_insert_commit(resource,string)
 
-----------------------------------------
 git_packbuilder_insert(resource,string,string|null)
 
-----------------------------------------
 git_packbuilder_foreach(resource,callable|stream,mixed)
 
     ** The 2nd parameter may optionally be a stream resource instead of a
@@ -172,38 +150,66 @@ git_packbuilder_foreach(resource,callable|stream,mixed)
 ----------------------------------------
 [git_indexer]
 ----------------------------------------
+
 git_indexer_new(string,long,resource|null,callable,mixed)
 
     ** The 3rd parameter may be null. **
 
     Callback signature: callback(array $stats,mixed $payload)
 
-----------------------------------------
+    Return git_indexer resource
+
 git_indexer_hash(resource)
 
     Returns string
 
-----------------------------------------
 git_indexer_append(resource,string)
 
     ** Transfer progress is stored in the resource. As such it is not passed to
        this function. **
 
-----------------------------------------
 git_indexer_commit(resource)
 
     ** Transfer progress is stored in the resource. As such it is not passed to
        this function. **
 
-----------------------------------------
 git_indexer_free(resource)
+
+----------------------------------------
+[git_odb] and [git_odb_backend]
+----------------------------------------
+
+git_odb_new()
+
+    Return git_odb resource
+
+git_odb_free(resource)
+
+git_odb_write_pack(resource,callable,mixed)
+
+    ** The 3rd parameter may be null. **
+
+    ** This object has properties/methods that align with the git_odb_writepack
+       structure. **
+
+    Returns object instance of type _php_git2_odb_writepack_:
+
+        properties:
+            backend: git_odb_backend resource
+        method:
+            append(string,long)
+                Returns long
+            commit()
+                Returns long
+            free()
 
 --------------------------------------------------------------------------------
 The following structures are not represented as resources in the PHP
-API. Instead a primitive type is used:
+API. Instead a primitive or object type is used:
 
-   git2 type           PHP type
-   ---------           --------
+   git2 type                                      PHP type
+   ---------                                      --------
 
-    git_buf     ==>     string
-    git_oid     ==>     string
+    git_buf                                        string
+    git_oid                                        string
+    git_odb_writepack                              object

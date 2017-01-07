@@ -28,7 +28,7 @@ namespace php_git2
         virtual ~git2_resource()
         {
             throw php_git2_exception(
-                "resource type was not implemented correctly");
+                "resource type was not implemented correctly: no destructor provided");
         }
 
         git2_type get_handle()
