@@ -87,6 +87,56 @@ static constexpr auto ZIF_GIT_REFERENCE_NAME_TO_ID = zif_php_git2_function<
     php_git2::sequence<0,1,2>,
     php_git2::sequence<0,0,1> >;
 
+static constexpr auto ZIF_GIT_REFERENCE_CREATE = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_reference**,
+        git_repository*,
+        const char*,
+        const git_oid*,
+        int,
+        const char*
+        >::func<git_reference_create>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_reference>,
+        php_git2::php_resource<php_git2::php_git_repository>,
+        php_git2::php_string,
+        php_git2::php_git_oid_fromstr,
+        php_git2::php_bool,
+        php_git2::php_string
+        >,
+    1,
+    php_git2::sequence<1,2,3,4,5>,
+    php_git2::sequence<0,1,2,3,4,5>,
+    php_git2::sequence<0,0,1,2,3,4>
+    >;
+
+static constexpr auto ZIF_GIT_REFERENCE_CREATE_MATCHING = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_reference**,
+        git_repository*,
+        const char*,
+        const git_oid*,
+        int,
+        const git_oid*,
+        const char*
+        >::func<git_reference_create_matching>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_reference>,
+        php_git2::php_resource<php_git2::php_git_repository>,
+        php_git2::php_string,
+        php_git2::php_git_oid_fromstr,
+        php_git2::php_bool,
+        php_git2::php_git_oid_fromstr,
+        php_git2::php_string
+        >,
+    1,
+    php_git2::sequence<1,2,3,4,5,6>,
+    php_git2::sequence<0,1,2,3,4,5,6>,
+    php_git2::sequence<0,0,1,2,3,4,5>
+    >;
+
 // Function Entries:
 
 #define GIT_REFERENCE_FE \
@@ -94,7 +144,9 @@ static constexpr auto ZIF_GIT_REFERENCE_NAME_TO_ID = zif_php_git2_function<
     PHP_GIT2_FE(git_reference_lookup,ZIF_GIT_REFERENCE_LOOKUP,NULL)     \
     PHP_GIT2_FE(git_reference_free,ZIF_GIT_REFERENCE_FREE,NULL)         \
     PHP_GIT2_FE(git_reference_peel,ZIF_GIT_REFERENCE_PEEL,NULL)         \
-    PHP_GIT2_FE(git_reference_name_to_id,ZIF_GIT_REFERENCE_NAME_TO_ID,NULL)
+    PHP_GIT2_FE(git_reference_name_to_id,ZIF_GIT_REFERENCE_NAME_TO_ID,NULL) \
+    PHP_GIT2_FE(git_reference_create,ZIF_GIT_REFERENCE_CREATE,NULL)     \
+    PHP_GIT2_FE(git_reference_create_matching,ZIF_GIT_REFERENCE_CREATE_MATCHING,NULL)
 
 #endif
 

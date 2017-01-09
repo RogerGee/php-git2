@@ -97,6 +97,14 @@ git_reference_name_to_id(resource,string)
 
     Returns string
 
+git_reference_create(resource,string,string,bool,string)
+
+    Returns git_reference resource
+
+git_reference_create_matching(resource,string,string,bool,string,string)
+
+    Returns git_reference resource
+
 ----------------------------------------
 [git_object]
 ----------------------------------------
