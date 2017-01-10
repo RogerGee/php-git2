@@ -21,6 +21,13 @@ namespace php_git2
     class local_pack
     {
     public:
+        local_pack(TSRMLS_D)
+        {
+#ifdef ZTS
+            (void)TSRMLS_C;
+#endif
+        }
+
         static constexpr unsigned size()
         { return 0; }
     };
@@ -52,8 +59,8 @@ namespace php_git2
     public:
         // Initialize to default. This is important if PHP assumes default
         // values for some parameters.
-        local_pack():
-            local(T())
+        local_pack(TSRMLS_D):
+            local_pack<Ts...>(TSRMLS_C), local(T(TSRMLS_C))
         {
         }
 
@@ -94,8 +101,8 @@ namespace php_git2
     class connector_wrapper
     {
     public:
-        connector_wrapper(typename T::connect_t&& obj):
-            connector(std::forward<typename T::connect_t>(obj))
+        connector_wrapper(typename T::connect_t&& obj TSRMLS_DC):
+            connector(std::forward<typename T::connect_t>(obj) TSRMLS_CC)
         {
         }
 
@@ -139,8 +146,8 @@ namespace php_git2
     public:
         // Initialize to default. This is important if PHP assumes default
         // values for some parameters.
-        local_pack():
-            local(std::forward<typename T::connect_t>(get<1>()))
+        local_pack(TSRMLS_D):
+            local_pack<Ts...>(TSRMLS_C), local(std::forward<typename T::connect_t>(get<1>()) TSRMLS_CC)
         {
         }
 
@@ -434,7 +441,7 @@ void zif_php_git2_function(INTERNAL_FUNCTION_PARAMETERS)
 {
     // Create a local_pack object that houses all the variables we need for the
     // call. The constructors take care of any initialization.
-    LocalVars vars;
+    LocalVars vars ZTS_CTOR;
     typename FuncWrapper::return_type retval;
 
     try {
@@ -485,7 +492,7 @@ void zif_php_git2_function_rethandler(INTERNAL_FUNCTION_PARAMETERS)
 {
     // Create a local_pack object that houses all the variables we need for the
     // call. The constructors take care of any initialization.
-    LocalVars vars;
+    LocalVars vars ZTS_CTOR;
     typename FuncWrapper::return_type retval;
 
     try {
@@ -520,7 +527,7 @@ template<
     typename AllParams = php_git2::make_seq<FuncWrapper::arg_count()> >
 void zif_php_git2_function_void(INTERNAL_FUNCTION_PARAMETERS)
 {
-    LocalVars vars;
+    LocalVars vars ZTS_CTOR;
     try {
         php_git2::php_extract_args(std::forward<LocalVars>(vars),PHPForward());
         php_git2::library_call(

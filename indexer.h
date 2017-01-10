@@ -49,7 +49,7 @@ namespace php_git2
         using connect_t = php_resource<php_git_indexer_with_stats>;
         typedef git_transfer_progress* target_t;
 
-        php_git_indexer_connector(connect_t&& obj):
+        php_git_indexer_connector(connect_t&& obj TSRMLS_DC):
             conn(std::forward<connect_t>(obj))
         {
         }

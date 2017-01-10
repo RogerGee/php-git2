@@ -15,10 +15,12 @@ namespace php_git2
     // git2 values.
 
     template<unsigned Count>
-    class zval_array
+    class zval_array:
+        private php_zts_base
     {
     public:
-        zval_array()
+        zval_array(TSRMLS_D):
+            php_zts_base(TSRMLS_C)
         {
             for (unsigned i = 0;i < Count;++i) {
                 ALLOC_INIT_ZVAL(params[i]);
@@ -111,11 +113,13 @@ namespace php_git2
      * not define the order of parameter evaluation.
      */
 
-    struct php_callback_sync
+    struct php_callback_sync:
+        public php_zts_base
     {
     public:
-        php_callback_sync():
-            func(nullptr), data(nullptr), p(std::numeric_limits<unsigned>::max())
+        php_callback_sync(TSRMLS_D):
+            php_zts_base(TSRMLS_C), func(nullptr), data(nullptr),
+            p(std::numeric_limits<unsigned>::max())
         {
         }
 
@@ -196,10 +200,10 @@ namespace php_git2
         using connect_t = php_resource_ref<GitResource>;
         typedef void* target_t;
 
-        php_callback_async(connect_t&& conn)
+        php_callback_async(connect_t&& conn TSRMLS_DC)
         {
             // Allocate php_callback_sync object.
-            cb = new (emalloc(sizeof(php_callback_sync))) php_callback_sync;
+            cb = new (emalloc(sizeof(php_callback_sync))) php_callback_sync(TSRMLS_C);
 
             // Assign php_callback_sync object to resource object. It must have
             // a member called 'cb' to which it has access.
@@ -232,13 +236,13 @@ namespace php_git2
         using connect_t = ConnectType;
         typedef void* target_t;
 
-        php_callback_async_ex(connect_t&& conn):
+        php_callback_async_ex(connect_t&& conn TSRMLS_DC):
             stor(std::forward<connect_t>(conn))
         {
             // Allocate php_callback_sync object. Assign a new php_callback_sync
             // object to the connected object. It must have a member called 'cb'
             // to which it has access.
-            conn.cb = new (emalloc(sizeof(php_callback_sync))) php_callback_sync;
+            conn.cb = new (emalloc(sizeof(php_callback_sync))) php_callback_sync(TSRMLS_C);
         }
 
         zval** byref_php(unsigned pos)
@@ -261,6 +265,8 @@ namespace php_git2
     class php_callback_handler
     {
     public:
+        ZTS_CONSTRUCTOR(php_callback_handler)
+
         typename CallbackFunc::type byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
             // Return the static address of the wrapped callback function.

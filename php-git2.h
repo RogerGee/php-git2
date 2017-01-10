@@ -44,6 +44,33 @@ ZEND_BEGIN_MODULE_GLOBALS(git2)
 ZEND_END_MODULE_GLOBALS(git2)
 ZEND_EXTERN_MODULE_GLOBALS(git2)
 
+// Provide macros for handling functionality for threaded PHP builds.
+
+#ifdef ZTS
+#define ZTS_CONSTRUCTOR(type) type(TSRMLS_D) {}
+#define ZTS_CONSTRUCTOR_WITH_BASE(type,base) type(TSRMLS_D): base(TSRMLS_C) {}
+#define ZTS_MEMBER_C(obj) obj.TSRMLS_C
+#define ZTS_MEMBER_CC(obj) , obj.TSRMLS_C
+#define ZTS_MEMBER_PC(obj) obj->TSRMLS_C
+#define ZTS_MEMBER_PCC(obj) , obj->TSRMLS_C
+
+// C++ resolves ambiguity in parsing 'T X()' in favor of a function
+// declaration. We provide a macro that allows us to optionally pass TSRMLS_C to
+// a constructor.
+#define ZTS_CTOR (TSRMLS_C)
+
+#else
+
+#define ZTS_CONSTRUCTOR(type)
+#define ZTS_CONSTRUCTOR_WITH_BASE(type,base)
+#define ZTS_MEMBER_C(obj)
+#define ZTS_MEMBER_CC(obj)
+#define ZTS_MEMBER_PC(obj)
+#define ZTS_MEMBER_PCC(obj)
+#define ZTS_CTOR
+
+#endif
+
 namespace php_git2
 {
 

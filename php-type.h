@@ -55,6 +55,8 @@ namespace php_git2
         public php_value_base
     {
     public:
+        ZTS_CONSTRUCTOR(php_value)
+
         long byval_git2(unsigned argno = std::numeric_limits<unsigned>::max()) const
         {
             if (Z_TYPE_P(value) != IS_LONG) {
@@ -74,6 +76,8 @@ namespace php_git2
         public php_value_base
     {
     public:
+        ZTS_CONSTRUCTOR(php_value)
+
         bool byval_git2(unsigned argno = std::numeric_limits<unsigned>::max()) const
         {
             if (Z_TYPE_P(value) != IS_BOOL) {
@@ -93,6 +97,8 @@ namespace php_git2
         public php_value_base
     {
     public:
+        ZTS_CONSTRUCTOR(php_value)
+
         double byval_git2(unsigned argno = std::numeric_limits<unsigned>::max()) const
         {
             if (Z_TYPE_P(value) != IS_DOUBLE) {
@@ -112,6 +118,8 @@ namespace php_git2
         public php_value_base
     {
     public:
+        ZTS_CONSTRUCTOR(php_value)
+
         char* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max()) const
         {
             if (Z_TYPE_P(value) != IS_STRING) {
@@ -138,6 +146,8 @@ namespace php_git2
         public php_string
     {
     public:
+        ZTS_CONSTRUCTOR_WITH_BASE(php_nullable_string,php_string)
+
         char* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max()) const
         {
             if (Z_TYPE_P(value) == IS_NULL) {
@@ -155,7 +165,7 @@ namespace php_git2
         using connect_t = php_string;
         typedef IntType target_t;
 
-        php_string_length_connector(connect_t&& obj):
+        php_string_length_connector(connect_t&& obj TSRMLS_DC):
             conn(std::forward<connect_t>(obj))
         {
         }
@@ -174,10 +184,28 @@ namespace php_git2
         public php_long
     {
     public:
+        ZTS_CONSTRUCTOR_WITH_BASE(php_long_cast,php_long)
+
         IntType byval_git2(unsigned argno = std::numeric_limits<unsigned>::max()) const
         {
             return (IntType)php_long::byval_git2(argno);
         }
+    };
+
+    // Provide a class to manage passing copies of ZTS handles around.
+
+    class php_zts_base
+    {
+#ifdef ZTS
+    protected:
+        php_zts_base(void*** zts):
+            TSRMLS_C(std::forward<void***>(zts))
+        {
+        }
+
+    public:
+        void***&& TSRMLS_C;
+#endif
     };
 
     // Provide generic resource types for libgit2 objects. The parameter should
@@ -188,11 +216,12 @@ namespace php_git2
 
     template<typename GitResource>
     class php_resource:
-        public php_value_base
+        public php_value_base,
+        protected php_zts_base
     {
     public:
-        php_resource():
-            rsrc(nullptr)
+        php_resource(TSRMLS_D):
+            php_zts_base(TSRMLS_C), rsrc(nullptr)
         {
         }
 
@@ -229,7 +258,7 @@ namespace php_git2
 
                 // Fetch the resource handle. Zend will perform error checking
                 // on the resource type.
-                rsrc = (GitResource*)zend_fetch_resource(&value,-1,
+                rsrc = (GitResource*)zend_fetch_resource(&value TSRMLS_CC,-1,
                     GitResource::resource_name(),NULL,1,GitResource::resource_le());
                 if (rsrc == nullptr) {
                     throw php_git2_exception("resource is invalid");
@@ -240,11 +269,12 @@ namespace php_git2
 
     template<typename GitResource>
     class php_resource_ref:
-        public php_value_base
+        public php_value_base,
+        private php_zts_base
     {
     public:
-        php_resource_ref():
-            rsrc(nullptr)
+        php_resource_ref(TSRMLS_D):
+            php_zts_base(TSRMLS_C), rsrc(nullptr)
         {
         }
 
@@ -288,7 +318,7 @@ namespace php_git2
                 rsrc = php_git2_create_resource<GitResource>();
                 r = zend_register_resource(value,
                     rsrc,
-                    GitResource::resource_le());
+                    GitResource::resource_le() TSRMLS_CC);
                 (void)r;
             }
             else {
@@ -302,7 +332,7 @@ namespace php_git2
 
                 // Fetch the resource handle. Zend will perform error checking
                 // on the resource type.
-                rsrc = (GitResource*)zend_fetch_resource(&value,-1,
+                rsrc = (GitResource*)zend_fetch_resource(&value TSRMLS_CC,-1,
                     GitResource::resource_name(),NULL,1,GitResource::resource_le());
                 if (rsrc == nullptr) {
                     throw php_git2_exception("resource is invalid");
@@ -317,9 +347,15 @@ namespace php_git2
 
     template<typename GitResource>
     class php_resource_null:
-        public php_value_base
+        public php_value_base,
+        private php_zts_base
     {
     public:
+        php_resource_null(TSRMLS_D):
+            php_zts_base(TSRMLS_C)
+        {
+        }
+
         typename GitResource::git2_type
         byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
@@ -337,7 +373,7 @@ namespace php_git2
 
             // Fetch the resource handle. Zend will perform error checking on
             // the resource type.
-            rsrc = (GitResource*)zend_fetch_resource(&value,-1,
+            rsrc = (GitResource*)zend_fetch_resource(&value TSRMLS_CC,-1,
                 GitResource::resource_name(),NULL,1,GitResource::resource_le());
             if (rsrc == nullptr) {
                 throw php_git2_exception("resource is invalid");
@@ -364,6 +400,11 @@ namespace php_git2
         public php_resource<GitResource>
     {
     public:
+        php_resource_cleanup(TSRMLS_D):
+            php_resource<GitResource>(TSRMLS_C)
+        {
+        }
+
         typename GitResource::git2_type
         byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
@@ -376,7 +417,7 @@ namespace php_git2
             }
 
             // Fetch the resource handle.
-            rsrc = (GitResource*)zend_fetch_resource(&value,-1,
+            rsrc = (GitResource*)zend_fetch_resource(&value TSRMLS_CC,-1,
                 GitResource::resource_name(),NULL,1,GitResource::resource_le());
             if (rsrc == nullptr) {
                 throw php_git2_exception("resource is invalid");
@@ -393,11 +434,16 @@ namespace php_git2
         }
     protected:
         using php_resource<GitResource>::value;
+#ifdef ZTS
+        using php_resource<GitResource>::TSRMLS_C;
+#endif
     };
 
     class php_git_oid
     {
     public:
+        ZTS_CONSTRUCTOR(php_git_oid)
+
         git_oid* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
             return &oid;
@@ -417,6 +463,8 @@ namespace php_git2
         public php_value_base
     {
     public:
+        ZTS_CONSTRUCTOR(php_git_oid_fromstr)
+
         git_oid* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
             if (Z_TYPE_P(value) != IS_STRING) {
@@ -437,6 +485,8 @@ namespace php_git2
     class php_strarray
     {
     public:
+        ZTS_CONSTRUCTOR(php_strarray)
+
         ~php_strarray()
         {
             git_strarray_free(&arr);
@@ -464,6 +514,8 @@ namespace php_git2
     class php_git_buf
     {
     public:
+        ZTS_CONSTRUCTOR(php_git_buf)
+
         ~php_git_buf()
         {
             git_buf_free(&buf);

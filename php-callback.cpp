@@ -16,11 +16,15 @@ using namespace php_git2;
 packbuilder_foreach_callback::callback(void* buf,size_t size,void* payload)
 {
     php_callback_sync* cb = reinterpret_cast<php_callback_sync*>(payload);
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
     if (cb != nullptr) {
         // Special Case: if the callback payload is a stream, we write directly
         // to the stream and avoid the callback altogether.
         if (cb->data != nullptr && Z_TYPE_P(cb->data) == IS_RESOURCE
-            && strcmp(zend_rsrc_list_get_rsrc_type(Z_RESVAL_P(cb->data)),"stream") == 0)
+            && strcmp(zend_rsrc_list_get_rsrc_type(Z_RESVAL_P(cb->data) TSRMLS_CC),"stream") == 0)
         {
             php_stream* stream = nullptr;
             php_stream_from_zval_no_verify(stream,&cb->data);
@@ -38,7 +42,7 @@ packbuilder_foreach_callback::callback(void* buf,size_t size,void* payload)
         // Otherwise we convert the values to zvals and call PHP userspace.
         long r;
         zval retval;
-        zval_array<3> params;
+        zval_array<3> params ZTS_CTOR;
         params.assign<0>(std::forward<const void*>(buf),
             std::forward<size_t>(size),
             std::forward<long>(size),
@@ -59,6 +63,10 @@ packbuilder_foreach_callback::callback(void* buf,size_t size,void* payload)
 transfer_progress_callback::callback(const git_transfer_progress* stats,void* payload)
 {
     php_callback_sync* cb = reinterpret_cast<php_callback_sync*>(payload);
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
     if (cb != nullptr) {
         // Avoid setup for null callables.
         if (Z_TYPE_P(cb->func) == IS_NULL) {
@@ -71,7 +79,7 @@ transfer_progress_callback::callback(const git_transfer_progress* stats,void* pa
         long r;
         zval* zstats;
         zval retval;
-        zval_array<2> params;
+        zval_array<2> params ZTS_CTOR;
         zstats = params[0];
         params.assign<1>(std::forward<zval*>(cb->data));
         array_init(zstats);

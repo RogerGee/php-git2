@@ -23,9 +23,10 @@ namespace php_git2
     // Define zend_object derivations for objects that require an extended
     // backend structure.
 
-    struct php_odb_writepack_object
+    struct php_odb_writepack_object:
+        private php_zts_base
     {
-        php_odb_writepack_object();
+        php_odb_writepack_object(TSRMLS_D);
         ~php_odb_writepack_object();
 
         zend_object base;
@@ -39,13 +40,21 @@ namespace php_git2
     // Provide a routine to call during MINIT for registering the custom
     // classes.
 
-    void php_git2_register_classes();
+    void php_git2_register_classes(TSRMLS_D);
 
     // Provide functions for creating objects.
 
-    void php_git2_make_object(zval* zp,php_git2_object_t type);
+    void php_git2_make_object(zval* zp,php_git2_object_t type TSRMLS_DC);
     void php_git2_make_odb_writepack(zval* zp,git_odb_writepack* writepack,
-        php_callback_sync* cb);
+        php_callback_sync* cb TSRMLS_DC);
 }
 
 #endif
+
+/*
+ * Local Variables:
+ * mode:c++
+ * indent-tabs-mode:nil
+ * tab-width:4
+ * End:
+ */

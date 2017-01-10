@@ -20,6 +20,7 @@
 using namespace std;
 using namespace php_git2;
 
+
 ZEND_DECLARE_MODULE_GLOBALS(git2)
 
 // Extension setup functions defined in this unit.
@@ -119,7 +120,7 @@ PHP_MINIT_FUNCTION(git2)
         git_odb_backend >(module_number);
 
     // Register all classes provided by this extension:
-    php_git2_register_classes();
+    php_git2_register_classes(TSRMLS_C);
 
     // Register libgit2 constants:
 

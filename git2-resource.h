@@ -25,6 +25,7 @@ namespace php_git2
             handle(nullptr)
         {
         }
+
         virtual ~git2_resource()
         {
             throw php_git2_exception(

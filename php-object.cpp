@@ -50,7 +50,7 @@ static zend_object_value php_create_object_handler(zend_class_entry* ce TSRMLS_D
     T* object;
     zend_object_value val;
 
-    object = new(emalloc(sizeof(T))) T;
+    object = new(emalloc(sizeof(T))) T(TSRMLS_C);
 
     memset(&val,0,sizeof(zend_object_value));
     val.handle = zend_objects_store_put(object,
@@ -72,8 +72,8 @@ static zend_class_entry* g_Classes[_php_git2_obj_top_];
 // php_odb_writepack_object
 
 /*static*/ zend_object_handlers php_odb_writepack_object::handlers;
-php_odb_writepack_object::php_odb_writepack_object():
-    writepack(nullptr), cb(nullptr)
+php_odb_writepack_object::php_odb_writepack_object(TSRMLS_D):
+    php_zts_base(TSRMLS_C), writepack(nullptr), cb(nullptr)
 {
     zend_class_entry* ce = g_Classes[php_git2_odb_writepack_obj];
     zend_object_std_init(&base,ce TSRMLS_CC);
@@ -96,7 +96,7 @@ php_odb_writepack_object::~php_odb_writepack_object()
 // This function registers all classes. It should be called by the MINIT startup
 // function.
 
-void php_git2::php_git2_register_classes()
+void php_git2::php_git2_register_classes(TSRMLS_D)
 {
     zend_object_handlers* stdhandlers = zend_get_std_object_handlers();
     zend_class_entry ce, *pce;
@@ -111,20 +111,20 @@ void php_git2::php_git2_register_classes()
 
 // Provide implementations for the creation functions.
 
-void php_git2::php_git2_make_object(zval* zp,php_git2_object_t type)
+void php_git2::php_git2_make_object(zval* zp,php_git2_object_t type TSRMLS_DC)
 {
     object_init_ex(zp,g_Classes[type]);
 }
 
 void php_git2::php_git2_make_odb_writepack(zval* zp,git_odb_writepack* writepack,
-    php_callback_sync* cb)
+    php_callback_sync* cb TSRMLS_DC)
 {
     zval* zbackend;
-    php_resource_ref<php_git_odb_backend> backend;
+    php_resource_ref<php_git_odb_backend> backend ZTS_CTOR;
     php_odb_writepack_object* obj;
 
     object_init_ex(zp,g_Classes[php_git2_odb_writepack_obj]);
-    obj = reinterpret_cast<php_odb_writepack_object*>(zend_objects_get_address(zp));
+    obj = reinterpret_cast<php_odb_writepack_object*>(zend_objects_get_address(zp TSRMLS_CC));
 
     // Assign the writepack and callback. The callback is merely along for the
     // ride so it can be destroyed at the proper time.
@@ -136,7 +136,7 @@ void php_git2::php_git2_make_odb_writepack(zval* zp,git_odb_writepack* writepack
     *backend.byval_git2() = writepack->backend;
     zbackend = backend.byval_php();
     add_property_resource_ex(zp,"backend",sizeof("backend"),
-        Z_RESVAL_P(zbackend));
+        Z_RESVAL_P(zbackend) TSRMLS_CC);
 }
 
 // Implementation of object methods

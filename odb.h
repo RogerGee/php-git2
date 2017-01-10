@@ -26,12 +26,13 @@ namespace php_git2
     // Provide a type which binds a git_odb_writepack along with a callback to a
     // PHP object instance.
 
-    class php_git_odb_writepack
+    class php_git_odb_writepack:
+        private php_zts_base
     {
         friend class php_callback_async_ex<php_git_odb_writepack>;
     public:
-        php_git_odb_writepack():
-            writepack(nullptr)
+        php_git_odb_writepack(TSRMLS_D):
+            php_zts_base(TSRMLS_C), writepack(nullptr)
         {
         }
 
@@ -44,7 +45,7 @@ namespace php_git2
         {
             // Create the PHP object. It will manage the lifetime of the
             // writepack and callback from now on.
-            php_git2_make_odb_writepack(return_value,writepack,cb);
+            php_git2_make_odb_writepack(return_value,writepack,cb TSRMLS_CC);
         }
 
     private:
