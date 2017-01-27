@@ -57,6 +57,17 @@ static constexpr auto ZIF_GIT_PACKBUILDER_INSERT_COMMIT = zif_php_git2_function<
         php_git2::php_resource<php_git2::php_git_packbuilder>,
         php_git2::php_git_oid_fromstr> >;
 
+static constexpr auto ZIF_GIT_PACKBUILDER_INSERT_WALK = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_packbuilder*,
+        git_revwalk*>::func<git_packbuilder_insert_walk>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_packbuilder>,
+        php_git2::php_resource<php_git2::php_git_revwalk>
+        >
+    >;
+
 static constexpr auto ZIF_GIT_PACKBUILDER_INSERT = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
@@ -83,6 +94,18 @@ static constexpr auto ZIF_GIT_PACKBUILDER_FOREACH = zif_php_git2_function<
     php_git2::sequence<0,1,2>,
     php_git2::sequence<0,0,1> >;
 
+static constexpr auto ZIF_GIT_PACKBUILDER_SET_THREADS = zif_php_git2_function<
+    php_git2::func_wrapper<
+        unsigned int,
+        git_packbuilder*,
+        unsigned int>::func<git_packbuilder_set_threads>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_packbuilder>,
+        php_git2::php_long
+        >,
+    -1
+    >;
+
 // Function Entries:
 
 #define GIT_PACKBUILDER_FE                                              \
@@ -90,8 +113,10 @@ static constexpr auto ZIF_GIT_PACKBUILDER_FOREACH = zif_php_git2_function<
     PHP_GIT2_FE(git_packbuilder_free,ZIF_GIT_PACKBUILDER_FREE,NULL)     \
     PHP_GIT2_FE(git_packbuilder_hash,ZIF_GIT_PACKBUILDER_HASH,NULL)     \
     PHP_GIT2_FE(git_packbuilder_insert_commit,ZIF_GIT_PACKBUILDER_INSERT_COMMIT,NULL) \
+    PHP_GIT2_FE(git_packbuilder_insert_walk,ZIF_GIT_PACKBUILDER_INSERT_WALK,NULL) \
     PHP_GIT2_FE(git_packbuilder_insert,ZIF_GIT_PACKBUILDER_INSERT,NULL) \
-    PHP_GIT2_FE(git_packbuilder_foreach,ZIF_GIT_PACKBUILDER_FOREACH,NULL)
+    PHP_GIT2_FE(git_packbuilder_foreach,ZIF_GIT_PACKBUILDER_FOREACH,NULL) \
+    PHP_GIT2_FE(git_packbuilder_set_threads,ZIF_GIT_PACKBUILDER_SET_THREADS,NULL)
 
 #endif
 

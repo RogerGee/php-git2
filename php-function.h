@@ -308,6 +308,17 @@ namespace php_git2
         RETVAL_LONG(long(retval));
         (void)pack;
     }
+    template<int ReturnPos,
+        typename... Ts>
+    inline typename std::enable_if<ReturnPos == 0,void>::type
+    php_return(
+        unsigned int&& retval,
+        local_pack<Ts...>&& pack,
+        zval* return_value)
+    {
+        RETVAL_LONG(long(retval));
+        (void)pack;
+    }
 
     template<int ReturnPos,
         typename... Ts>

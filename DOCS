@@ -112,6 +112,10 @@ git_object_id(resource)
 
     Returns string
 
+git_object_lookup(resource,string,int)
+
+    Returns resource
+
 git_object_free(resource)
 
 ----------------------------------------
@@ -124,6 +128,10 @@ git_revwalk_push(resource,string)
 git_revwalk_next(resource)
 
     Returns string or false when on iterover
+
+git_revwalk_hide(resource,string)
+
+git_revwalk_sorting(resource,int)
 
 git_revwalk_reset(resource)
 
@@ -145,6 +153,8 @@ git_packbuilder_hash(resource)
 
 git_packbuilder_insert_commit(resource,string)
 
+git_packbuilder_insert_walk(resource,resource)
+
 git_packbuilder_insert(resource,string,string|null)
 
 git_packbuilder_foreach(resource,callable|stream,mixed)
@@ -154,6 +164,8 @@ git_packbuilder_foreach(resource,callable|stream,mixed)
        iteration. Payload data is ignored. **
 
     Callback signature: callback(string $data,long $length,mixed $payload)
+
+git_packbuilder_set_threads(resource,int)
 
 ----------------------------------------
 [git_indexer]
@@ -210,6 +222,24 @@ git_odb_write_pack(resource,callable,mixed)
             commit()
                 Returns long
             free()
+
+----------------------------------------
+[git_commit]
+----------------------------------------
+
+git_commit_lookup(resource,string)
+
+    Returns git_commit resource
+
+git_commit_parentcount(resource)
+
+    Returns int
+
+git_commit_parent_id(resource,int)
+
+    Returns string
+
+git_commit_free(resource)
 
 --------------------------------------------------------------------------------
 The following structures are not represented as resources in the PHP

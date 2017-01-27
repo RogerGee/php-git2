@@ -15,6 +15,7 @@
 #include "packbuilder.h"
 #include "indexer.h"
 #include "odb.h"
+#include "commit.h"
 #include <cstdio>
 #include <cstdarg>
 using namespace std;
@@ -59,6 +60,7 @@ static zend_function_entry php_git2_functions[] = {
     GIT_PACKBUILDER_FE
     GIT_INDEXER_FE
     GIT_ODB_FE
+    GIT_COMMIT_FE
     PHP_FE_END
 };
 
@@ -117,7 +119,8 @@ PHP_MINIT_FUNCTION(git2)
         git_packbuilder,
         git_indexer,
         git_odb,
-        git_odb_backend >(module_number);
+        git_odb_backend,
+        git_commit >(module_number);
 
     // Register all classes provided by this extension:
     php_git2_register_classes(TSRMLS_C);
@@ -141,6 +144,12 @@ PHP_MINIT_FUNCTION(git2)
     PHP_GIT2_CONSTANT(GIT_OBJ__EXT2);
     PHP_GIT2_CONSTANT(GIT_OBJ_OFS_DELTA);
     PHP_GIT2_CONSTANT(GIT_OBJ_REF_DELTA);
+
+    // GIT_SORT_*
+    PHP_GIT2_CONSTANT(GIT_SORT_NONE);
+    PHP_GIT2_CONSTANT(GIT_SORT_TOPOLOGICAL);
+    PHP_GIT2_CONSTANT(GIT_SORT_TIME);
+    PHP_GIT2_CONSTANT(GIT_SORT_REVERSE);
 
     PHP_GIT2_CONSTANT(GIT_PATH_LIST_SEPARATOR);
 

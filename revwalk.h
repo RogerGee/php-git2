@@ -74,6 +74,28 @@ static constexpr auto ZIF_GIT_REVWALK_NEXT = zif_php_git2_function_rethandler<
     php_git2::sequence<0,1>,
     php_git2::sequence<0,0> >;
 
+static constexpr auto ZIF_GIT_REVWALK_HIDE = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_revwalk*,
+        const git_oid*>::func<git_revwalk_hide>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_revwalk>,
+        php_git2::php_git_oid_fromstr
+        >
+    >;
+
+static constexpr auto ZIF_GIT_REVWALK_SORTING = zif_php_git2_function_void<
+    php_git2::func_wrapper<
+        void,
+        git_revwalk*,
+        unsigned int>::func<git_revwalk_sorting>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_revwalk>,
+        php_git2::php_long
+        > 
+    >;
+
 static constexpr auto ZIF_GIT_REVWALK_RESET = zif_php_git2_function_void<
     php_git2::func_wrapper<
         void,
@@ -90,11 +112,13 @@ static constexpr auto ZIF_GIT_REVWALK_FREE = zif_php_git2_function_void<
 
 // Function Entries:
 
-#define GIT_REVWALK_FE \
-    PHP_GIT2_FE(git_revwalk_new,ZIF_GIT_REVWALK_NEW,NULL)       \
-    PHP_GIT2_FE(git_revwalk_push,ZIF_GIT_REVWALK_PUSH,NULL)     \
-    PHP_GIT2_FE(git_revwalk_next,ZIF_GIT_REVWALK_NEXT,NULL)     \
-    PHP_GIT2_FE(git_revwalk_reset,ZIF_GIT_REVWALK_RESET,NULL)   \
+#define GIT_REVWALK_FE                                              \
+    PHP_GIT2_FE(git_revwalk_new,ZIF_GIT_REVWALK_NEW,NULL)           \
+    PHP_GIT2_FE(git_revwalk_push,ZIF_GIT_REVWALK_PUSH,NULL)         \
+    PHP_GIT2_FE(git_revwalk_next,ZIF_GIT_REVWALK_NEXT,NULL)         \
+    PHP_GIT2_FE(git_revwalk_hide,ZIF_GIT_REVWALK_HIDE,NULL)         \
+    PHP_GIT2_FE(git_revwalk_sorting,ZIF_GIT_REVWALK_SORTING,NULL)   \
+    PHP_GIT2_FE(git_revwalk_reset,ZIF_GIT_REVWALK_RESET,NULL)       \
     PHP_GIT2_FE(git_revwalk_free,ZIF_GIT_REVWALK_FREE,NULL)
 
 #endif
