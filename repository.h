@@ -7,7 +7,7 @@
 #ifndef PHPGIT2_REPOSITORY_H
 #define PHPGIT2_REPOSITORY_H
 extern "C" {
-#include "git2/sys/repository.h"
+#include <git2/sys/repository.h>
 }
 
 namespace php_git2

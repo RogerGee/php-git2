@@ -196,7 +196,7 @@ git_indexer_commit(resource)
 git_indexer_free(resource)
 
 ----------------------------------------
-[git_odb] and [git_odb_backend]
+[git_odb]
 ----------------------------------------
 
 git_odb_new()
@@ -209,19 +209,7 @@ git_odb_write_pack(resource,callable,mixed)
 
     ** The 3rd parameter may be null. **
 
-    ** This object has properties/methods that align with the git_odb_writepack
-       structure. **
-
-    Returns object instance of type _php_git2_odb_writepack_:
-
-        properties:
-            backend: git_odb_backend resource
-        method:
-            append(string,long)
-                Returns long
-            commit()
-                Returns long
-            free()
+    Returns object instance of type GitODBWritepack
 
 ----------------------------------------
 [git_commit]
@@ -251,3 +239,31 @@ API. Instead a primitive or object type is used:
     git_buf                                        string
     git_oid                                        string
     git_odb_writepack                              object
+
+--------------------------------------------------------------------------------
+The following classes are provided by the extension where appropriate:
+
+GitODBWritepack:
+
+    ** This class has properties/methods that align with the git_odb_writepack
+       structure. **
+
+    properties:
+        backend: object instance of type GitODBBackend
+    methods:
+        append(string,long)
+            Returns long
+        commit()
+            Returns long
+        free()
+
+GitODBBackend:
+
+    ** This class has properties/methods that align with the git_odb_backend
+       structure. **
+
+    properties:
+        version: int
+
+    methods:
+        TODO

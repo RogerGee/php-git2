@@ -10,17 +10,11 @@
 namespace php_git2
 {
 
-    // Explicitly specialize git2_resource destructor for git_odb and
-    // git_odb_backend.
+    // Explicitly specialize git2_resource destructor for git_odb.
 
     template<> php_git_odb::~git2_resource()
     {
         git_odb_free(handle);
-    }
-
-    template<> php_git_odb_backend::~git2_resource()
-    {
-        // These objects are not freed directly.
     }
 
     // Provide a type which binds a git_odb_writepack along with a callback to a

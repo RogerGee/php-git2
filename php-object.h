@@ -17,6 +17,7 @@ namespace php_git2
     enum php_git2_object_t
     {
         php_git2_odb_writepack_obj,
+        php_git2_odb_backend_obj,
         _php_git2_obj_top_
     };
 
@@ -37,6 +38,18 @@ namespace php_git2
         static zend_object_handlers handlers;
     };
 
+    struct php_odb_backend_object:
+        private php_zts_base
+    {
+        php_odb_backend_object(TSRMLS_D);
+        ~php_odb_backend_object();
+
+        zend_object base;
+        git_odb_backend* backend;
+
+        static zend_object_handlers handlers;
+    };
+
     // Provide a routine to call during MINIT for registering the custom
     // classes.
 
@@ -47,6 +60,7 @@ namespace php_git2
     void php_git2_make_object(zval* zp,php_git2_object_t type TSRMLS_DC);
     void php_git2_make_odb_writepack(zval* zp,git_odb_writepack* writepack,
         php_callback_sync* cb TSRMLS_DC);
+    void php_git2_make_odb_backend(zval* zp,git_odb_backend* backend);
 }
 
 #endif

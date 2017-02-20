@@ -119,7 +119,6 @@ PHP_MINIT_FUNCTION(git2)
         git_packbuilder,
         git_indexer,
         git_odb,
-        git_odb_backend,
         git_commit >(module_number);
 
     // Register all classes provided by this extension:
@@ -170,9 +169,9 @@ PHP_MINFO_FUNCTION(git2)
     snprintf(buf,sizeof(buf),"%d.%d.%d",major,minor,rev);
 
     php_info_print_table_start();
-    php_info_print_table_header(2,PHP_GIT2_EXTNAME,"enabled");
-    php_info_print_table_header(2,"extension version",PHP_GIT2_EXTVER);
-    php_info_print_table_header(2,"libgit2 version",buf);
+    php_info_print_table_row(2,PHP_GIT2_EXTNAME,"enabled");
+    php_info_print_table_row(2,"extension version",PHP_GIT2_EXTVER);
+    php_info_print_table_row(2,"libgit2 version",buf);
     php_info_print_table_end();
 
     DISPLAY_INI_ENTRIES();

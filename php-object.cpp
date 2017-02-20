@@ -11,6 +11,7 @@
 
 #include "php-object.h"
 #include "php-type.h"
+#include <git2/sys/odb_backend.h>
 #include <new>
 #include <cstring>
 using namespace php_git2;
@@ -31,6 +32,11 @@ static zend_function_entry odb_writepack_methods[] = {
     PHP_ME(ODB_WRITEPACK,append,NULL,ZEND_ACC_PUBLIC)
     PHP_ME(ODB_WRITEPACK,commit,NULL,ZEND_ACC_PUBLIC)
     PHP_ME(ODB_WRITEPACK,free,NULL,ZEND_ACC_PUBLIC)
+    PHP_FE_END
+};
+
+// odb_backend
+static zend_function_entry odb_backend_methods[] = {
     PHP_FE_END
 };
 
@@ -83,13 +89,35 @@ php_odb_writepack_object::php_odb_writepack_object(TSRMLS_D):
 
 php_odb_writepack_object::~php_odb_writepack_object()
 {
+    // Writepack could have become null if user freed it.
     if (writepack != nullptr) {
         writepack->free(writepack);
     }
+
     if (cb != nullptr) {
         cb->~php_callback_sync();
         efree(cb);
     }
+
+    zend_object_std_dtor(&base TSRMLS_CC);
+}
+
+// php_odb_backend_object
+
+/*static*/ zend_object_handlers php_odb_backend_object::handlers;
+php_odb_backend_object::php_odb_backend_object(TSRMLS_D):
+    php_zts_base(TSRMLS_C), backend(nullptr)
+{
+    zend_class_entry* ce = g_Classes[php_git2_odb_backend_obj];
+    zend_object_std_init(&base,ce TSRMLS_CC);
+    object_properties_init(&base,ce);
+}
+
+php_odb_backend_object::~php_odb_backend_object()
+{
+    // AFAIK we never call the free() function on git_odb_backend objects
+    // directly.
+
     zend_object_std_dtor(&base TSRMLS_CC);
 }
 
@@ -102,11 +130,18 @@ void php_git2::php_git2_register_classes(TSRMLS_D)
     zend_class_entry ce, *pce;
 
     // ODB_WRITEPACK
-    INIT_CLASS_ENTRY(ce,"_php_git2_odb_writepack_",odb_writepack_methods);
+    INIT_CLASS_ENTRY(ce,"GitODBWritepack",odb_writepack_methods);
     pce = zend_register_internal_class(&ce TSRMLS_CC);
     pce->create_object = php_create_object_handler<php_odb_writepack_object>;
     g_Classes[php_git2_odb_writepack_obj] = pce;
     memcpy(&php_odb_writepack_object::handlers,stdhandlers,sizeof(zend_object_handlers));
+
+    // ODB_BACKEND
+    INIT_CLASS_ENTRY(ce,"GitODBBackend",odb_backend_methods);
+    pce = zend_register_internal_class(&ce TSRMLS_CC);
+    pce->create_object = php_create_object_handler<php_odb_backend_object>;
+    g_Classes[php_git2_odb_backend_obj] = pce;
+    memcpy(&php_odb_backend_object::handlers,stdhandlers,sizeof(zend_object_handlers));
 }
 
 // Provide implementations for the creation functions.
@@ -120,7 +155,6 @@ void php_git2::php_git2_make_odb_writepack(zval* zp,git_odb_writepack* writepack
     php_callback_sync* cb TSRMLS_DC)
 {
     zval* zbackend;
-    php_resource_ref<php_git_odb_backend> backend ZTS_CTOR;
     php_odb_writepack_object* obj;
 
     object_init_ex(zp,g_Classes[php_git2_odb_writepack_obj]);
@@ -131,12 +165,25 @@ void php_git2::php_git2_make_odb_writepack(zval* zp,git_odb_writepack* writepack
     obj->writepack = writepack;
     obj->cb = cb;
 
-    // Create 'backend' property for object. We have to create a resource zval
-    // for this purpose.
-    *backend.byval_git2() = writepack->backend;
-    zbackend = backend.byval_php();
-    add_property_resource_ex(zp,"backend",sizeof("backend"),
-        Z_RESVAL_P(zbackend) TSRMLS_CC);
+    // Create 'backend' property for object. We have to create an object zval
+    // for this.
+    MAKE_STD_ZVAL(zbackend);
+    php_git2_make_odb_backend(zbackend,writepack->backend);
+    add_property_zval_ex(zp,"backend",sizeof("backend"),zbackend TSRMLS_CC);
+}
+
+void php_git2::php_git2_make_odb_backend(zval* zp,git_odb_backend* backend)
+{
+    php_odb_backend_object* obj;
+
+    object_init_ex(zp,g_Classes[php_git2_odb_backend_obj]);
+    obj = reinterpret_cast<php_odb_backend_object*>(zend_objects_get_address(zp TSRMLS_CC));
+
+    // Assign the git2 odb_backend object and readonly flag.
+    obj->backend = backend;
+
+    // Create properties.
+    add_property_long(zp,"version",backend->version);
 }
 
 // Implementation of object methods
