@@ -251,7 +251,7 @@ GitODBWritepack:
     properties:
         backend: object instance of type GitODBBackend
     methods:
-        append(string,long)
+        append(string)
             Returns long
         commit()
             Returns long
