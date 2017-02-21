@@ -43,7 +43,7 @@ void php_git2::php_git2_make_odb_writepack(zval* zp,git_odb_writepack* writepack
     // zval for this.
     MAKE_STD_ZVAL(zbackend);
     php_git2_make_odb_backend(zbackend,writepack->backend);
-    zend_update_property(ce,zp,"backend",sizeof("backend"),zbackend TSRMLS_CC);
+    zend_update_property(ce,zp,"backend",sizeof("backend")-1,zbackend TSRMLS_CC);
 }
 
 // Implementation of php_odb_writepack_object
@@ -75,7 +75,7 @@ php_odb_writepack_object::~php_odb_writepack_object()
 
 /*static*/ void php_odb_writepack_object::init(zend_class_entry* ce)
 {
-    zend_declare_property_null(ce,"backend",sizeof("backend"),ZEND_ACC_PUBLIC);
+    zend_declare_property_null(ce,"backend",sizeof("backend")-1,ZEND_ACC_PUBLIC);
 }
 
 // Implementation of object methods

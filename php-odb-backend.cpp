@@ -18,7 +18,7 @@ zend_function_entry php_git2::odb_backend_methods[] = {
 
 // Make function implementation
 
-void php_git2::php_git2_make_odb_backend(zval* zp,git_odb_backend* backend)
+void php_git2::php_git2_make_odb_backend(zval* zp,git_odb_backend* backend TSRMLS_DC)
 {
     php_odb_backend_object* obj;
     zend_class_entry* ce = php_git2::class_entry[php_git2_odb_backend_obj];
@@ -30,7 +30,7 @@ void php_git2::php_git2_make_odb_backend(zval* zp,git_odb_backend* backend)
     obj->backend = backend;
 
     // Update the version property to the version specified by the backend.
-    zend_update_property_long(ce,zp,"version",sizeof("version"),backend->version);
+    zend_update_property_long(ce,zp,"version",sizeof("version")-1,backend->version TSRMLS_CC);
 }
 
 // Implementation of php_odb_backend_object
@@ -54,7 +54,7 @@ php_odb_backend_object::~php_odb_backend_object()
 
 /* static */ void php_odb_backend_object::init(zend_class_entry* ce)
 {
-    zend_declare_property_long(ce,"version",sizeof("version"),0,ZEND_ACC_PUBLIC);
+    zend_declare_property_long(ce,"version",sizeof("version")-1,0,ZEND_ACC_PUBLIC);
 }
 
 /*static*/ int php_odb_backend_object::read(void** datap,size_t* sizep,
