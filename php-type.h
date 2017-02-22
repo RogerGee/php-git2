@@ -453,7 +453,7 @@ namespace php_git2
         {
             char buf[GIT_OID_HEXSZ + 1];
             git_oid_tostr(buf,sizeof(buf),&oid);
-            RETVAL_STRING(buf,strlen(buf));
+            RETVAL_STRING(buf,1);
         }
     private:
         git_oid oid;
@@ -470,8 +470,18 @@ namespace php_git2
             if (Z_TYPE_P(value) != IS_STRING) {
                 error("string",argno);
             }
+
             // Convert PHP string to git_oid.
-            git_oid_fromstr(&oid,Z_STRVAL_P(value));
+            char buf[GIT_OID_HEXSZ + 1];
+            size_t nbytes = Z_STRLEN_P(value);
+
+            if (nbytes > GIT_OID_HEXSZ) {
+                nbytes = GIT_OID_HEXSZ;
+            }
+            memset(buf,'0',sizeof(buf));
+            strncpy(buf,Z_STRVAL_P(value),nbytes);
+            git_oid_fromstr(&oid,buf);
+
             return &oid;
         }
     private:
