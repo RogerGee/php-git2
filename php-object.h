@@ -49,7 +49,7 @@ namespace php_git2
 
         zend_object base;
         git_odb_backend* backend;
-        bool iscustom;
+        bool isowner;
 
         static zend_object_handlers handlers;
         static void init(zend_class_entry* ce);
@@ -85,7 +85,6 @@ namespace php_git2
             void* payload);
         static int writepack(git_odb_writepack** writepackp,git_odb_backend* backend,
             git_odb* odb,git_transfer_progress_cb progress_cb,void* progress_payload);
-        static int freshen(git_odb_backend* backend,const git_oid* oid);
         static void free(git_odb_backend* backend);
     };
 
@@ -100,7 +99,7 @@ namespace php_git2
     void php_git2_make_object(zval* zp,php_git2_object_t type TSRMLS_DC);
     void php_git2_make_odb_writepack(zval* zp,git_odb_writepack* writepack,
         php_callback_sync* cb TSRMLS_DC);
-    void php_git2_make_odb_backend(zval* zp,git_odb_backend* backend TSRMLS_DC);
+void php_git2_make_odb_backend(zval* zp,git_odb_backend* backend,bool owner TSRMLS_DC);
 
     // Extern variables in this namespace.
     extern zend_class_entry* class_entry[];

@@ -18,7 +18,7 @@ namespace php_git2
     }
 
     // Provide a type which binds a git_odb_writepack along with a callback to a
-    // PHP object instance.
+    // PHP object instance of type GitODBWritepack.
 
     class php_git_odb_writepack:
         private php_zts_base
@@ -45,6 +45,52 @@ namespace php_git2
     private:
         git_odb_writepack* writepack;
         php_callback_sync* cb;
+    };
+
+    // Provide types that extract/bind git_odb_backend instances to a PHP object
+    // of type GitODBBackend. One class handles existing objects, and the other
+    // class handles creating new ones.
+
+    class php_git_odb_backend_byval:
+        public php_value_base,
+        private php_zts_base
+    {
+    public:
+        php_git_odb_backend_byval(TSRMLS_D):
+            php_zts_base(TSRMLS_C)
+        {
+        }
+
+        git_odb_backend* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            // Extract the git_odb_backend from the object zval.
+            php_odb_backend_object* object;
+            object = reinterpret_cast<php_odb_backend_object*>(zend_objects_get_address(value TSRMLS_CC));
+            return object->backend;
+        }
+    };
+
+    class php_git_odb_backend_byref:
+        private php_zts_base
+    {
+    public:
+        php_git_odb_backend_byref(TSRMLS_D):
+            php_zts_base(TSRMLS_C), backend(nullptr)
+        {
+        }
+
+        git_odb_backend** byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            return &backend;
+        }
+
+        void ret(zval* return_value)
+        {
+            // Wrap the git_odb_backend handle in an object zval.
+            php_git2_make_odb_backend(return_value,backend,true TSRMLS_CC);
+        }
+    private:
+        git_odb_backend* backend;
     };
 
 }
@@ -92,12 +138,28 @@ static constexpr auto ZIF_GIT_ODB_WRITE_PACK = zif_php_git2_function<
     php_git2::sequence<0,0,0,1>
     >;
 
+static constexpr auto ZIF_GIT_ODB_BACKEND_PACK = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_odb_backend**,
+        const char*
+        >::func<git_odb_backend_pack>,
+    php_git2::local_pack<
+        php_git2::php_git_odb_backend_byref,
+        php_git2::php_string>,
+    1,
+    php_git2::sequence<1>,
+    php_git2::sequence<0,1>,
+    php_git2::sequence<0,0>
+    >;
+
 // Function Entries:
 
-#define GIT_ODB_FE                                              \
-    PHP_GIT2_FE(git_odb_new,ZIF_GIT_ODB_NEW,NULL)               \
-    PHP_GIT2_FE(git_odb_free,ZIF_GIT_ODB_FREE,NULL)             \
-    PHP_GIT2_FE(git_odb_write_pack,ZIF_GIT_ODB_WRITE_PACK,NULL)
+#define GIT_ODB_FE                                                  \
+    PHP_GIT2_FE(git_odb_new,ZIF_GIT_ODB_NEW,NULL)                   \
+    PHP_GIT2_FE(git_odb_free,ZIF_GIT_ODB_FREE,NULL)                 \
+    PHP_GIT2_FE(git_odb_write_pack,ZIF_GIT_ODB_WRITE_PACK,NULL)     \
+    PHP_GIT2_FE(git_odb_backend_pack,ZIF_GIT_ODB_BACKEND_PACK,NULL)
 
 #endif
 

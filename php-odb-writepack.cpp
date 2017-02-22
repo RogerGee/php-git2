@@ -12,13 +12,13 @@ using namespace php_git2;
 
 // Class method entries
 
-static PHP_METHOD(ODB_WRITEPACK,append);
-static PHP_METHOD(ODB_WRITEPACK,commit);
-static PHP_METHOD(ODB_WRITEPACK,free);
+static PHP_METHOD(GitODBWritepack,append);
+static PHP_METHOD(GitODBWritepack,commit);
+static PHP_METHOD(GitODBWritepack,free);
 zend_function_entry php_git2::odb_writepack_methods[] = {
-    PHP_ME(ODB_WRITEPACK,append,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(ODB_WRITEPACK,commit,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(ODB_WRITEPACK,free,NULL,ZEND_ACC_PUBLIC)
+    PHP_ME(GitODBWritepack,append,NULL,ZEND_ACC_PUBLIC)
+    PHP_ME(GitODBWritepack,commit,NULL,ZEND_ACC_PUBLIC)
+    PHP_ME(GitODBWritepack,free,NULL,ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
@@ -40,9 +40,11 @@ void php_git2::php_git2_make_odb_writepack(zval* zp,git_odb_writepack* writepack
     obj->cb = cb;
 
     // Update the 'backend' property for object. We have to create an object
-    // zval for this.
+    // zval for this. The object does *not* own the backend since it will be
+    // freed by the writepack (assumably, all I know is it crashes if I free it
+    // myself).
     MAKE_STD_ZVAL(zbackend);
-    php_git2_make_odb_backend(zbackend,writepack->backend);
+    php_git2_make_odb_backend(zbackend,writepack->backend,false);
     zend_update_property(ce,zp,"backend",sizeof("backend")-1,zbackend TSRMLS_CC);
 }
 
@@ -80,9 +82,7 @@ php_odb_writepack_object::~php_odb_writepack_object()
 
 // Implementation of object methods
 
-// odb_writepack
-
-PHP_METHOD(ODB_WRITEPACK,append)
+PHP_METHOD(GitODBWritepack,append)
 {
     int result;
     char* buf;
@@ -103,7 +103,7 @@ PHP_METHOD(ODB_WRITEPACK,append)
     RETURN_FALSE;
 }
 
-PHP_METHOD(ODB_WRITEPACK,commit)
+PHP_METHOD(GitODBWritepack,commit)
 {
     int result;
     php_odb_writepack_object* object;
@@ -118,7 +118,7 @@ PHP_METHOD(ODB_WRITEPACK,commit)
     RETURN_FALSE;
 }
 
-PHP_METHOD(ODB_WRITEPACK,free)
+PHP_METHOD(GitODBWritepack,free)
 {
     php_odb_writepack_object* object;
 

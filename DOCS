@@ -211,6 +211,10 @@ git_odb_write_pack(resource,callable,mixed)
 
     Returns object instance of type GitODBWritepack
 
+git_odb_backend_pack(string)
+
+    Returns object instance of type GitODBBackend
+
 ----------------------------------------
 [git_commit]
 ----------------------------------------
@@ -252,9 +256,13 @@ GitODBWritepack:
         backend: object instance of type GitODBBackend
     methods:
         append(string)
+
             Returns long
+
         commit()
+
             Returns long
+
         free()
 
 GitODBBackend:
@@ -266,4 +274,22 @@ GitODBBackend:
         version: int
 
     methods:
-        TODO
+        ** All methods return false on failure. **
+
+        read(int& size,int& type,string oid)
+
+            ** Will return size and type as out parameters respectively. **
+
+            Returns string
+
+        read_prefix(string& fullOid,int& size,int& type,string abbrevOid)
+
+            ** Will return oid, size and type as out parameters respectively. **
+
+            Returns string
+
+        read_header(int& size,int& type,string oid)
+
+            ** Will return size and type as out parameters respectively. **
+
+            Returns true
