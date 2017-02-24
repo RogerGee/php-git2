@@ -471,14 +471,16 @@ namespace php_git2
                 error("string",argno);
             }
 
-            // Convert PHP string to git_oid.
+            // Convert PHP string to git_oid. We must ensure the input buffer is
+            // the appropriate size.
             char buf[GIT_OID_HEXSZ + 1];
             size_t nbytes = Z_STRLEN_P(value);
 
             if (nbytes > GIT_OID_HEXSZ) {
                 nbytes = GIT_OID_HEXSZ;
             }
-            memset(buf,'0',sizeof(buf));
+            memset(buf,'0',GIT_OID_HEXSZ);
+            buf[GIT_OID_HEXSZ] = 0;
             strncpy(buf,Z_STRVAL_P(value),nbytes);
             git_oid_fromstr(&oid,buf);
 

@@ -98,7 +98,7 @@ php_odb_backend_object::~php_odb_backend_object()
     zend_object_std_dtor(&base TSRMLS_CC);
 }
 
-/* static */ void php_odb_backend_object::init(zend_class_entry* ce)
+/*static*/ void php_odb_backend_object::init(zend_class_entry* ce)
 {
     zend_declare_property_long(ce,"version",sizeof("version")-1,0,ZEND_ACC_PUBLIC);
 }
@@ -183,6 +183,19 @@ php_odb_backend_object::~php_odb_backend_object()
 {
 }
 
+static void convert_oid_fromstr(git_oid* dest,const char* src,int srclen)
+{
+    // Use a temporary buffer to hold the OID hex string.
+    char buf[GIT_OID_HEXSZ + 1];
+    memset(buf,'0',GIT_OID_HEXSZ);
+    buf[GIT_OID_HEXSZ] = 0;
+    if (srclen > GIT_OID_HEXSZ) {
+        srclen = GIT_OID_HEXSZ;
+    }
+    strncpy(buf,src,srclen);
+    git_oid_fromstr(dest,buf);
+}
+
 // Implementation of object methods
 
 PHP_METHOD(GitODBBackend,read)
@@ -213,14 +226,11 @@ PHP_METHOD(GitODBBackend,read)
         size_t size = 0;
         git_otype type = GIT_OBJ_ANY;
         git_oid oid;
-        char buf[GIT_OID_HEXSZ + 1];
 
         // Interpret the string parameter as a human-readable OID. Convert it
         // and then call read().
         try {
-            memset(buf,'0',sizeof(buf));
-            strncpy(buf,strOid,strOidLen);
-            git_oid_fromstr(&oid,strOid);
+            convert_oid_fromstr(&oid,strOid,strOidLen);
             if (object->backend->read(&data,&size,&type,object->backend,&oid) < 0) {
                 git_error();
             }
@@ -277,9 +287,7 @@ PHP_METHOD(GitODBBackend,read_prefix)
         // Interpret the string parameter as a human-readable OID. Convert it
         // and then call read_prefix().
         try {
-            memset(buf,'0',sizeof(buf));
-            strncpy(buf,strOid,strOidLen);
-            git_oid_fromstr(&prefix,buf);
+            convert_oid_fromstr(&prefix,strOid,strOidLen);
             if (object->backend->read_prefix(&full,&data,&size,&type,object->backend,&prefix,strOidLen) < 0) {
                 git_error();
             }
@@ -330,14 +338,11 @@ PHP_METHOD(GitODBBackend,read_header)
         size_t size = 0;
         git_otype type = GIT_OBJ_ANY;
         git_oid oid;
-        char buf[GIT_OID_HEXSZ + 1];
 
         // Interpret the string parameter as a human-readable OID. Convert it
         // and then call read().
         try {
-            memset(buf,'0',sizeof(buf));
-            strncpy(buf,strOid,strOidLen);
-            git_oid_fromstr(&oid,strOid);
+            convert_oid_fromstr(&oid,strOid,strOidLen);
             if (object->backend->read_header(&size,&type,object->backend,&oid) < 0) {
                 git_error();
             }
