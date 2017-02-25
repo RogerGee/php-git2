@@ -197,6 +197,7 @@ git_indexer_free(resource)
 
 ----------------------------------------
 [git_odb]
+    [git_odb_object]
 ----------------------------------------
 
 git_odb_new()
@@ -214,6 +215,36 @@ git_odb_write_pack(resource,callable,mixed)
 git_odb_backend_pack(string)
 
     Returns object instance of type GitODBBackend
+
+git_odb_backend_loose(string,int,bool,int,int)
+
+    Returns object instance of type GitODBBackend
+
+git_odb_open(string)
+
+    Returns git_odb resource
+
+git_odb_read(resource,string)
+
+    Returns git_odb_object resource
+
+git_odb_object_free(resource)
+
+git_odb_object_data(resource)
+
+    Returns string
+
+git_odb_object_id(resource)
+
+    Returns string
+
+git_odb_object_type(resource)
+
+    Returns int
+
+git_odb_object_dup(resource)
+
+    Returns git_odb_object resource
 
 ----------------------------------------
 [git_commit]

@@ -296,7 +296,7 @@ namespace php_git2
     }
 
     // This case assigns the return value from the actual libgit2 library
-    // call. We have specializations for: int, char*.
+    // call. We have specializations for: int, char*, git_oid*.
     template<int ReturnPos,
         typename... Ts>
     inline typename std::enable_if<ReturnPos == 0,void>::type
@@ -319,6 +319,17 @@ namespace php_git2
         RETVAL_LONG(long(retval));
         (void)pack;
     }
+    template<int ReturnPos,
+        typename... Ts>
+    inline typename std::enable_if<ReturnPos == 0,void>::type
+    php_return(
+        size_t&& retval,
+        local_pack<Ts...>&& pack,
+        zval* return_value)
+    {
+        RETVAL_LONG(long(retval));
+        (void)pack;
+    }
 
     template<int ReturnPos,
         typename... Ts>
@@ -329,7 +340,7 @@ namespace php_git2
         zval* return_value)
     {
         if (retval != nullptr) {
-            RETVAL_STRING(retval,strlen(retval));
+            RETVAL_STRING(retval,1);
         }
         else {
             // Just in case.
@@ -354,6 +365,26 @@ namespace php_git2
         else {
             RETVAL_NULL();
         }
+    }
+
+    // Specialize php_return() for git_odb_object_data().
+    template<int ReturnPos>
+    inline typename std::enable_if<ReturnPos == 0,void>::type
+    php_return(
+        const void*&& retval,
+        local_pack<php_resource<php_git_odb_object> >&& pack,
+        zval* return_value)
+    {
+       if (retval != nullptr) {
+           // Make a binary string for the return value. The length is obtained
+           // from the odb_object attached to the local_pack.
+           size_t length;
+           length = git_odb_object_size(pack.get<0>().get_object(1)->get_handle());
+           RETVAL_STRINGL((const char*)retval,length,1);
+       }
+       else {
+           RETVAL_NULL();
+       }
     }
 
     // Otherwise, no action is taken.

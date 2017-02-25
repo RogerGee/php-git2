@@ -556,6 +556,7 @@ namespace php_git2
     using php_git_packbuilder = git2_resource<git_packbuilder>;
     using php_git_indexer = git2_resource<git_indexer>;
     using php_git_odb = git2_resource<git_odb>;
+    using php_git_odb_object = git2_resource<git_odb_object>;
     using php_git_commit = git2_resource<git_commit>;
 
 } // namespace php_git2

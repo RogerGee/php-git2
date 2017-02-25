@@ -10,6 +10,11 @@
 #include "php-object.h"
 using namespace php_git2;
 
+// Helper macros
+
+#define EXTRACT_THISOBJ(backend) \
+    reinterpret_cast<php_odb_backend_object::php_git_odb_backend*>(backend)->thisobj;
+
 // Class method entries
 
 // string GitODBBackend::read(&$type,$oid);
@@ -414,6 +419,8 @@ PHP_METHOD(GitODBBackend,exists)
     // Convert OID hex string to oid structure and call underlying function.
     convert_oid_fromstr(&oid,uoid,uoidSize);
     retval = object->backend->exists(object->backend,&oid);
+
+    // The exists() function should return 1 if found.
     if (retval) {
         RETURN_TRUE;
     }
@@ -444,7 +451,8 @@ PHP_METHOD(GitODBBackend,exists_prefix)
     convert_oid_fromstr(&oid,uoid,uoidSize);
     retval = object->backend->exists_prefix(&fullOid,object->backend,&oid,uoidSize);
 
-    if (retval) {
+    // Confusingly, the exists_prefix() function returns 0 if found.
+    if (retval == 0) {
         char buf[GIT_OID_HEXSZ + 1];
 
         // Set the out variable to the full OID string.

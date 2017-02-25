@@ -10,11 +10,17 @@
 namespace php_git2
 {
 
-    // Explicitly specialize git2_resource destructor for git_odb.
+    // Explicitly specialize git2_resource destructor for git_odb and
+    // git_odb_object.
 
     template<> php_git_odb::~git2_resource()
     {
         git_odb_free(handle);
+    }
+
+    template<> php_git_odb_object::~git2_resource()
+    {
+        git_odb_object_free(handle);
     }
 
     // Provide a type which binds a git_odb_writepack along with a callback to a
@@ -138,6 +144,109 @@ static constexpr auto ZIF_GIT_ODB_WRITE_PACK = zif_php_git2_function<
     php_git2::sequence<0,0,0,1>
     >;
 
+static constexpr auto ZIF_GIT_ODB_OPEN = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_odb**,
+        const char*
+        >::func<git_odb_open>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_odb>,
+        php_git2::php_string
+        >,
+    1,
+    php_git2::sequence<1>,
+    php_git2::sequence<0,1>,
+    php_git2::sequence<0,0>
+    >;
+
+static constexpr auto ZIF_GIT_ODB_READ = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_odb_object**,
+        git_odb*,
+        const git_oid*
+        >::func<git_odb_read>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_odb_object>,
+        php_git2::php_resource<php_git2::php_git_odb>,
+        php_git2::php_git_oid_fromstr
+        >,
+    1,
+    php_git2::sequence<1,2>,
+    php_git2::sequence<0,1,2>,
+    php_git2::sequence<0,0,1>    
+    >;
+
+static constexpr auto ZIF_GIT_ODB_OBJECT_FREE = zif_php_git2_function_void<
+    php_git2::func_wrapper<
+        void,
+        git_odb_object*>::func<git_odb_object_free>,
+    php_git2::local_pack<
+        php_git2::php_resource_cleanup<php_git2::php_git_odb_object>
+        >
+    >;
+
+static constexpr auto ZIF_GIT_ODB_OBJECT_DATA = zif_php_git2_function<
+    php_git2::func_wrapper<
+        const void*,
+        git_odb_object*
+        >::func<git_odb_object_data>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_odb_object>
+        >,
+    0
+    >;
+
+static constexpr auto ZIF_GIT_ODB_OBJECT_SIZE = zif_php_git2_function<
+    php_git2::func_wrapper<
+        size_t,
+        git_odb_object*
+        >::func<git_odb_object_size>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_odb_object>
+        >,
+    0
+    >;
+
+static constexpr auto ZIF_GIT_ODB_OBJECT_ID = zif_php_git2_function<
+    php_git2::func_wrapper<
+        const git_oid*,
+        git_odb_object*
+        >::func<git_odb_object_id>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_odb_object>
+        >,
+    0
+    >;
+
+static constexpr auto ZIF_GIT_ODB_OBJECT_TYPE = zif_php_git2_function<
+    php_git2::func_wrapper<
+        git_otype,
+        git_odb_object*
+        >::func<git_odb_object_type>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_odb_object>
+        >,
+    0
+    >;
+
+static constexpr auto ZIF_GIT_ODB_OBJECT_DUP = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_odb_object**,
+        git_odb_object*
+        >::func<git_odb_object_dup>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_odb_object>,
+        php_git2::php_resource<php_git2::php_git_odb_object>
+        >,
+    1,
+    php_git2::sequence<1>,
+    php_git2::sequence<0,1>,
+    php_git2::sequence<0,0>
+    >;
+
 static constexpr auto ZIF_GIT_ODB_BACKEND_PACK = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
@@ -153,13 +262,45 @@ static constexpr auto ZIF_GIT_ODB_BACKEND_PACK = zif_php_git2_function<
     php_git2::sequence<0,0>
     >;
 
+static constexpr auto ZIF_GIT_ODB_BACKEND_LOOSE = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_odb_backend**,
+        const char*,
+        int,
+        int,
+        unsigned int,
+        unsigned int
+        >::func<git_odb_backend_loose>,
+    php_git2::local_pack<
+        php_git2::php_git_odb_backend_byref,
+        php_git2::php_string,
+        php_git2::php_long,
+        php_git2::php_bool,
+        php_git2::php_long,
+        php_git2::php_long>,
+    1,
+    php_git2::sequence<1,2,3,4,5>,
+    php_git2::sequence<0,1,2,3,4,5>,
+    php_git2::sequence<0,0,1,2,3,4>
+    >;
+
 // Function Entries:
 
-#define GIT_ODB_FE                                                  \
-    PHP_GIT2_FE(git_odb_new,ZIF_GIT_ODB_NEW,NULL)                   \
-    PHP_GIT2_FE(git_odb_free,ZIF_GIT_ODB_FREE,NULL)                 \
-    PHP_GIT2_FE(git_odb_write_pack,ZIF_GIT_ODB_WRITE_PACK,NULL)     \
-    PHP_GIT2_FE(git_odb_backend_pack,ZIF_GIT_ODB_BACKEND_PACK,NULL)
+#define GIT_ODB_FE                                                      \
+    PHP_GIT2_FE(git_odb_new,ZIF_GIT_ODB_NEW,NULL)                       \
+    PHP_GIT2_FE(git_odb_free,ZIF_GIT_ODB_FREE,NULL)                     \
+    PHP_GIT2_FE(git_odb_write_pack,ZIF_GIT_ODB_WRITE_PACK,NULL)         \
+    PHP_GIT2_FE(git_odb_open,ZIF_GIT_ODB_OPEN,NULL)                     \
+    PHP_GIT2_FE(git_odb_read,ZIF_GIT_ODB_READ,NULL)                     \
+    PHP_GIT2_FE(git_odb_object_free,ZIF_GIT_ODB_OBJECT_FREE,NULL)       \
+    PHP_GIT2_FE(git_odb_object_data,ZIF_GIT_ODB_OBJECT_DATA,NULL)       \
+    PHP_GIT2_FE(git_odb_object_size,ZIF_GIT_ODB_OBJECT_SIZE,NULL)       \
+    PHP_GIT2_FE(git_odb_object_id,ZIF_GIT_ODB_OBJECT_ID,NULL)           \
+    PHP_GIT2_FE(git_odb_object_type,ZIF_GIT_ODB_OBJECT_TYPE,NULL)       \
+    PHP_GIT2_FE(git_odb_object_dup,ZIF_GIT_ODB_OBJECT_DUP,NULL)         \
+    PHP_GIT2_FE(git_odb_backend_pack,ZIF_GIT_ODB_BACKEND_PACK,NULL)     \
+    PHP_GIT2_FE(git_odb_backend_loose,ZIF_GIT_ODB_BACKEND_LOOSE,NULL)
 
 #endif
 

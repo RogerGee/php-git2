@@ -119,6 +119,7 @@ PHP_MINIT_FUNCTION(git2)
         git_packbuilder,
         git_indexer,
         git_odb,
+        git_odb_object,
         git_commit >(module_number);
 
     // Register all classes provided by this extension:
