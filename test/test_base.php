@@ -40,9 +40,15 @@ function testbed_get_repo_path() {
 }
 
 function testbed_test($title,callable $lambda) {
-    ob_start();
-    $ret = $lambda();
-    $output = ob_get_clean();
+    try {
+        ob_start();
+        $ret = $lambda();
+        $output = ob_get_clean();
+    } catch (Exception $ex) {
+        ob_get_clean();
+        echo 'php-git2 testbed: error: ' . $ex->getMessage() . PHP_EOL;
+        exit(1);
+    }
 
     fwrite(STDOUT,"$title - \n\n");
     foreach (explode("\n",$output) as $line) {

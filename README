@@ -1,4 +1,4 @@
-php-git2 - v0.0.0
+php-git2 - v0.1.0
 --------------------------------------------------------------------------------
 This project provides PHP bindings for libgit2. The extension dynamically links
 to libgit2 installed in the usual way on your system. We also expect the git2
@@ -19,7 +19,7 @@ version of libgit2 covers php-git2:
     php-git2                libgit2
     --------                -------
 
-    minimum                 v0.24.0
+    current                 v0.24.0
 
 --------------------------------------------------------------------------------
 API Coverage
