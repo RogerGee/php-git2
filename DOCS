@@ -274,15 +274,20 @@ GitODBBackend:
         version: int
 
     methods:
-        ** All methods return false on failure. **
+        ** All methods should throw on failure. **
 
-        read(int& size,int& type,string oid)
+        ** If a method is not to be implemented, either leave it alone or have
+           it call trigger_error() with E_USER_ERROR. These functions can be
+           called from userspace if you know what is available; however they are
+           designed to be defined in userspace and called by git2. **
+
+        read(int& type,string oid)
 
             ** Will return size and type as out parameters respectively. **
 
             Returns string
 
-        read_prefix(string& fullOid,int& size,int& type,string abbrevOid)
+        read_prefix(string& fullOid,int& type,string abbrevOid)
 
             ** Will return oid, size and type as out parameters respectively. **
 
@@ -293,3 +298,11 @@ GitODBBackend:
             ** Will return size and type as out parameters respectively. **
 
             Returns true
+
+        write(string oid,string data,int type)
+
+            Returns true
+
+        exists(string oid)
+
+            Returns bool
