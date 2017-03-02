@@ -8,6 +8,7 @@
  */
 
 #include "php-object.h"
+#include "php-callback.h"
 using namespace php_git2;
 
 // Helper macros
@@ -221,7 +222,7 @@ PHP_METHOD(GitODBBackend,read)
     // implemented.
     object = LOOKUP_OBJECT(php_odb_backend_object,getThis());
     if (object->backend == nullptr || object->backend->read_prefix == nullptr) {
-        php_error(E_ERROR,"GitODBBackend::read(): function is not available");
+        php_error(E_ERROR,"GitODBBackend::read(): method is not available");
         return;
     }
 
@@ -265,7 +266,7 @@ PHP_METHOD(GitODBBackend,read_prefix)
     // implemented.
     object = LOOKUP_OBJECT(php_odb_backend_object,getThis());
     if (object->backend == nullptr || object->backend->read_prefix == nullptr) {
-        php_error(E_ERROR,"GitODBBackend::read_prefix(): function is not available");
+        php_error(E_ERROR,"GitODBBackend::read_prefix(): method is not available");
         return;
     }
 
@@ -321,7 +322,7 @@ PHP_METHOD(GitODBBackend,read_header)
     // implemented.
     object = LOOKUP_OBJECT(php_odb_backend_object,getThis());
     if (object->backend == nullptr || object->backend->read_header == nullptr) {
-        php_error(E_ERROR,"GitODBBackend::read_header(): function is not available");
+        php_error(E_ERROR,"GitODBBackend::read_header(): method is not available");
         return;
     }
 
@@ -365,7 +366,7 @@ PHP_METHOD(GitODBBackend,write)
 
     // Backend must be created and write function must be available.
     if (object->backend == nullptr || object->backend->write == nullptr) {
-        php_error(E_ERROR,"GitODBBackend::write(): function is not available");
+        php_error(E_ERROR,"GitODBBackend::write(): method is not available");
         return;
     }
 
@@ -408,7 +409,7 @@ PHP_METHOD(GitODBBackend,exists)
 
     // Backend must be created.
     if (object->backend == nullptr || object->backend->exists == nullptr) {
-        php_error(E_ERROR,"GitODBBackend::exists(): function is not available");
+        php_error(E_ERROR,"GitODBBackend::exists(): method is not available");
         return;
     }
 
@@ -439,7 +440,7 @@ PHP_METHOD(GitODBBackend,exists_prefix)
 
     // Backend must be created.
     if (object->backend == nullptr || object->backend->exists_prefix == nullptr) {
-        php_error(E_ERROR,"GitODBBackend::exists_prefix(): function is not available");
+        php_error(E_ERROR,"GitODBBackend::exists_prefix(): method is not available");
         return;
     }
 
@@ -469,10 +470,53 @@ PHP_METHOD(GitODBBackend,exists_prefix)
 
 PHP_METHOD(GitODBBackend,refresh)
 {
+    php_odb_backend_object* object = LOOKUP_OBJECT(php_odb_backend_object,getThis());
+
+    // Backend must be created and the function must be implemented.
+    if (object->backend == nullptr || object->backend->refresh == nullptr) {
+        php_error(E_ERROR,"GitODBBackend::refresh(): method is not available");
+        return;
+    }
+
+    // Perform function call.
+    try {
+        if (object->backend->refresh(object->backend) < 0) {
+            git_error();
+        }
+    } catch (php_git2_exception ex) {
+        zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+        return;
+    }
 }
 
 PHP_METHOD(GitODBBackend,foreach)
 {
+    php_odb_backend_object* object = LOOKUP_OBJECT(php_odb_backend_object,getThis());
+
+    // Backend must be created and the function must be implemented.
+    if (object->backend == nullptr || object->backend->foreach == nullptr) {
+        php_error(E_ERROR,"GitODBBackend::foreach(): method is not available");
+        return;
+    }
+
+    php_callback_sync callback;
+    php_callback_handler<odb_foreach_callback> handler;
+
+    if (zend_get_parameters(0,2,callback.byref_php(1),
+            callback.byref_php(2)) == FAILURE)
+    {
+        php_error(E_ERROR,"GitODBBackend::foreach(): method expects 2 arguments");
+        return;
+    }
+
+    // Call the underlying function.
+    try {
+        object->backend->foreach(object->backend,
+            handler.byval_git2(),callback.byval_git2());
+    } catch (php_git2_exception ex) {
+        zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+        return;
+    }
 }
 
 PHP_METHOD(GitODBBackend,writepack)
@@ -481,6 +525,26 @@ PHP_METHOD(GitODBBackend,writepack)
 
 PHP_METHOD(GitODBBackend,free)
 {
+    php_odb_backend_object* object = LOOKUP_OBJECT(php_odb_backend_object,getThis());
+
+    // Backend must be created and the function must be implemented.
+    if (object->backend == nullptr || object->backend->foreach == nullptr) {
+        php_error(E_ERROR,"GitODBBackend::foreach(): method is not available");
+        return;
+    }
+
+    // We really don't want people to be able to shoot themselves in the foot
+    // with this one (after all, crashing the Web server is generally not
+    // considered a good thing to do). We only call free if the owner flag is
+    // set to true. If owner is false we silently do nothing (the user really
+    // has no business calling this anyway since our destructor will get it).
+
+    if (object->isowner) {
+        object->backend->free(object->backend);
+
+        // Avoid double free's later on.
+        object->backend = nullptr;
+    }
 }
 
 /*

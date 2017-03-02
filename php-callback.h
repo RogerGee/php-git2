@@ -289,6 +289,12 @@ namespace php_git2
         static int callback(const git_transfer_progress* stats,void* payload);
     };
 
+    struct odb_foreach_callback
+    {
+        typedef int (*type)(const git_oid* oid,void* payload);
+        static int callback(const git_oid* oid,void* payload);
+    };
+
 } // namespace php_git2
 
 #endif

@@ -100,6 +100,44 @@ transfer_progress_callback::callback(const git_transfer_progress* stats,void* pa
     return GIT_EUSER;
 }
 
+// odb_foreach_callback
+
+/*static*/ int
+odb_foreach_callback::callback(const git_oid* oid,void* payload)
+{
+    php_callback_sync* cb = reinterpret_cast<php_callback_sync*>(payload);
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
+    if (cb != nullptr) {
+        // Avoid setup for null callables.
+        if (Z_TYPE_P(cb->func) == IS_NULL) {
+            return GIT_OK;
+        }
+
+        // Call the PHP userspace callback. We convert the git_oid struct to a
+        // PHP string.
+
+        long r;
+        zval retval;
+        zval_array<2> params ZTS_CTOR;
+        char buf[GIT_OID_HEXSZ + 1];
+
+        git_oid_tostr(buf,sizeof(buf),oid);
+        ZVAL_STRING(params[0],buf,1);
+        params.assign<1>(std::forward<zval*>(cb->data));
+        params.call(cb->func,&retval);
+        convert_to_long(&retval);
+        r = Z_LVAL(retval);
+        zval_dtor(&retval);
+
+        return r;
+    }
+
+    return GIT_EUSER;
+}
+
 /*
  * Local Variables:
  * indent-tabs-mode:nil

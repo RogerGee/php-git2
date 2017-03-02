@@ -337,3 +337,9 @@ GitODBBackend:
         exists(string oid)
 
             Returns bool
+
+        refresh()
+
+        foreach(callable func,mixed payload)
+
+        free()
