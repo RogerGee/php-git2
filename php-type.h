@@ -34,14 +34,10 @@ namespace php_git2
         static inline void error(const char* typeName,unsigned argno)
         {
             if (argno != std::numeric_limits<unsigned>::max()) {
-                throw php_git2_exception(
-                    "expected '%s' for argument position %d",
-                    typeName,
-                    argno);
+                php_error(E_ERROR,"expected '%s' for argument position %d",
+                    typeName,argno);
             }
-            throw php_git2_exception(
-                "expected '%s' for argument",
-                typeName);
+            php_error(E_ERROR,"expected '%s' for argument",typeName);
         }
     protected:
         zval* value;

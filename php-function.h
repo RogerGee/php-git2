@@ -219,8 +219,7 @@ namespace php_git2
         if (zend_get_parameters(0,int(sizeof...(Ns)),
                 pack.template get<Ns>().byref_php(Ps)...) == FAILURE)
         {
-            throw php_git2_exception("incorrect number of arguments "
-                "passed to function");
+            php_error(E_ERROR,"incorrect number of arguments passed to function");
         }
     }
 
@@ -506,6 +505,7 @@ void zif_php_git2_function(INTERNAL_FUNCTION_PARAMETERS)
                 return_value);
         }
         else {
+            // Throw error with formatted message from git2.
             php_git2::git_error();
         }
     } catch (php_git2::php_git2_exception ex) {
@@ -551,6 +551,7 @@ void zif_php_git2_function_rethandler(INTERNAL_FUNCTION_PARAMETERS)
         // Instantiate a return value handler to handle the return value.
         ReturnHandler rethandler;
         if (!rethandler.ret(retval,return_value,std::forward<LocalVars>(vars))) {
+            // Throw error with formatted message from git2.
             php_git2::git_error();
         }
     } catch (php_git2::php_git2_exception ex) {
