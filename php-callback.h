@@ -155,12 +155,18 @@ namespace php_git2
                 std::swap(func,data);
             }
 
-            // Make sure the function zval is either a string or an array. We
-            // allow the user to omit a callable if NULL is given.
-            if (Z_TYPE_P(func) != IS_NULL && Z_TYPE_P(func) != IS_STRING
-                && Z_TYPE_P(func) != IS_ARRAY)
-            {
-                php_value_base::error("callable",argno);
+            // Make sure the function zval is a callable. We always allow the
+            // user to omit a callable if the zval is null.
+            if (Z_TYPE_P(func) != IS_NULL) {
+                char* error = nullptr;
+                zend_bool retval;
+                retval = zend_is_callable_ex(func,NULL,0,NULL,NULL,NULL,&error TSRMLS_CC);
+                if (error) {
+                    efree(error);
+                }
+                if (!retval) {
+                    php_value_base::error("callable",argno);
+                }
             }
 
             // Up reference count. This is really only needed for when this
