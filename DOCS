@@ -342,4 +342,8 @@ GitODBBackend:
 
         foreach(callable func,mixed payload)
 
+        writepack(callable func,mixed payload)
+
+            Returns object instance of type GitODBWritepack
+
         free()

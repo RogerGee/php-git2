@@ -502,9 +502,7 @@ PHP_METHOD(GitODBBackend,foreach)
     php_callback_sync callback;
     php_callback_handler<odb_foreach_callback> handler;
 
-    if (zend_get_parameters(0,2,callback.byref_php(1),
-            callback.byref_php(2)) == FAILURE)
-    {
+    if (zend_get_parameters(0,2,callback.byref_php(1),callback.byref_php(2)) == FAILURE) {
         php_error(E_ERROR,"GitODBBackend::foreach(): method expects 2 arguments");
         return;
     }
@@ -521,6 +519,40 @@ PHP_METHOD(GitODBBackend,foreach)
 
 PHP_METHOD(GitODBBackend,writepack)
 {
+    php_odb_backend_object* object = LOOKUP_OBJECT(php_odb_backend_object,getThis());
+
+    // Backend must be created and the function must be implemented.
+    if (object->backend == nullptr || object->backend->writepack == nullptr) {
+        php_error(E_ERROR,"GitODBBackend::writepack(): method is not available");
+        return;
+    }
+
+    git_odb_writepack* wp;
+    php_callback_sync* callback;
+    php_callback_handler<transfer_progress_callback> handler;
+
+    // Allocate callback.
+    callback = new (emalloc(sizeof(php_callback_sync))) php_callback_sync(TSRMLS_C);
+
+    if (zend_get_parameters(0,2,callback->byref_php(1),callback->byref_php(2)) == FAILURE) {
+        callback->~php_callback_sync();
+        efree(callback);
+        php_error(E_ERROR,"GitODBBackend::writepack(): method expects 2 arguments");
+        return;
+    }
+
+    try {
+        // Call the underlying function.
+        object->backend->writepack(&wp,object->backend,object->backend->odb,
+            handler.byval_git2(),callback->byval_git2());
+
+        // Create return value out of the writepack and callback. The callback
+        // will be managed by the GitODBWritepack object.
+        php_git2_make_odb_writepack(return_value,wp,callback TSRMLS_CC);
+    } catch (php_git2_exception ex) {
+        zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+        return;
+    }
 }
 
 PHP_METHOD(GitODBBackend,free)
