@@ -70,6 +70,14 @@ void php_git2::php_git2_register_classes(TSRMLS_D)
     php_git2::class_entry[php_git2_odb_backend_obj] = pce;
     memcpy(&php_odb_backend_object::handlers,stdhandlers,sizeof(zend_object_handlers));
     php_odb_backend_object::init(pce);
+
+    // ODB_STREAM
+    INIT_CLASS_ENTRY(ce,"GitODBStream",odb_stream_methods);
+    pce = zend_register_internal_class(&ce TSRMLS_CC);
+    pce->create_object = php_create_object_handler<php_odb_stream_object>;
+    php_git2::class_entry[php_git2_odb_stream_obj] = pce;
+    memcpy(&php_odb_stream_object::handlers,stdhandlers,sizeof(zend_object_handlers));
+    php_odb_stream_object::init(pce);
 }
 
 // Provide implementations for generic make function.

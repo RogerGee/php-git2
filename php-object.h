@@ -19,6 +19,7 @@ namespace php_git2
     {
         php_git2_odb_writepack_obj,
         php_git2_odb_backend_obj,
+        php_git2_odb_stream_obj,
         _php_git2_obj_top_
     };
 
@@ -26,8 +27,7 @@ namespace php_git2
     // backend structure. Each class must provide a static 'handlers' member and
     // a static 'init' function for handling class initialization.
 
-    struct php_odb_writepack_object:
-        private php_zts_base
+    struct php_odb_writepack_object
     {
         php_odb_writepack_object(TSRMLS_D);
         ~php_odb_writepack_object();
@@ -36,13 +36,13 @@ namespace php_git2
         git_odb_writepack* writepack;
         git_transfer_progress prog;
         php_callback_sync* cb;
+        php_zts_member zts;
 
         static zend_object_handlers handlers;
         static void init(zend_class_entry* ce);
     };
 
-    struct php_odb_backend_object:
-        private php_zts_base
+    struct php_odb_backend_object
     {
         php_odb_backend_object(TSRMLS_D);
         ~php_odb_backend_object();
@@ -50,6 +50,7 @@ namespace php_git2
         zend_object base;
         git_odb_backend* backend;
         bool isowner;
+        php_zts_member zts;
 
         static zend_object_handlers handlers;
         static void init(zend_class_entry* ce);
@@ -88,6 +89,19 @@ namespace php_git2
         static void free(git_odb_backend* backend);
     };
 
+    struct php_odb_stream_object
+    {
+        php_odb_stream_object(TSRMLS_D);
+        ~php_odb_stream_object();
+
+        zend_object base;
+        git_odb_stream* stream;
+        php_zts_member zts;
+
+        static zend_object_handlers handlers;
+        static void init(zend_class_entry* ce);
+    };
+
     // Provide a routine to call during MINIT for registering the custom
     // classes.
 
@@ -100,11 +114,13 @@ namespace php_git2
     void php_git2_make_odb_writepack(zval* zp,git_odb_writepack* writepack,
         php_callback_sync* cb TSRMLS_DC);
     void php_git2_make_odb_backend(zval* zp,git_odb_backend* backend,bool owner TSRMLS_DC);
+    void php_git2_make_odb_stream(zval* zp,git_odb_stream* stream TSRMLS_DC);
 
     // Extern variables in this namespace.
     extern zend_class_entry* class_entry[];
     extern zend_function_entry odb_writepack_methods[];
     extern zend_function_entry odb_backend_methods[];
+    extern zend_function_entry odb_stream_methods[];
 }
 
 // Helper macros

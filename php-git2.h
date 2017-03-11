@@ -54,9 +54,8 @@ ZEND_EXTERN_MODULE_GLOBALS(git2)
 #define ZTS_MEMBER_PC(obj) obj->TSRMLS_C
 #define ZTS_MEMBER_PCC(obj) , obj->TSRMLS_C
 
-// C++ resolves ambiguity in parsing 'T X()' in favor of a function
-// declaration. We provide a macro that allows us to optionally pass TSRMLS_C to
-// a constructor.
+// We provide a macro that allows us to optionally pass TSRMLS_C to a
+// constructor.
 #define ZTS_CTOR (TSRMLS_C)
 
 #else
@@ -67,6 +66,9 @@ ZEND_EXTERN_MODULE_GLOBALS(git2)
 #define ZTS_MEMBER_CC(obj)
 #define ZTS_MEMBER_PC(obj)
 #define ZTS_MEMBER_PCC(obj)
+
+// Make ZTS_CTOR insert nothing. It cannot be "( )" since because C++ resolves
+// ambiguity in parsing 'T X()' in favor of a function declaration.
 #define ZTS_CTOR
 
 #endif

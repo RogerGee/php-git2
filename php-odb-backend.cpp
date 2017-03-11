@@ -13,8 +13,11 @@ using namespace php_git2;
 
 // Helper macros
 
+#define EXTRACT_BACKEND(backend) \
+    reinterpret_cast<php_odb_backend_object::php_git_odb_backend*>(backend)
+
 #define EXTRACT_THISOBJ(backend) \
-    reinterpret_cast<php_odb_backend_object::php_git_odb_backend*>(backend)->thisobj;
+    EXTRACT_BACKEND(backend)->thisobj
 
 // Class method entries
 
@@ -73,6 +76,7 @@ void php_git2::php_git2_make_odb_backend(zval* zp,git_odb_backend* backend,bool 
     php_odb_backend_object* obj;
     zend_class_entry* ce = php_git2::class_entry[php_git2_odb_backend_obj];
 
+    // Create object zval.
     object_init_ex(zp,ce);
     obj = reinterpret_cast<php_odb_backend_object*>(zend_objects_get_address(zp TSRMLS_CC));
 
@@ -88,7 +92,7 @@ void php_git2::php_git2_make_odb_backend(zval* zp,git_odb_backend* backend,bool 
 
 /*static*/ zend_object_handlers php_odb_backend_object::handlers;
 php_odb_backend_object::php_odb_backend_object(TSRMLS_D):
-    php_zts_base(TSRMLS_C), backend(nullptr), isowner(false)
+    backend(nullptr), isowner(false), zts(TSRMLS_C)
 {
     zend_class_entry* ce = php_git2::class_entry[php_git2_odb_backend_obj];
     zend_object_std_init(&base,ce TSRMLS_CC);
@@ -104,7 +108,7 @@ php_odb_backend_object::~php_odb_backend_object()
         backend->free(backend);
     }
 
-    zend_object_std_dtor(&base TSRMLS_CC);
+    zend_object_std_dtor(&base ZTS_MEMBER_CC(this->zts));
 }
 
 /*static*/ void php_odb_backend_object::init(zend_class_entry* ce)
@@ -115,81 +119,143 @@ php_odb_backend_object::~php_odb_backend_object()
 /*static*/ int php_odb_backend_object::read(void** datap,size_t* sizep,
     git_otype* typep,git_odb_backend* backend,const git_oid* oid)
 {
+    zval fname;
+    zval retval;
+    zval zoid;
+    zval* ztype;
+    zval* params[2];
+    zval* thisobj = EXTRACT_THISOBJ(backend);
+    char buffer[GIT_OID_HEXSZ+1];
+    int result = GIT_OK;
+    void* data;
 
-    return GIT_OK;
+    // We only need to lookup the object backing to get at the ZTS globals.
+#ifdef ZTS
+    php_odb_backend_object* object;
+    object = LOOKUP_OBJECT(php_odb_backend_object,thisobj);
+#endif
+
+    // Initialize zvals to default (most are allocated on the stack except for
+    // the one we'll pass by reference).
+    INIT_ZVAL(fname);
+    ALLOC_INIT_ZVAL(ztype);
+    INIT_ZVAL(zoid);
+    INIT_ZVAL(retval);
+    params[0] = ztype;
+    params[1] = &zoid;
+
+    // Assign method call name and search OID string to respective zvals.
+    ZVAL_STRING(&fname,"read",0);
+    git_oid_tostr(buffer,sizeof(buffer),oid);
+    ZVAL_STRINGL(&zoid,buffer,GIT_OID_HEXSZ,0);
+
+    // Call userspace method implementation of odb operation. The user hopefully
+    // has overridden the method in a derived class.
+    if (call_user_function(EG(function_table),&thisobj,&fname,&retval,2,params
+            ZTS_MEMBER_CC(object->zts)) == FAILURE)
+    {
+        result = GIT_ERROR;
+        goto cleanup;
+    }
+
+    // Return values to caller. We have to copy the data to use a persistent
+    // memory buffer that git2 can free.
+    data = malloc(Z_STRLEN(retval));
+    memcpy(data,Z_STRVAL(retval),Z_STRLEN(retval));
+    *datap = data;
+    *sizep = Z_STRLEN(retval);
+    *typep = (git_otype)Z_LVAL_P(ztype);
+
+cleanup:
+    zval_dtor(&retval);
+    zval_ptr_dtor(&ztype);
+    return result;
 }
 
 /*static*/ int php_odb_backend_object::read_prefix(git_oid* oidp,void** datap,
     size_t* sizep,git_otype* typep,git_odb_backend* backend,const git_oid* prefix,
     size_t nbits)
 {
+    int result = GIT_OK;
 
-    return GIT_OK;
+    return result;
 }
 
 /*static*/ int php_odb_backend_object::read_header(size_t* sizep,git_otype* typep,
     git_odb_backend* backend,const git_oid* oid)
 {
+    int result = GIT_OK;
 
-    return GIT_OK;
+    return result;
 }
 
 /*static*/ int php_odb_backend_object::write(git_odb_backend* backend,
     const git_oid* oid,const void* data,size_t size,git_otype type)
 {
+    int result = GIT_OK;
 
-    return GIT_OK;
+    return result;
 }
 
 /*static*/ int php_odb_backend_object::writestream(git_odb_stream** streamp,
     git_odb_backend* backend,git_off_t off,git_otype type)
 {
+    int result = GIT_OK;
 
-    return GIT_OK;
+    return result;
 }
 
 /*static*/ int php_odb_backend_object::readstream(git_odb_stream** streamp,
     git_odb_backend* backend,const git_oid* oid)
 {
+    int result = GIT_OK;
 
-    return GIT_OK;
+    return result;
 }
 
 /*static*/ int php_odb_backend_object::exists(git_odb_backend* backend,
     const git_oid* oid)
 {
+    int result = GIT_OK;
 
-    return GIT_OK;
+    return result;
 }
 
 /*static*/ int php_odb_backend_object::exists_prefix(git_oid* oidp,
     git_odb_backend* backend,const git_oid* prefix,size_t nbits)
 {
+    int result = GIT_OK;
 
-    return GIT_OK;
+    return result;
 }
 
 /*static*/ int php_odb_backend_object::refresh(git_odb_backend* backend)
 {
+    int result = GIT_OK;
 
-    return GIT_OK;
+    return result;
 }
 
 /*static*/ int php_odb_backend_object::foreach(git_odb_backend* backend,
     git_odb_foreach_cb cb,void* payload)
 {
-    return GIT_OK;
+    int result = GIT_OK;
+
+    return result;
 }
 
 /*static*/ int php_odb_backend_object::writepack(git_odb_writepack** writepackp,
     git_odb_backend* backend,git_odb* odb,git_transfer_progress_cb progress_cb,
     void* progress_payload)
 {
-    return GIT_OK;
+    int result = GIT_OK;
+
+    return result;
 }
 
 /*static*/ void php_odb_backend_object::free(git_odb_backend* backend)
 {
+
 }
 
 static void convert_oid_fromstr(git_oid* dest,const char* src,int srclen)
@@ -205,7 +271,7 @@ static void convert_oid_fromstr(git_oid* dest,const char* src,int srclen)
     git_oid_fromstr(dest,buf);
 }
 
-// Implementation of object methods
+// Implementation of class methods
 
 PHP_METHOD(GitODBBackend,read)
 {
@@ -226,8 +292,8 @@ PHP_METHOD(GitODBBackend,read)
         return;
     }
 
-    // Grab parameters. The first two parameters are passed by reference so we
-    // have to extract their zvals.
+    // Grab parameters. The first parameter is passed by reference so we have to
+    // extract its zval.
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"zs",&ztype,&strOid,
             &strOidLen) == FAILURE)
     {

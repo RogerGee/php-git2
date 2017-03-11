@@ -204,6 +204,18 @@ namespace php_git2
 #endif
     };
 
+    class php_zts_member:
+        public php_zts_base
+    {
+#ifdef ZTS
+    public:
+        php_zts_member(void*** zts):
+            php_zts_base(std::forward<void***>(zts))
+        {
+        }
+#endif
+    };
+
     // Provide generic resource types for libgit2 objects. The parameter should
     // be instantiated with some instantiation of 'git2_resource<>' (or some
     // derived class thereof). We provide one type for when a resource is used
