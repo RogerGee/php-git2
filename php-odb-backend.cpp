@@ -459,10 +459,74 @@ PHP_METHOD(GitODBBackend,write)
 
 PHP_METHOD(GitODBBackend,writestream)
 {
+    long offset;
+    long objectType;
+    git_odb_stream* outstream = nullptr;
+    php_odb_backend_object* object = LOOKUP_OBJECT(php_odb_backend_object,getThis());
+
+    // Backend must be created and write function must be available.
+    if (object->backend == nullptr || object->backend->writestream == nullptr) {
+        php_error(E_ERROR,"GitODBBackend::writestream(): method is not available");
+        return;
+    }
+
+    // Grab parameters.
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"ll",&offset,&objectType) == FAILURE) {
+        return;
+    }
+
+    // Call the underlying function.
+    try {
+        if (object->backend->writestream(&outstream,object->backend,
+                (git_off_t)offset,(git_otype)objectType) < 0)
+        {
+            git_error();
+        }
+    } catch (php_git2_exception ex) {
+        zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+        return;
+    }
+
+    if (outstream != nullptr) {
+        // Create GitODBStream object to wrap git_odb_stream.
+        php_git2_make_odb_stream(return_value,outstream TSRMLS_CC);
+    }
 }
 
 PHP_METHOD(GitODBBackend,readstream)
 {
+    char* oidstr;
+    int oidstr_len;
+    git_oid oid;
+    git_odb_stream* outstream = nullptr;
+    php_odb_backend_object* object = LOOKUP_OBJECT(php_odb_backend_object,getThis());
+
+    // Backend must be created and write function must be available.
+    if (object->backend == nullptr || object->backend->readstream == nullptr) {
+        php_error(E_ERROR,"GitODBBackend::readstream(): method is not available");
+        return;
+    }
+
+    // Grab parameters.
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&oidstr,&oidstr_len) == FAILURE) {
+        return;
+    }
+
+    // Call the underlying function.
+    try {
+        convert_oid_fromstr(&oid,oidstr,oidstr_len);
+        if (object->backend->readstream(&outstream,object->backend,&oid) < 0) {
+            git_error();
+        }
+    } catch (php_git2_exception ex) {
+        zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+        return;
+    }
+
+    if (outstream != nullptr) {
+        // Create GitODBStream object to wrap git_odb_stream.
+        php_git2_make_odb_stream(return_value,outstream TSRMLS_CC);
+    }
 }
 
 PHP_METHOD(GitODBBackend,exists)

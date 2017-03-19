@@ -116,6 +116,17 @@ namespace php_git2
         {
             return connector.byval_git2(argno);
         }
+
+        void ret(zval* return_value)
+        {
+            connector.ret(return_value);
+        }
+
+        T& get_connector()
+        { return connector; }
+
+        const T& get_connector() const
+        { return connector; }
     private:
         T connector;
     };
@@ -322,7 +333,7 @@ namespace php_git2
         typename... Ts>
     inline typename std::enable_if<ReturnPos == 0,void>::type
     php_return(
-        size_t&& retval,
+        long unsigned int&& retval,
         local_pack<Ts...>&& pack,
         zval* return_value)
     {

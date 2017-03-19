@@ -174,6 +174,39 @@ namespace php_git2
         connect_t&& conn;
     };
 
+    // Provide a connector for an arbitrary string buffer that can be returned
+    // to PHP userspace. The connector connects to a php_long which represents
+    // the desired buffer length.
+    class php_string_buffer_connector
+    {
+    public:
+        using connect_t = php_long;
+        using target_t = char*;
+
+        php_string_buffer_connector(connect_t&& obj TSRMLS_DC):
+            conn(std::forward<connect_t>(obj))
+        {
+            bufsz = (size_t)conn.byval_git2();
+            buffer = (char*)emalloc(bufsz);
+        }
+
+        target_t byval_git2(unsigned p)
+        {
+            return buffer;
+        }
+
+        void ret(zval* return_value)
+        {
+            // Return a string. We'll pass the buffer along to the return_value
+            // zval.
+            RETVAL_STRINGL(buffer,bufsz,0);
+        }
+    private:
+        char* buffer;
+        size_t bufsz;
+        connect_t&& conn;
+    };
+
     // Provide a type that casts a php_long to any arbitrary integer type
     template<typename IntType>
     class php_long_cast:

@@ -246,6 +246,26 @@ git_odb_object_dup(resource)
 
     Returns git_odb_object resource
 
+git_odb_open_rstream(resource,string)
+
+    Returns object instance of type GitODBStream
+
+git_odb_open_wstream(resource,int,int)
+
+    Returns object instance of type GitODBStream
+
+git_odb_stream_read(GitODBStream,int)
+
+    ** The 2nd parameter is the length of the buffer to allocate. **
+
+    Returns string
+
+git_odb_stream_write(GitODBStream,string)
+
+git_odb_stream_finalize_write(GitODBStream)
+
+    Returns string
+
 ----------------------------------------
 [git_commit]
 ----------------------------------------
@@ -334,6 +354,14 @@ GitODBBackend:
 
             Returns true
 
+        writestream(int offset,int objectType)
+
+            Returns object instance of type GitODBStream
+
+        readstream(string oid)
+
+            Returns object instance of type GitODBStream
+
         exists(string oid)
 
             Returns bool
@@ -347,3 +375,31 @@ GitODBBackend:
             Returns object instance of type GitODBWritepack
 
         free()
+
+GitODBStream:
+
+    ** This class has properties/methods that align with the git_odb_stream
+       structure. **
+
+    properties:
+        mode: int
+        declared_size: int
+        received_bytes: int
+
+    methods:
+        ** All methods should throw on failure. **
+
+        read(int bufsz)
+
+            ** Creates a buffer of the specified size and calls the read()
+               function for the stream. **
+
+            Returns string
+
+        write(string buffer)
+
+            Returns true
+
+        finalize_write()
+
+            Returns string

@@ -69,6 +69,13 @@ namespace php_git2
 
         git_odb_backend* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
+            // Make sure the zval is an object of the correct type.
+            if (Z_TYPE_P(value) != IS_OBJECT
+                || Z_OBJCE_P(value) != class_entry[php_git2_odb_backend_obj])
+            {
+                error("GitODBBackend",argno);
+            }
+
             // Extract the git_odb_backend from the object zval.
             php_odb_backend_object* object;
             object = reinterpret_cast<php_odb_backend_object*>(zend_objects_get_address(value TSRMLS_CC));
@@ -97,6 +104,59 @@ namespace php_git2
         }
     private:
         git_odb_backend* backend;
+    };
+
+    // Provide types that extract/bind git_odb_stream instances to/from a PHP
+    // object of type GitODBStream. One class handles existing objects and the
+    // other handles creating new ones.
+
+    class php_git_odb_stream_byval:
+        public php_value_base,
+        private php_zts_base
+    {
+    public:
+        php_git_odb_stream_byval(TSRMLS_D):
+            php_zts_base(TSRMLS_C)
+        {
+        }
+
+        git_odb_stream* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            // Make sure the zval is an object of the correct type.
+            if (Z_TYPE_P(value) != IS_OBJECT
+                || Z_OBJCE_P(value) != class_entry[php_git2_odb_stream_obj])
+            {
+                error("GitODBStream",argno);
+            }
+
+            // Extract the git_odb_stream from the object zval.
+            php_odb_stream_object* object;
+            object = reinterpret_cast<php_odb_stream_object*>(zend_objects_get_address(value TSRMLS_CC));
+            return object->stream;
+        }
+    };
+
+    class php_git_odb_stream_byref:
+        private php_zts_base
+    {
+    public:
+        php_git_odb_stream_byref(TSRMLS_D):
+            php_zts_base(TSRMLS_C), stream(nullptr)
+        {
+        }
+
+        git_odb_stream** byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            return &stream;
+        }
+
+        void ret(zval* return_value)
+        {
+            // Wrap the git_odb_backend handle in an object zval.
+            php_git2_make_odb_stream(return_value,stream TSRMLS_CC);
+        }
+    private:
+        git_odb_stream* stream;
     };
 
 }
@@ -175,7 +235,7 @@ static constexpr auto ZIF_GIT_ODB_READ = zif_php_git2_function<
     1,
     php_git2::sequence<1,2>,
     php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>    
+    php_git2::sequence<0,0,1>
     >;
 
 static constexpr auto ZIF_GIT_ODB_OBJECT_FREE = zif_php_git2_function_void<
@@ -285,6 +345,92 @@ static constexpr auto ZIF_GIT_ODB_BACKEND_LOOSE = zif_php_git2_function<
     php_git2::sequence<0,0,1,2,3,4>
     >;
 
+static constexpr auto ZIF_GIT_ODB_OPEN_RSTREAM = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_odb_stream**,
+        git_odb*,
+        const git_oid*
+        >::func<git_odb_open_rstream>,
+    php_git2::local_pack<
+        php_git2::php_git_odb_stream_byref,
+        php_git2::php_resource<php_git2::php_git_odb>,
+        php_git2::php_git_oid_fromstr>,
+    1,
+    php_git2::sequence<1,2>,
+    php_git2::sequence<0,1,2>,
+    php_git2::sequence<0,0,1>
+    >;
+
+static constexpr auto ZIF_GIT_ODB_OPEN_WSTREAM = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_odb_stream**,
+        git_odb*,
+        git_off_t,
+        git_otype
+        >::func<git_odb_open_wstream>,
+    php_git2::local_pack<
+        php_git2::php_git_odb_stream_byref,
+        php_git2::php_resource<php_git2::php_git_odb>,
+        php_git2::php_long_cast<git_off_t>,
+        php_git2::php_long_cast<git_otype> >,
+    1,
+    php_git2::sequence<1,2,3>,
+    php_git2::sequence<0,1,2,3>,
+    php_git2::sequence<0,0,1,2>
+    >;
+
+static constexpr auto ZIF_GIT_ODB_STREAM_READ = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_odb_stream*,
+        char*,
+        size_t
+        >::func<git_odb_stream_read>,
+    php_git2::local_pack<
+        php_git2::php_git_odb_stream_byval,
+        php_git2::connector_wrapper<php_git2::php_string_buffer_connector>,
+        php_git2::php_long_cast<size_t> >,
+    2,
+    php_git2::sequence<0,2>,
+    php_git2::sequence<0,1,2>,
+    php_git2::sequence<0,0,1>
+    >;
+
+static constexpr auto ZIF_GIT_ODB_STREAM_WRITE = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_odb_stream*,
+        const char*,
+        size_t
+        >::func<git_odb_stream_write>,
+    php_git2::local_pack<
+        php_git2::php_git_odb_stream_byval,
+        php_git2::connector_wrapper<php_git2::php_string_length_connector<size_t> >,
+        php_git2::php_string>,
+    -1,
+    php_git2::sequence<0,2>,
+    php_git2::sequence<0,2,1>,
+    php_git2::sequence<0,1,0>
+    >;
+
+static constexpr auto ZIF_GIT_ODB_STREAM_FINALIZE_WRITE = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_oid*,
+        git_odb_stream*
+        >::func<git_odb_stream_finalize_write>,
+    php_git2::local_pack<
+        php_git2::php_git_odb_stream_byval,
+        php_git2::php_git_oid
+        >,
+    2,
+    php_git2::sequence<0>,
+    php_git2::sequence<1,0>,
+    php_git2::sequence<0,0>
+    >;
+
 // Function Entries:
 
 #define GIT_ODB_FE                                                      \
@@ -300,7 +446,12 @@ static constexpr auto ZIF_GIT_ODB_BACKEND_LOOSE = zif_php_git2_function<
     PHP_GIT2_FE(git_odb_object_type,ZIF_GIT_ODB_OBJECT_TYPE,NULL)       \
     PHP_GIT2_FE(git_odb_object_dup,ZIF_GIT_ODB_OBJECT_DUP,NULL)         \
     PHP_GIT2_FE(git_odb_backend_pack,ZIF_GIT_ODB_BACKEND_PACK,NULL)     \
-    PHP_GIT2_FE(git_odb_backend_loose,ZIF_GIT_ODB_BACKEND_LOOSE,NULL)
+    PHP_GIT2_FE(git_odb_backend_loose,ZIF_GIT_ODB_BACKEND_LOOSE,NULL)   \
+    PHP_GIT2_FE(git_odb_open_rstream,ZIF_GIT_ODB_OPEN_RSTREAM,NULL)     \
+    PHP_GIT2_FE(git_odb_open_wstream,ZIF_GIT_ODB_OPEN_WSTREAM,NULL)     \
+    PHP_GIT2_FE(git_odb_stream_read,ZIF_GIT_ODB_STREAM_READ,NULL)       \
+    PHP_GIT2_FE(git_odb_stream_write,ZIF_GIT_ODB_STREAM_WRITE,NULL)     \
+    PHP_GIT2_FE(git_odb_stream_finalize_write,ZIF_GIT_ODB_STREAM_FINALIZE_WRITE,NULL)
 
 #endif
 
