@@ -57,9 +57,9 @@ namespace php_git2
     private:
         // Provide a custom odb_backend derivation that remembers the PHP object
         // to which it's attached.
-        struct php_git_odb_backend
+        struct php_git_odb_backend:
+            git_odb_backend
         {
-            git_odb_backend base;
             zval* thisobj;
         };
 
