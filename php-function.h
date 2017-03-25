@@ -412,10 +412,6 @@ namespace php_git2
         (void)return_value;
     }
 
-    // Provide a function to handle a generic libgit2 error.
-
-    void git_error();
-
     // Provide a function that specializes checking return values from php
     // functions. These only work in the general case so be mindful.
 

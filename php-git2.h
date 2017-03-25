@@ -88,6 +88,10 @@ namespace php_git2
         std::string message;
     };
 
+    // Provide a function to handle a generic libgit2 error.
+
+    void git_error();
+
 } // namespace php_git2
 
 #endif

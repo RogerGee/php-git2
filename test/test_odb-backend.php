@@ -118,7 +118,34 @@ function test_writepack() {
     $wp->free();
 }
 
+function test_writepack2() {
+    // This is just like test_writepack() except it uses a slightly different
+    // invocation of writepack.
+
+    $objectsdir = testbed_get_root() . '/objects';
+    $packdir = "$objectsdir/pack";
+    if (!is_dir($packdir)) {
+        mkdir($packdir,0777,true);
+    }
+
+    $backend = git_odb_backend_pack($objectsdir);
+    $wp = $backend->writepack(null,null);
+
+    $pack = '5041434b00000002000000039a09789c95cbc10dc3200c00c03f5378815436a4604'
+        . 'b51d55fffddc0a126ed232242b07fb342a4fb5e6f66c05c44a3a9fa5c107995358be7'
+        . '3951e2e8a99c54a404733afab73678d7cd1abcceb9b46323d2a7e671b3cf7800cd9c6'
+        . '2087427983022ba5cf7fdd7bb5d5b8edc1fd6552bcca102789c33343030333151c848'
+        . 'cdc9c967581fa6b665a1c8ead34dd76cb79fe0d0b1710f7b2a0d00bfb20c8f3e789cf'
+        . '348cdc9c9d75128cf2fca4951e4020024f20494afed7ccfb9056fe89ef493d1983c26'
+        . 'd10f291f39';
+
+    $wp->append(hex2bin($pack));
+    echo "The result: \n";
+    var_dump($wp->commit());
+}
+
 testbed_test('ODB BACKEND READ OBJECT','Git2Test\ODBBackend\test_read');
 testbed_test('ODB BACKEND WRITE OBJECT','Git2Test\ODBBackend\test_write');
 testbed_test('ODB BACKEND FOREACH','Git2Test\ODBBackend\test_foreach');
 testbed_test('ODB BACKEND WRITEPACK','Git2Test\ODBBackend\test_writepack');
+testbed_test('ODB BACKEND WRITEPACK/ALT','Git2Test\ODBBackend\test_writepack2');

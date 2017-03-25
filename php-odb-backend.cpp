@@ -683,7 +683,7 @@ PHP_METHOD(GitODBBackend,read)
     try {
         convert_oid_fromstr(&oid,strOid,strOidLen);
         if (object->backend->read(&data,&size,&type,object->backend,&oid) < 0) {
-            git_error();
+            php_git2::git_error();
         }
     } catch (php_git2_exception ex) {
         zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
@@ -734,7 +734,7 @@ PHP_METHOD(GitODBBackend,read_prefix)
     try {
         convert_oid_fromstr(&prefix,strOid,strOidLen);
         if (object->backend->read_prefix(&full,&data,&size,&type,object->backend,&prefix,strOidLen) < 0) {
-            git_error();
+            php_git2::git_error();
         }
     } catch (php_git2_exception ex) {
         zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
@@ -782,7 +782,7 @@ PHP_METHOD(GitODBBackend,read_header)
     try {
         convert_oid_fromstr(&oid,strOid,strOidLen);
         if (object->backend->read_header(&size,&type,object->backend,&oid) < 0) {
-            git_error();
+            php_git2::git_error();
         }
     } catch (php_git2_exception ex) {
         zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
@@ -824,7 +824,7 @@ PHP_METHOD(GitODBBackend,write)
     try {
         convert_oid_fromstr(&oid,uoid,uoidSize);
         if (object->backend->write(object->backend,&oid,data,dataSize,(git_otype)type) < 0) {
-            git_error();
+            php_git2::git_error();
         }
     } catch (php_git2_exception ex) {
         zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
@@ -857,7 +857,7 @@ PHP_METHOD(GitODBBackend,writestream)
         if (object->backend->writestream(&outstream,object->backend,
                 (git_off_t)offset,(git_otype)objectType) < 0)
         {
-            git_error();
+            php_git2::git_error();
         }
     } catch (php_git2_exception ex) {
         zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
@@ -893,7 +893,7 @@ PHP_METHOD(GitODBBackend,readstream)
     try {
         convert_oid_fromstr(&oid,oidstr,oidstr_len);
         if (object->backend->readstream(&outstream,object->backend,&oid) < 0) {
-            git_error();
+            php_git2::git_error();
         }
     } catch (php_git2_exception ex) {
         zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
@@ -988,7 +988,7 @@ PHP_METHOD(GitODBBackend,refresh)
     // Perform function call.
     try {
         if (object->backend->refresh(object->backend) < 0) {
-            git_error();
+            php_git2::git_error();
         }
     } catch (php_git2_exception ex) {
         zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
@@ -1050,8 +1050,12 @@ PHP_METHOD(GitODBBackend,writepack)
 
     try {
         // Call the underlying function.
-        object->backend->writepack(&wp,object->backend,object->backend->odb,
+        int retval;
+        retval = object->backend->writepack(&wp,object->backend,object->backend->odb,
             handler.byval_git2(),callback->byval_git2());
+        if (retval < 0) {
+            php_git2::git_error();
+        }
 
         // Create return value out of the writepack and callback. The callback
         // will be managed by the GitODBWritepack object.
