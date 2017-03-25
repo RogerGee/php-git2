@@ -75,6 +75,8 @@ git_repository_odb(resource)
 
     Returns git_odb resource
 
+git_repository_set_odb(resource,resource)
+
 ----------------------------------------
 [git_reference]
 ----------------------------------------
@@ -329,10 +331,11 @@ GitODBBackend:
     methods:
         ** All methods should throw on failure. **
 
-        ** If a method is not to be implemented, either leave it alone or have
-           it call trigger_error() with E_USER_ERROR. These functions can be
-           called from userspace if you know what is available; however they are
-           designed to be defined in userspace and called by git2. **
+        ** If a method is not to be implemented, either leave it alone (i.e. do
+           not implement it) or have it call trigger_error() with
+           E_USER_ERROR. These functions can be called from userspace if you
+           know what is available; however they are designed to be defined in
+           userspace and called by git2. **
 
         read(int& type,string oid)
 

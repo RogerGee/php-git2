@@ -136,9 +136,8 @@ void php_odb_backend_object::create_custom_backend(zval* zobj)
         backend = nullptr;
     }
 
-    // Create custom backend using the specified zval. Custom backends are
-    // always passed off to git2, so we are not responsible for calling its free
-    // function.
+    // Create custom backend. Custom backends are always passed off to git2, so
+    // we are not responsible for calling its free function.
     backend = new (emalloc(sizeof(git_odb_backend_php))) git_odb_backend_php(zobj);
     isowner = false;
 }
@@ -567,14 +566,6 @@ void php_odb_backend_object::create_custom_backend(zval* zobj)
 
 /*static*/ void php_odb_backend_object::free(git_odb_backend* backend)
 {
-    // As a sanity check we'll do away with the pointer to the backend in the
-    // zend_object structure. This shouldn't be necessary since isowner *should*
-    // be set to false.
-    zval* thisobj = EXTRACT_THISOBJ(backend);
-    php_odb_backend_object* object;
-    object = LOOKUP_OBJECT(php_odb_backend_object,thisobj);
-    object->backend = nullptr;
-
     // Explicitly call the destructor on the custom backend. Then free the block
     // of memory that holds the object.
     EXTRACT_BACKEND(backend)->~git_odb_backend_php();
@@ -590,10 +581,16 @@ git_odb_backend_php::git_odb_backend_php(zval* zv)
     // headers).
     memset(this,0,sizeof(struct git_odb_backend));
 
+    // Copy the object zval so that we have a new zval we can track that refers
+    // to the same specified object. We keep this zval alive as long as the
+    // git_odb_backend is alive.
+    MAKE_STD_ZVAL(thisobj);
+    ZVAL_ZVAL(thisobj,zv,1,0);
+
     // Read properties from the object zval and assign them to the backing
     // structure.
-    zend_class_entry* ce = Z_OBJCE_P(zv);
-    zval* zp = zend_read_property(ce,zv,"version",sizeof("version")-1,1);
+    zend_class_entry* ce = Z_OBJCE_P(thisobj);
+    zval* zp = zend_read_property(ce,thisobj,"version",sizeof("version")-1,1);
     version = Z_LVAL_P(zp);
 
     // Every custom backend gets the free function (whether it is overloaded in
@@ -635,17 +632,12 @@ git_odb_backend_php::git_odb_backend_php(zval* zv)
     if (is_method_overloaded(ce,"writepack",sizeof("writepack"))) {
         writepack = php_odb_backend_object::writepack;
     }
-
-    // Increment the ref count for the zval since we'll need it to survive
-    // throughout the lifetime of the git_odb_backend.
-    zval_add_ref(&zv);
-    thisobj = zv;
 }
 
 php_odb_backend_object::
 git_odb_backend_php::~git_odb_backend_php()
 {
-    // Decrease our refcount on the object zval.
+    // Free object zval.
     zval_ptr_dtor(&thisobj);
 }
 
