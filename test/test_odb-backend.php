@@ -139,9 +139,19 @@ function test_writepack2() {
         . '348cdc9c9d75128cf2fca4951e4020024f20494afed7ccfb9056fe89ef493d1983c26'
         . 'd10f291f39';
 
+    // These should be the same object.
+    var_dump($backend);
+    var_dump($wp->backend);
+
     $wp->append(hex2bin($pack));
     echo "The result: \n";
     var_dump($wp->commit());
+
+    $backend->free();
+
+    // This will raise a fatal error since the object was invalidated (it won't
+    // crash though).
+    // $wp->backend->free();
 }
 
 testbed_test('ODB BACKEND READ OBJECT','Git2Test\ODBBackend\test_read');

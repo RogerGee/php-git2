@@ -25,9 +25,8 @@ zend_function_entry php_git2::odb_writepack_methods[] = {
 // Make function implementation
 
 void php_git2::php_git2_make_odb_writepack(zval* zp,git_odb_writepack* writepack,
-    php_callback_sync* cb TSRMLS_DC)
+    php_callback_sync* cb,zval* zbackend TSRMLS_DC)
 {
-    zval* zbackend;
     php_odb_writepack_object* obj;
     zend_class_entry* ce = php_git2::class_entry[php_git2_odb_writepack_obj];
 
@@ -39,12 +38,14 @@ void php_git2::php_git2_make_odb_writepack(zval* zp,git_odb_writepack* writepack
     obj->writepack = writepack;
     obj->cb = cb;
 
-    // Update the 'backend' property for object. We have to create an object
-    // zval for this. The object does *not* own the backend since it will be
-    // freed by the writepack (assumably, all I know is it crashes if I free it
-    // myself).
-    MAKE_STD_ZVAL(zbackend);
-    php_git2_make_odb_backend(zbackend,writepack->backend,false);
+    // Update the 'backend' property for object. If a zval was specified for the
+    // property, then we just use it directly. Otherwise we have to create an
+    // object zval for this.
+    if (zbackend == nullptr) {
+        // We assume in this case that the object does *not* own the backend.
+        MAKE_STD_ZVAL(zbackend);
+        php_git2_make_odb_backend(zbackend,writepack->backend,false);
+    }
     zend_update_property(ce,zp,"backend",sizeof("backend")-1,zbackend TSRMLS_CC);
 }
 

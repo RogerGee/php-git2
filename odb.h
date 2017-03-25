@@ -44,8 +44,10 @@ namespace php_git2
         void ret(zval* return_value) const
         {
             // Create the PHP object. It will manage the lifetime of the
-            // writepack and callback from now on.
-            php_git2_make_odb_writepack(return_value,writepack,cb TSRMLS_CC);
+            // writepack and callback from now on. The writepack's backend is
+            // assumably managed by another context and *will not* be managed by
+            // the writepack object in this extension module.
+            php_git2_make_odb_writepack(return_value,writepack,cb,nullptr TSRMLS_CC);
         }
 
     private:

@@ -1026,7 +1026,8 @@ PHP_METHOD(GitODBBackend,foreach)
 
 PHP_METHOD(GitODBBackend,writepack)
 {
-    php_odb_backend_object* object = LOOKUP_OBJECT(php_odb_backend_object,getThis());
+    zval* thisobj = getThis();
+    php_odb_backend_object* object = LOOKUP_OBJECT(php_odb_backend_object,thisobj);
 
     // Backend must be created and the function must be implemented.
     if (object->backend == nullptr || object->backend->writepack == nullptr) {
@@ -1059,7 +1060,7 @@ PHP_METHOD(GitODBBackend,writepack)
 
         // Create return value out of the writepack and callback. The callback
         // will be managed by the GitODBWritepack object.
-        php_git2_make_odb_writepack(return_value,wp,callback TSRMLS_CC);
+        php_git2_make_odb_writepack(return_value,wp,callback,thisobj TSRMLS_CC);
     } catch (php_git2_exception ex) {
         zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
         return;
@@ -1071,7 +1072,7 @@ PHP_METHOD(GitODBBackend,free)
     php_odb_backend_object* object = LOOKUP_OBJECT(php_odb_backend_object,getThis());
 
     // Backend must be created and the function must be implemented.
-    if (object->backend == nullptr || object->backend->foreach == nullptr) {
+    if (object->backend == nullptr || object->backend->free == nullptr) {
         php_error(E_ERROR,"GitODBBackend::free(): method is not available");
         return;
     }

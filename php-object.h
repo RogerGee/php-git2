@@ -117,7 +117,7 @@ namespace php_git2
 
     void php_git2_make_object(zval* zp,php_git2_object_t type TSRMLS_DC);
     void php_git2_make_odb_writepack(zval* zp,git_odb_writepack* writepack,
-        php_callback_sync* cb TSRMLS_DC);
+        php_callback_sync* cb,zval* zbackend TSRMLS_DC);
     void php_git2_make_odb_backend(zval* zp,git_odb_backend* backend,bool owner TSRMLS_DC);
     void php_git2_make_odb_stream(zval* zp,git_odb_stream* stream TSRMLS_DC);
 
