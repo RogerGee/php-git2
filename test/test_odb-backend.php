@@ -1,9 +1,11 @@
 <?php
 
+namespace Git2Test\ODBBackend;
+
 require_once 'test_base.php';
 require_once 'test_odb-writepack.php';
 
-testbed_test('ODB BACKEND READ OBJECT',function(){
+function test_read() {
     $repoPath = testbed_get_repo_path();
     $backend = git_odb_backend_pack("$repoPath/objects");
     var_dump($backend);
@@ -28,9 +30,9 @@ testbed_test('ODB BACKEND READ OBJECT',function(){
     var_dump($backend->read_header($headerSize,$headerType,$oid));
     var_dump($headerSize);
     var_dump($headerType);
-});
+}
 
-testbed_test('ODB BACKEND WRITE OBJECT',function(){
+function test_write() {
     $repoPath = testbed_get_repo_path();
     $backend = git_odb_backend_loose("$repoPath/objects",7,false,0,0);
 
@@ -72,9 +74,9 @@ testbed_test('ODB BACKEND WRITE OBJECT',function(){
             throw new Exception("Failed to insert object into backend.");
         }
     }
-});
+}
 
-testbed_test('ODB BACKEND FOREACH',function(){
+function test_foreach() {
     $repoPath = testbed_get_repo_path();
     $backend = git_odb_backend_loose("$repoPath/objects",7,false,0,0);
 
@@ -85,9 +87,9 @@ testbed_test('ODB BACKEND FOREACH',function(){
     };
 
     $backend->foreach($callback,'object #');
-});
+}
 
-testbed_test('ODB BACKEND WRITEPACK',function(){
+function test_writepack() {
     // This is the same pack test as for git_odb_write_pack() except refactored
     // for git_odb_backend.
 
@@ -114,4 +116,9 @@ testbed_test('ODB BACKEND WRITEPACK',function(){
 
     // Freeing is optional but we should test it.
     $wp->free();
-});
+}
+
+testbed_test('ODB BACKEND READ OBJECT','Git2Test\ODBBackend\test_read');
+testbed_test('ODB BACKEND WRITE OBJECT','Git2Test\ODBBackend\test_write');
+testbed_test('ODB BACKEND FOREACH','Git2Test\ODBBackend\test_foreach');
+testbed_test('ODB BACKEND WRITEPACK','Git2Test\ODBBackend\test_writepack');

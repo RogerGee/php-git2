@@ -34,6 +34,9 @@ function testbed_get_repo_path() {
     $path = testbed_path('test-repo.git');
     if (!file_exists($path)) {
         $reposrc = git_repository_discover('.',false,null);
+
+        // TODO: replace with git2 functionality instead of external process
+        // invocation.
         shell_exec("git clone --bare $reposrc $path");
     }
     return $path;
@@ -45,9 +48,8 @@ function testbed_test($title,callable $lambda) {
         $ret = $lambda();
         $output = ob_get_clean();
     } catch (Exception $ex) {
-        ob_get_clean();
-        echo 'php-git2 testbed: error: ' . $ex->getMessage() . PHP_EOL;
-        exit(1);
+        $output = ob_get_clean();
+        $error = 'php-git2 testbed: error: ' . $ex->getMessage() . PHP_EOL;
     }
 
     fwrite(STDOUT,"$title - \n\n");
@@ -55,6 +57,11 @@ function testbed_test($title,callable $lambda) {
         fwrite(STDOUT,"    $line\n");
     }
     fwrite(STDOUT,"\n");
+
+    if (isset($error)) {
+        echo $error;
+        exit(1);
+    }
 
     return $ret;
 }

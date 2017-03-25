@@ -1,5 +1,7 @@
 <?php
 
+namespace Git2Test\ODBWritepack;
+
 require_once 'test_base.php';
 
 function callback($stats,$payload) {
@@ -12,7 +14,7 @@ testbed_test('WRITEPACK',function(){
     $repoPath = testbed_get_repo_path();
     $repo = git_repository_open_bare($repoPath);
     $odb = git_repository_odb($repo);
-    $wp = git_odb_write_pack($odb,'callback',33);
+    $wp = git_odb_write_pack($odb,'Git2Test\ODBWritepack\callback',33);
 
     // This is a random packfile that adds a small, root commit to the database.
     $pack = '5041434b00000002000000039a09789c95cbc10dc3200c00c03f5378815436a4604'
@@ -35,12 +37,12 @@ testbed_test('WRITEPACK',function(){
     $wp->free();
 });
 
-$ret = testbed_test('WRITEPACK/LIFETIME OF OBJECT',function(){
+function test_lifetime() {
     $lambda = function(){
         $repoPath = testbed_get_repo_path();
         $repo = git_repository_open_bare($repoPath);
         $odb = git_repository_odb($repo);
-        $wp = git_odb_write_pack($odb,'callback',33);
+        $wp = git_odb_write_pack($odb,'Git2Test\ODBWritepack\callback',33);
 
         // This is a random packfile that adds a small, root commit to the database.
         $pack = '5041434b00000002000000039a09789c95cbc10dc3200c00c03f5378815436a4604'
@@ -64,4 +66,6 @@ $ret = testbed_test('WRITEPACK/LIFETIME OF OBJECT',function(){
     $wp = $lambda();
     var_dump($wp);
     $wp->free();
-});
+}
+
+$ret = testbed_test('WRITEPACK/LIFETIME OF OBJECT','Git2Test\ODBWritepack\test_lifetime');
