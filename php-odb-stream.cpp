@@ -38,10 +38,9 @@ void php_git2::php_git2_make_odb_stream(zval* zp,git_odb_stream* stream TSRMLS_D
 // Implementation of php_odb_stream_object
 
 /*static*/ zend_object_handlers php_odb_stream_object::handlers;
-php_odb_stream_object::php_odb_stream_object(TSRMLS_D):
+php_odb_stream_object::php_odb_stream_object(zend_class_entry* ce TSRMLS_DC):
     stream(nullptr), zts(TSRMLS_C)
 {
-    zend_class_entry* ce = php_git2::class_entry[php_git2_odb_stream_obj];
     zend_object_std_init(&base,ce TSRMLS_CC);
     object_properties_init(&base,ce);
 }

@@ -9,12 +9,13 @@
 
 #include "php-object.h"
 #include "php-callback.h"
+#include <new>
 using namespace php_git2;
 
 // Helper macros
 
 #define EXTRACT_BACKEND(backend) \
-    reinterpret_cast<php_odb_backend_object::php_git_odb_backend*>(backend)
+    reinterpret_cast<php_odb_backend_object::git_odb_backend_php*>(backend)
 
 #define EXTRACT_THISOBJ(backend) \
     EXTRACT_BACKEND(backend)->thisobj
@@ -107,10 +108,9 @@ void php_git2::php_git2_make_odb_backend(zval* zp,git_odb_backend* backend,bool 
 // Implementation of php_odb_backend_object
 
 /*static*/ zend_object_handlers php_odb_backend_object::handlers;
-php_odb_backend_object::php_odb_backend_object(TSRMLS_D):
+php_odb_backend_object::php_odb_backend_object(zend_class_entry* ce TSRMLS_DC):
     backend(nullptr), isowner(false), zts(TSRMLS_C)
 {
-    zend_class_entry* ce = php_git2::class_entry[php_git2_odb_backend_obj];
     zend_object_std_init(&base,ce TSRMLS_CC);
     object_properties_init(&base,ce);
 }
@@ -127,9 +127,29 @@ php_odb_backend_object::~php_odb_backend_object()
     zend_object_std_dtor(&base ZTS_MEMBER_CC(this->zts));
 }
 
+void php_odb_backend_object::create_custom_backend(zval* zobj)
+{
+    if (backend != nullptr) {
+        if (isowner) {
+            backend->free(backend);
+        }
+        backend = nullptr;
+    }
+
+    // Create custom backend using the specified zval. Custom backends are
+    // always passed off to git2, so we are not responsible for calling its free
+    // function.
+    backend = new (emalloc(sizeof(git_odb_backend_php))) git_odb_backend_php(zobj);
+    isowner = false;
+}
+
 /*static*/ void php_odb_backend_object::init(zend_class_entry* ce)
 {
-    zend_declare_property_long(ce,"version",sizeof("version")-1,0,ZEND_ACC_PUBLIC);
+    zend_declare_property_long(
+        ce,
+        "version", sizeof("version") - 1,
+        GIT_ODB_BACKEND_VERSION,
+        ZEND_ACC_PUBLIC);
 }
 
 /*static*/ int php_odb_backend_object::read(void** datap,size_t* sizep,
@@ -494,9 +514,38 @@ php_odb_backend_object::~php_odb_backend_object()
 
 /*static*/ int php_odb_backend_object::refresh(git_odb_backend* backend)
 {
+    zval fname;
+    zval retval;
+    zval* thisobj = EXTRACT_THISOBJ(backend);
     int result = GIT_OK;
 
+    // We only need to lookup the object backing to get at the ZTS globals.
+#ifdef ZTS
+    php_odb_backend_object* object;
+    object = LOOKUP_OBJECT(php_odb_backend_object,thisobj);
+#endif
+
+    // Allocate/initialize zvals.
+    INIT_ZVAL(fname);
+    INIT_ZVAL(retval);
+
+    // Assign values to function name and by-value arguments.
+    ZVAL_STRING(&fname,"refresh",1);
+
+    // Call userspace method implementation of odb operation. The user hopefully
+    // has overridden the method in a derived class.
+    if (call_user_function(NULL,&thisobj,&fname,&retval,0,NULL
+            ZTS_MEMBER_CC(object->zts)) == FAILURE)
+    {
+        result = GIT_ERROR;
+    }
+
+    // Cleanup zvals.
+    zval_dtor(&fname);
+    zval_dtor(&retval);
     return result;
+
+    (void)backend; // we essentially get this from the "this" zval
 }
 
 /*static*/ int php_odb_backend_object::foreach(git_odb_backend* backend,
@@ -518,7 +567,86 @@ php_odb_backend_object::~php_odb_backend_object()
 
 /*static*/ void php_odb_backend_object::free(git_odb_backend* backend)
 {
+    // As a sanity check we'll do away with the pointer to the backend in the
+    // zend_object structure. This shouldn't be necessary since isowner *should*
+    // be set to false.
+    zval* thisobj = EXTRACT_THISOBJ(backend);
+    php_odb_backend_object* object;
+    object = LOOKUP_OBJECT(php_odb_backend_object,thisobj);
+    object->backend = nullptr;
 
+    // Explicitly call the destructor on the custom backend. Then free the block
+    // of memory that holds the object.
+    EXTRACT_BACKEND(backend)->~git_odb_backend_php();
+    efree(backend);
+}
+
+// php_odb_backend_object::git_odb_backend_php
+
+php_odb_backend_object::
+git_odb_backend_php::git_odb_backend_php(zval* zv)
+{
+    // Blank out the base class (which is the structure defined in the git2
+    // headers).
+    memset(this,0,sizeof(struct git_odb_backend));
+
+    // Read properties from the object zval and assign them to the backing
+    // structure.
+    zend_class_entry* ce = Z_OBJCE_P(zv);
+    zval* zp = zend_read_property(ce,zv,"version",sizeof("version")-1,1);
+    version = Z_LVAL_P(zp);
+
+    // Every custom backend gets the free function (whether it is overloaded in
+    // userspace or not).
+    free = php_odb_backend_object::free;
+
+    // We now must select which functions we are going to include in the
+    // backend. We do this by determining which ones were overloaded.
+    if (is_method_overloaded(ce,"read",sizeof("read"))) {
+        read = php_odb_backend_object::read;
+    }
+    if (is_method_overloaded(ce,"read_prefix",sizeof("read_prefix"))) {
+        read_prefix = php_odb_backend_object::read_prefix;
+    }
+    if (is_method_overloaded(ce,"read_header",sizeof("read_header"))) {
+        read_header = php_odb_backend_object::read_header;
+    }
+    if (is_method_overloaded(ce,"write",sizeof("write"))) {
+        write = php_odb_backend_object::write;
+    }
+    if (is_method_overloaded(ce,"writestream",sizeof("writestream"))) {
+        writestream = php_odb_backend_object::writestream;
+    }
+    if (is_method_overloaded(ce,"readstream",sizeof("readstream"))) {
+        readstream = php_odb_backend_object::readstream;
+    }
+    if (is_method_overloaded(ce,"exists",sizeof("exists"))) {
+        exists = php_odb_backend_object::exists;
+    }
+    if (is_method_overloaded(ce,"exists_prefix",sizeof("exists_prefix"))) {
+        exists_prefix = php_odb_backend_object::exists_prefix;
+    }
+    if (is_method_overloaded(ce,"refresh",sizeof("refresh"))) {
+        refresh = php_odb_backend_object::refresh;
+    }
+    if (is_method_overloaded(ce,"foreach",sizeof("foreach"))) {
+        foreach = php_odb_backend_object::foreach;
+    }
+    if (is_method_overloaded(ce,"writepack",sizeof("writepack"))) {
+        writepack = php_odb_backend_object::writepack;
+    }
+
+    // Increment the ref count for the zval since we'll need it to survive
+    // throughout the lifetime of the git_odb_backend.
+    zval_add_ref(&zv);
+    thisobj = zv;
+}
+
+php_odb_backend_object::
+git_odb_backend_php::~git_odb_backend_php()
+{
+    // Decrease our refcount on the object zval.
+    zval_ptr_dtor(&thisobj);
 }
 
 // Implementation of class methods
@@ -940,7 +1068,7 @@ PHP_METHOD(GitODBBackend,free)
 
     // Backend must be created and the function must be implemented.
     if (object->backend == nullptr || object->backend->foreach == nullptr) {
-        php_error(E_ERROR,"GitODBBackend::foreach(): method is not available");
+        php_error(E_ERROR,"GitODBBackend::free(): method is not available");
         return;
     }
 

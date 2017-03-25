@@ -122,7 +122,7 @@ PHP_MINIT_FUNCTION(git2)
         git_odb_object,
         git_commit >(module_number);
 
-    // Register all classes provided by this extension:
+    // Register all classes provided by this extension.
     php_git2_register_classes(TSRMLS_C);
 
     // Register libgit2 constants:

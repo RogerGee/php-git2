@@ -266,6 +266,8 @@ git_odb_stream_finalize_write(GitODBStream)
 
     Returns string
 
+git_odb_add_backend(resource,GitODBBackend,int)
+
 ----------------------------------------
 [git_commit]
 ----------------------------------------

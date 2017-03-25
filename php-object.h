@@ -29,7 +29,7 @@ namespace php_git2
 
     struct php_odb_writepack_object
     {
-        php_odb_writepack_object(TSRMLS_D);
+        php_odb_writepack_object(zend_class_entry* ce TSRMLS_DC);
         ~php_odb_writepack_object();
 
         zend_object base;
@@ -44,7 +44,7 @@ namespace php_git2
 
     struct php_odb_backend_object
     {
-        php_odb_backend_object(TSRMLS_D);
+        php_odb_backend_object(zend_class_entry* ce TSRMLS_DC);
         ~php_odb_backend_object();
 
         zend_object base;
@@ -52,14 +52,19 @@ namespace php_git2
         bool isowner;
         php_zts_member zts;
 
+        void create_custom_backend(zval* zobj);
+
         static zend_object_handlers handlers;
         static void init(zend_class_entry* ce);
     private:
         // Provide a custom odb_backend derivation that remembers the PHP object
         // to which it's attached.
-        struct php_git_odb_backend:
+        struct git_odb_backend_php:
             git_odb_backend
         {
+            git_odb_backend_php(zval* zv);
+            ~git_odb_backend_php();
+
             zval* thisobj;
         };
 
@@ -91,7 +96,7 @@ namespace php_git2
 
     struct php_odb_stream_object
     {
-        php_odb_stream_object(TSRMLS_D);
+        php_odb_stream_object(zend_class_entry* ce TSRMLS_DC);
         ~php_odb_stream_object();
 
         zend_object base;
@@ -116,6 +121,10 @@ namespace php_git2
     void php_git2_make_odb_backend(zval* zp,git_odb_backend* backend,bool owner TSRMLS_DC);
     void php_git2_make_odb_stream(zval* zp,git_odb_stream* stream TSRMLS_DC);
 
+    // Useful helpers
+
+    bool is_method_overloaded(zend_class_entry* ce,const char* method,int len);
+
     // Extern variables in this namespace.
     extern zend_class_entry* class_entry[];
     extern zend_function_entry odb_writepack_methods[];
@@ -127,6 +136,9 @@ namespace php_git2
 
 #define LOOKUP_OBJECT(type,val)                         \
     (type*)zend_object_store_get_object(val TSRMLS_CC)
+
+#define is_subclass_of(a,b)                     \
+    (a == b || instanceof_function(a,b))
 
 #endif
 

@@ -30,7 +30,7 @@ static zend_object_value php_create_object_handler(zend_class_entry* ce TSRMLS_D
     T* object;
     zend_object_value val;
 
-    object = new(emalloc(sizeof(T))) T(TSRMLS_C);
+    object = new(emalloc(sizeof(T))) T(ce TSRMLS_CC);
 
     memset(&val,0,sizeof(zend_object_value));
     val.handle = zend_objects_store_put(object,
@@ -58,25 +58,25 @@ void php_git2::php_git2_register_classes(TSRMLS_D)
     // ODB_WRITEPACK
     INIT_CLASS_ENTRY(ce,"GitODBWritepack",odb_writepack_methods);
     pce = zend_register_internal_class(&ce TSRMLS_CC);
-    pce->create_object = php_create_object_handler<php_odb_writepack_object>;
     php_git2::class_entry[php_git2_odb_writepack_obj] = pce;
     memcpy(&php_odb_writepack_object::handlers,stdhandlers,sizeof(zend_object_handlers));
+    pce->create_object = php_create_object_handler<php_odb_writepack_object>;
     php_odb_writepack_object::init(pce);
 
     // ODB_BACKEND
     INIT_CLASS_ENTRY(ce,"GitODBBackend",odb_backend_methods);
     pce = zend_register_internal_class(&ce TSRMLS_CC);
-    pce->create_object = php_create_object_handler<php_odb_backend_object>;
     php_git2::class_entry[php_git2_odb_backend_obj] = pce;
     memcpy(&php_odb_backend_object::handlers,stdhandlers,sizeof(zend_object_handlers));
+    pce->create_object = php_create_object_handler<php_odb_backend_object>;
     php_odb_backend_object::init(pce);
 
     // ODB_STREAM
     INIT_CLASS_ENTRY(ce,"GitODBStream",odb_stream_methods);
     pce = zend_register_internal_class(&ce TSRMLS_CC);
-    pce->create_object = php_create_object_handler<php_odb_stream_object>;
     php_git2::class_entry[php_git2_odb_stream_obj] = pce;
     memcpy(&php_odb_stream_object::handlers,stdhandlers,sizeof(zend_object_handlers));
+    pce->create_object = php_create_object_handler<php_odb_stream_object>;
     php_odb_stream_object::init(pce);
 }
 
@@ -85,6 +85,21 @@ void php_git2::php_git2_register_classes(TSRMLS_D)
 void php_git2::php_git2_make_object(zval* zp,php_git2_object_t type TSRMLS_DC)
 {
     object_init_ex(zp,php_git2::class_entry[type]);
+}
+
+// Helpers
+
+bool php_git2::is_method_overloaded(zend_class_entry* ce,const char* method,int len)
+{
+    zend_function* func;
+
+    // Look up the function entry in the class entry's function table.
+    if (zend_hash_find(&ce->function_table,method,len,(void**)&func) == FAILURE) {
+        return false;
+    }
+
+    // The method is overloaded if the prototype is defined.
+    return (func->common.prototype != NULL);
 }
 
 /*

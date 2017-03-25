@@ -51,10 +51,9 @@ void php_git2::php_git2_make_odb_writepack(zval* zp,git_odb_writepack* writepack
 // Implementation of php_odb_writepack_object
 
 /*static*/ zend_object_handlers php_odb_writepack_object::handlers;
-php_odb_writepack_object::php_odb_writepack_object(TSRMLS_D):
+php_odb_writepack_object::php_odb_writepack_object(zend_class_entry* ce TSRMLS_DC):
     writepack(nullptr), cb(nullptr), zts(TSRMLS_C)
 {
-    zend_class_entry* ce = php_git2::class_entry[php_git2_odb_writepack_obj];
     zend_object_std_init(&base,ce TSRMLS_CC);
     object_properties_init(&base,ce);
     memset(&prog,0,sizeof(git_transfer_progress));
