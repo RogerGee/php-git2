@@ -310,7 +310,6 @@ namespace php_git2
 
     template<typename GitResource>
     class php_resource_ref:
-        public php_value_base,
         private php_zts_base
     {
     public:
@@ -322,65 +321,30 @@ namespace php_git2
         typename GitResource::git2_type*
         byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
-            lookup(argno);
+            // Create a resource backing instance if it does not already exist.
+            if (rsrc == nullptr) {
+                rsrc = php_git2_create_resource<GitResource>();
+            }
             return rsrc->get_handle_byref();
             (void)argno;
         }
 
         void ret(zval* return_value) const
         {
-            RETVAL_RESOURCE(Z_RESVAL_P(value));
+            // Create a resource zval that uses the GitResource backing.
+            zend_register_resource(return_value,rsrc,GitResource::resource_le() TSRMLS_CC);
         }
 
-        // This member function is used to retrieve the resource object. We must
-        // make sure it has been created.
         GitResource* get_object(unsigned argno)
         {
-            lookup(argno);
+            // Retrieve the resource object, creating it if it does not exist.
+            if (rsrc == nullptr) {
+                rsrc = php_git2_create_resource<GitResource>();
+            }
             return rsrc;
         }
     private:
         GitResource* rsrc;
-
-        void lookup(unsigned argno)
-        {
-            int r;
-            if (rsrc != nullptr) {
-                return;
-            }
-
-            // Create the resource if it doesn't exist (which should most likely
-            // be the case). Our assumption is that since this value is being
-            // used by reference, then it is being assigned. This means we will
-            // need to create and register the resource for later assignment and
-            // lookup.
-            if (value == nullptr) {
-                MAKE_STD_ZVAL(value);
-                rsrc = php_git2_create_resource<GitResource>();
-                r = zend_register_resource(value,
-                    rsrc,
-                    GitResource::resource_le() TSRMLS_CC);
-                (void)r;
-            }
-            else {
-                // NOTE: in practice this shouldn't happen, since this type is
-                // used to create new resources.
-
-                // Make sure this is a resource zval.
-                if (Z_TYPE_P(value) != IS_RESOURCE) {
-                    error("resource",argno);
-                }
-
-                // Fetch the resource handle. Zend will perform error checking
-                // on the resource type.
-                rsrc = (GitResource*)zend_fetch_resource(&value TSRMLS_CC,-1,
-                    GitResource::resource_name(),NULL,1,GitResource::resource_le());
-                if (rsrc == nullptr) {
-                    throw php_git2_exception("resource is invalid");
-                }
-            }
-
-        }
     };
 
     // Provide a type that represents an optional resource value (one that could
