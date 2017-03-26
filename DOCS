@@ -288,6 +288,56 @@ git_commit_parent_id(resource,int)
 
 git_commit_free(resource)
 
+----------------------------------------
+[git_blob]
+----------------------------------------
+
+git_blob_create_frombuffer(resource,string)
+
+    Returns string
+
+git_blob_create_fromdisk(resource,string)
+
+    Returns string
+
+git_blob_create_fromworkdir(resource,string)
+
+    Returns string
+
+git_blob_filtered_content(resource,string,bool)
+
+    Returns string
+
+git_blob_free(resource)
+
+git_blob_id(resource)
+
+    Returns string
+
+git_blob_is_binary(resource)
+
+    Returns int
+
+git_blob_lookup(resource,string)
+
+    Returns resource
+
+git_blob_lookup_prefix(resource,string)
+
+    Returns resource
+
+git_blob_owner(resource)
+
+    Returns resource
+
+git_blob_rawcontent(resource)
+
+    Returns string
+
+git_blob_rawsize(resource)
+
+    Returns int
+
 --------------------------------------------------------------------------------
 The following structures are not represented as resources in the PHP
 API. Instead a primitive or object type is used:

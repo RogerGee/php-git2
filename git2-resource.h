@@ -21,12 +21,12 @@ namespace php_git2
     public:
         typedef git_type* git2_type;
 
-        git2_resource():
-            handle(nullptr)
+        git2_resource(bool isOwner = true):
+            handle(nullptr), isowner(isOwner)
         {
         }
 
-        virtual ~git2_resource()
+        ~git2_resource()
         {
             throw php_git2_exception(
                 "resource type was not implemented correctly: no destructor provided");
@@ -38,6 +38,8 @@ namespace php_git2
         { return &handle; }
         void release()
         { handle = nullptr; }
+        bool is_owned() const
+        { return isowner; }
 
         static void define_resource_type(int moduleNumber)
         {
@@ -55,11 +57,13 @@ namespace php_git2
         static void destroy_resource(zend_rsrc_list_entry* rsrc TSRMLS_DC)
         {
             // We must explicitly call the object's destructor, then free the
-            // object itself.
+            // object itself. We only call the destructor if we own the handle.
 
             git2_resource* thisObj = reinterpret_cast<git2_resource*>(rsrc->ptr);
 
-            thisObj->~git2_resource();
+            if (thisObj->isowner) {
+                thisObj->~git2_resource();
+            }
             efree(thisObj);
         }
 
@@ -67,10 +71,29 @@ namespace php_git2
         // resource. These types are opaque and require explicit deletion by
         // libgit2 routines.
         git2_type handle;
+
+        // Define whether or not we own the handle.
+        bool isowner;
     };
     template<typename git_type>
     int git2_resource<git_type>::le = 0;
 
+    // Provide a custom derivation for handling resources that do not own their
+    // underlying handles. This is useful for helping PHP userspace not bork
+    // git2 by freeing things incorrectly.
+    template<typename git_type>
+    class git2_resource_nofree:
+        public git2_resource<git_type>
+    {
+    public:
+        git2_resource_nofree():
+            git2_resource<git_type>(false)
+        {
+        }
+    };
+
+    // Provide a function for creating resource objects. This must exist outside
+    // of the git2_resource<T> class so that we can allocate derived objects.
     template<typename GitResource>
     GitResource* php_git2_create_resource()
     {
@@ -79,6 +102,9 @@ namespace php_git2
         return obj;
     }
 
+    // Provide a function for registering any number of resource types. The
+    // template arguments each represent a git2 type that is tracked via a PHP
+    // resource type.
     template<typename... Args>
     void php_git2_define_resource_types(int moduleNumber)
     {

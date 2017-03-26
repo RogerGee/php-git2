@@ -16,11 +16,11 @@
 #include "indexer.h"
 #include "odb.h"
 #include "commit.h"
+#include "blob.h"
 #include <cstdio>
 #include <cstdarg>
 using namespace std;
 using namespace php_git2;
-
 
 ZEND_DECLARE_MODULE_GLOBALS(git2)
 
@@ -61,6 +61,7 @@ static zend_function_entry php_git2_functions[] = {
     GIT_INDEXER_FE
     GIT_ODB_FE
     GIT_COMMIT_FE
+    GIT_BLOB_FE
     PHP_FE_END
 };
 
@@ -120,7 +121,8 @@ PHP_MINIT_FUNCTION(git2)
         git_indexer,
         git_odb,
         git_odb_object,
-        git_commit >(module_number);
+        git_commit,
+        git_blob >(module_number);
 
     // Register all classes provided by this extension.
     php_git2_register_classes(TSRMLS_C);

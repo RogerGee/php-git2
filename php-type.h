@@ -154,11 +154,11 @@ namespace php_git2
     };
 
     // Provide a string connector that returns the string length.
-    template<typename IntType>
+    template<typename IntType,typename StringType = php_string>
     class php_string_length_connector
     {
     public:
-        using connect_t = php_string;
+        using connect_t = StringType;
         typedef IntType target_t;
 
         php_string_length_connector(connect_t&& obj TSRMLS_DC):
@@ -464,8 +464,16 @@ namespace php_git2
                 throw php_git2_exception("resource is invalid");
             }
 
+            // Make sure the resource owns the underlying handle. We need to
+            // prevent PHP userspace from being a jerk and freeing things
+            // incorrectly.
+            if (!rsrc->is_owned()) {
+                throw php_git2_exception("you cannot free this resource in this context");
+            }
+
             // Release the git2 handle from the resource handle; then we cause
-            // PHP to destroy the resource zval.
+            // PHP to destroy the resource. This will case the resource to be
+            // invalidated across any zvals that reference it.
             handle = rsrc->get_handle();
             rsrc->release();
             zend_hash_index_del(&EG(regular_list),Z_RESVAL_P(value));
@@ -599,6 +607,10 @@ namespace php_git2
     using php_git_odb = git2_resource<git_odb>;
     using php_git_odb_object = git2_resource<git_odb_object>;
     using php_git_commit = git2_resource<git_commit>;
+    using php_git_blob = git2_resource<git_blob>;
+
+    // Enumerate nofree versions of certain resource types.
+    using php_git_repository_nofree = git2_resource_nofree<git_repository>;
 
 } // namespace php_git2
 
