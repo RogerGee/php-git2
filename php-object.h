@@ -101,6 +101,7 @@ namespace php_git2
 
         zend_object base;
         git_odb_stream* stream;
+        bool isstd;
         php_zts_member zts;
 
         static zend_object_handlers handlers;
@@ -119,7 +120,7 @@ namespace php_git2
     void php_git2_make_odb_writepack(zval* zp,git_odb_writepack* writepack,
         php_callback_sync* cb,zval* zbackend TSRMLS_DC);
     void php_git2_make_odb_backend(zval* zp,git_odb_backend* backend,bool owner TSRMLS_DC);
-    void php_git2_make_odb_stream(zval* zp,git_odb_stream* stream TSRMLS_DC);
+    void php_git2_make_odb_stream(zval* zp,git_odb_stream* stream,bool isstd TSRMLS_DC);
 
     // Useful helpers
 

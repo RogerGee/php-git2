@@ -222,6 +222,10 @@ git_odb_backend_loose(string,int,bool,int,int)
 
     Returns object instance of type GitODBBackend
 
+git_odb_backend_one_pack(string)
+
+    Returns object instance of type GitODBBackend
+
 git_odb_open(string)
 
     Returns git_odb resource
@@ -268,7 +272,15 @@ git_odb_stream_finalize_write(GitODBStream)
 
     Returns string
 
+git_odb_add_alternate(resource,GitODBBackend,int)
+
+git_odb_add_disk_alternate(resource,string)
+
 git_odb_add_backend(resource,GitODBBackend,int)
+
+git_odb_exists(string)
+
+git_odb_foreach(resource,callable,mixed)
 
 ----------------------------------------
 [git_commit]
@@ -453,8 +465,4 @@ GitODBStream:
 
         write(string buffer)
 
-            Returns true
-
-        finalize_write()
-
-            Returns string
+        finalize_write(string oid)

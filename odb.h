@@ -164,7 +164,7 @@ namespace php_git2
         void ret(zval* return_value)
         {
             // Wrap the git_odb_backend handle in an object zval.
-            php_git2_make_odb_stream(return_value,stream TSRMLS_CC);
+            php_git2_make_odb_stream(return_value,stream,true TSRMLS_CC);
         }
     private:
         git_odb_stream* stream;
@@ -356,6 +356,21 @@ static constexpr auto ZIF_GIT_ODB_BACKEND_LOOSE = zif_php_git2_function<
     php_git2::sequence<0,0,1,2,3,4>
     >;
 
+static constexpr auto ZIF_GIT_ODB_BACKEND_ONE_PACK = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_odb_backend**,
+        const char*
+        >::func<git_odb_backend_one_pack>,
+    php_git2::local_pack<
+        php_git2::php_git_odb_backend_byref,
+        php_git2::php_string>,
+    1,
+    php_git2::sequence<1>,
+    php_git2::sequence<0,1>,
+    php_git2::sequence<0,0>
+    >;
+
 static constexpr auto ZIF_GIT_ODB_OPEN_RSTREAM = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
@@ -442,6 +457,34 @@ static constexpr auto ZIF_GIT_ODB_STREAM_FINALIZE_WRITE = zif_php_git2_function<
     php_git2::sequence<0,0>
     >;
 
+static constexpr auto ZIF_GIT_ODB_ADD_ALTERNATE = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_odb*,
+        git_odb_backend*,
+        int
+        >::func<git_odb_add_alternate>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_odb>,
+        php_git2::php_git_odb_backend_byval,
+        php_git2::php_long
+        >,
+    -1
+    >;
+
+static constexpr auto ZIF_GIT_ODB_ADD_DISK_ALTERNATE = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_odb*,
+        const char*
+        >::func<git_odb_add_disk_alternate>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_odb>,
+        php_git2::php_string
+        >,
+    -1
+    >;
+
 static constexpr auto ZIF_GIT_ODB_ADD_BACKEND = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
@@ -455,6 +498,37 @@ static constexpr auto ZIF_GIT_ODB_ADD_BACKEND = zif_php_git2_function<
         php_git2::php_long
         >,
     -1
+    >;
+
+static constexpr auto ZIF_GIT_ODB_EXISTS = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_odb*,
+        const git_oid*
+        >::func<git_odb_exists>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_odb>,
+        php_git2::php_git_oid_fromstr
+        >,
+    0
+    >;
+
+static constexpr auto ZIF_GIT_ODB_FOREACH = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_odb*,
+        git_odb_foreach_cb,
+        void*
+        >::func<git_odb_foreach>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_odb>,
+        php_git2::php_callback_handler<php_git2::odb_foreach_callback>,
+        php_git2::php_callback_sync
+        >,
+    -1,
+    php_git2::sequence<0,2,2>, // pass callback in for both callable and payload
+    php_git2::sequence<0,1,2>,
+    php_git2::sequence<0,1,2>
     >;
 
 // Function Entries:
@@ -473,12 +547,17 @@ static constexpr auto ZIF_GIT_ODB_ADD_BACKEND = zif_php_git2_function<
     PHP_GIT2_FE(git_odb_object_dup,ZIF_GIT_ODB_OBJECT_DUP,NULL)         \
     PHP_GIT2_FE(git_odb_backend_pack,ZIF_GIT_ODB_BACKEND_PACK,NULL)     \
     PHP_GIT2_FE(git_odb_backend_loose,ZIF_GIT_ODB_BACKEND_LOOSE,NULL)   \
+    PHP_GIT2_FE(git_odb_backend_one_pack,ZIF_GIT_ODB_BACKEND_ONE_PACK,NULL) \
     PHP_GIT2_FE(git_odb_open_rstream,ZIF_GIT_ODB_OPEN_RSTREAM,NULL)     \
     PHP_GIT2_FE(git_odb_open_wstream,ZIF_GIT_ODB_OPEN_WSTREAM,NULL)     \
     PHP_GIT2_FE(git_odb_stream_read,ZIF_GIT_ODB_STREAM_READ,NULL)       \
     PHP_GIT2_FE(git_odb_stream_write,ZIF_GIT_ODB_STREAM_WRITE,NULL)     \
     PHP_GIT2_FE(git_odb_stream_finalize_write,ZIF_GIT_ODB_STREAM_FINALIZE_WRITE,NULL) \
-    PHP_GIT2_FE(git_odb_add_backend,ZIF_GIT_ODB_ADD_BACKEND,NULL)
+    PHP_GIT2_FE(git_odb_add_alternate,ZIF_GIT_ODB_ADD_ALTERNATE,NULL)   \
+    PHP_GIT2_FE(git_odb_add_disk_alternate,ZIF_GIT_ODB_ADD_DISK_ALTERNATE,NULL) \
+    PHP_GIT2_FE(git_odb_add_backend,ZIF_GIT_ODB_ADD_BACKEND,NULL)       \
+    PHP_GIT2_FE(git_odb_exists,ZIF_GIT_ODB_EXISTS,NULL)                 \
+    PHP_GIT2_FE(git_odb_foreach,ZIF_GIT_ODB_FOREACH,NULL)
 
 #endif
 

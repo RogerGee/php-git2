@@ -92,7 +92,7 @@ static constexpr auto ZIF_GIT_PACKBUILDER_FOREACH = zif_php_git2_function<
     -1,
     php_git2::sequence<0,2,2>, // pass callback in twice for function and payload
     php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1> >;
+    php_git2::sequence<0,1,2> >;
 
 static constexpr auto ZIF_GIT_PACKBUILDER_SET_THREADS = zif_php_git2_function<
     php_git2::func_wrapper<

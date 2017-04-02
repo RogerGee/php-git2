@@ -440,6 +440,10 @@ void php_odb_backend_object::create_custom_backend(zval* zobj)
     {
         result = GIT_ERROR;
     }
+    else {
+        // Exists() must return a traditional Boolean value.
+        result = Z_BVAL(retval) ? 1 : 0;
+    }
 
     // Cleanup zvals.
     zval_dtor(&fname);
@@ -858,7 +862,7 @@ PHP_METHOD(GitODBBackend,writestream)
 
     if (outstream != nullptr) {
         // Create GitODBStream object to wrap git_odb_stream.
-        php_git2_make_odb_stream(return_value,outstream TSRMLS_CC);
+        php_git2_make_odb_stream(return_value,outstream,false TSRMLS_CC);
     }
 }
 
@@ -894,7 +898,7 @@ PHP_METHOD(GitODBBackend,readstream)
 
     if (outstream != nullptr) {
         // Create GitODBStream object to wrap git_odb_stream.
-        php_git2_make_odb_stream(return_value,outstream TSRMLS_CC);
+        php_git2_make_odb_stream(return_value,outstream,false TSRMLS_CC);
     }
 }
 

@@ -7,6 +7,22 @@
 #include "php-object.h"
 using namespace php_git2;
 
+// Helpers
+
+static void convert_oid_fromstr(git_oid* dest,const char* src,int srclen)
+{
+    // Use a temporary buffer to hold the OID hex string. We make sure it
+    // contains a string with an exact length of 40 characters.
+    char buf[GIT_OID_HEXSZ + 1];
+    memset(buf,'0',GIT_OID_HEXSZ);
+    buf[GIT_OID_HEXSZ] = 0;
+    if (srclen > GIT_OID_HEXSZ) {
+        srclen = GIT_OID_HEXSZ;
+    }
+    strncpy(buf,src,srclen);
+    git_oid_fromstr(dest,buf);
+}
+
 // Class method entries
 static PHP_METHOD(GitODBStream,read);
 static PHP_METHOD(GitODBStream,write);
@@ -22,7 +38,7 @@ zend_function_entry php_git2::odb_stream_methods[] = {
 
 // Make function implementation
 
-void php_git2::php_git2_make_odb_stream(zval* zp,git_odb_stream* stream TSRMLS_DC)
+void php_git2::php_git2_make_odb_stream(zval* zp,git_odb_stream* stream,bool isstd TSRMLS_DC)
 {
     php_odb_stream_object* obj;
     zend_class_entry* ce = php_git2::class_entry[php_git2_odb_stream_obj];
@@ -33,13 +49,14 @@ void php_git2::php_git2_make_odb_stream(zval* zp,git_odb_stream* stream TSRMLS_D
 
     // Assign the stream handle.
     obj->stream = stream;
+    obj->isstd = isstd;
 }
 
 // Implementation of php_odb_stream_object
 
 /*static*/ zend_object_handlers php_odb_stream_object::handlers;
 php_odb_stream_object::php_odb_stream_object(zend_class_entry* ce TSRMLS_DC):
-    stream(nullptr), zts(TSRMLS_C)
+    stream(nullptr), isstd(true), zts(TSRMLS_C)
 {
     zend_object_std_init(&base,ce TSRMLS_CC);
     object_properties_init(&base,ce);
@@ -48,7 +65,21 @@ php_odb_stream_object::php_odb_stream_object(zend_class_entry* ce TSRMLS_DC):
 php_odb_stream_object::~php_odb_stream_object()
 {
     if (stream != nullptr) {
-        stream->free(stream);
+        // The stream is standard if it was created with high level
+        // functions. To prevent memory leaks we must call the high-level
+        // git_odb_stream_free().
+        if (isstd) {
+            git_odb_stream_free(stream);
+        }
+        else {
+            // Otherwise we assume the object was created outside of the
+            // standard way and should not be freed using the higher-level
+            // function. This is the case when PHP userspace directly calls a
+            // stream method on a backend object. In this case the
+            // git_odb_stream never was created by the high level functions and
+            // just the backend functions.
+            stream->free(stream);
+        }
     }
 
     zend_object_std_dtor(&base ZTS_MEMBER_CC(zts));
@@ -99,7 +130,7 @@ PHP_METHOD(GitODBStream,read)
         buffer = (char*)emalloc(bufsz);
         retval = object->stream->read(object->stream,buffer,bufsz);
         if (retval < 0) {
-            git_error();
+            php_git2::git_error();
         }
     } catch (php_git2_exception ex) {
         zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
@@ -131,7 +162,7 @@ PHP_METHOD(GitODBStream,write)
     try {
         retval = object->stream->write(object->stream,buffer,bufsz);
         if (retval < 0) {
-            git_error();
+            php_git2::git_error();
         }
     } catch (php_git2_exception ex) {
         zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
@@ -142,8 +173,9 @@ PHP_METHOD(GitODBStream,write)
 PHP_METHOD(GitODBStream,finalize_write)
 {
     int retval;
+    char* input;
+    int input_len;
     git_oid oid;
-    char buf[GIT_OID_HEXSZ + 1];
     php_odb_stream_object* object = LOOKUP_OBJECT(php_odb_stream_object,getThis());
 
     // Stream must be created and the function must be implemented.
@@ -152,34 +184,28 @@ PHP_METHOD(GitODBStream,finalize_write)
         return;
     }
 
+    // Read OID parameter from function arguments.
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&input,&input_len) == FAILURE) {
+        return;
+    }
+
+    // Convert OID string to binary structure.
+    convert_oid_fromstr(&oid,input,input_len);
+
     // Call underlying function.
     try {
         retval = object->stream->finalize_write(object->stream,&oid);
         if (retval < 0) {
-            git_error();
+            php_git2::git_error();
         }
     } catch (php_git2_exception ex) {
         zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
         return;
     }
-
-    // Convert OID to hex string and return it.
-    git_oid_tostr(buf,sizeof(buf),&oid);
-    RETVAL_STRING(buf,1);
 }
 
 PHP_METHOD(GitODBStream,free)
 {
-    php_odb_stream_object* object = LOOKUP_OBJECT(php_odb_stream_object,getThis());
-
-    // Stream must be created and the function must be implemented.
-    if (object->stream == nullptr || object->stream->finalize_write == nullptr) {
-        php_error(E_ERROR,"GitODBStream::free(): method is not available");
-        return;
-    }
-
-    // Call underlying function. Make sure to mark the object as having been
-    // destroyed.
-    object->stream->free(object->stream);
-    object->stream = nullptr;
+    // Do nothing: do not allow the user to free in this way. The git_odb_stream
+    // will be freed later on when PHP destroys the GitODBStream object.
 }
