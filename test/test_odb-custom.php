@@ -72,10 +72,31 @@ EOF;
         // Stream the objects from the test repository into our new repository.
         $srcrepo = git_repository_open_bare(testbed_get_repo_path());
         $srcodb = git_repository_odb($srcrepo);
-        git_odb_foreach($srcodb,'\Git2Test\ODBCustom\transfer_object',[$srcodb,$odb]);
+
+        // $lambda = function($oid,$store) {
+        //     list($src,$dst) = $store;
+
+        //     $obj = git_odb_read($src,$oid);
+        //     $data = git_odb_object_data($obj);
+        //     $type = git_odb_object_type($obj);
+
+        //     // This will work because git2 opens a fake wstream when the backend doesn't
+        //     // have a direct wstream implementation.
+        //     $stream = git_odb_open_wstream($dst,strlen($data),$type);
+        //     $stream->write($data);
+        //     $stream->finalize_write($oid);
+        //     $stream->free();
+        // };
+
+        git_odb_foreach(
+            $srcodb,/*$lambda*/'\Git2Test\ODBCustom\transfer_object',
+            [$srcodb,$odb]);
 
         echo 'Session has ' . count($_SESSION) . " entries.\n";
         //var_dump(array_keys($_SESSION));
+    }
+    else {
+        echo "Operation was already performed. Delete the session to run again.\n";
     }
 }
 

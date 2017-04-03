@@ -51,7 +51,7 @@ ZEND_BEGIN_ARG_INFO_EX(GitODBBackend_exists_prefix_arginfo,0,0,2)
 ZEND_END_ARG_INFO()
 
 static PHP_METHOD(GitODBBackend,refresh);
-static PHP_METHOD(GitODBBackend,foreach);
+static PHP_METHOD(GitODBBackend,for_each);
 static PHP_METHOD(GitODBBackend,writepack);
 static PHP_METHOD(GitODBBackend,free);
 zend_function_entry php_git2::odb_backend_methods[] = {
@@ -64,7 +64,7 @@ zend_function_entry php_git2::odb_backend_methods[] = {
     PHP_ME(GitODBBackend,exists,NULL,ZEND_ACC_PUBLIC)
     PHP_ME(GitODBBackend,exists_prefix,GitODBBackend_exists_prefix_arginfo,ZEND_ACC_PUBLIC)
     PHP_ME(GitODBBackend,refresh,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitODBBackend,foreach,NULL,ZEND_ACC_PUBLIC)
+    PHP_ME(GitODBBackend,for_each,NULL,ZEND_ACC_PUBLIC)
     PHP_ME(GitODBBackend,writepack,NULL,ZEND_ACC_PUBLIC)
     PHP_ME(GitODBBackend,free,NULL,ZEND_ACC_PUBLIC)
     PHP_FE_END
@@ -630,7 +630,7 @@ git_odb_backend_php::git_odb_backend_php(zval* zv)
     if (is_method_overloaded(ce,"refresh",sizeof("refresh"))) {
         refresh = php_odb_backend_object::refresh;
     }
-    if (is_method_overloaded(ce,"foreach",sizeof("foreach"))) {
+    if (is_method_overloaded(ce,"for_each",sizeof("for_each"))) {
         foreach = php_odb_backend_object::foreach;
     }
     if (is_method_overloaded(ce,"writepack",sizeof("writepack"))) {
@@ -992,13 +992,13 @@ PHP_METHOD(GitODBBackend,refresh)
     }
 }
 
-PHP_METHOD(GitODBBackend,foreach)
+PHP_METHOD(GitODBBackend,for_each)
 {
     php_odb_backend_object* object = LOOKUP_OBJECT(php_odb_backend_object,getThis());
 
     // Backend must be created and the function must be implemented.
     if (object->backend == nullptr || object->backend->foreach == nullptr) {
-        php_error(E_ERROR,"GitODBBackend::foreach(): method is not available");
+        php_error(E_ERROR,"GitODBBackend::for_each(): method is not available");
         return;
     }
 
@@ -1006,7 +1006,7 @@ PHP_METHOD(GitODBBackend,foreach)
     php_callback_handler<odb_foreach_callback> handler;
 
     if (zend_get_parameters(0,2,callback.byref_php(1),callback.byref_php(2)) == FAILURE) {
-        php_error(E_ERROR,"GitODBBackend::foreach(): method expects 2 arguments");
+        php_error(E_ERROR,"GitODBBackend::for_each(): method expects 2 arguments");
         return;
     }
 

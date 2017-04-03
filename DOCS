@@ -173,7 +173,7 @@ git_packbuilder_set_threads(resource,int)
 [git_indexer]
 ----------------------------------------
 
-git_indexer_new(string,long,resource|null,callable,mixed)
+git_indexer_new(string,long,resource,callable,mixed)
 
     ** The 3rd parameter may be null. **
 
@@ -435,7 +435,10 @@ GitODBBackend:
 
         refresh()
 
-        foreach(callable func,mixed payload)
+        for_each(callable func,mixed payload)
+
+            ** Note: this function is not named canonically with git2 since
+               "foreach" is a reserved word in PHP. **
 
         writepack(callable func,mixed payload)
 
