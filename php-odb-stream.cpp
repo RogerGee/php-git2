@@ -7,21 +7,10 @@
 #include "php-object.h"
 using namespace php_git2;
 
-// Helpers
+// Helper macros
 
-static void convert_oid_fromstr(git_oid* dest,const char* src,int srclen)
-{
-    // Use a temporary buffer to hold the OID hex string. We make sure it
-    // contains a string with an exact length of 40 characters.
-    char buf[GIT_OID_HEXSZ + 1];
-    memset(buf,'0',GIT_OID_HEXSZ);
-    buf[GIT_OID_HEXSZ] = 0;
-    if (srclen > GIT_OID_HEXSZ) {
-        srclen = GIT_OID_HEXSZ;
-    }
-    strncpy(buf,src,srclen);
-    git_oid_fromstr(dest,buf);
-}
+#define EXTRACT_STREAM(stream) \
+    reinterpret_cast<php_odb_stream_object::git_odb_stream_php*>(stream)
 
 // Class method entries
 static PHP_METHOD(GitODBStream,read);
@@ -85,6 +74,28 @@ php_odb_stream_object::~php_odb_stream_object()
     zend_object_std_dtor(&base ZTS_MEMBER_CC(zts));
 }
 
+void php_odb_stream_object::create_custom_stream(zval* zobj)
+{
+    // NOTE: the zval should be any zval that points to an object with 'this' as
+    // its backing (i.e. result of zend_objects_get_address()). This is really
+    // only used by the implementation to obtain class entry info for the class
+    // that was used to create the object.
+
+    // Free any existing stream.
+    if (stream != nullptr) {
+        if (isstd) {
+            git_odb_stream_free(stream);
+        }
+        else {
+            stream->free(stream);
+        }
+    }
+
+    // Create new custom stream.
+    stream = new (emalloc(sizeof(git_odb_stream_php))) git_odb_stream_php(zobj);
+    isstd = false;
+}
+
 /*static*/ void php_odb_stream_object::init(zend_class_entry* ce)
 {
     // Register properties.
@@ -93,6 +104,76 @@ php_odb_stream_object::~php_odb_stream_object()
         ZEND_ACC_PUBLIC);
     zend_declare_property_long(ce,"received_bytes",sizeof("received_bytes")-1,0,
         ZEND_ACC_PUBLIC);
+}
+
+/*static*/ int php_odb_stream_object::read(git_odb_stream *stream,char *buffer,size_t len)
+{
+    return GIT_ERROR;
+}
+
+/*static*/ int php_odb_stream_object::write(git_odb_stream *stream,const char *buffer,size_t len)
+{
+    return GIT_ERROR;
+}
+
+/*static*/ int php_odb_stream_object::finalize_write(git_odb_stream *stream,const git_oid *oid)
+{
+    return GIT_ERROR;
+}
+
+/*static*/ void php_odb_stream_object::free(git_odb_stream *stream)
+{
+    // Explicitly call the destructor on the custom backend. Then free the block
+    // of memory that holds the object.
+    EXTRACT_STREAM(stream)->~git_odb_stream_php();
+    efree(stream);
+}
+
+// php_odb_stream::git_odb_stream_php
+
+php_odb_stream_object::
+git_odb_stream_php::git_odb_stream_php(zval* zv)
+{
+    // Blank out the base class (which is the structure defined in the git2
+    // headers).
+    memset(this,0,sizeof(struct git_odb_stream));
+
+    // Copy the object zval so that we have a new zval we can track that refers
+    // to the same specified object. We keep this zval alive as long as the
+    // git_odb_stream is alive.
+    MAKE_STD_ZVAL(thisobj);
+    ZVAL_ZVAL(thisobj,zv,1,0);
+
+    // Get the class entry for the (hopefully) derived class type.
+    zend_class_entry* ce = Z_OBJCE_P(thisobj);
+
+    // Make sure the class provided all 3 of the required overloaded methods. If
+    // not we raise a fatal error.
+    if (!is_method_overridden(ce,"read",sizeof("read"))) {
+        php_error(E_ERROR,"Custom GitODBStream must override read()");
+        return;
+    }
+    if (!is_method_overridden(ce,"write",sizeof("write"))) {
+        php_error(E_ERROR,"Custom GitODBStream must override write()");
+        return;
+    }
+    if (!is_method_overridden(ce,"finalize_write",sizeof("finalize_write"))) {
+        php_error(E_ERROR,"Custom GitODBStream must override finalize_write()");
+        return;
+    }
+
+    // Every custom stream must have all the functions available.
+    read = php_odb_stream_object::read;
+    write = php_odb_stream_object::write;
+    finalize_write = php_odb_stream_object::finalize_write;
+    free = php_odb_stream_object::free;
+}
+
+php_odb_stream_object::
+git_odb_stream_php::~git_odb_stream_php()
+{
+    // Free object zval.
+    zval_ptr_dtor(&thisobj);
 }
 
 // Implementation of class methods

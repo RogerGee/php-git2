@@ -70,22 +70,6 @@ zend_function_entry php_git2::odb_backend_methods[] = {
     PHP_FE_END
 };
 
-// Helpers
-
-static void convert_oid_fromstr(git_oid* dest,const char* src,int srclen)
-{
-    // Use a temporary buffer to hold the OID hex string. We make sure it
-    // contains a string with an exact length of 40 characters.
-    char buf[GIT_OID_HEXSZ + 1];
-    memset(buf,'0',GIT_OID_HEXSZ);
-    buf[GIT_OID_HEXSZ] = 0;
-    if (srclen > GIT_OID_HEXSZ) {
-        srclen = GIT_OID_HEXSZ;
-    }
-    strncpy(buf,src,srclen);
-    git_oid_fromstr(dest,buf);
-}
-
 // Make function implementation
 
 void php_git2::php_git2_make_odb_backend(zval* zp,git_odb_backend* backend,bool owner TSRMLS_DC)
@@ -129,6 +113,12 @@ php_odb_backend_object::~php_odb_backend_object()
 
 void php_odb_backend_object::create_custom_backend(zval* zobj)
 {
+    // NOTE: the zval should be any zval that points to an object with 'this' as
+    // its backing (i.e. result of zend_objects_get_address()). This is really
+    // only used by the implementation to obtain class entry info for the class
+    // that was used to create the object.
+
+    // Free any existing backend.
     if (backend != nullptr) {
         if (isowner) {
             backend->free(backend);
@@ -603,37 +593,37 @@ git_odb_backend_php::git_odb_backend_php(zval* zv)
 
     // We now must select which functions we are going to include in the
     // backend. We do this by determining which ones were overloaded.
-    if (is_method_overloaded(ce,"read",sizeof("read"))) {
+    if (is_method_overridden(ce,"read",sizeof("read"))) {
         read = php_odb_backend_object::read;
     }
-    if (is_method_overloaded(ce,"read_prefix",sizeof("read_prefix"))) {
+    if (is_method_overridden(ce,"read_prefix",sizeof("read_prefix"))) {
         read_prefix = php_odb_backend_object::read_prefix;
     }
-    if (is_method_overloaded(ce,"read_header",sizeof("read_header"))) {
+    if (is_method_overridden(ce,"read_header",sizeof("read_header"))) {
         read_header = php_odb_backend_object::read_header;
     }
-    if (is_method_overloaded(ce,"write",sizeof("write"))) {
+    if (is_method_overridden(ce,"write",sizeof("write"))) {
         write = php_odb_backend_object::write;
     }
-    if (is_method_overloaded(ce,"writestream",sizeof("writestream"))) {
+    if (is_method_overridden(ce,"writestream",sizeof("writestream"))) {
         writestream = php_odb_backend_object::writestream;
     }
-    if (is_method_overloaded(ce,"readstream",sizeof("readstream"))) {
+    if (is_method_overridden(ce,"readstream",sizeof("readstream"))) {
         readstream = php_odb_backend_object::readstream;
     }
-    if (is_method_overloaded(ce,"exists",sizeof("exists"))) {
+    if (is_method_overridden(ce,"exists",sizeof("exists"))) {
         exists = php_odb_backend_object::exists;
     }
-    if (is_method_overloaded(ce,"exists_prefix",sizeof("exists_prefix"))) {
+    if (is_method_overridden(ce,"exists_prefix",sizeof("exists_prefix"))) {
         exists_prefix = php_odb_backend_object::exists_prefix;
     }
-    if (is_method_overloaded(ce,"refresh",sizeof("refresh"))) {
+    if (is_method_overridden(ce,"refresh",sizeof("refresh"))) {
         refresh = php_odb_backend_object::refresh;
     }
-    if (is_method_overloaded(ce,"for_each",sizeof("for_each"))) {
+    if (is_method_overridden(ce,"for_each",sizeof("for_each"))) {
         foreach = php_odb_backend_object::foreach;
     }
-    if (is_method_overloaded(ce,"writepack",sizeof("writepack"))) {
+    if (is_method_overridden(ce,"writepack",sizeof("writepack"))) {
         writepack = php_odb_backend_object::writepack;
     }
 }

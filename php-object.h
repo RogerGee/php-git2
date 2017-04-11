@@ -104,8 +104,25 @@ namespace php_git2
         bool isstd;
         php_zts_member zts;
 
+        void create_custom_stream(zval* zobj);
+
         static zend_object_handlers handlers;
         static void init(zend_class_entry* ce);
+    private:
+        // Provide a custom derivation to handle subclasses.
+        struct git_odb_stream_php:
+            git_odb_stream
+        {
+            git_odb_stream_php(zval* zv);
+            ~git_odb_stream_php();
+
+            zval* thisobj;
+        };
+
+        static int read(git_odb_stream *stream,char *buffer,size_t len);
+        static int write(git_odb_stream *stream,const char *buffer,size_t len);
+        static int finalize_write(git_odb_stream *stream,const git_oid *oid);
+        static void free(git_odb_stream *stream);
     };
 
     // Provide a routine to call during MINIT for registering the custom
@@ -124,7 +141,8 @@ namespace php_git2
 
     // Useful helpers
 
-    bool is_method_overloaded(zend_class_entry* ce,const char* method,int len);
+    void convert_oid_fromstr(git_oid* dest,const char* src,int srclen);
+    bool is_method_overridden(zend_class_entry* ce,const char* method,int len);
 
     // Extern variables in this namespace.
     extern zend_class_entry* class_entry[];
