@@ -43,20 +43,30 @@ function testbed_get_repo_path() {
 }
 
 function testbed_test($title,callable $lambda) {
+    static $hasTerminal = null;
+
+    if (is_null($hasTerminal)) {
+        if (function_exists('posix_isatty')) {
+            if (posix_isatty(STDOUT)) {
+                $hasTerminal = true;
+            }
+        }
+    }
+
     try {
-        ob_start();
         $ret = $lambda();
-        $output = ob_get_clean();
     } catch (Exception $ex) {
         $output = ob_get_clean();
         $error = 'php-git2 testbed: error: ' . $ex->getMessage() . PHP_EOL;
     }
 
-    fwrite(STDOUT,"$title - \n\n");
-    foreach (explode("\n",$output) as $line) {
-        fwrite(STDOUT,"    $line\n");
+    if ($hasTerminal) {
+        echo "\033[1m\033[34m";
     }
-    fwrite(STDOUT,"\n");
+    echo "\ngit2: test: $title: completed\n\n";
+    if ($hasTerminal) {
+        echo "\033[0m";
+    }
 
     if (isset($error)) {
         echo $error;
