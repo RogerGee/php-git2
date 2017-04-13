@@ -198,8 +198,6 @@ void php_odb_backend_object::create_custom_backend(zval* zobj)
     zval_ptr_dtor(&zoid);
     zval_ptr_dtor(&ztype);
     return result;
-
-    (void)backend; // we essentially get this from the "this" zval
 }
 
 /*static*/ int php_odb_backend_object::read_prefix(git_oid* oidp,void** datap,
@@ -264,8 +262,6 @@ void php_odb_backend_object::create_custom_backend(zval* zobj)
     zval_ptr_dtor(&ztype);
     zval_ptr_dtor(&zprefix);
     return result;
-
-    (void)backend; // we essentially get this from the "this" zval
 }
 
 /*static*/ int php_odb_backend_object::read_header(size_t* sizep,git_otype* typep,
@@ -322,8 +318,6 @@ void php_odb_backend_object::create_custom_backend(zval* zobj)
     zval_ptr_dtor(&ztype);
     zval_ptr_dtor(&zoid);
     return result;
-
-    (void)backend; // we essentially get this from the "this" zval
 }
 
 /*static*/ int php_odb_backend_object::write(git_odb_backend* backend,
@@ -375,23 +369,139 @@ void php_odb_backend_object::create_custom_backend(zval* zobj)
     zval_ptr_dtor(&zpayload);
     zval_ptr_dtor(&ztype);
     return result;
-
-    (void)backend; // we essentially get this from the "this" zval
 }
 
 /*static*/ int php_odb_backend_object::writestream(git_odb_stream** streamp,
-    git_odb_backend* backend,git_off_t off,git_otype type)
+    git_odb_backend* backend,git_off_t size,git_otype type)
 {
+    zval fname;
+    zval retval;
+    zval* zsize;
+    zval* ztype;
+    zval* thisobj = EXTRACT_THISOBJ(backend);
     int result = GIT_OK;
 
+    // We only need to lookup the object backing to get at the ZTS globals.
+#ifdef ZTS
+    php_odb_backend_object* object;
+    object = LOOKUP_OBJECT(php_odb_backend_object,thisobj);
+#endif
+
+    // Allocate/initialize zvals.
+    INIT_ZVAL(fname);
+    INIT_ZVAL(retval);
+    MAKE_STD_ZVAL(zsize);
+    MAKE_STD_ZVAL(ztype);
+
+    // Assign values to function name and by-value arguments.
+    ZVAL_STRING(&fname,"writestream",1);
+    ZVAL_LONG(zsize,size);
+    ZVAL_LONG(ztype,type);
+
+    zval* params[] = { zsize, ztype };
+
+    // Call userspace method implementation of odb operation. The user hopefully
+    // has overridden the method in a derived class.
+    if (call_user_function(NULL,&thisobj,&fname,&retval,2,params
+            ZTS_MEMBER_CC(object->zts)) == FAILURE)
+    {
+        result = GIT_ERROR;
+    }
+    else {
+        // Make sure returned zval is an object derived from GitODBStream.
+        if (Z_TYPE(retval) != IS_OBJECT
+            || !is_subclass_of(Z_OBJCE(retval),class_entry[php_git2_odb_stream_obj]))
+        {
+            php_error(E_ERROR,"Value returned from writestream() must be an object derived from GitODBStream");
+            return GIT_ERROR;
+        }
+
+        // Now create the custom stream backing.
+        php_odb_stream_object* sobj = LOOKUP_OBJECT(php_odb_stream_object,&retval);
+        sobj->create_custom_stream(&retval,GIT_STREAM_WRONLY);
+
+        // Help out the implementation by providing a reference to the ODB
+        // backend.
+        sobj->stream->backend = backend;
+
+        // Assign the git_odb_stream to the out parameter. This is safe since
+        // the instance holds its own zval that references the object backing,
+        // meaning the git_odb_stream will survive until its free() function is
+        // called.
+        *streamp = sobj->stream;
+    }
+
+    // Cleanup zvals.
+    zval_dtor(&fname);
+    zval_dtor(&retval);
+    zval_ptr_dtor(&zsize);
+    zval_ptr_dtor(&ztype);
     return result;
 }
 
 /*static*/ int php_odb_backend_object::readstream(git_odb_stream** streamp,
     git_odb_backend* backend,const git_oid* oid)
 {
+    zval fname;
+    zval retval;
+    zval* zbuf;
+    zval* thisobj = EXTRACT_THISOBJ(backend);
+    char buffer[GIT_OID_HEXSZ+1];
     int result = GIT_OK;
 
+    // We only need to lookup the object backing to get at the ZTS globals.
+#ifdef ZTS
+    php_odb_backend_object* object;
+    object = LOOKUP_OBJECT(php_odb_backend_object,thisobj);
+#endif
+
+    // Allocate/initialize zvals.
+    INIT_ZVAL(fname);
+    INIT_ZVAL(retval);
+    MAKE_STD_ZVAL(zbuf);
+
+    // Assign values to function name and by-value arguments.
+    ZVAL_STRING(&fname,"readstream",1);
+    git_oid_tostr(buffer,sizeof(buffer),oid);
+    ZVAL_STRINGL(zbuf,buffer,GIT_OID_HEXSZ,1);
+
+    zval* params[] = { zbuf };
+
+    // Call userspace method implementation of odb operation. The user hopefully
+    // has overridden the method in a derived class.
+    if (call_user_function(NULL,&thisobj,&fname,&retval,1,params
+            ZTS_MEMBER_CC(object->zts)) == FAILURE)
+    {
+        result = GIT_ERROR;
+    }
+    else {
+        // Make sure returned zval is an object derived from GitODBStream.
+        if (Z_TYPE(retval) != IS_OBJECT
+            || !is_subclass_of(Z_OBJCE(retval),class_entry[php_git2_odb_stream_obj]))
+        {
+            php_error(E_ERROR,"Value returned from readstream() must be an object derived from GitODBStream");
+            return GIT_ERROR;
+        }
+
+        // Now create the custom stream backing.
+        php_odb_stream_object* sobj = LOOKUP_OBJECT(php_odb_stream_object,&retval);
+        sobj->create_custom_stream(&retval,GIT_STREAM_RDONLY);
+
+        // Help out the implementation by providing a reference to the ODB
+        // backend.
+        sobj->stream->backend = backend;
+
+        // Assign the git_odb_stream to the out parameter. This is safe since
+        // the instance holds its own zval that references the object backing,
+        // meaning the git_odb_stream will survive until its free() function is
+        // called.
+        *streamp = sobj->stream;
+    }
+
+    // Cleanup zvals.
+    zval_dtor(&fname);
+    zval_dtor(&retval);
+    zval_ptr_dtor(&zbuf);
     return result;
 }
 
@@ -440,8 +550,6 @@ void php_odb_backend_object::create_custom_backend(zval* zobj)
     zval_dtor(&retval);
     zval_ptr_dtor(&zoid);
     return result;
-
-    (void)backend; // we essentially get this from the "this" zval
 }
 
 /*static*/ int php_odb_backend_object::exists_prefix(git_oid* oidp,
@@ -501,8 +609,6 @@ void php_odb_backend_object::create_custom_backend(zval* zobj)
     zval_ptr_dtor(&zfull);
     zval_ptr_dtor(&zoid);
     return result;
-
-    (void)backend; // we essentially get this from the "this" zval
 }
 
 /*static*/ int php_odb_backend_object::refresh(git_odb_backend* backend)
@@ -537,8 +643,6 @@ void php_odb_backend_object::create_custom_backend(zval* zobj)
     zval_dtor(&fname);
     zval_dtor(&retval);
     return result;
-
-    (void)backend; // we essentially get this from the "this" zval
 }
 
 /*static*/ int php_odb_backend_object::foreach(git_odb_backend* backend,
@@ -560,9 +664,14 @@ void php_odb_backend_object::create_custom_backend(zval* zobj)
 
 /*static*/ void php_odb_backend_object::free(git_odb_backend* backend)
 {
-    // Explicitly call the destructor on the custom backend. Then free the block
-    // of memory that holds the object.
-    EXTRACT_BACKEND(backend)->~git_odb_backend_php();
+    // First mark the custom backend as having been deleted for extra
+    // sanity. Then explicitly call the destructor on the custom
+    // backend. Finally free the block of memory that holds the custom backend.
+
+    git_odb_backend_php* wrapper = EXTRACT_BACKEND(backend);
+    php_odb_backend_object* obj = LOOKUP_OBJECT(php_odb_backend_object,wrapper->thisobj);
+    obj->backend = nullptr;
+    wrapper->~git_odb_backend_php();
     efree(backend);
 }
 

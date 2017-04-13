@@ -104,7 +104,7 @@ namespace php_git2
         bool isstd;
         php_zts_member zts;
 
-        void create_custom_stream(zval* zobj);
+        void create_custom_stream(zval* zobj,unsigned int mode);
 
         static zend_object_handlers handlers;
         static void init(zend_class_entry* ce);
@@ -113,7 +113,7 @@ namespace php_git2
         struct git_odb_stream_php:
             git_odb_stream
         {
-            git_odb_stream_php(zval* zv);
+            git_odb_stream_php(zval* zv,unsigned int mode);
             ~git_odb_stream_php();
 
             zval* thisobj;

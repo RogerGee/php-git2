@@ -12,6 +12,9 @@ using namespace php_git2;
 #define EXTRACT_STREAM(stream) \
     reinterpret_cast<php_odb_stream_object::git_odb_stream_php*>(stream)
 
+#define EXTRACT_THISOBJ(stream) \
+    EXTRACT_STREAM(stream)->thisobj
+
 // Class method entries
 static PHP_METHOD(GitODBStream,read);
 static PHP_METHOD(GitODBStream,write);
@@ -74,7 +77,7 @@ php_odb_stream_object::~php_odb_stream_object()
     zend_object_std_dtor(&base ZTS_MEMBER_CC(zts));
 }
 
-void php_odb_stream_object::create_custom_stream(zval* zobj)
+void php_odb_stream_object::create_custom_stream(zval* zobj,unsigned int mode)
 {
     // NOTE: the zval should be any zval that points to an object with 'this' as
     // its backing (i.e. result of zend_objects_get_address()). This is really
@@ -92,7 +95,7 @@ void php_odb_stream_object::create_custom_stream(zval* zobj)
     }
 
     // Create new custom stream.
-    stream = new (emalloc(sizeof(git_odb_stream_php))) git_odb_stream_php(zobj);
+    stream = new (emalloc(sizeof(git_odb_stream_php))) git_odb_stream_php(zobj,mode);
     isstd = false;
 }
 
@@ -108,31 +111,160 @@ void php_odb_stream_object::create_custom_stream(zval* zobj)
 
 /*static*/ int php_odb_stream_object::read(git_odb_stream *stream,char *buffer,size_t len)
 {
-    return GIT_ERROR;
+    zval fname;
+    zval retval;
+    zval* zlen;
+    zval* params[1];
+    zval* thisobj = EXTRACT_THISOBJ(stream);
+    int result = GIT_OK;
+
+    // We only need to lookup the object backing to get at the ZTS globals.
+#ifdef ZTS
+    php_odb_stream_object* object;
+    object = LOOKUP_OBJECT(php_odb_backend_object,thisobj);
+#endif
+
+    // Initialize zvals.
+    INIT_ZVAL(fname);
+    INIT_ZVAL(retval);
+    MAKE_STD_ZVAL(zlen);
+
+    // Assign length to parameter zval.
+    ZVAL_LONG(zlen,len);
+    params[0] = zlen;
+
+    // Assign method name.
+    ZVAL_STRING(&fname,"read",1);
+
+    // Call userspace method implementation of stream operation. The user
+    // should have overridden the method in a derived class.
+    if (call_user_function(NULL,&thisobj,&fname,&retval,1,params
+            ZTS_MEMBER_CC(object->zts)) == FAILURE)
+    {
+        result = GIT_ERROR;
+    }
+    else {
+        // Return values to caller. We copy the data into the git2-provided
+        // buffer, making sure not to overflow.
+        size_t n;
+        convert_to_string(&retval);
+        n = Z_STRLEN(retval);
+        if (n > len) {
+            n = len;
+        }
+        memcpy(buffer,Z_STRVAL(retval),n);
+    }
+
+    // Cleanup zvals.
+    zval_dtor(&fname);
+    zval_dtor(&retval);
+    zval_ptr_dtor(&zlen);
+    return result;
 }
 
 /*static*/ int php_odb_stream_object::write(git_odb_stream *stream,const char *buffer,size_t len)
 {
-    return GIT_ERROR;
+    zval fname;
+    zval retval;
+    zval* zbuf;
+    zval* params[1];
+    zval* thisobj = EXTRACT_THISOBJ(stream);
+    int result = GIT_OK;
+
+    // We only need to lookup the object backing to get at the ZTS globals.
+#ifdef ZTS
+    php_odb_stream_object* object;
+    object = LOOKUP_OBJECT(php_odb_backend_object,thisobj);
+#endif
+
+    // Initialize zvals.
+    INIT_ZVAL(fname);
+    INIT_ZVAL(retval);
+    MAKE_STD_ZVAL(zbuf);
+
+    // Assign buffer to zval to pass into method call.
+    ZVAL_STRINGL(zbuf,buffer,len,1);
+    params[0] = zbuf;
+
+    // Assign method name.
+    ZVAL_STRING(&fname,"write",1);
+
+    // Call userspace method implementation of stream operation. The user
+    // should have overridden the method in a derived class.
+    if (call_user_function(NULL,&thisobj,&fname,&retval,1,params
+            ZTS_MEMBER_CC(object->zts)) == FAILURE)
+    {
+        result = GIT_ERROR;
+    }
+
+    // Cleanup zvals.
+    zval_dtor(&fname);
+    zval_dtor(&retval);
+    zval_ptr_dtor(&zbuf);
+    return result;
 }
 
 /*static*/ int php_odb_stream_object::finalize_write(git_odb_stream *stream,const git_oid *oid)
 {
-    return GIT_ERROR;
+    zval fname;
+    zval retval;
+    zval* zbuf;
+    zval* params[1];
+    zval* thisobj = EXTRACT_THISOBJ(stream);
+    int result = GIT_OK;
+    char buffer[GIT_OID_HEXSZ+1];
+
+    // We only need to lookup the object backing to get at the ZTS globals.
+#ifdef ZTS
+    php_odb_stream_object* object;
+    object = LOOKUP_OBJECT(php_odb_backend_object,thisobj);
+#endif
+
+    // Initialize zvals.
+    INIT_ZVAL(fname);
+    INIT_ZVAL(retval);
+    MAKE_STD_ZVAL(zbuf);
+
+    // Assign OID to parameter zval.
+    git_oid_tostr(buffer,sizeof(buffer),oid);
+    ZVAL_STRINGL(zbuf,buffer,GIT_OID_HEXSZ,1);
+    params[0] = zbuf;
+
+    // Assign method name.
+    ZVAL_STRING(&fname,"finalize_write",1);
+
+    // Call userspace method implementation of stream operation. The user
+    // should have overridden the method in a derived class.
+    if (call_user_function(NULL,&thisobj,&fname,&retval,1,params
+            ZTS_MEMBER_CC(object->zts)) == FAILURE)
+    {
+        result = GIT_ERROR;
+    }
+
+    // Cleanup zvals.
+    zval_dtor(&fname);
+    zval_dtor(&retval);
+    zval_ptr_dtor(&zbuf);
+    return result;
 }
 
 /*static*/ void php_odb_stream_object::free(git_odb_stream *stream)
 {
-    // Explicitly call the destructor on the custom backend. Then free the block
-    // of memory that holds the object.
-    EXTRACT_STREAM(stream)->~git_odb_stream_php();
+    // First mark the custom stream as having been deleted so as to avoid
+    // infinite recursion. Then explicitly call the destructor on the custom
+    // stream. Finally free the block of memory that holds the custom stream.
+
+    git_odb_stream_php* wrapper = EXTRACT_STREAM(stream);
+    php_odb_stream_object* obj = LOOKUP_OBJECT(php_odb_stream_object,wrapper->thisobj);
+    obj->stream = nullptr;
+    wrapper->~git_odb_stream_php();
     efree(stream);
 }
 
 // php_odb_stream::git_odb_stream_php
 
 php_odb_stream_object::
-git_odb_stream_php::git_odb_stream_php(zval* zv)
+git_odb_stream_php::git_odb_stream_php(zval* zv,unsigned int mode)
 {
     // Blank out the base class (which is the structure defined in the git2
     // headers).
@@ -147,19 +279,25 @@ git_odb_stream_php::git_odb_stream_php(zval* zv)
     // Get the class entry for the (hopefully) derived class type.
     zend_class_entry* ce = Z_OBJCE_P(thisobj);
 
-    // Make sure the class provided all 3 of the required overloaded methods. If
-    // not we raise a fatal error.
-    if (!is_method_overridden(ce,"read",sizeof("read"))) {
-        php_error(E_ERROR,"Custom GitODBStream must override read()");
-        return;
+    // Set mode.
+
+    // Make sure the class provided overridden methods needed for the requested
+    // mode. If not we raise a fatal error.
+    if (mode == GIT_STREAM_RDONLY) {
+        if (!is_method_overridden(ce,"read",sizeof("read"))) {
+            php_error(E_ERROR,"Custom GitODBStream must override read()");
+            return;
+        }
     }
-    if (!is_method_overridden(ce,"write",sizeof("write"))) {
-        php_error(E_ERROR,"Custom GitODBStream must override write()");
-        return;
-    }
-    if (!is_method_overridden(ce,"finalize_write",sizeof("finalize_write"))) {
-        php_error(E_ERROR,"Custom GitODBStream must override finalize_write()");
-        return;
+    else if (mode == GIT_STREAM_WRONLY) {
+        if (!is_method_overridden(ce,"write",sizeof("write"))) {
+            php_error(E_ERROR,"Custom GitODBStream must override write()");
+            return;
+        }
+        if (!is_method_overridden(ce,"finalize_write",sizeof("finalize_write"))) {
+            php_error(E_ERROR,"Custom GitODBStream must override finalize_write()");
+            return;
+        }
     }
 
     // Every custom stream must have all the functions available.
@@ -181,9 +319,9 @@ git_odb_stream_php::~git_odb_stream_php()
 PHP_METHOD(GitODBStream,read)
 {
     /* NOTE: it isn't actually clear how useful this method (and its wrapper,
-     * git_odb_stream_read) are. The documentation seems to indicate that they
-     * are not to be used. Plus it is not obvious how to obtain the number of
-     * bytes read. For now these functions will return a string zval with the
+     * git_odb_stream_read) really are. The documentation seems to indicate that
+     * they are not to be used. Plus it is not obvious how to obtain the number
+     * of bytes read. For now these functions will return a string zval with the
      * length of the allocated buffer.
      */
 
