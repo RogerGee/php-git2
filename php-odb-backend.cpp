@@ -780,8 +780,10 @@ PHP_METHOD(GitODBBackend,read)
         if (object->backend->read(&data,&size,&type,object->backend,&oid) < 0) {
             php_git2::git_error();
         }
-    } catch (php_git2_exception ex) {
-        zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+    } catch (php_git2::php_git2_exception_base& ex) {
+        if (ex.what() != nullptr) {
+            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+        }
         return;
     }
 
@@ -831,8 +833,10 @@ PHP_METHOD(GitODBBackend,read_prefix)
         if (object->backend->read_prefix(&full,&data,&size,&type,object->backend,&prefix,strOidLen) < 0) {
             php_git2::git_error();
         }
-    } catch (php_git2_exception ex) {
-        zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+    } catch (php_git2::php_git2_exception_base& ex) {
+        if (ex.what() != nullptr) {
+            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+        }
         return;
     }
 
@@ -879,8 +883,10 @@ PHP_METHOD(GitODBBackend,read_header)
         if (object->backend->read_header(&size,&type,object->backend,&oid) < 0) {
             php_git2::git_error();
         }
-    } catch (php_git2_exception ex) {
-        zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+    } catch (php_git2::php_git2_exception_base& ex) {
+        if (ex.what() != nullptr) {
+            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+        }
         return;
     }
 
@@ -921,8 +927,10 @@ PHP_METHOD(GitODBBackend,write)
         if (object->backend->write(object->backend,&oid,data,dataSize,(git_otype)type) < 0) {
             php_git2::git_error();
         }
-    } catch (php_git2_exception ex) {
-        zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+    } catch (php_git2::php_git2_exception_base& ex) {
+        if (ex.what() != nullptr) {
+            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+        }
         return;
     }
 
@@ -954,8 +962,10 @@ PHP_METHOD(GitODBBackend,writestream)
         {
             php_git2::git_error();
         }
-    } catch (php_git2_exception ex) {
-        zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+    } catch (php_git2::php_git2_exception_base& ex) {
+        if (ex.what() != nullptr) {
+            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+        }
         return;
     }
 
@@ -990,8 +1000,10 @@ PHP_METHOD(GitODBBackend,readstream)
         if (object->backend->readstream(&outstream,object->backend,&oid) < 0) {
             php_git2::git_error();
         }
-    } catch (php_git2_exception ex) {
-        zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+    } catch (php_git2::php_git2_exception_base& ex) {
+        if (ex.what() != nullptr) {
+            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+        }
         return;
     }
 
@@ -1085,8 +1097,10 @@ PHP_METHOD(GitODBBackend,refresh)
         if (object->backend->refresh(object->backend) < 0) {
             php_git2::git_error();
         }
-    } catch (php_git2_exception ex) {
-        zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+    } catch (php_git2::php_git2_exception_base& ex) {
+        if (ex.what() != nullptr) {
+            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+        }
         return;
     }
 }
@@ -1113,8 +1127,10 @@ PHP_METHOD(GitODBBackend,for_each)
     try {
         object->backend->foreach(object->backend,
             handler.byval_git2(),callback.byval_git2());
-    } catch (php_git2_exception ex) {
-        zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+    } catch (php_git2::php_git2_exception_base& ex) {
+        if (ex.what() != nullptr) {
+            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+        }
         return;
     }
 }
@@ -1156,8 +1172,10 @@ PHP_METHOD(GitODBBackend,writepack)
         // Create return value out of the writepack and callback. The callback
         // will be managed by the GitODBWritepack object.
         php_git2_make_odb_writepack(return_value,wp,callback,thisobj TSRMLS_CC);
-    } catch (php_git2_exception ex) {
-        zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+    } catch (php_git2::php_git2_exception_base& ex) {
+        if (ex.what() != nullptr) {
+            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+        }
         return;
     }
 }

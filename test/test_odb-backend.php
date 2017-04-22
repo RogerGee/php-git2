@@ -86,7 +86,7 @@ function test_foreach() {
         $n += 1;
     };
 
-    $backend->foreach($callback,'object #');
+    $backend->for_each($callback,'object #');
 }
 
 function test_writepack() {

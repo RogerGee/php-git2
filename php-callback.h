@@ -87,8 +87,11 @@ namespace php_git2
             ZVAL_NULL(ret);
             r = call_user_function(EG(function_table),NULL,func,ret,Count,params TSRMLS_CC);
             if (r == FAILURE) {
-                throw php_git2_exception("unable to call userspace function: "
-                    "expected a callable");
+                if (EG(exception)) {
+                    throw php_git2_propagated_exception();
+                }
+
+                php_error(E_ERROR,"failed to invoke userspace callback");
             }
         }
 

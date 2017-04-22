@@ -76,8 +76,19 @@ ZEND_EXTERN_MODULE_GLOBALS(git2)
 namespace php_git2
 {
 
-    class php_git2_exception:
+    // Provide a base exception type for identifying exceptions we care to
+    // handle.
+
+    class php_git2_exception_base:
         public std::exception
+    {
+    };
+
+    // Provide an exception type to be thrown by git2 function wrappers when
+    // they fail. This will allow userspace to handle these errors.
+
+    class php_git2_exception:
+        public php_git2_exception_base
     {
     public:
         php_git2_exception(const char* format, ...);
@@ -86,6 +97,19 @@ namespace php_git2
         { return message.c_str(); }
     private:
         std::string message;
+    };
+
+    // Provide an exception type to be thrown when a PHP exception is to be
+    // propagated through.
+
+    class php_git2_propagated_exception:
+        public php_git2_exception_base
+    {
+    public:
+        // Return NULL pointer to indicate that the exception propagates
+        // through.
+        virtual const char* what() const noexcept
+        { return nullptr; }
     };
 
     // Provide a function to handle a generic libgit2 error.

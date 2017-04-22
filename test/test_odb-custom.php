@@ -12,8 +12,8 @@ require_once 'test_base.php';
 class SessionODB extends GitODBBackend {
     public function __construct() {
         if (session_status() == PHP_SESSION_NONE) {
-            session_id('git2-test-repo');
-            session_start();
+            @session_id('git2-test-repo');
+            @session_start();
         }
     }
 

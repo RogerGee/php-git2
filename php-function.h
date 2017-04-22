@@ -572,8 +572,10 @@ void zif_php_git2_function(INTERNAL_FUNCTION_PARAMETERS)
             // Throw error with formatted message from git2.
             php_git2::git_error();
         }
-    } catch (php_git2::php_git2_exception ex) {
-        zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+    } catch (php_git2::php_git2_exception_base& ex) {
+        if (ex.what() != nullptr) {
+            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+        }
     }
 }
 
@@ -618,8 +620,10 @@ void zif_php_git2_function_rethandler(INTERNAL_FUNCTION_PARAMETERS)
             // Throw error with formatted message from git2.
             php_git2::git_error();
         }
-    } catch (php_git2::php_git2_exception ex) {
-        zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+    } catch (php_git2::php_git2_exception_base& ex) {
+        if (ex.what() != nullptr) {
+            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+        }
     }
 }
 
@@ -642,8 +646,10 @@ void zif_php_git2_function_void(INTERNAL_FUNCTION_PARAMETERS)
             std::forward<LocalVars>(vars),
             GitForward(),
             AllParams());
-    } catch (php_git2::php_git2_exception ex) {
-        zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+    } catch (php_git2::php_git2_exception_base& ex) {
+        if (ex.what() != nullptr) {
+            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+        }
     }
 }
 
