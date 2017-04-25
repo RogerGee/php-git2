@@ -234,6 +234,14 @@ git_odb_read(resource,string)
 
     Returns git_odb_object resource
 
+git_odb_read_header(&int,resource,string)
+
+    Returns int (the size of the object)
+
+git_odb_read_prefix(resource,string)
+
+    Returns git_odb_object resource
+
 git_odb_object_free(resource)
 
 git_odb_object_data(resource)
@@ -284,7 +292,19 @@ git_odb_add_backend(resource,GitODBBackend,int)
 
 git_odb_exists(resource,string)
 
+git_odb_exists_prefix(resource,string)
+
 git_odb_foreach(resource,callable,mixed)
+
+git_odb_refresh(resource)
+
+git_odb_get_backend(resource,int)
+
+    Returns object of type GitODBBackend
+
+git_odb_num_backends(resource)
+
+    Returns int
 
 ----------------------------------------
 [git_commit]

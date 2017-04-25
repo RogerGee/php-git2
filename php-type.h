@@ -221,6 +221,47 @@ namespace php_git2
         }
     };
 
+    // Provide a type that accepts a numeric value from an underlying call.
+    template<typename IntType>
+    class php_long_indirect
+    {
+    public:
+        ZTS_CONSTRUCTOR(php_long_indirect)
+
+        IntType* byval_git2(unsigned p)
+        {
+            return &n;
+        }
+
+        void ret(zval* return_value)
+        {
+            RETVAL_LONG((long)n);
+        }
+    private:
+        IntType n;
+    };
+
+    // Provide a type for returning a numeric value using an out parameter.
+    template<typename IntType>
+    class php_long_out:
+        public php_value_base
+    {
+    public:
+        ZTS_CONSTRUCTOR(php_long_out)
+
+        ~php_long_out()
+        {
+            ZVAL_LONG(value,(long)n);
+        }
+
+        IntType* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            return &n;
+        }
+    private:
+        IntType n;
+    };
+
     // Provide a class to manage passing copies of ZTS handles around.
 
     class php_zts_base
@@ -501,6 +542,20 @@ namespace php_git2
         }
     private:
         git_oid oid;
+    };
+
+    // Provide a type for returning an OID value using an out parameter.
+    class php_git_oid_out:
+        public php_git_oid,
+        public php_value_base
+    {
+    public:
+        ZTS_CONSTRUCTOR(php_git_oid_out)
+
+        ~php_git_oid_out()
+        {
+            ret(value);
+        }
     };
 
     // Wrap 'git_strarray' and provide conversions to PHP userspace array. Note
