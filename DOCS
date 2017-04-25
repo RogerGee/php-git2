@@ -244,6 +244,10 @@ git_odb_object_id(resource)
 
     Returns string
 
+git_odb_object_size(resource)
+
+    Returns int
+
 git_odb_object_type(resource)
 
     Returns int
@@ -278,7 +282,7 @@ git_odb_add_disk_alternate(resource,string)
 
 git_odb_add_backend(resource,GitODBBackend,int)
 
-git_odb_exists(string)
+git_odb_exists(resource,string)
 
 git_odb_foreach(resource,callable,mixed)
 
