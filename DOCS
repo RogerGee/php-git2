@@ -157,6 +157,10 @@ git_packbuilder_insert_commit(resource,string)
 
 git_packbuilder_insert_walk(resource,resource)
 
+git_packbuilder_insert_recur(resource,string,string|null)
+
+git_packbuilder_insert_tree(resource,string)
+
 git_packbuilder_insert(resource,string,string|null)
 
 git_packbuilder_foreach(resource,callable|stream,mixed)
@@ -229,6 +233,10 @@ git_odb_backend_one_pack(string)
 git_odb_open(string)
 
     Returns git_odb resource
+
+git_odb_write(resource,string,int)
+
+    Returns string
 
 git_odb_read(resource,string)
 
@@ -305,6 +313,14 @@ git_odb_get_backend(resource,int)
 git_odb_num_backends(resource)
 
     Returns int
+
+git_odb_hash(string,int)
+
+    Returns string
+
+git_odb_hashfile(string,int)
+
+    Returns string
 
 ----------------------------------------
 [git_commit]
