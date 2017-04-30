@@ -170,6 +170,30 @@ namespace php_git2
         git_odb_stream* stream;
     };
 
+    // Provide a rethandler for git_odb_object_data().
+    class php_git_odb_object_data_rethandler
+    {
+    public:
+        bool ret(
+            const void* retval,
+            zval* return_value,
+            local_pack<php_resource<php_git_odb_object> >&& pack)
+        {
+            if (retval != nullptr) {
+                // Make a binary string for the return value. The length is
+                // obtained from the odb_object attached to the local_pack.
+                size_t length;
+                length = git_odb_object_size(pack.get<0>().get_object(1)->get_handle());
+                RETVAL_STRINGL((const char*)retval,length,1);
+            }
+            else {
+                RETVAL_NULL();
+            }
+
+            return true;
+        }
+    };
+
 }
 
 // Functions:
@@ -325,7 +349,7 @@ static constexpr auto ZIF_GIT_ODB_OBJECT_FREE = zif_php_git2_function_void<
         >
     >;
 
-static constexpr auto ZIF_GIT_ODB_OBJECT_DATA = zif_php_git2_function<
+static constexpr auto ZIF_GIT_ODB_OBJECT_DATA = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         const void*,
         git_odb_object*
@@ -333,7 +357,7 @@ static constexpr auto ZIF_GIT_ODB_OBJECT_DATA = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_odb_object>
         >,
-    0
+    php_git2::php_git_odb_object_data_rethandler
     >;
 
 static constexpr auto ZIF_GIT_ODB_OBJECT_SIZE = zif_php_git2_function<

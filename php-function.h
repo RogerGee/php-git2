@@ -400,60 +400,6 @@ namespace php_git2
         }
     }
 
-    // Specialize php_return() for git_odb_object_data().
-    template<int ReturnPos>
-    inline typename std::enable_if<ReturnPos == 0,void>::type
-    php_return(
-        const void*&& retval,
-        local_pack<php_resource<php_git_odb_object> >&& pack,
-        zval* return_value)
-    {
-        if (retval != nullptr) {
-            // Make a binary string for the return value. The length is obtained
-            // from the odb_object attached to the local_pack.
-            size_t length;
-            length = git_odb_object_size(pack.get<0>().get_object(1)->get_handle());
-            RETVAL_STRINGL((const char*)retval,length,1);
-        }
-        else {
-            RETVAL_NULL();
-        }
-    }
-
-    // Specialize php_return() for git_blob_owner().
-    template<int ReturnPos>
-    inline typename std::enable_if<ReturnPos == 0,void>::type
-    php_return(
-        git_repository*&& retval,
-        local_pack<php_resource<php_git_blob>,
-            php_resource_ref<php_git_repository_nofree> >&& pack,
-        zval* return_value)
-    {
-        auto& resource = pack.get<1>();
-        *resource.byval_git2() = retval;
-        resource.ret(return_value);
-    }
-
-    // Specialize php_return() for git_blob_rawcontent().
-    template<int ReturnPos>
-    inline typename std::enable_if<ReturnPos == 0,void>::type
-    php_return(
-        const void*&& retval,
-        local_pack<php_resource<php_git_blob> >&& pack,
-        zval* return_value)
-    {
-        if (retval != nullptr) {
-            // Make a binary string for the return value. The length is obtained
-            // from the blob attached to the local_pack.
-            size_t length;
-            length = git_blob_rawsize(pack.get<0>().get_object(1)->get_handle());
-            RETVAL_STRINGL((const char*)retval,length,1);
-        }
-        else {
-            RETVAL_NULL();
-        }
-    }
-
     // Otherwise, no action is taken.
     template<int ReturnPos,
         typename T,
