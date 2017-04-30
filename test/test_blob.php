@@ -45,6 +45,11 @@ function test_create_fromstream() {
 
     $ws = git_blob_create_fromstream($repo,null);
 
+    $ws->write("targ");
+    $ws->write(" and foo and bar and barg\n");
+
+    $oid = git_blob_create_fromstream_commit($ws);
+    echo "Wrote a blob created from stream. It has OID=$oid.\n";
 }
 
 testbed_test('Blob/owner','Git2Test\Blob\test_owner');

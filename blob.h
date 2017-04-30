@@ -120,6 +120,44 @@ namespace php_git2
         git_writestream* ws;
     };
 
+    // Provide a git_writestream type that releases the git_writestream after
+    // passing it to git2.
+
+    class php_git_writestream_release:
+        public php_value_base,
+        private php_zts_base
+    {
+    public:
+        php_git_writestream_release(TSRMLS_D):
+            php_zts_base(TSRMLS_C)
+        {
+        }
+
+        git_writestream* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            // Make sure zval is object derived from GitWritestream.
+            if (Z_TYPE_P(value) != IS_OBJECT
+                || !is_subclass_of(Z_OBJCE_P(value),
+                        class_entry[php_git2_writestream_obj]))
+            {
+                error("GitWritestream",argno);
+            }
+
+            // Extract the git_writestream from the object zval.
+            php_writestream_object* object;
+            git_writestream* ws;
+            object = reinterpret_cast<php_writestream_object*>(zend_objects_get_address(value TSRMLS_CC));
+
+            if (object->ws == nullptr) {
+                throw new php_git2_exception("the writestream has already been closed");
+            }
+            ws = object->ws;
+            object->ws = nullptr;
+
+            return ws;
+        }
+    };
+
 } // namespace php_git2
 
 #endif
@@ -350,7 +388,7 @@ static constexpr auto ZIF_GIT_BLOB_CREATE_FROMSTREAM_COMMIT = zif_php_git2_funct
         >::func<git_blob_create_fromstream_commit>,
     php_git2::local_pack<
         php_git2::php_git_oid,
-        php_git2::php_git_writestream_byval
+        php_git2::php_git_writestream_release
         >,
     1,
     php_git2::sequence<1>,

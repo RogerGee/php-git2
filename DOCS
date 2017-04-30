@@ -416,7 +416,7 @@ API. Instead a primitive or object type is used:
 --------------------------------------------------------------------------------
 The following classes are provided by the extension where appropriate:
 
-GitODBWritepack:
+class GitODBWritepack:
 
     ** This class has properties/methods that align with the git_odb_writepack
        structure. **
@@ -434,7 +434,7 @@ GitODBWritepack:
 
         free()
 
-GitODBBackend:
+class GitODBBackend:
 
     ** This class has properties/methods that align with the git_odb_backend
        structure. **
@@ -498,7 +498,7 @@ GitODBBackend:
 
         free()
 
-GitODBStream:
+class GitODBStream:
 
     ** This class has properties/methods that align with the git_odb_stream
        structure. **
@@ -522,7 +522,7 @@ GitODBStream:
 
         finalize_write(string oid)
 
-GitWritestream:
+final class GitWritestream:
 
     ** This class has properties/methods that align with the git_writestream
        structure. **

@@ -42,7 +42,11 @@ function testbed_get_repo_path() {
     return $path;
 }
 
-function testbed_test($title,callable $lambda) {
+define('COLOR_RED',31);
+define('COLOR_GREEN',32);
+define('COLOR_YELLOW',33);
+define('COLOR_BLUE',34);
+function color_echo($message,$color = COLOR_BLUE) {
     static $hasTerminal = null;
 
     if (is_null($hasTerminal)) {
@@ -53,24 +57,30 @@ function testbed_test($title,callable $lambda) {
         }
     }
 
-    try {
-        $ret = $lambda();
-    } catch (Exception $ex) {
-        $output = ob_get_clean();
-        $error = 'php-git2 testbed: error: ' . $ex->getMessage() . PHP_EOL;
-    }
-
     if ($hasTerminal) {
-        echo "\033[1m\033[34m";
+        echo "\033[1m\033[{$color}m";
     }
-    echo "\ngit2: test: $title: completed\n\n";
+    echo "\ngit2: test: $message\n\n";
     if ($hasTerminal) {
         echo "\033[0m";
     }
+}
+
+function testbed_test($title,callable $lambda) {
+    color_echo("task '$title': started");
+
+    try {
+        $ret = $lambda();
+    } catch (Exception $ex) {
+        $error = 'php-git2 testbed: error: ' . $ex->getMessage() . PHP_EOL;
+    }
 
     if (isset($error)) {
-        echo $error;
+        color_echo("task '$title': error",COLOR_RED);
         exit(1);
+    }
+    else {
+        color_echo("task '$title': completed");
     }
 
     return $ret;
