@@ -112,8 +112,26 @@ namespace php_git2
             // Wrap the git_odb_backend handle in an object zval.
             php_git2_make_odb_backend(return_value,backend,true TSRMLS_CC);
         }
+    protected:
+        git_odb_backend* get_backend()
+        {
+            return backend;
+        }
     private:
         git_odb_backend* backend;
+    };
+
+    class php_git_odb_backend_byref_noowner:
+        public php_git_odb_backend_byref
+    {
+    public:
+        void ret(zval* return_value)
+        {
+            // Wrap the git_odb_backend handle in an object zval. We are not the
+            // owner of the backend (which means we won't attempt to free the
+            // object).
+            php_git2_make_odb_backend(return_value,get_backend(),false TSRMLS_CC);
+        }
     };
 
     // Provide types that extract/bind git_odb_stream instances to/from a PHP
@@ -664,7 +682,7 @@ static constexpr auto ZIF_GIT_ODB_GET_BACKEND = zif_php_git2_function<
         size_t
         >::func<git_odb_get_backend>,
     php_git2::local_pack<
-        php_git2::php_git_odb_backend_byref,
+        php_git2::php_git_odb_backend_byref_noowner,
         php_git2::php_resource<php_git2::php_git_odb>,
         php_git2::php_long_cast<size_t>
         >,
