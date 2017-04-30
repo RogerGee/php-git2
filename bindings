@@ -32,10 +32,10 @@ Legend:
 . git_blame_init_options
 + git_blob_create_frombuffer
 + git_blob_create_fromdisk
-. git_blob_create_fromstream
-. git_blob_create_fromstream_commit
++ git_blob_create_fromstream
++ git_blob_create_fromstream_commit
 + git_blob_create_fromworkdir
-. git_blob_dup
++ git_blob_dup
 + git_blob_filtered_content
 + git_blob_free
 + git_blob_id

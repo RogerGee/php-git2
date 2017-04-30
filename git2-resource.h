@@ -57,11 +57,12 @@ namespace php_git2
         static void destroy_resource(zend_rsrc_list_entry* rsrc TSRMLS_DC)
         {
             // We must explicitly call the object's destructor, then free the
-            // object itself. We only call the destructor if we own the handle.
+            // object itself. We only call the destructor if we own the handle
+            // and it exists.
 
             git2_resource* thisObj = reinterpret_cast<git2_resource*>(rsrc->ptr);
 
-            if (thisObj->isowner) {
+            if (thisObj->handle != nullptr && thisObj->isowner) {
                 thisObj->~git2_resource();
             }
             efree(thisObj);

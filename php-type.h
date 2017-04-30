@@ -477,7 +477,7 @@ namespace php_git2
             }
 
             // Release the git2 handle from the resource handle; then we cause
-            // PHP to destroy the resource. This will case the resource to be
+            // PHP to destroy the resource. This will cause the resource to be
             // invalidated across any zvals that reference it.
             handle = rsrc->get_handle();
             rsrc->release();

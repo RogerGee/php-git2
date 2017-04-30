@@ -372,7 +372,7 @@ git_blob_is_binary(resource)
 
 git_blob_lookup(resource,string)
 
-    Returns resource
+    Returns git_blob resource
 
 git_blob_lookup_prefix(resource,string)
 
@@ -380,7 +380,7 @@ git_blob_lookup_prefix(resource,string)
 
 git_blob_owner(resource)
 
-    Returns resource
+    Returns git_repository resource
 
 git_blob_rawcontent(resource)
 
@@ -389,6 +389,18 @@ git_blob_rawcontent(resource)
 git_blob_rawsize(resource)
 
     Returns int
+
+git_blob_dup(resource)
+
+    Returns git_blob resource
+
+git_blob_create_fromstream(resource,string|null)
+
+    Returns object of type GitWritestream
+
+git_blob_create_fromstream_commit(GitWritestream)
+
+    Returns string
 
 --------------------------------------------------------------------------------
 The following structures are not represented as resources in the PHP
@@ -509,3 +521,18 @@ GitODBStream:
         write(string buffer)
 
         finalize_write(string oid)
+
+GitWritestream:
+
+    ** This class has properties/methods that align with the git_writestream
+       structure. **
+
+    methods:
+        write(string buffer)
+
+        close()
+
+        free()
+
+            ** This method is included for completeness but doesn't actually
+               need to be called. It is a noop. **

@@ -63,6 +63,63 @@ namespace php_git2
         }
     };
 
+    // Provide types for getting/returning git_writestream objects.
+
+    class php_git_writestream_byval:
+        public php_value_base,
+        private php_zts_base
+    {
+    public:
+        php_git_writestream_byval(TSRMLS_D):
+            php_zts_base(TSRMLS_C)
+        {
+        }
+
+        git_writestream* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            // Make sure zval is object derived from GitWritestream.
+            if (Z_TYPE_P(value) != IS_OBJECT
+                || !is_subclass_of(Z_OBJCE_P(value),
+                        class_entry[php_git2_writestream_obj]))
+            {
+                error("GitWritestream",argno);
+            }
+
+            // Extract the git_writestream from the object zval.
+            php_writestream_object* object;
+            object = reinterpret_cast<php_writestream_object*>(zend_objects_get_address(value TSRMLS_CC));
+
+            if (object->ws == nullptr) {
+                throw new php_git2_exception("the writestream has already been closed");
+            }
+
+            return object->ws;
+        }
+    };
+
+    class php_git_writestream_byref:
+        private php_zts_base
+    {
+    public:
+        php_git_writestream_byref(TSRMLS_D):
+            php_zts_base(TSRMLS_C), ws(nullptr)
+        {
+        }
+
+        git_writestream** byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            return &ws;
+        }
+
+        void ret(zval* return_value)
+        {
+            // Wrap the git_writestream in an object zval.
+            php_git2_make_writestream(return_value,ws TSRMLS_CC);
+        }
+    private:
+        git_writestream* ws;
+    };
+
 } // namespace php_git2
 
 #endif
@@ -251,6 +308,56 @@ static constexpr auto ZIF_GIT_BLOB_RAWSIZE = zif_php_git2_function<
     0
     >;
 
+static constexpr auto ZIF_GIT_BLOB_DUP = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_blob**,
+        git_blob*
+        >::func<git_blob_dup>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_blob>,
+        php_git2::php_resource<php_git2::php_git_blob>
+        >,
+    1,
+    php_git2::sequence<1>,
+    php_git2::sequence<0,1>,
+    php_git2::sequence<0,0>
+    >;
+
+static constexpr auto ZIF_GIT_BLOB_CREATE_FROMSTREAM = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_writestream**,
+        git_repository*,
+        const char*
+        >::func<git_blob_create_fromstream>,
+    php_git2::local_pack<
+        php_git2::php_git_writestream_byref,
+        php_git2::php_resource<php_git2::php_git_repository>,
+        php_git2::php_nullable_string
+        >,
+    1,
+    php_git2::sequence<1,2>,
+    php_git2::sequence<0,1,2>,
+    php_git2::sequence<0,0,1>
+    >;
+
+static constexpr auto ZIF_GIT_BLOB_CREATE_FROMSTREAM_COMMIT = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_oid*,
+        git_writestream*
+        >::func<git_blob_create_fromstream_commit>,
+    php_git2::local_pack<
+        php_git2::php_git_oid,
+        php_git2::php_git_writestream_byval
+        >,
+    1,
+    php_git2::sequence<1>,
+    php_git2::sequence<0,1>,
+    php_git2::sequence<0,0>
+    >;
+
 #define GIT_BLOB_FE                                                     \
     PHP_GIT2_FE(git_blob_create_frombuffer,ZIF_GIT_BLOB_CREATE_FROMBUFFER,NULL) \
     PHP_GIT2_FE(git_blob_create_fromdisk,ZIF_GIT_BLOB_CREATE_FROMDISK,NULL) \
@@ -263,7 +370,10 @@ static constexpr auto ZIF_GIT_BLOB_RAWSIZE = zif_php_git2_function<
     PHP_GIT2_FE(git_blob_lookup_prefix,ZIF_GIT_BLOB_LOOKUP_PREFIX,NULL) \
     PHP_GIT2_FE(git_blob_owner,ZIF_GIT_BLOB_OWNER,NULL)                 \
     PHP_GIT2_FE(git_blob_rawcontent,ZIF_GIT_BLOB_RAWCONTENT,NULL)       \
-    PHP_GIT2_FE(git_blob_rawsize,ZIF_GIT_BLOB_RAWSIZE,NULL)
+    PHP_GIT2_FE(git_blob_rawsize,ZIF_GIT_BLOB_RAWSIZE,NULL)             \
+    PHP_GIT2_FE(git_blob_dup,ZIF_GIT_BLOB_DUP,NULL)                     \
+    PHP_GIT2_FE(git_blob_create_fromstream,ZIF_GIT_BLOB_CREATE_FROMSTREAM,NULL) \
+    PHP_GIT2_FE(git_blob_create_fromstream_commit,ZIF_GIT_BLOB_CREATE_FROMSTREAM_COMMIT,NULL)
 
 /*
  * Local Variables:

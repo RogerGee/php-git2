@@ -434,3 +434,10 @@ PHP_METHOD(GitODBStream,free)
     // Do nothing: do not allow the user to free in this way. The git_odb_stream
     // will be freed later on when PHP destroys the GitODBStream object.
 }
+
+/*
+ * Local Variables:
+ * indent-tabs-mode:nil
+ * tab-width:4
+ * End:
+ */

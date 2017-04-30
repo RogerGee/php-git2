@@ -40,6 +40,14 @@ function test_create() {
     var_dump(git_blob_rawcontent($blob));
 }
 
+function test_create_fromstream() {
+    $repo = git_repository_open_bare(testbed_get_repo_path());
+
+    $ws = git_blob_create_fromstream($repo,null);
+
+}
+
 testbed_test('Blob/owner','Git2Test\Blob\test_owner');
 testbed_test('Blob/print content','Git2Test\Blob\test_print_content');
 testbed_test('Blob/create','Git2Test\Blob\test_create');
+testbed_test('Blob/create_fromstream','Git2Test\Blob\test_create_fromstream');

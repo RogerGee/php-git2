@@ -75,7 +75,7 @@ namespace php_git2
             // GitODBBackend.
             if (Z_TYPE_P(value) != IS_OBJECT
                 || !is_subclass_of(Z_OBJCE_P(value),
-                    class_entry[php_git2_odb_backend_obj]))
+                        class_entry[php_git2_odb_backend_obj]))
             {
                 error("GitODBBackend",argno);
             }

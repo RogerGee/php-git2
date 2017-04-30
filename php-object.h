@@ -20,6 +20,7 @@ namespace php_git2
         php_git2_odb_writepack_obj,
         php_git2_odb_backend_obj,
         php_git2_odb_stream_obj,
+        php_git2_writestream_obj,
         _php_git2_obj_top_
     };
 
@@ -125,6 +126,19 @@ namespace php_git2
         static void free(git_odb_stream *stream);
     };
 
+    struct php_writestream_object
+    {
+        php_writestream_object(zend_class_entry* ce TSRMLS_DC);
+        ~php_writestream_object();
+
+        zend_object base;
+        git_writestream* ws;
+        php_zts_member zts;
+
+        static zend_object_handlers handlers;
+        static void init(zend_class_entry* ce);
+    };
+
     // Provide a routine to call during MINIT for registering the custom
     // classes.
 
@@ -138,6 +152,7 @@ namespace php_git2
         php_callback_sync* cb,zval* zbackend TSRMLS_DC);
     void php_git2_make_odb_backend(zval* zp,git_odb_backend* backend,bool owner TSRMLS_DC);
     void php_git2_make_odb_stream(zval* zp,git_odb_stream* stream,bool isstd TSRMLS_DC);
+    void php_git2_make_writestream(zval* zp,git_writestream* ws TSRMLS_DC);
 
     // Useful helpers
 
@@ -149,6 +164,7 @@ namespace php_git2
     extern zend_function_entry odb_writepack_methods[];
     extern zend_function_entry odb_backend_methods[];
     extern zend_function_entry odb_stream_methods[];
+    extern zend_function_entry writestream_methods[];
 }
 
 // Helper macros
