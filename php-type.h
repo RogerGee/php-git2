@@ -627,6 +627,8 @@ namespace php_git2
     using php_git_odb_object = git2_resource<git_odb_object>;
     using php_git_commit = git2_resource<git_commit>;
     using php_git_blob = git2_resource<git_blob>;
+    using php_git_tree = git2_resource<git_tree>;
+    using php_git_tree_entry = git2_resource<git_tree_entry>;
 
     // Enumerate nofree versions of certain resource types.
     using php_git_repository_nofree = git2_resource_nofree<git_repository>;

@@ -17,6 +17,7 @@
 #include "odb.h"
 #include "commit.h"
 #include "blob.h"
+#include "tree.h"
 #include <cstdio>
 #include <cstdarg>
 using namespace std;
@@ -62,6 +63,7 @@ static zend_function_entry php_git2_functions[] = {
     GIT_ODB_FE
     GIT_COMMIT_FE
     GIT_BLOB_FE
+    GIT_TREE_FE
     PHP_FE_END
 };
 
@@ -122,7 +124,8 @@ PHP_MINIT_FUNCTION(git2)
         git_odb,
         git_odb_object,
         git_commit,
-        git_blob >(module_number);
+        git_blob,
+        git_tree >(module_number);
 
     // Register all classes provided by this extension.
     php_git2_register_classes(TSRMLS_C);

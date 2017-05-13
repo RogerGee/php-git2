@@ -402,6 +402,38 @@ git_blob_create_fromstream_commit(GitWritestream)
 
     Returns string
 
+----------------------------------------
+[git_tree]
+----------------------------------------
+
+git_tree_dup(resource)
+
+    Returns resource
+
+git_tree_entrycount(resource)
+
+    Returns int
+
+git_tree_free(resource)
+
+git_tree_id(resource)
+
+    Returns string
+
+git_tree_lookup(resource,string)
+
+    Returns resource
+
+git_tree_lookup_prefix(resource,string)
+
+    Returns resource
+
+git_tree_owner(resource)
+
+    Returns resource
+
+git_tree_entry_free(resource)
+
 --------------------------------------------------------------------------------
 The following structures are not represented as resources in the PHP
 API. Instead a primitive or object type is used:
@@ -412,6 +444,9 @@ API. Instead a primitive or object type is used:
     git_buf                                        string
     git_oid                                        string
     git_odb_writepack                              object
+    git_odb_backend                                object
+    git_odb_stream                                 object
+    git_writestream                                object
 
 --------------------------------------------------------------------------------
 The following classes are provided by the extension where appropriate:
