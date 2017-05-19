@@ -38,6 +38,11 @@ namespace php_git2
             cb->~php_callback_sync();
             efree(cb);
         }
+
+        git_transfer_progress* get_stats()
+        { return &stats; }
+        const git_transfer_progress* get_stats() const
+        { return &stats; }
     private:
         git_transfer_progress stats;
         php_callback_sync* cb;
@@ -132,6 +137,29 @@ static constexpr auto ZIF_GIT_INDEXER_FREE = zif_php_git2_function_void<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_indexer> > >;
 
+// Create a non-standard function for obtaining the stats on the indexer. This
+// is safe because all created indexer resource objects have
+// git_transfer_progress members.
+static PHP_FUNCTION(git2_indexer_stats)
+{
+    git_transfer_progress* stats;
+    php_git2::php_resource<php_git2::php_git_indexer_with_stats> indexer;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS(),"z",indexer.byref_php()) == FAILURE) {
+        return;
+    }
+
+    stats = indexer.get_object(1)->get_stats();
+    array_init(return_value);
+    add_assoc_long(return_value,"total_objects",stats->total_objects);
+    add_assoc_long(return_value,"indexed_objects",stats->indexed_objects);
+    add_assoc_long(return_value,"received_objects",stats->received_objects);
+    add_assoc_long(return_value,"local_objects",stats->local_objects);
+    add_assoc_long(return_value,"total_deltas",stats->total_deltas);
+    add_assoc_long(return_value,"indexed_deltas",stats->indexed_deltas);
+    add_assoc_long(return_value,"received_bytes",stats->received_bytes);
+}
+
 // Function Entries:
 
 #define GIT_INDEXER_FE                                          \
@@ -139,7 +167,8 @@ static constexpr auto ZIF_GIT_INDEXER_FREE = zif_php_git2_function_void<
     PHP_GIT2_FE(git_indexer_hash,ZIF_GIT_INDEXER_HASH,NULL)     \
     PHP_GIT2_FE(git_indexer_append,ZIF_GIT_INDEXER_APPEND,NULL) \
     PHP_GIT2_FE(git_indexer_commit,ZIF_GIT_INDEXER_COMMIT,NULL) \
-    PHP_GIT2_FE(git_indexer_free,ZIF_GIT_INDEXER_FREE,NULL)
+    PHP_GIT2_FE(git_indexer_free,ZIF_GIT_INDEXER_FREE,NULL)     \
+    PHP_FE(git2_indexer_stats,NULL)
 
 #endif
 

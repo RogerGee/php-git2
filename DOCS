@@ -17,13 +17,21 @@ interface.
 
 --------------------------------------------------------------------------------
 Functions provided by the extension that are not git2 wrappers (have the form
-'git2_*'):
+'git2_*'). These are provided as supplements or additions where appropriate.
 
 git2_version()
 
     Gets a version string
 
     Returns string
+
+git2_indexer_stats(resource)
+
+    To avoid the expense of translating a stats object every time and indexer
+    operation is performed, the user may call this to get the indexer transfer
+    progress stats at any time.
+
+    Returns array, associative array with git_transfer_progress fields
 
 --------------------------------------------------------------------------------
 Core API routines operate on opaque, resource values. They try to conform to the
