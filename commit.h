@@ -92,7 +92,7 @@ static constexpr auto ZIF_GIT_COMMIT_TREE_ID = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_commit>
         >,
-    1
+    0
     >;
 
 // Function Entries:

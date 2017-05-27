@@ -177,7 +177,7 @@ static constexpr auto ZIF_GIT_TREE_ENTRY_FREE = zif_php_git2_function_void<
         git_tree_entry*
         >::func<git_tree_entry_free>,
     php_git2::local_pack<
-        php_git2::php_resource<php_git2::php_git_tree_entry>
+        php_git2::php_resource_owned<php_git2::php_git_tree_entry>
         >
     >;
 

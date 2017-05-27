@@ -314,11 +314,6 @@ namespace php_git2
             return rsrc->get_handle();
         }
 
-        void ret(zval* return_value) const
-        {
-            RETVAL_RESOURCE(Z_RESVAL_P(value));
-        }
-
         // This member function is used to retrieve the resource object. We must
         // make sure it has been fetched from the resource value.
         GitResource* get_object(unsigned argno)
@@ -327,9 +322,6 @@ namespace php_git2
             return rsrc;
         }
     private:
-        // Store the resource object.
-        GitResource* rsrc;
-
         void lookup(unsigned argno)
         {
             if (rsrc == nullptr) {
@@ -346,6 +338,34 @@ namespace php_git2
                     throw php_git2_exception("resource is invalid");
                 }
             }
+        }
+
+        // Store the resource object.
+        GitResource* rsrc;
+    };
+
+    template<typename GitResource>
+    class php_resource_owned:
+        public php_resource<GitResource>
+    {
+    public:
+        php_resource_owned(TSRMLS_D):
+            php_resource<GitResource>(TSRMLS_C)
+        {
+        }
+
+        typename GitResource::git2_type
+        byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            GitResource* res = php_resource<GitResource>::get_object(argno);
+
+            // Ensure that the underlying handle is owned by the resource before
+            // returning it.
+            if (!res->is_owned()) {
+                throw php_git2_exception("cannot execute git2 call on non-owner resource");
+            }
+
+            return res->get_handle();
         }
     };
 
@@ -437,16 +457,6 @@ namespace php_git2
                 throw php_git2_exception("resource is invalid");
             }
             return rsrc->get_handle();
-        }
-
-        void ret(zval* return_value) const
-        {
-            if (Z_TYPE_P(value) == IS_NULL) {
-                RETVAL_NULL();
-            }
-            else {
-                RETVAL_RESOURCE(Z_RESVAL_P(value));
-            }
         }
     };
 
