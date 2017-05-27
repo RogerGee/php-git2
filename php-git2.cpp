@@ -125,7 +125,8 @@ PHP_MINIT_FUNCTION(git2)
         git_odb_object,
         git_commit,
         git_blob,
-        git_tree >(module_number);
+        git_tree,
+        git_tree_entry >(module_number);
 
     // Register all classes provided by this extension.
     php_git2_register_classes(TSRMLS_C);
@@ -160,7 +161,16 @@ PHP_MINIT_FUNCTION(git2)
     PHP_GIT2_CONSTANT(GIT_SORT_TIME);
     PHP_GIT2_CONSTANT(GIT_SORT_REVERSE);
 
+    // GIT_PATH_LIST_SEPARATOR
     PHP_GIT2_CONSTANT(GIT_PATH_LIST_SEPARATOR);
+
+    // GIT_FILEMODE_*
+    PHP_GIT2_CONSTANT(GIT_FILEMODE_UNREADABLE);
+    PHP_GIT2_CONSTANT(GIT_FILEMODE_TREE);
+    PHP_GIT2_CONSTANT(GIT_FILEMODE_BLOB);
+    PHP_GIT2_CONSTANT(GIT_FILEMODE_BLOB_EXECUTABLE);
+    PHP_GIT2_CONSTANT(GIT_FILEMODE_LINK);
+    PHP_GIT2_CONSTANT(GIT_FILEMODE_COMMIT);
 
     return SUCCESS;
 }

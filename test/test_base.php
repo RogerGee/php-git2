@@ -76,7 +76,7 @@ function testbed_test($title,callable $lambda) {
     }
 
     if (isset($error)) {
-        color_echo("task '$title': error",COLOR_RED);
+        color_echo("task '$title': $error",COLOR_RED);
         exit(1);
     }
     else {

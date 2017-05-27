@@ -370,6 +370,18 @@ namespace php_git2
             (void)argno;
         }
 
+        typename GitResource::const_git2_type*
+        byval_git2(unsigned argno = std::numeric_limits<unsigned>::max()) const
+        {
+            // Create a resource backing instance if it does not already exist.
+            if (rsrc == nullptr) {
+                rsrc = php_git2_create_resource<GitResource>();
+            }
+
+            return const_cast<const GitResource*>(rsrc)->get_handle_byref();
+            (void)argno;
+        }
+
         void ret(zval* return_value) const
         {
             // Create a resource zval that uses the GitResource backing.
@@ -385,7 +397,7 @@ namespace php_git2
             return rsrc;
         }
     private:
-        GitResource* rsrc;
+        mutable GitResource* rsrc;
     };
 
     // Provide a type that represents an optional resource value (one that could
@@ -632,6 +644,7 @@ namespace php_git2
 
     // Enumerate nofree versions of certain resource types.
     using php_git_repository_nofree = git2_resource_nofree<git_repository>;
+    using php_git_tree_entry_nofree = git2_resource_nofree<git_tree_entry>;
 
 } // namespace php_git2
 

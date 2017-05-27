@@ -308,7 +308,11 @@ git_odb_add_backend(resource,GitODBBackend,int)
 
 git_odb_exists(resource,string)
 
+    Returns int
+
 git_odb_exists_prefix(resource,string)
+
+    Returns int
 
 git_odb_foreach(resource,callable,mixed)
 
@@ -347,6 +351,14 @@ git_commit_parent_id(resource,int)
     Returns string
 
 git_commit_free(resource)
+
+git_commit_tree(resource)
+
+    Returns git_tree resource
+
+git_commit_tree_id(resource)
+
+    Returns string
 
 ----------------------------------------
 [git_blob]
@@ -416,7 +428,7 @@ git_blob_create_fromstream_commit(GitWritestream)
 
 git_tree_dup(resource)
 
-    Returns resource
+    Returns git_tree resource
 
 git_tree_entrycount(resource)
 
@@ -430,17 +442,61 @@ git_tree_id(resource)
 
 git_tree_lookup(resource,string)
 
-    Returns resource
+    Returns git_tree resource
 
 git_tree_lookup_prefix(resource,string)
 
-    Returns resource
+    Returns git_tree resource
 
 git_tree_owner(resource)
 
-    Returns resource
+    Returns git_repository resource
 
 git_tree_entry_free(resource)
+
+git_tree_entry_byid(resource,string)
+
+    Returns git_tree_entry resource
+
+git_tree_entry_byindex(resource,int)
+
+    Returns git_tree_entry resource
+
+git_tree_entry_byname(resource,string)
+
+    Returns git_tree_entry resource
+
+git_tree_entry_bypath(resource,string)
+
+    Returns git_tree_entry resource
+
+git_tree_entry_dup(resource)
+
+    Returns git_tree_entry resource
+
+git_tree_entry_filemode(resource)
+
+    Returns int
+
+git_tree_entry_filemode_raw(resource)
+
+    Returns int
+
+git_tree_entry_name(resource)
+
+    Returns string
+
+git_tree_entry_cmp(resource,resource)
+
+    Returns int
+
+git_tree_entry_id(resource)
+
+    Returns string
+
+git_tree_entry_type(resource)
+
+    Returns int
 
 --------------------------------------------------------------------------------
 The following structures are not represented as resources in the PHP

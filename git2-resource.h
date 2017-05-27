@@ -20,6 +20,7 @@ namespace php_git2
         typedef void (*resource_dstor)(git2_resource*);
     public:
         typedef git_type* git2_type;
+        typedef const git_type* const_git2_type;
 
         git2_resource(bool isOwner = true):
             handle(nullptr), isowner(isOwner)
@@ -34,8 +35,12 @@ namespace php_git2
 
         git2_type get_handle()
         { return handle; }
+        const_git2_type get_handle() const
+        { return handle; }
         git2_type* get_handle_byref()
         { return &handle; }
+        const_git2_type* get_handle_byref() const
+        { return const_cast<const_git2_type*>(&handle); }
         void release()
         { handle = nullptr; }
         bool is_owned() const

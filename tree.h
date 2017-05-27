@@ -42,6 +42,29 @@ namespace php_git2
             return true;
         }
     };
+
+    // Provide rethandler for returning git_tree_entry.
+    template<typename... Ts>
+    class php_git_tree_entry_rethandler
+    {
+    public:
+        bool ret(
+            const git_tree_entry* retval,
+            zval* return_value,
+            local_pack<Ts...>&& pack)
+        {
+            const php_resource_ref<php_git_tree_entry_nofree> entry;
+
+            if (retval == nullptr) {
+                return false;
+            }
+
+            *entry.byval_git2() = retval;
+            entry.ret(return_value);
+
+            return true;
+        }
+    };
 }
 
 // Template declarations for bindings:
@@ -158,6 +181,162 @@ static constexpr auto ZIF_GIT_TREE_ENTRY_FREE = zif_php_git2_function_void<
         >
     >;
 
+static constexpr auto ZIF_GIT_TREE_ENTRY_BYID = zif_php_git2_function_rethandler<
+    php_git2::func_wrapper<
+        const git_tree_entry*,
+        const git_tree*,
+        const git_oid*>::func<git_tree_entry_byid>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_tree>,
+        php_git2::php_git_oid_fromstr
+        >,
+    php_git2::php_git_tree_entry_rethandler<
+        php_git2::php_resource<php_git2::php_git_tree>,
+        php_git2::php_git_oid_fromstr
+        >
+    >;
+
+static constexpr auto ZIF_GIT_TREE_ENTRY_BYINDEX = zif_php_git2_function_rethandler<
+    php_git2::func_wrapper<
+        const git_tree_entry*,
+        const git_tree*,
+        size_t>::func<git_tree_entry_byindex>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_tree>,
+        php_git2::php_long_cast<size_t>
+        >,
+    php_git2::php_git_tree_entry_rethandler<
+        php_git2::php_resource<php_git2::php_git_tree>,
+        php_git2::php_long_cast<size_t>
+        >
+    >;
+
+static constexpr auto ZIF_GIT_TREE_ENTRY_BYNAME = zif_php_git2_function_rethandler<
+    php_git2::func_wrapper<
+        const git_tree_entry*,
+        const git_tree*,
+        const char*>::func<git_tree_entry_byname>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_tree>,
+        php_git2::php_string
+        >,
+    php_git2::php_git_tree_entry_rethandler<
+        php_git2::php_resource<php_git2::php_git_tree>,
+        php_git2::php_string
+        >
+    >;
+
+static constexpr auto ZIF_GIT_TREE_ENTRY_BYPATH = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_tree_entry**,
+        const git_tree*,
+        const char*>::func<git_tree_entry_bypath>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_tree_entry>,
+        php_git2::php_resource<php_git2::php_git_tree>,
+        php_git2::php_string
+        >,
+    1,
+    php_git2::sequence<1,2>,
+    php_git2::sequence<0,1,2>,
+    php_git2::sequence<0,0,1>
+    >;
+
+static constexpr auto ZIF_GIT_TREE_ENTRY_DUP = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_tree_entry**,
+        const git_tree_entry*>::func<git_tree_entry_dup>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_tree_entry>,
+        php_git2::php_resource<php_git2::php_git_tree_entry>
+        >,
+    1,
+    php_git2::sequence<1>,
+    php_git2::sequence<0,1>,
+    php_git2::sequence<0,0>
+    >;
+
+static constexpr auto ZIF_GIT_TREE_ENTRY_FILEMODE = zif_php_git2_function<
+    php_git2::func_wrapper<
+        git_filemode_t,
+        const git_tree_entry*>::func<git_tree_entry_filemode>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_tree_entry>
+        >,
+    0
+    >;
+
+static constexpr auto ZIF_GIT_TREE_ENTRY_FILEMODE_RAW = zif_php_git2_function<
+    php_git2::func_wrapper<
+        git_filemode_t,
+        const git_tree_entry*>::func<git_tree_entry_filemode_raw>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_tree_entry>
+        >,
+    0
+    >;
+
+static constexpr auto ZIF_GIT_TREE_ENTRY_NAME = zif_php_git2_function<
+    php_git2::func_wrapper<
+        const char*,
+        const git_tree_entry*>::func<git_tree_entry_name>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_tree_entry>
+        >,
+    0
+    >;
+
+static constexpr auto ZIF_GIT_TREE_ENTRY_TO_OBJECT = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_object**,
+        git_repository*,
+        const git_tree_entry*>::func<git_tree_entry_to_object>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_object>,
+        php_git2::php_resource<php_git2::php_git_repository>,
+        php_git2::php_resource<php_git2::php_git_tree_entry>
+        >,
+    1,
+    php_git2::sequence<1,2>,
+    php_git2::sequence<0,1,2>,
+    php_git2::sequence<0,0,1>
+    >;
+
+static constexpr auto ZIF_GIT_TREE_ENTRY_CMP = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        const git_tree_entry*,
+        const git_tree_entry*>::func<git_tree_entry_cmp>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_tree_entry>,
+        php_git2::php_resource<php_git2::php_git_tree_entry>
+        >,
+    0
+    >;
+
+static constexpr auto ZIF_GIT_TREE_ENTRY_ID = zif_php_git2_function<
+    php_git2::func_wrapper<
+        const git_oid*,
+        const git_tree_entry*>::func<git_tree_entry_id>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_tree_entry>
+        >,
+    0
+    >;
+
+static constexpr auto ZIF_GIT_TREE_ENTRY_TYPE = zif_php_git2_function<
+    php_git2::func_wrapper<
+        git_otype,
+        const git_tree_entry*>::func<git_tree_entry_type>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_tree_entry>
+        >,
+    0
+    >;
+
 // PHP function entry macro for this module:
 
 #define GIT_TREE_FE                                                     \
@@ -167,7 +346,19 @@ static constexpr auto ZIF_GIT_TREE_ENTRY_FREE = zif_php_git2_function_void<
     PHP_GIT2_FE(git_tree_lookup_prefix,ZIF_GIT_TREE_LOOKUP_PREFIX,NULL) \
     PHP_GIT2_FE(git_tree_owner,ZIF_GIT_TREE_OWNER,NULL)                 \
     PHP_GIT2_FE(git_tree_entrycount,ZIF_GIT_TREE_ENTRYCOUNT,NULL)       \
-    PHP_GIT2_FE(git_tree_entry_free,ZIF_GIT_TREE_ENTRY_FREE,NULL)
+    PHP_GIT2_FE(git_tree_entry_free,ZIF_GIT_TREE_ENTRY_FREE,NULL)       \
+    PHP_GIT2_FE(git_tree_entry_byid,ZIF_GIT_TREE_ENTRY_BYID,NULL)       \
+    PHP_GIT2_FE(git_tree_entry_byindex,ZIF_GIT_TREE_ENTRY_BYINDEX,NULL) \
+    PHP_GIT2_FE(git_tree_entry_byname,ZIF_GIT_TREE_ENTRY_BYNAME,NULL)   \
+    PHP_GIT2_FE(git_tree_entry_bypath,ZIF_GIT_TREE_ENTRY_BYPATH,NULL)   \
+    PHP_GIT2_FE(git_tree_entry_dup,ZIF_GIT_TREE_ENTRY_DUP,NULL)         \
+    PHP_GIT2_FE(git_tree_entry_filemode,ZIF_GIT_TREE_ENTRY_FILEMODE,NULL) \
+    PHP_GIT2_FE(git_tree_entry_filemode_raw,ZIF_GIT_TREE_ENTRY_FILEMODE_RAW,NULL) \
+    PHP_GIT2_FE(git_tree_entry_name,ZIF_GIT_TREE_ENTRY_NAME,NULL)       \
+    PHP_GIT2_FE(git_tree_entry_to_object,ZIF_GIT_TREE_ENTRY_TO_OBJECT,NULL) \
+    PHP_GIT2_FE(git_tree_entry_cmp,ZIF_GIT_TREE_ENTRY_CMP,NULL)         \
+    PHP_GIT2_FE(git_tree_entry_id,ZIF_GIT_TREE_ENTRY_ID,NULL)           \
+    PHP_GIT2_FE(git_tree_entry_type,ZIF_GIT_TREE_ENTRY_TYPE,NULL)
 
 #endif
 
