@@ -20,7 +20,7 @@ namespace php_git2
 
 // Functions:
 
-static constexpr auto ZIF_GIT_COMMIT_LOOKUP = zif_php_git2_function<
+static constexpr auto ZIF_GIT_COMMIT_LOOKUP = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_commit**,
@@ -31,6 +31,7 @@ static constexpr auto ZIF_GIT_COMMIT_LOOKUP = zif_php_git2_function<
         php_git2::php_resource<php_git2::php_git_repository>,
         php_git2::php_git_oid_fromstr
         >,
+    php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,2>,
     php_git2::sequence<0,1,2>,
@@ -68,7 +69,7 @@ static constexpr auto ZIF_GIT_COMMIT_FREE = zif_php_git2_function_void<
         >
     >;
 
-static constexpr auto ZIF_GIT_COMMIT_TREE = zif_php_git2_function<
+static constexpr auto ZIF_GIT_COMMIT_TREE = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_tree**,
@@ -78,6 +79,7 @@ static constexpr auto ZIF_GIT_COMMIT_TREE = zif_php_git2_function<
         php_git2::php_resource_ref<php_git2::php_git_tree>,
         php_git2::php_resource<php_git2::php_git_commit>
         >,
+    php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1>,
     php_git2::sequence<0,1>,

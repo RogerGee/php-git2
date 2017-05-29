@@ -28,7 +28,7 @@ static constexpr auto ZIF_GIT_OBJECT_ID = zif_php_git2_function<
         php_git2::php_resource<php_git2::php_git_object> >,
     0 >;
 
-static constexpr auto ZIF_GIT_OBJECT_LOOKUP = zif_php_git2_function<
+static constexpr auto ZIF_GIT_OBJECT_LOOKUP = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_object**,
@@ -41,6 +41,7 @@ static constexpr auto ZIF_GIT_OBJECT_LOOKUP = zif_php_git2_function<
         php_git2::php_git_oid_fromstr,
         php_git2::php_long_cast<git_otype>
         >,
+    php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,2,3>,
     php_git2::sequence<0,1,2,3>,

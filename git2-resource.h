@@ -13,9 +13,33 @@
 namespace php_git2
 {
 
+    // Provide a base class for git2_resource that can dynamically dispatch
+    // calls to various instantiations of git2_resource.
+    class git2_resource_base
+    {
+    public:
+        git2_resource_base():
+            parent(nullptr)
+        {
+        }
+
+        git2_resource_base* get_parent()
+        {
+            return parent;
+        }
+
+        virtual bool free_handle() = 0;
+
+    protected:
+        // A reference to a parent resource object. This allows the resource to
+        // define a single dependency for its lifetime.
+        git2_resource_base* parent;
+    };
+
     // Encapsulate resource structure and basic operations.
     template<typename git_type>
-    class git2_resource
+    class git2_resource:
+        public git2_resource_base
     {
         typedef void (*resource_dstor)(git2_resource*);
     public:
@@ -23,28 +47,81 @@ namespace php_git2
         typedef const git_type* const_git2_type;
 
         git2_resource(bool isOwner = true):
-            handle(nullptr), isowner(isOwner)
+            handle(nullptr), isowned(isOwner), ref(1)
         {
         }
 
         ~git2_resource()
         {
+            // The destructor should be specialized for the git_type used by the
+            // particular template class instantiation.
             throw php_git2_exception(
                 "resource type was not implemented correctly: no destructor provided");
         }
 
         git2_type get_handle()
-        { return handle; }
+        {
+            return handle;
+        }
         const_git2_type get_handle() const
-        { return handle; }
+        {
+            return handle;
+        }
+
         git2_type* get_handle_byref()
-        { return &handle; }
+        {
+            return &handle;
+        }
         const_git2_type* get_handle_byref() const
-        { return const_cast<const_git2_type*>(&handle); }
+        {
+            return const_cast<const_git2_type*>(&handle);
+        }
+
         void release()
-        { handle = nullptr; }
+        {
+            handle = nullptr;
+        }
+
         bool is_owned() const
-        { return isowner; }
+        {
+            return isowned;
+        }
+
+        void up_ref()
+        {
+            ref += 1;
+        }
+        void down_ref()
+        {
+            ref -= 1;
+        }
+
+        template<typename T>
+        void set_parent(git2_resource<T>* resource)
+        {
+            if (resource != nullptr) {
+                // Update ref count to parent and set parent.
+                resource->up_ref();
+                parent = resource;
+            }
+        }
+
+        bool free_handle()
+        {
+            // Call the destructor to free the handle. We only call the
+            // destructor if the handle exists, we own the handle and the ref
+            // count is fully decremented. Return true if the object is ready to
+            // be cleaned up (i.e. all references have been decremented).
+
+            if (--ref <= 0) {
+                if (handle != nullptr && isowned) {
+                    this->~git2_resource();
+                    handle = nullptr;
+                }
+                return true;
+            }
+            return false;
+        }
 
         static void define_resource_type(int moduleNumber)
         {
@@ -61,16 +138,24 @@ namespace php_git2
 
         static void destroy_resource(zend_rsrc_list_entry* rsrc TSRMLS_DC)
         {
-            // We must explicitly call the object's destructor, then free the
-            // object itself. We only call the destructor if we own the handle
-            // and it exists.
+            git2_resource* self = reinterpret_cast<git2_resource*>(rsrc->ptr);
+            free_recursive(self);
+        }
 
-            git2_resource* thisObj = reinterpret_cast<git2_resource*>(rsrc->ptr);
+        static void free_recursive(git2_resource_base* self)
+        {
+            // We must free the git2 handle. If the handle was freed, then free
+            // the object itself. Recursively delete any parent.
 
-            if (thisObj->handle != nullptr && thisObj->isowner) {
-                thisObj->~git2_resource();
+            if (self->free_handle()) {
+                // If we have a parent resource, attempt to free it as well.
+                git2_resource_base* parent = self->get_parent();
+                if (parent != nullptr) {
+                    free_recursive(parent);
+                }
+
+                efree(self);
             }
-            efree(thisObj);
         }
 
         // This is a pointer to the libgit2 type that the object wraps as a PHP
@@ -78,8 +163,12 @@ namespace php_git2
         // libgit2 routines.
         git2_type handle;
 
-        // Define whether or not we own the handle.
-        bool isowner;
+        // Indicates whether or not the handle may be freed by this object.
+        bool isowned;
+
+        // A reference counter for the handle. If the counter reaches zero when
+        // a resource is destroyed we can free the object.
+        int ref;
     };
     template<typename git_type>
     int git2_resource<git_type>::le = 0;

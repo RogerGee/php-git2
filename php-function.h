@@ -432,6 +432,22 @@ namespace php_git2
         return retval >= 0;
     }
 
+    // Provide a function for setting up resource dependencies.
+
+    template<typename T,typename U>
+    inline void php_set_resource_dependency_impl(
+        git2_resource<T>* child,
+        git2_resource<U>* parent)
+    {
+        child->set_parent(parent);
+    }
+
+    template<typename... Ts,unsigned... Ns>
+    inline void php_set_resource_dependency(local_pack<Ts...>&& pack,sequence<Ns...>&& seq)
+    {
+        php_set_resource_dependency_impl(pack.template get<Ns>().get_object()...);
+    }
+
 } // namespace php_git2
 
 // We need a function entry macro that supports naming the PHP userspace
@@ -592,6 +608,95 @@ void zif_php_git2_function_void(INTERNAL_FUNCTION_PARAMETERS)
             std::forward<LocalVars>(vars),
             GitForward(),
             AllParams());
+    } catch (php_git2::php_git2_exception_base& ex) {
+        if (ex.what() != nullptr) {
+            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+        }
+    }
+}
+
+// Provide a variant to handle setting resource dependencies. This adds a
+// template argument 'ResourceDeps' which is a sequence describing the
+// subsequence of the local pack representing the resource dependency
+// sequence. This should always have two elements. The first is the resource
+// that is the dependency for the second element. The second is the dependent
+// resource.
+
+template<
+    typename FuncWrapper,
+    typename LocalVars,
+    typename ResourceDeps,
+    int ReturnPos = -1,
+    typename PHPForward = php_git2::make_seq<LocalVars::size()>,
+    typename GitForward = php_git2::make_seq<LocalVars::size()>,
+    typename AllParams = php_git2::make_seq<FuncWrapper::arg_count()> >
+void zif_php_git2_function_setdeps(INTERNAL_FUNCTION_PARAMETERS)
+{
+    // Create a local_pack object that houses all the variables we need for the
+    // call. The constructors take care of any initialization.
+    LocalVars vars ZTS_CTOR;
+    typename FuncWrapper::return_type retval;
+
+    try {
+        // Obtain values from PHP userspace.
+        php_git2::php_extract_args(std::forward<LocalVars>(vars),PHPForward());
+
+        // Call wrapped function.
+        retval = php_git2::library_call(
+            FuncWrapper(),
+            std::forward<LocalVars>(vars),
+            GitForward(),
+            AllParams());
+
+        // Call function to set resource dependency.
+        php_git2::php_set_resource_dependency(std::forward<LocalVars>(vars),ResourceDeps());
+
+        // Check for errors (when return value is less than zero).
+        if (php_git2::check_return(retval)) {
+            // Handle the return value.
+            php_git2::php_return<ReturnPos>(
+                std::forward<typename FuncWrapper::return_type>(retval),
+                std::forward<LocalVars>(vars),
+                return_value);
+        }
+        else {
+            // Throw error with formatted message from git2.
+            php_git2::git_error();
+        }
+    } catch (php_git2::php_git2_exception_base& ex) {
+        if (ex.what() != nullptr) {
+            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+        }
+    }
+}
+
+template<
+    typename FuncWrapper,
+    typename LocalVars,
+    typename ResourceDeps,
+    typename PHPForward = php_git2::make_seq<LocalVars::size()>,
+    typename GitForward = php_git2::make_seq<LocalVars::size()>,
+    typename AllParams = php_git2::make_seq<FuncWrapper::arg_count()> >
+void zif_php_git2_function_setdeps_void(INTERNAL_FUNCTION_PARAMETERS)
+{
+    // Create a local_pack object that houses all the variables we need for the
+    // call. The constructors take care of any initialization.
+    LocalVars vars ZTS_CTOR;
+
+    try {
+        // Obtain values from PHP userspace.
+        php_git2::php_extract_args(std::forward<LocalVars>(vars),PHPForward());
+
+        // Make call to underlying git2 function.
+        php_git2::library_call(
+            FuncWrapper(),
+            std::forward<LocalVars>(vars),
+            GitForward(),
+            AllParams());
+
+        // Call function to set resource dependency.
+        php_git2::php_set_resource_dependency(std::forward<LocalVars>(vars),ResourceDeps());
+
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
             zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);

@@ -39,7 +39,7 @@ namespace php_git2
 
 // Functions:
 
-static constexpr auto ZIF_GIT_REVWALK_NEW = zif_php_git2_function<
+static constexpr auto ZIF_GIT_REVWALK_NEW = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_revwalk**,
@@ -47,6 +47,7 @@ static constexpr auto ZIF_GIT_REVWALK_NEW = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_resource_ref<php_git2::php_git_revwalk>,
         php_git2::php_resource<php_git2::php_git_repository> >,
+    php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1>,
     php_git2::sequence<0,1>,

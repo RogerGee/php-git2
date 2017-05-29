@@ -31,9 +31,14 @@ namespace php_git2
                 return false;
             }
 
-            auto& resource = pack.get<1>();
+            auto&& blob = pack.get<0>();
+            auto&& resource = pack.get<1>();
             *resource.byval_git2() = retval;
             resource.ret(return_value);
+
+            // Make the repository resource dependent on the blob (which is
+            // dependent on the original repository resource).
+            resource.get_object()->set_parent(blob.get_object());
 
             return true;
         }
@@ -270,7 +275,7 @@ static constexpr auto ZIF_GIT_BLOB_IS_BINARY = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_BLOB_LOOKUP = zif_php_git2_function<
+static constexpr auto ZIF_GIT_BLOB_LOOKUP = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_blob**,
@@ -282,13 +287,14 @@ static constexpr auto ZIF_GIT_BLOB_LOOKUP = zif_php_git2_function<
         php_git2::php_resource<php_git2::php_git_repository>,
         php_git2::php_git_oid_fromstr
         >,
+    php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,2>,
     php_git2::sequence<0,1,2>,
     php_git2::sequence<0,0,1>
     >;
 
-static constexpr auto ZIF_GIT_BLOB_LOOKUP_PREFIX = zif_php_git2_function<
+static constexpr auto ZIF_GIT_BLOB_LOOKUP_PREFIX = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_blob**,
@@ -303,6 +309,7 @@ static constexpr auto ZIF_GIT_BLOB_LOOKUP_PREFIX = zif_php_git2_function<
                                         size_t,php_git2::php_git_oid_fromstr> >,
         php_git2::php_git_oid_fromstr
         >,
+    php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,3>,
     php_git2::sequence<0,1,3,2>,
@@ -346,7 +353,7 @@ static constexpr auto ZIF_GIT_BLOB_RAWSIZE = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_BLOB_DUP = zif_php_git2_function<
+static constexpr auto ZIF_GIT_BLOB_DUP = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_blob**,
@@ -356,6 +363,7 @@ static constexpr auto ZIF_GIT_BLOB_DUP = zif_php_git2_function<
         php_git2::php_resource_ref<php_git2::php_git_blob>,
         php_git2::php_resource<php_git2::php_git_blob>
         >,
+    php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1>,
     php_git2::sequence<0,1>,

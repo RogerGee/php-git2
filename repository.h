@@ -148,7 +148,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_HASHFILE = zif_php_git2_function<
     php_git2::sequence<0,1,2,3,4>,
     php_git2::sequence<0,0,1,2,3> >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_ODB = zif_php_git2_function<
+static constexpr auto ZIF_GIT_REPOSITORY_ODB = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_odb**,
@@ -157,13 +157,14 @@ static constexpr auto ZIF_GIT_REPOSITORY_ODB = zif_php_git2_function<
         php_git2::php_resource_ref<php_git2::php_git_odb>,
         php_git2::php_resource<php_git2::php_git_repository>
         >,
+    php_git2::sequence<0,1>, // Make the ODB dependent on the repository.
     1,
     php_git2::sequence<1>,
     php_git2::sequence<0,1>,
     php_git2::sequence<0,0>
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_SET_ODB = zif_php_git2_function_void<
+static constexpr auto ZIF_GIT_REPOSITORY_SET_ODB = zif_php_git2_function_setdeps_void<
     php_git2::func_wrapper<
         void,
         git_repository*,
@@ -171,7 +172,8 @@ static constexpr auto ZIF_GIT_REPOSITORY_SET_ODB = zif_php_git2_function_void<
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_repository>,
         php_git2::php_resource<php_git2::php_git_odb>
-        >
+        >,
+    php_git2::sequence<0,1>
     >;
 
 // Function Entries:

@@ -71,7 +71,7 @@ namespace php_git2
 
 // Functions:
 
-static constexpr auto ZIF_GIT_INDEXER_NEW = zif_php_git2_function<
+static constexpr auto ZIF_GIT_INDEXER_NEW = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_indexer**,
@@ -87,6 +87,7 @@ static constexpr auto ZIF_GIT_INDEXER_NEW = zif_php_git2_function<
         php_git2::php_long,
         php_git2::php_resource_null<php_git2::php_git_odb>,
         php_git2::php_callback_handler<php_git2::transfer_progress_callback> >,
+    php_git2::sequence<1,4>,
     2,
     php_git2::sequence<2,3,4,0,0>, // pass callback in twice
     php_git2::sequence<1,2,3,4,5,0>,

@@ -316,7 +316,7 @@ namespace php_git2
 
         // This member function is used to retrieve the resource object. We must
         // make sure it has been fetched from the resource value.
-        GitResource* get_object(unsigned argno)
+        GitResource* get_object(unsigned argno = std::numeric_limits<unsigned>::max())
         {
             lookup(argno);
             return rsrc;
@@ -408,7 +408,7 @@ namespace php_git2
             zend_register_resource(return_value,rsrc,GitResource::resource_le() TSRMLS_CC);
         }
 
-        GitResource* get_object(unsigned argno)
+        GitResource* get_object(unsigned argno = std::numeric_limits<unsigned>::max()) const
         {
             // Retrieve the resource object, creating it if it does not exist.
             if (rsrc == nullptr) {
@@ -457,6 +457,11 @@ namespace php_git2
                 throw php_git2_exception("resource is invalid");
             }
             return rsrc->get_handle();
+        }
+
+        GitResource* get_object()
+        {
+            return nullptr;
         }
     };
 

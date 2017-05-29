@@ -35,9 +35,15 @@ namespace php_git2
                 return false;
             }
 
+            auto& tree = pack.get<0>();
             auto& resource = pack.get<1>();
+
             *resource.byval_git2() = retval;
             resource.ret(return_value);
+
+            // Make the repository resource dependent on the tree (which is
+            // dependent on the original repository resource).
+            resource.get_object()->set_parent(tree.get_object());
 
             return true;
         }
@@ -53,14 +59,20 @@ namespace php_git2
             zval* return_value,
             local_pack<Ts...>&& pack)
         {
-            const php_resource_ref<php_git_tree_entry_nofree> entry;
-
             if (retval == nullptr) {
                 return false;
             }
 
+            auto&& tree = pack.template get<0>();
+            const php_resource_ref<php_git_tree_entry_nofree> entry;
+
+            // Set return value. This will create a resource for the new
+            // git_tree_entry handle.
             *entry.byval_git2() = retval;
             entry.ret(return_value);
+
+            // Make the new git_tree_entry dependent on the git_tree.
+            entry.get_object()->set_parent(tree.get_object());
 
             return true;
         }
@@ -90,7 +102,7 @@ static constexpr auto ZIF_GIT_TREE_ID = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_TREE_LOOKUP = zif_php_git2_function<
+static constexpr auto ZIF_GIT_TREE_LOOKUP = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_tree**,
@@ -102,13 +114,14 @@ static constexpr auto ZIF_GIT_TREE_LOOKUP = zif_php_git2_function<
         php_git2::php_resource<php_git2::php_git_repository>,
         php_git2::php_git_oid_fromstr
         >,
+    php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,2>,
     php_git2::sequence<0,1,2>,
     php_git2::sequence<0,0,1>
     >;
 
-static constexpr auto ZIF_GIT_TREE_LOOKUP_PREFIX = zif_php_git2_function<
+static constexpr auto ZIF_GIT_TREE_LOOKUP_PREFIX = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_tree**,
@@ -123,6 +136,7 @@ static constexpr auto ZIF_GIT_TREE_LOOKUP_PREFIX = zif_php_git2_function<
                                         size_t,php_git2::php_git_oid_fromstr> >,
         php_git2::php_git_oid_fromstr
         >,
+    php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,3>,
     php_git2::sequence<0,1,3,2>,
@@ -144,7 +158,7 @@ static constexpr auto ZIF_GIT_TREE_OWNER = zif_php_git2_function_rethandler<
     php_git2::sequence<0>
     >;
 
-static constexpr auto ZIF_GIT_TREE_DUP = zif_php_git2_function<
+static constexpr auto ZIF_GIT_TREE_DUP = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_tree**,
@@ -154,6 +168,7 @@ static constexpr auto ZIF_GIT_TREE_DUP = zif_php_git2_function<
         php_git2::php_resource_ref<php_git2::php_git_tree>,
         php_git2::php_resource<php_git2::php_git_tree>
         >,
+    php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1>,
     php_git2::sequence<0,1>,
@@ -226,7 +241,7 @@ static constexpr auto ZIF_GIT_TREE_ENTRY_BYNAME = zif_php_git2_function_rethandl
         >
     >;
 
-static constexpr auto ZIF_GIT_TREE_ENTRY_BYPATH = zif_php_git2_function<
+static constexpr auto ZIF_GIT_TREE_ENTRY_BYPATH = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_tree_entry**,
@@ -237,13 +252,14 @@ static constexpr auto ZIF_GIT_TREE_ENTRY_BYPATH = zif_php_git2_function<
         php_git2::php_resource<php_git2::php_git_tree>,
         php_git2::php_string
         >,
+    php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,2>,
     php_git2::sequence<0,1,2>,
     php_git2::sequence<0,0,1>
     >;
 
-static constexpr auto ZIF_GIT_TREE_ENTRY_DUP = zif_php_git2_function<
+static constexpr auto ZIF_GIT_TREE_ENTRY_DUP = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_tree_entry**,
@@ -252,6 +268,7 @@ static constexpr auto ZIF_GIT_TREE_ENTRY_DUP = zif_php_git2_function<
         php_git2::php_resource_ref<php_git2::php_git_tree_entry>,
         php_git2::php_resource<php_git2::php_git_tree_entry>
         >,
+    php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1>,
     php_git2::sequence<0,1>,
@@ -288,7 +305,7 @@ static constexpr auto ZIF_GIT_TREE_ENTRY_NAME = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_TREE_ENTRY_TO_OBJECT = zif_php_git2_function<
+static constexpr auto ZIF_GIT_TREE_ENTRY_TO_OBJECT = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_object**,
@@ -299,6 +316,7 @@ static constexpr auto ZIF_GIT_TREE_ENTRY_TO_OBJECT = zif_php_git2_function<
         php_git2::php_resource<php_git2::php_git_repository>,
         php_git2::php_resource<php_git2::php_git_tree_entry>
         >,
+    php_git2::sequence<0,1>, // set dependency to repository, not tree_entry
     1,
     php_git2::sequence<1,2>,
     php_git2::sequence<0,1,2>,
