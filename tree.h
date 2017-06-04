@@ -81,11 +81,7 @@ namespace php_git2
 
 // Template declarations for bindings:
 
-static constexpr auto ZIF_GIT_TREE_FREE = zif_php_git2_function_void<
-    php_git2::func_wrapper<
-        void,
-        git_tree*
-        >::func<git_tree_free>,
+static constexpr auto ZIF_GIT_TREE_FREE = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_tree>
         >
@@ -186,13 +182,9 @@ static constexpr auto ZIF_GIT_TREE_ENTRYCOUNT = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_TREE_ENTRY_FREE = zif_php_git2_function_void<
-    php_git2::func_wrapper<
-        void,
-        git_tree_entry*
-        >::func<git_tree_entry_free>,
+static constexpr auto ZIF_GIT_TREE_ENTRY_FREE = zif_php_git2_function_free<
     php_git2::local_pack<
-        php_git2::php_resource_owned<php_git2::php_git_tree_entry>
+        php_git2::php_resource_cleanup<php_git2::php_git_tree_entry>
         >
     >;
 

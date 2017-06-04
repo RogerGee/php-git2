@@ -30,6 +30,11 @@ between the PHP userspace API and the original C library API. Please consult
 this documentation before using these bindings, as there are some differences
 that need to be understood.
 
+The 'bindings' file contains a list of all bindings and whether they are covered
+or not.
+
+Please make sure to update these files when adding/updating functionality.
+
 --------------------------------------------------------------------------------
 Building
 

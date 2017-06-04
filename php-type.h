@@ -496,22 +496,16 @@ namespace php_git2
                 throw php_git2_exception("resource is invalid");
             }
 
-            // Make sure the resource owns the underlying handle. We need to
-            // prevent PHP userspace from being a jerk and freeing things
-            // incorrectly.
-            if (!rsrc->is_owned()) {
-                throw php_git2_exception("you cannot free this resource in this context");
-            }
-
-            // Release the git2 handle from the resource handle; then we cause
-            // PHP to destroy the resource. This will cause the resource to be
-            // invalidated across any zvals that reference it.
-            handle = rsrc->get_handle();
-            rsrc->release();
+            // Delete the PHP resource. This will cause the resource to be
+            // invalidated across any zvals that reference it, and the
+            // underlying handle will be destroyed (if it has no more
+            // references).
             zend_hash_index_del(&EG(regular_list),Z_RESVAL_P(value));
             value = nullptr;
 
-            return handle;
+            // The return value should not be used. We do not attempt frees
+            // directly from user space.
+            return nullptr;
         }
     protected:
         using php_resource<GitResource>::value;

@@ -104,10 +104,7 @@ static constexpr auto ZIF_GIT_REVWALK_RESET = zif_php_git2_function_void<
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_revwalk> > >;
 
-static constexpr auto ZIF_GIT_REVWALK_FREE = zif_php_git2_function_void<
-    php_git2::func_wrapper<
-        void,
-        git_revwalk*>::func<git_revwalk_free>,
+static constexpr auto ZIF_GIT_REVWALK_FREE = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_revwalk> > >;
 

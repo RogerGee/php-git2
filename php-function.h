@@ -704,6 +704,27 @@ void zif_php_git2_function_setdeps_void(INTERNAL_FUNCTION_PARAMETERS)
     }
 }
 
+template<
+    typename LocalVars,
+    typename PHPForward = php_git2::make_seq<LocalVars::size()> >
+void zif_php_git2_function_free(INTERNAL_FUNCTION_PARAMETERS)
+{
+    LocalVars vars ZTS_CTOR;
+    try {
+        php_git2::php_extract_args(std::forward<LocalVars>(vars),PHPForward());
+
+        // Assume the first element is the resource to delete. Call its
+        // byval_git2() member function to cause it to be freed. We never call
+        // the library function directly since the resource handler handles
+        // freeing instead.
+        vars.template get<0>().byval_git2(1);
+    } catch (php_git2::php_git2_exception_base& ex) {
+        if (ex.what() != nullptr) {
+            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+        }
+    }
+}
+
 #endif
 
 /*

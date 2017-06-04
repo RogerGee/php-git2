@@ -18,19 +18,45 @@ namespace php_git2
     class git2_resource_base
     {
     public:
-        git2_resource_base():
-            parent(nullptr)
-        {
-        }
-
         git2_resource_base* get_parent()
         {
             return parent;
         }
 
-        virtual bool free_handle() = 0;
+        void set_parent(git2_resource_base* resource)
+        {
+            if (resource != nullptr) {
+                resource->ref += 1;
+                parent = resource;
+            }
+        }
 
+        virtual bool free_handle() = 0;
     protected:
+        git2_resource_base():
+            ref(1), parent(nullptr)
+        {
+        }
+
+        void up_ref()
+        {
+            ref += 1;
+        }
+
+        bool down_ref()
+        {
+            return (--ref <= 0);
+        }
+
+        int get_ref()
+        {
+            return ref;
+        }
+    private:
+        // A reference counter for the handle. If the counter reaches zero when
+        // a resource is destroyed we can free the object.
+        int ref;
+
         // A reference to a parent resource object. This allows the resource to
         // define a single dependency for its lifetime.
         git2_resource_base* parent;
@@ -47,7 +73,7 @@ namespace php_git2
         typedef const git_type* const_git2_type;
 
         git2_resource(bool isOwner = true):
-            handle(nullptr), isowned(isOwner), ref(1)
+            handle(nullptr), isowned(isOwner)
         {
         }
 
@@ -77,50 +103,9 @@ namespace php_git2
             return const_cast<const_git2_type*>(&handle);
         }
 
-        void release()
-        {
-            handle = nullptr;
-        }
-
         bool is_owned() const
         {
             return isowned;
-        }
-
-        void up_ref()
-        {
-            ref += 1;
-        }
-        void down_ref()
-        {
-            ref -= 1;
-        }
-
-        template<typename T>
-        void set_parent(git2_resource<T>* resource)
-        {
-            if (resource != nullptr) {
-                // Update ref count to parent and set parent.
-                resource->up_ref();
-                parent = resource;
-            }
-        }
-
-        bool free_handle()
-        {
-            // Call the destructor to free the handle. We only call the
-            // destructor if the handle exists, we own the handle and the ref
-            // count is fully decremented. Return true if the object is ready to
-            // be cleaned up (i.e. all references have been decremented).
-
-            if (--ref <= 0) {
-                if (handle != nullptr && isowned) {
-                    this->~git2_resource();
-                    handle = nullptr;
-                }
-                return true;
-            }
-            return false;
         }
 
         static void define_resource_type(int moduleNumber)
@@ -135,6 +120,23 @@ namespace php_git2
         { return typeid(git2_type).name(); }
     private:
         static int le;
+
+        bool free_handle()
+        {
+            // Call the destructor to free the handle. We only call the
+            // destructor if the handle exists, we own the handle and the ref
+            // count is fully decremented. Return true if the object is ready to
+            // be cleaned up (i.e. all references have been decremented).
+
+            if (down_ref()) {
+                if (handle != nullptr && isowned) {
+                    this->~git2_resource();
+                    handle = nullptr;
+                }
+                return true;
+            }
+            return false;
+        }
 
         static void destroy_resource(zend_rsrc_list_entry* rsrc TSRMLS_DC)
         {
@@ -166,9 +168,6 @@ namespace php_git2
         // Indicates whether or not the handle may be freed by this object.
         bool isowned;
 
-        // A reference counter for the handle. If the counter reaches zero when
-        // a resource is destroyed we can free the object.
-        int ref;
     };
     template<typename git_type>
     int git2_resource<git_type>::le = 0;

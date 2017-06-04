@@ -60,10 +60,7 @@ static constexpr auto ZIF_GIT_COMMIT_PARENT_ID = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_COMMIT_FREE = zif_php_git2_function_void<
-    php_git2::func_wrapper<
-        void,
-        git_commit*>::func<git_commit_free>,
+static constexpr auto ZIF_GIT_COMMIT_FREE = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_commit>
         >

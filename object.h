@@ -48,10 +48,7 @@ static constexpr auto ZIF_GIT_OBJECT_LOOKUP = zif_php_git2_function_setdeps<
     php_git2::sequence<0,0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_OBJECT_FREE = zif_php_git2_function_void<
-    php_git2::func_wrapper<
-        void,
-        git_object*>::func<git_object_free>,
+static constexpr auto ZIF_GIT_OBJECT_FREE = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_object> > >;
 

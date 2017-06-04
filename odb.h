@@ -228,10 +228,7 @@ static constexpr auto ZIF_GIT_ODB_NEW = zif_php_git2_function<
     php_git2::sequence<>
     >;
 
-static constexpr auto ZIF_GIT_ODB_FREE = zif_php_git2_function_void<
-    php_git2::func_wrapper<
-        void,
-        git_odb*>::func<git_odb_free>,
+static constexpr auto ZIF_GIT_ODB_FREE = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_odb>
         >
@@ -360,10 +357,7 @@ static constexpr auto ZIF_GIT_ODB_READ_PREFIX = zif_php_git2_function_setdeps<
     php_git2::sequence<0,0,1,0>
     >;
 
-static constexpr auto ZIF_GIT_ODB_OBJECT_FREE = zif_php_git2_function_void<
-    php_git2::func_wrapper<
-        void,
-        git_odb_object*>::func<git_odb_object_free>,
+static constexpr auto ZIF_GIT_ODB_OBJECT_FREE = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_odb_object>
         >
