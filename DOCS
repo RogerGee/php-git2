@@ -515,24 +515,6 @@ API. Instead a primitive or object type is used:
 --------------------------------------------------------------------------------
 The following classes are provided by the extension where appropriate:
 
-class GitODBWritepack:
-
-    ** This class has properties/methods that align with the git_odb_writepack
-       structure. **
-
-    properties:
-        backend: object instance of type GitODBBackend
-    methods:
-        append(string)
-
-            Returns long
-
-        commit()
-
-            Returns long
-
-        free()
-
 class GitODBBackend:
 
     ** This class has properties/methods that align with the git_odb_backend
@@ -594,6 +576,24 @@ class GitODBBackend:
         writepack(callable func,mixed payload)
 
             Returns object instance of type GitODBWritepack
+
+        free()
+
+class GitODBWritepack:
+
+    ** This class has properties/methods that align with the git_odb_writepack
+       structure. **
+
+    properties:
+        backend: object instance of type GitODBBackend
+    methods:
+        append(string)
+
+            Returns long
+
+        commit()
+
+            Returns long
 
         free()
 

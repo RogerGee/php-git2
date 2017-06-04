@@ -170,7 +170,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_SET_ODB = zif_php_git2_function_setdeps
         php_git2::php_resource<php_git2::php_git_repository>,
         php_git2::php_resource<php_git2::php_git_odb>
         >,
-    php_git2::sequence<0,1>
+    php_git2::sequence<1,0> // Make the ODB dependent on the repository.
     >;
 
 // Function Entries:

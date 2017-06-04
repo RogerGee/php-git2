@@ -618,9 +618,9 @@ void zif_php_git2_function_void(INTERNAL_FUNCTION_PARAMETERS)
 // Provide a variant to handle setting resource dependencies. This adds a
 // template argument 'ResourceDeps' which is a sequence describing the
 // subsequence of the local pack representing the resource dependency
-// sequence. This should always have two elements. The first is the resource
-// that is the dependency for the second element. The second is the dependent
-// resource.
+// sequence. This should always have two elements. The first is the dependent
+// resource, and the second is the resource that is the dependency (i.e. 1st is
+// child, 2nd is parent).
 
 template<
     typename FuncWrapper,
@@ -696,7 +696,6 @@ void zif_php_git2_function_setdeps_void(INTERNAL_FUNCTION_PARAMETERS)
 
         // Call function to set resource dependency.
         php_git2::php_set_resource_dependency(std::forward<LocalVars>(vars),ResourceDeps());
-
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
             zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
