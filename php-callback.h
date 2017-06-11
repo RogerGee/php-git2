@@ -304,6 +304,12 @@ namespace php_git2
         static int callback(const git_oid* oid,void* payload);
     };
 
+    struct treewalk_callback
+    {
+        typedef int (*type)(const char* root,const git_tree_entry* entry,void* payload);
+        static int callback(const char* root,const git_tree_entry* entry,void* payload);
+    };
+
 } // namespace php_git2
 
 #endif

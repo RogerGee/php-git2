@@ -1,4 +1,4 @@
-Bindings for libgit2 - v0.24.0
+Bindings for libgit2 - v0.25.1
 --------------------------------------------------------------------------------
 
 These bindings are generated from the headers.
@@ -782,4 +782,4 @@ Legend:
 + git_tree_lookup
 + git_tree_lookup_prefix
 + git_tree_owner
-. git_tree_walk
++ git_tree_walk

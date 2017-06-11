@@ -547,6 +547,10 @@ git_tree_entry_type(resource)
 
     Returns int
 
+git_tree_walk(resource,int,callable,mixed)
+
+    Returns int
+
 --------------------------------------------------------------------------------
 API Class Reference
 

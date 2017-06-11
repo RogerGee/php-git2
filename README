@@ -26,6 +26,8 @@ provided a listing of the version of git2 covered by php-git2:
 
     current                 v0.25.1         >=5.4 but <7
 
+Currently php-git2 targets PHP 5 only.
+
 --------------------------------------------------------------------------------
 API Coverage
 

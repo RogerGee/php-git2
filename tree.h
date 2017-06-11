@@ -347,6 +347,25 @@ static constexpr auto ZIF_GIT_TREE_ENTRY_TYPE = zif_php_git2_function<
     0
     >;
 
+static constexpr auto ZIF_GIT_TREE_WALK = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        const git_tree*,
+        git_treewalk_mode,
+        git_treewalk_cb,
+        void*>::func<git_tree_walk>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_tree>,
+        php_git2::php_long_cast<git_treewalk_mode>,
+        php_git2::php_callback_handler<php_git2::treewalk_callback>,
+        php_git2::php_callback_sync
+        >,
+    -1,
+    php_git2::sequence<0,1,3,3>, // pass callback in twice for callable and payload
+    php_git2::sequence<0,1,2,3>,
+    php_git2::sequence<0,1,0,2>
+    >;
+
 // PHP function entry macro for this module:
 
 #define GIT_TREE_FE                                                     \
@@ -369,7 +388,8 @@ static constexpr auto ZIF_GIT_TREE_ENTRY_TYPE = zif_php_git2_function<
     PHP_GIT2_FE(git_tree_entry_to_object,ZIF_GIT_TREE_ENTRY_TO_OBJECT,NULL) \
     PHP_GIT2_FE(git_tree_entry_cmp,ZIF_GIT_TREE_ENTRY_CMP,NULL)         \
     PHP_GIT2_FE(git_tree_entry_id,ZIF_GIT_TREE_ENTRY_ID,NULL)           \
-    PHP_GIT2_FE(git_tree_entry_type,ZIF_GIT_TREE_ENTRY_TYPE,NULL)
+    PHP_GIT2_FE(git_tree_entry_type,ZIF_GIT_TREE_ENTRY_TYPE,NULL)       \
+    PHP_GIT2_FE(git_tree_walk,ZIF_GIT_TREE_WALK,NULL)
 
 #endif
 

@@ -138,6 +138,45 @@ odb_foreach_callback::callback(const git_oid* oid,void* payload)
     return GIT_EUSER;
 }
 
+// treewalk_callback
+
+/*static*/ int
+treewalk_callback::callback(const char* root,const git_tree_entry* entry,void* payload)
+{
+    php_callback_sync* cb = reinterpret_cast<php_callback_sync*>(payload);
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(pc);
+#endif
+
+    if (cb != nullptr) {
+        // Account for when callable is null and do nothing.
+        if (Z_TYPE_P(cb->func) == IS_NULL) {
+            return GIT_OK;
+        }
+
+        long r;
+        zval retval;
+        zval_array<3> params ZTS_CTOR;
+        const php_resource_ref<php_git_tree_entry_nofree> res; // it cannot free
+
+        // Convert arguments to PHP values.
+        params.assign<0>(std::forward<const char*>(root));
+        *res.byval_git2() = entry;
+        res.ret(params[1]);
+        params.assign<2>(std::forward<zval*>(cb->data));
+
+        // Call the userspace callback.
+        params.call(cb->func,&retval);
+        convert_to_long(&retval);
+        r = Z_LVAL(retval);
+        zval_dtor(&retval);
+
+        return r;
+    }
+
+    return GIT_EUSER;
+}
+
 /*
  * Local Variables:
  * indent-tabs-mode:nil
