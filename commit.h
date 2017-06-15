@@ -10,7 +10,7 @@
 namespace php_git2
 {
 
-    // Explicitly specialize git2_resource destructor for git_revwalk.
+    // Explicitly specialize git2_resource destructor for git_commit.
     template<> php_git_commit::~git2_resource()
     {
         git_commit_free(handle);
@@ -102,7 +102,7 @@ static constexpr auto ZIF_GIT_COMMIT_TREE_ID = zif_php_git2_function<
     PHP_GIT2_FE(git_commit_parent_id,ZIF_GIT_COMMIT_PARENT_ID,NULL)     \
     PHP_GIT2_FE(git_commit_free,ZIF_GIT_COMMIT_FREE,NULL)               \
     PHP_GIT2_FE(git_commit_tree,ZIF_GIT_COMMIT_TREE,NULL)               \
-    PHP_GIT2_FE(git_commit_tree_id,ZIF_GIT_COMMIT_TREE,NULL)
+    PHP_GIT2_FE(git_commit_tree_id,ZIF_GIT_COMMIT_TREE_ID,NULL)
 
 #endif
 

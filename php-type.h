@@ -650,6 +650,7 @@ namespace php_git2
     using php_git_blob = git2_resource<git_blob>;
     using php_git_tree = git2_resource<git_tree>;
     using php_git_tree_entry = git2_resource<git_tree_entry>;
+    using php_git_signature = git2_resource<git_signature>;
 
     // Enumerate nofree versions of certain resource types.
     using php_git_repository_nofree = git2_resource_nofree<git_repository>;

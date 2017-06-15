@@ -355,6 +355,7 @@ static constexpr auto ZIF_GIT_TREE_ENTRY_TYPE = zif_php_git2_function<
     PHP_GIT2_FE(git_tree_lookup,ZIF_GIT_TREE_LOOKUP,NULL)               \
     PHP_GIT2_FE(git_tree_lookup_prefix,ZIF_GIT_TREE_LOOKUP_PREFIX,NULL) \
     PHP_GIT2_FE(git_tree_owner,ZIF_GIT_TREE_OWNER,NULL)                 \
+    PHP_GIT2_FE(git_tree_dup,ZIF_GIT_TREE_DUP,NULL)                     \
     PHP_GIT2_FE(git_tree_entrycount,ZIF_GIT_TREE_ENTRYCOUNT,NULL)       \
     PHP_GIT2_FE(git_tree_entry_free,ZIF_GIT_TREE_ENTRY_FREE,NULL)       \
     PHP_GIT2_FE(git_tree_entry_byid,ZIF_GIT_TREE_ENTRY_BYID,NULL)       \

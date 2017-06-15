@@ -1,8 +1,8 @@
 PHP libgit2 bindings API documentation
 --------------------------------------------------------------------------------
-The API is divided (roughly) by the kind of opaque, libgit2 object on which the
-API function operates (e.g. git_repository, git_reference, ETC.). In most cases
-the PHP API uses resource values for the major libgit2 opaque data types.
+The API is divided (roughly) by the kind of libgit2 object on which the API
+function operates (e.g. git_repository, git_reference, ETC.). In most cases the
+PHP API uses resource values for the major libgit2 opaque data types.
 
 Since PHP has native exception handling, most API calls are reworked to return
 the main result value. For example, git_repository_new() returns a resource to
@@ -16,26 +16,65 @@ behavior of the functions and their arguments. This section only details the PHP
 interface.
 
 --------------------------------------------------------------------------------
-Functions provided by the extension that are not git2 wrappers (have the form
-'git2_*'). These are provided as supplements or additions where appropriate.
+API Structure Reference
+
+The following structures are represented as resources in the PHP API. They
+generally represent opaque structures from the C API (but not necessarily).
+
+Note that the PHP resource type names (which are really just diagnostic in
+purpose) are determined by the C++ compiler via 'typeid'.
+
+    git2 type
+    ---------
+
+    git_repository
+    git_reference
+    git_object
+    git_revwalk
+    git_packbuilder
+    git_indexer
+    git_odb
+    git_odb_object
+    git_commit
+    git_blob
+    git_tree
+    git_tree_entry
+    git_signature
+
+The following structures are not represented as resources in the PHP
+API. Instead a primitive or object type is used:
+
+   git2 type                                      PHP type
+   ---------                                      --------
+
+    git_buf                                        string
+    git_oid                                        string
+    git_odb_writepack                              object
+    git_odb_backend                                object
+    git_odb_stream                                 object
+    git_writestream                                object
+
+For objects, see the later section regarding Classes.
+
+--------------------------------------------------------------------------------
+API Function Reference
+
+Core API routines operate on opaque, resource values. They try to conform to the
+original, C library calls they wrap. These most if not all of the time have the
+form 'git_*'.
+
+Functions provided by the extension that are not git2 wrappers have the form
+'git2_*'. These are provided as supplements or additions where appropriate.
+
+----------------------------------------
+[misc]
+----------------------------------------
 
 git2_version()
 
     Gets a version string
 
     Returns string
-
-git2_indexer_stats(resource)
-
-    To avoid the expense of translating a stats object every time and indexer
-    operation is performed, the user may call this to get the indexer transfer
-    progress stats at any time.
-
-    Returns array, associative array with git_transfer_progress fields
-
---------------------------------------------------------------------------------
-Core API routines operate on opaque, resource values. They try to conform to the
-original, C library calls they wrap.
 
 ----------------------------------------
 [git_repository]
@@ -208,6 +247,15 @@ git_indexer_commit(resource)
        this function. **
 
 git_indexer_free(resource)
+
+git2_indexer_stats(resource)
+
+    To avoid the expense of translating a stats object every time and indexer
+    operation is performed, the user may call this to get the indexer transfer
+    progress stats at any time. The transfer progress structure is stored in the
+    indexer resource object.
+
+    Returns array, associative array with git_transfer_progress fields
 
 ----------------------------------------
 [git_odb]
@@ -424,6 +472,7 @@ git_blob_create_fromstream_commit(GitWritestream)
 
 ----------------------------------------
 [git_tree]
+    [git_tree_entry]
 ----------------------------------------
 
 git_tree_dup(resource)
@@ -499,21 +548,13 @@ git_tree_entry_type(resource)
     Returns int
 
 --------------------------------------------------------------------------------
-The following structures are not represented as resources in the PHP
-API. Instead a primitive or object type is used:
+API Class Reference
 
-   git2 type                                      PHP type
-   ---------                                      --------
+The php-git2 extension provides an abstraction as a PHP class only when it is
+useful for subclassing the construct (e.g. in the case of a git_odb_backend) or
+when the C API employs struct with pointer-to-function members.
 
-    git_buf                                        string
-    git_oid                                        string
-    git_odb_writepack                              object
-    git_odb_backend                                object
-    git_odb_stream                                 object
-    git_writestream                                object
-
---------------------------------------------------------------------------------
-The following classes are provided by the extension where appropriate:
+The following classes are provided by the extension:
 
 class GitODBBackend:
 

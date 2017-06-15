@@ -653,7 +653,7 @@ Legend:
 . git_signature_dup
 . git_signature_free
 . git_signature_from_buffer
-. git_signature_new
++ git_signature_new
 . git_signature_now
 . git_smart_subtransport_git
 . git_smart_subtransport_http

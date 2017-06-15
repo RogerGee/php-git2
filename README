@@ -1,26 +1,30 @@
 php-git2 - v0.1.0
 --------------------------------------------------------------------------------
 This project provides PHP bindings for libgit2. The extension dynamically links
-to libgit2 installed in the usual way on your system. We also expect the git2
-headers to be installed in the usual locations.
+to libgit2 installed in the usual way on your system (but you can static link it
+if you want). We also expect the git2 headers to be installed in the usual way.
+
+The extension currently targets PHP 5 (see Versioning) and has been tested with
+PHP 5.4, 5.5 and 5.6.
 
 Primary author:
+
     Roger Gee <rpg11a@acu.edu>
 
 --------------------------------------------------------------------------------
 Versioning
 
 Since we do not bundle the libgit2 dependency, it up to the user to provide the
-correct version of libgit2 required by their version of php-git2. On Linux,
-php-git2 will have the soname of whatever git2 version you have installed
-embedded into it, so it will always load the correct version. To avoid
-ambiguity, we have provided a listing of the version of git2 covered by
-php-git2:
+correct version of libgit2 required by their version of php-git2 (either as a
+shared or static library). If you are dynamic linking and on Linux, php-git2
+will embed the soname of whatever git2 version you have installed embedded into
+it, so it will always load the correct version. To avoid ambiguity, we have
+provided a listing of the version of git2 covered by php-git2:
 
     php-git2                libgit2         PHP
     --------                -------         ---
 
-    current                 v0.25.1         >=5.4
+    current                 v0.25.1         >=5.4 but <7
 
 --------------------------------------------------------------------------------
 API Coverage
@@ -36,6 +40,45 @@ or not.
 Please make sure to update these files when adding/updating functionality.
 
 --------------------------------------------------------------------------------
+Design
+
+Our core principle is to stick as closely as possible to the original, C libgit2
+API while at the same time making the extension behave comfortably in userspace
+with what PHP devs expect. At times we add some calls to facilitate certain
+tasks in userspace or to optimize an otherwise costly operation (e.g. like
+converting values back-and-forth between userspace and the library). We also
+provide several abstractions as PHP classes so that they can be subclassed from
+userspace (e.g. the git_odb_backend is a class called GitODBBackend).
+
+--
+
+We want the extension to be stable so that it can be used securely in production
+code. To that end we've added an extra reference counting layer to track
+resource dependencies. This ensures PHP scripters don't blow their feet off when
+doing something like this:
+
+    function get_ref() {
+        $repo = git_repository_open('/path/to/repo.git',true);
+        $ref = git_reference_lookup($repo,'annot-tag-1');
+        return $ref;
+    }
+
+    $ref = get_ref();
+    $peeled = git_reference_peel($ref,GIT_OBJ_COMMIT);
+
+The extension will keep the git_repository object alive behind the scenes since
+a dependency is established between the git_repository and the
+git_reference. This prevents the extension from crashing when users do wack.
+
+--
+
+Most of the extension is inline code in header files. We use C++ metaprogramming
+constructs to generate extension functions. This approach is great for knocking
+out redundant tasks, separating the prototype for a binding from its
+implementation and keeping track of API changes. However it comes with the small
+drawback of decreased flexibility when modifying a binding.
+
+--------------------------------------------------------------------------------
 Building
 
 This extension is written in C++, and it takes advantage of several C++11
@@ -48,7 +91,7 @@ Build the extension in the normal way using autoconf and make. Ensure you build
 the correct version of php-git2 corresponding to whatever git2 you have
 installed on the system. If you want to static link git2 into the extension,
 install the archive library for git2 in place of the dynamic link one (or alter
-the config file to point at your static archive).
+the compile macros in the config file to point at your static archive).
 
 --------------------------------------------------------------------------------
 Windows
@@ -66,4 +109,4 @@ the same runtime being used by php5 and php-git2.
 In our experimental builds, we were able to successfully build php-git2.dll
 using MinGW (though we had to hack the standard and PHP headers a little). The
 resulting library linked against msvcr100.dll, and we built PHP 5.4 and
-git2 with the VC100 tools.
+git2 with the VC100 tools (which is non-standard).
