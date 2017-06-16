@@ -551,6 +551,44 @@ git_tree_walk(resource,int,callable,mixed)
 
     Returns int
 
+----------------------------------------
+[git_signature]
+----------------------------------------
+
+git_signature_new(string,string,long,long)
+
+    Returns git_signature resource
+
+git_signature_free(resource)
+
+git_signature_dup(resource)
+
+    Returns git_signature resource
+
+git_signature_default(resource)
+
+    Returns git_signature resource
+
+git_signature_now(string,string)
+
+    Returns git_signature resource
+
+git_signature_from_buffer(string)
+
+    Returns git_signature resource
+
+git2_signature_convert(resource)
+
+    Gets an associative array corresponding to the git_signature structure. The
+    associative array has the following keys:
+
+        - name
+        - email
+        - when.time
+        - when.offset
+
+    Returns array
+
 --------------------------------------------------------------------------------
 API Class Reference
 

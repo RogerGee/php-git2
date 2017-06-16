@@ -72,11 +72,11 @@ function testbed_test($title,callable $lambda) {
     try {
         $ret = $lambda();
     } catch (Exception $ex) {
-        $error = 'php-git2 testbed: error: ' . $ex->getMessage() . PHP_EOL;
+        $error = 'An exception was thrown with message: ' . $ex->getMessage();
     }
 
     if (isset($error)) {
-        color_echo("task '$title': $error",COLOR_RED);
+        color_echo("task '$title': failed\n    $error",COLOR_RED);
         exit(1);
     }
     else {

@@ -147,7 +147,15 @@ static PHP_FUNCTION(git2_indexer_stats)
         return;
     }
 
-    stats = indexer.get_object(1)->get_stats();
+    try {
+        stats = indexer.get_object(1)->get_stats();
+    } catch (php_git2::php_git2_exception_base& ex) {
+        if (ex.what() != nullptr) {
+            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+        }
+        return;
+    }
+
     array_init(return_value);
     add_assoc_long(return_value,"total_objects",stats->total_objects);
     add_assoc_long(return_value,"indexed_objects",stats->indexed_objects);

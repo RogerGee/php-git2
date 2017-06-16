@@ -649,12 +649,12 @@ Legend:
 + git_revwalk_reset
 . git_revwalk_simplify_first_parent
 + git_revwalk_sorting
-. git_signature_default
-. git_signature_dup
-. git_signature_free
-. git_signature_from_buffer
++ git_signature_default
++ git_signature_dup
++ git_signature_free
++ git_signature_from_buffer
 + git_signature_new
-. git_signature_now
++ git_signature_now
 . git_smart_subtransport_git
 . git_smart_subtransport_http
 . git_smart_subtransport_ssh

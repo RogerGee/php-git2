@@ -18,6 +18,7 @@ namespace php_git2
 
 
 
+
 } // php_git2
 
 // Functions:
@@ -43,10 +44,109 @@ static constexpr auto ZIF_GIT_SIGNATURE_NEW = zif_php_git2_function<
     php_git2::sequence<0,0,1,2,3>
     >;
 
+static constexpr auto ZIF_GIT_SIGNATURE_FREE = zif_php_git2_function_free<
+    php_git2::local_pack<
+        php_git2::php_resource_cleanup<php_git2::php_git_signature>
+        >
+    >;
+
+static constexpr auto ZIF_GIT_SIGNATURE_DUP = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_signature**,
+        const git_signature*>::func<git_signature_dup>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_signature>,
+        php_git2::php_resource<php_git2::php_git_signature>
+        >,
+    1,
+    php_git2::sequence<1>,
+    php_git2::sequence<0,1>,
+    php_git2::sequence<0,0>
+    >;
+
+static constexpr auto ZIF_GIT_SIGNATURE_DEFAULT = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_signature**,
+        git_repository*>::func<git_signature_default>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_signature>,
+        php_git2::php_resource<php_git2::php_git_repository>
+        >,
+    1,
+    php_git2::sequence<1>,
+    php_git2::sequence<0,1>,
+    php_git2::sequence<0,0>
+    >;
+
+static constexpr auto ZIF_GIT_SIGNATURE_NOW = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_signature**,
+        const char*,
+        const char*>::func<git_signature_now>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_signature>,
+        php_git2::php_string,
+        php_git2::php_string
+        >,
+    1,
+    php_git2::sequence<1,2>,
+    php_git2::sequence<0,1,2>,
+    php_git2::sequence<0,0,1>
+    >;
+
+static constexpr auto ZIF_GIT_SIGNATURE_FROM_BUFFER = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_signature**,
+        const char*>::func<git_signature_from_buffer>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_signature>,
+        php_git2::php_string
+        >,
+    1,
+    php_git2::sequence<1>,
+    php_git2::sequence<0,1>,
+    php_git2::sequence<0,0>
+    >;
+
+static PHP_FUNCTION(git2_signature_convert)
+{
+    git_signature* handle;
+    php_git2::php_resource<php_git2::php_git_signature> signature;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS(),"z",signature.byref_php()) == FAILURE) {
+        return;
+    }
+
+    try {
+        handle = signature.byval_git2();
+    } catch (php_git2::php_git2_exception_base& ex) {
+        if (ex.what() != nullptr) {
+            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+        }
+        return;
+    }
+
+    array_init(return_value);
+    add_assoc_string(return_value,"name",handle->name,1);
+    add_assoc_string(return_value,"email",handle->email,1);
+    add_assoc_long(return_value,"when.time",handle->when.time);
+    add_assoc_long(return_value,"when.offset",handle->when.offset);
+}
+
 // Function Entries:
 
-#define GIT_SIGNATURE_FE                        \
-    PHP_GIT2_FE(git_signature_new,ZIF_GIT_SIGNATURE_NEW,NULL)
+#define GIT_SIGNATURE_FE                                                \
+    PHP_GIT2_FE(git_signature_new,ZIF_GIT_SIGNATURE_NEW,NULL)           \
+    PHP_GIT2_FE(git_signature_free,ZIF_GIT_SIGNATURE_FREE,NULL)         \
+    PHP_GIT2_FE(git_signature_dup,ZIF_GIT_SIGNATURE_DUP,NULL)           \
+    PHP_GIT2_FE(git_signature_default,ZIF_GIT_SIGNATURE_DEFAULT,NULL)   \
+    PHP_GIT2_FE(git_signature_now,ZIF_GIT_SIGNATURE_NOW,NULL)           \
+    PHP_GIT2_FE(git_signature_from_buffer,ZIF_GIT_SIGNATURE_FROM_BUFFER,NULL) \
+    PHP_FE(git2_signature_convert,NULL)
 
 #endif
 
