@@ -140,6 +140,30 @@ PHP_MINIT_FUNCTION(git2)
     // GIT_*
     PHP_GIT2_CONSTANT(GIT_OK);
     PHP_GIT2_CONSTANT(GIT_ERROR);
+    PHP_GIT2_CONSTANT(GIT_ENOTFOUND);
+    PHP_GIT2_CONSTANT(GIT_EEXISTS);
+    PHP_GIT2_CONSTANT(GIT_EAMBIGUOUS);
+    PHP_GIT2_CONSTANT(GIT_EBUFS);
+    PHP_GIT2_CONSTANT(GIT_EUSER);
+    PHP_GIT2_CONSTANT(GIT_EBAREREPO);
+    PHP_GIT2_CONSTANT(GIT_EUNBORNBRANCH);
+    PHP_GIT2_CONSTANT(GIT_EUNMERGED);
+    PHP_GIT2_CONSTANT(GIT_ENONFASTFORWARD);
+    PHP_GIT2_CONSTANT(GIT_EINVALIDSPEC);
+    PHP_GIT2_CONSTANT(GIT_ECONFLICT);
+    PHP_GIT2_CONSTANT(GIT_ELOCKED);
+    PHP_GIT2_CONSTANT(GIT_EMODIFIED);
+    PHP_GIT2_CONSTANT(GIT_EAUTH);
+    PHP_GIT2_CONSTANT(GIT_ECERTIFICATE);
+    PHP_GIT2_CONSTANT(GIT_EAPPLIED);
+    PHP_GIT2_CONSTANT(GIT_EPEEL);
+    PHP_GIT2_CONSTANT(GIT_EEOF);
+    PHP_GIT2_CONSTANT(GIT_EINVALID);
+    PHP_GIT2_CONSTANT(GIT_EUNCOMMITTED);
+    PHP_GIT2_CONSTANT(GIT_EDIRECTORY);
+    PHP_GIT2_CONSTANT(GIT_EMERGECONFLICT);
+    PHP_GIT2_CONSTANT(GIT_PASSTHROUGH);
+    PHP_GIT2_CONSTANT(GIT_ITEROVER);
 
     // GIT_FEATURE_*
     PHP_GIT2_CONSTANT(GIT_FEATURE_THREADS);
@@ -254,16 +278,18 @@ php_git2_exception::php_git2_exception(const char* format, ...)
     va_end(args);
 }
 
-// php_git2::git_error()
+// php_git2::git_error<int>()
 
-void php_git2::git_error()
+template<>
+void php_git2::git_error(int code)
 {
     const ::git_error* err = giterr_last();
     if (err == nullptr) {
         throw php_git2_exception("libgit2 no error?");
     }
+
     php_git2_exception ex("libgit2 error: (%d): %s",err->klass,err->message);
-    ex.code = err->klass;
+    ex.code = code;
     throw ex;
 }
 

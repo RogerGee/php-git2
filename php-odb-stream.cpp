@@ -349,7 +349,7 @@ PHP_METHOD(GitODBStream,read)
         buffer = (char*)emalloc(bufsz);
         retval = object->stream->read(object->stream,buffer,bufsz);
         if (retval < 0) {
-            php_git2::git_error();
+            php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
@@ -383,7 +383,7 @@ PHP_METHOD(GitODBStream,write)
     try {
         retval = object->stream->write(object->stream,buffer,bufsz);
         if (retval < 0) {
-            php_git2::git_error();
+            php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
@@ -419,7 +419,7 @@ PHP_METHOD(GitODBStream,finalize_write)
     try {
         retval = object->stream->finalize_write(object->stream,&oid);
         if (retval < 0) {
-            php_git2::git_error();
+            php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {

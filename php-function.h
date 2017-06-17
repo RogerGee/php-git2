@@ -532,7 +532,7 @@ void zif_php_git2_function(INTERNAL_FUNCTION_PARAMETERS)
         }
         else {
             // Throw error with formatted message from git2.
-            php_git2::git_error();
+            php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
@@ -580,7 +580,7 @@ void zif_php_git2_function_rethandler(INTERNAL_FUNCTION_PARAMETERS)
         ReturnHandler rethandler;
         if (!rethandler.ret(retval,return_value,std::forward<LocalVars>(vars))) {
             // Throw error with formatted message from git2.
-            php_git2::git_error();
+            php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
@@ -648,9 +648,6 @@ void zif_php_git2_function_setdeps(INTERNAL_FUNCTION_PARAMETERS)
             GitForward(),
             AllParams());
 
-        // Call function to set resource dependency.
-        php_git2::php_set_resource_dependency(std::forward<LocalVars>(vars),ResourceDeps());
-
         // Check for errors (when return value is less than zero).
         if (php_git2::check_return(retval)) {
             // Handle the return value.
@@ -658,10 +655,14 @@ void zif_php_git2_function_setdeps(INTERNAL_FUNCTION_PARAMETERS)
                 std::forward<typename FuncWrapper::return_type>(retval),
                 std::forward<LocalVars>(vars),
                 return_value);
+
+            // Call function to set resource dependency. We only do this on
+            // success!
+            php_git2::php_set_resource_dependency(std::forward<LocalVars>(vars),ResourceDeps());
         }
         else {
             // Throw error with formatted message from git2.
-            php_git2::git_error();
+            php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {

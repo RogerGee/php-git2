@@ -80,7 +80,7 @@ PHP_METHOD(GitWritestream,write)
     try {
         retval = object->ws->write(object->ws,buffer,bufsz);
         if (retval < 0) {
-            php_git2::git_error();
+            php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
@@ -112,7 +112,7 @@ PHP_METHOD(GitWritestream,close)
     try {
         retval = object->ws->close(object->ws);
         if (retval < 0) {
-            php_git2::git_error();
+            php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {

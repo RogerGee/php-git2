@@ -118,9 +118,21 @@ namespace php_git2
         { return nullptr; }
     };
 
-    // Provide a function to handle a generic libgit2 error.
+    // Provide a function to handle a generic libgit2 error. It is generic for
+    // any possible return type. However we specialize it for int to handle all
+    // cases. We want to preserve the numeric return code so we can expose it to
+    // userspace.
 
-    void git_error();
+    template<typename T>
+    void git_error(T t)
+    {
+        // Default to GIT_ERROR if the return_type is not 'int'.
+
+        git_error(GIT_ERROR);
+    }
+
+    template<>
+    void git_error(int code);
 
 } // namespace php_git2
 

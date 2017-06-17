@@ -776,9 +776,11 @@ PHP_METHOD(GitODBBackend,read)
     // Interpret the string parameter as a human-readable OID. Convert it
     // and then call read().
     try {
+        int retval;
         convert_oid_fromstr(&oid,strOid,strOidLen);
-        if (object->backend->read(&data,&size,&type,object->backend,&oid) < 0) {
-            php_git2::git_error();
+        retval = object->backend->read(&data,&size,&type,object->backend,&oid);
+        if (retval < 0) {
+            php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
@@ -829,9 +831,11 @@ PHP_METHOD(GitODBBackend,read_prefix)
     // Interpret the string parameter as a human-readable OID. Convert it and
     // then call read_prefix().
     try {
+        int retval;
         convert_oid_fromstr(&prefix,strOid,strOidLen);
-        if (object->backend->read_prefix(&full,&data,&size,&type,object->backend,&prefix,strOidLen) < 0) {
-            php_git2::git_error();
+        retval = object->backend->read_prefix(&full,&data,&size,&type,object->backend,&prefix,strOidLen);
+        if (retval < 0) {
+            php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
@@ -879,9 +883,11 @@ PHP_METHOD(GitODBBackend,read_header)
     // Interpret the string parameter as a human-readable OID. Convert it
     // and then call read().
     try {
+        int retval;
         convert_oid_fromstr(&oid,strOid,strOidLen);
-        if (object->backend->read_header(&size,&type,object->backend,&oid) < 0) {
-            php_git2::git_error();
+        retval = object->backend->read_header(&size,&type,object->backend,&oid);
+        if (retval < 0) {
+            php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
@@ -923,9 +929,11 @@ PHP_METHOD(GitODBBackend,write)
 
     // Convert OID hex string to oid structure and call underlying function.
     try {
+        int retval;
         convert_oid_fromstr(&oid,uoid,uoidSize);
-        if (object->backend->write(object->backend,&oid,data,dataSize,(git_otype)type) < 0) {
-            php_git2::git_error();
+        retval = object->backend->write(object->backend,&oid,data,dataSize,(git_otype)type);
+        if (retval < 0) {
+            php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
@@ -957,10 +965,11 @@ PHP_METHOD(GitODBBackend,writestream)
 
     // Call the underlying function.
     try {
-        if (object->backend->writestream(&outstream,object->backend,
-                (git_off_t)offset,(git_otype)objectType) < 0)
-        {
-            php_git2::git_error();
+        int retval;
+        retval = object->backend->writestream(&outstream,object->backend,
+            (git_off_t)offset,(git_otype)objectType);
+        if (retval < 0) {
+            php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
@@ -996,9 +1005,11 @@ PHP_METHOD(GitODBBackend,readstream)
 
     // Call the underlying function.
     try {
+        int retval;
         convert_oid_fromstr(&oid,oidstr,oidstr_len);
-        if (object->backend->readstream(&outstream,object->backend,&oid) < 0) {
-            php_git2::git_error();
+        retval = object->backend->readstream(&outstream,object->backend,&oid);
+        if (retval < 0) {
+            php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
@@ -1094,8 +1105,10 @@ PHP_METHOD(GitODBBackend,refresh)
 
     // Perform function call.
     try {
-        if (object->backend->refresh(object->backend) < 0) {
-            php_git2::git_error();
+        int retval;
+        retval = object->backend->refresh(object->backend);
+        if (retval < 0) {
+            php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
@@ -1166,7 +1179,7 @@ PHP_METHOD(GitODBBackend,writepack)
         retval = object->backend->writepack(&wp,object->backend,object->backend->odb,
             handler.byval_git2(),callback->byval_git2());
         if (retval < 0) {
-            php_git2::git_error();
+            php_git2::git_error(retval);
         }
 
         // Create return value out of the writepack and callback. The callback

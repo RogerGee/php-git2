@@ -35,6 +35,10 @@ function test_lookup() {
     } catch (\Exception $ex) {
         var_dump($ex->getMessage());
         var_dump($ex->getCode());
+
+        if ($ex->getCode() == GIT_ENOTFOUND) {
+            echo 'The specified ancestor was not found.' . PHP_EOL;
+        }
     }    
 }
 
