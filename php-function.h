@@ -536,7 +536,7 @@ void zif_php_git2_function(INTERNAL_FUNCTION_PARAMETERS)
         }
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
         }
     }
 }
@@ -584,7 +584,7 @@ void zif_php_git2_function_rethandler(INTERNAL_FUNCTION_PARAMETERS)
         }
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
         }
     }
 }
@@ -610,7 +610,7 @@ void zif_php_git2_function_void(INTERNAL_FUNCTION_PARAMETERS)
             AllParams());
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
         }
     }
 }
@@ -665,7 +665,7 @@ void zif_php_git2_function_setdeps(INTERNAL_FUNCTION_PARAMETERS)
         }
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
         }
     }
 }
@@ -698,7 +698,7 @@ void zif_php_git2_function_setdeps_void(INTERNAL_FUNCTION_PARAMETERS)
         php_git2::php_set_resource_dependency(std::forward<LocalVars>(vars),ResourceDeps());
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
         }
     }
 }
@@ -719,7 +719,7 @@ void zif_php_git2_function_free(INTERNAL_FUNCTION_PARAMETERS)
         vars.template get<0>().byval_git2(1);
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
         }
     }
 }

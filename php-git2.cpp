@@ -8,6 +8,7 @@
 #include "php-function.h"
 #include "php-callback.h"
 #include "php-object.h"
+#include "php-rethandler.h"
 #include "repository.h"
 #include "reference.h"
 #include "object.h"
@@ -261,7 +262,9 @@ void php_git2::git_error()
     if (err == nullptr) {
         throw php_git2_exception("libgit2 no error?");
     }
-    throw php_git2_exception("libgit2 error: (%d): %s",err->klass,err->message);
+    php_git2_exception ex("libgit2 error: (%d): %s",err->klass,err->message);
+    ex.code = err->klass;
+    throw ex;
 }
 
 /*

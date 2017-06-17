@@ -82,6 +82,12 @@ namespace php_git2
     class php_git2_exception_base:
         public std::exception
     {
+    public:
+        php_git2_exception_base():
+            code(0) {}
+
+        // The error code to report to userspace.
+        int code;
     };
 
     // Provide an exception type to be thrown by git2 function wrappers when

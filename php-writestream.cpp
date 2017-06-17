@@ -84,7 +84,7 @@ PHP_METHOD(GitWritestream,write)
         }
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
         }
         return;
     }
@@ -116,7 +116,7 @@ PHP_METHOD(GitWritestream,close)
         }
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
         }
         return;
     }

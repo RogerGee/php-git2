@@ -782,7 +782,7 @@ PHP_METHOD(GitODBBackend,read)
         }
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
         }
         return;
     }
@@ -835,7 +835,7 @@ PHP_METHOD(GitODBBackend,read_prefix)
         }
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
         }
         return;
     }
@@ -885,7 +885,7 @@ PHP_METHOD(GitODBBackend,read_header)
         }
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
         }
         return;
     }
@@ -929,7 +929,7 @@ PHP_METHOD(GitODBBackend,write)
         }
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
         }
         return;
     }
@@ -964,7 +964,7 @@ PHP_METHOD(GitODBBackend,writestream)
         }
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
         }
         return;
     }
@@ -1002,7 +1002,7 @@ PHP_METHOD(GitODBBackend,readstream)
         }
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
         }
         return;
     }
@@ -1099,7 +1099,7 @@ PHP_METHOD(GitODBBackend,refresh)
         }
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
         }
         return;
     }
@@ -1129,7 +1129,7 @@ PHP_METHOD(GitODBBackend,for_each)
             handler.byval_git2(),callback.byval_git2());
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
         }
         return;
     }
@@ -1174,7 +1174,7 @@ PHP_METHOD(GitODBBackend,writepack)
         php_git2_make_odb_writepack(return_value,wp,callback,thisobj TSRMLS_CC);
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
         }
         return;
     }

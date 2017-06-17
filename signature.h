@@ -125,7 +125,7 @@ static PHP_FUNCTION(git2_signature_convert)
         handle = signature.byval_git2();
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),0 TSRMLS_CC);
+            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
         }
         return;
     }

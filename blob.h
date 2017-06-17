@@ -17,33 +17,6 @@ namespace php_git2
         git_blob_free(handle);
     }
 
-    // Provide a rethandler for git_blob_owner().
-    class php_git_blob_owner_rethandler
-    {
-    public:
-        bool ret(
-            git_repository* retval,
-            zval* return_value,
-            local_pack<php_resource<php_git_blob>,
-                php_resource_ref<php_git_repository_nofree> >&& pack)
-        {
-            if (retval == nullptr) {
-                return false;
-            }
-
-            auto&& blob = pack.get<0>();
-            auto&& resource = pack.get<1>();
-            *resource.byval_git2() = retval;
-            resource.ret(return_value);
-
-            // Make the repository resource dependent on the blob (which is
-            // dependent on the original repository resource).
-            resource.get_object()->set_parent(blob.get_object());
-
-            return true;
-        }
-    };
-
     // Provide a rethandler for git_blob_rawcontent().
     class php_git_blob_rawcontent_rethandler
     {
@@ -321,7 +294,7 @@ static constexpr auto ZIF_GIT_BLOB_OWNER = zif_php_git2_function_rethandler<
         php_git2::php_resource<php_git2::php_git_blob>,
         php_git2::php_resource_ref<php_git2::php_git_repository_nofree>
         >,
-    php_git2::php_git_blob_owner_rethandler,
+    php_git2::php_owner_rethandler<php_git2::php_git_blob>,
     php_git2::sequence<0>,
     php_git2::sequence<0>,
     php_git2::sequence<0>

@@ -398,13 +398,61 @@ git_commit_parent_id(resource,int)
 
     Returns string
 
+git_commit_parent(resource,int)
+
+    Returns git_commit resource
+
+git_commit_nth_gen_ancestor(resource,int)
+
+    Returns git_commit resource
+
+git_commit_id(resource)
+
+    Returns string
+
 git_commit_free(resource)
+
+git_commit_owner(resource)
+
+    Returns git_repository resource
 
 git_commit_tree(resource)
 
     Returns git_tree resource
 
 git_commit_tree_id(resource)
+
+    Returns string
+
+git_commit_time(resource)
+
+    Returns int
+
+git_commit_time_offset(resource)
+
+    Returns int
+
+git_commit_summary(resource)
+
+    Returns string
+
+git_commit_raw_header(resource)
+
+    Returns string
+
+git_commit_body(resource)
+
+    Returns string
+
+git_commit_message(resource)
+
+    Returns string
+
+git_commit_message_encoding(resource)
+
+    Returns string
+
+git_commit_message_raw(resource)
 
     Returns string
 

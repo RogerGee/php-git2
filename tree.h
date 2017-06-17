@@ -21,34 +21,6 @@ namespace php_git2
         git_tree_entry_free(handle);
     }
 
-    // Provide a rethandler for git_tree_owner().
-    class php_git_tree_owner_rethandler
-    {
-    public:
-        bool ret(
-            git_repository* retval,
-            zval* return_value,
-            local_pack<php_resource<php_git_tree>,
-                php_resource_ref<php_git_repository_nofree> >&& pack)
-        {
-            if (retval == nullptr) {
-                return false;
-            }
-
-            auto& tree = pack.get<0>();
-            auto& resource = pack.get<1>();
-
-            *resource.byval_git2() = retval;
-            resource.ret(return_value);
-
-            // Make the repository resource dependent on the tree (which is
-            // dependent on the original repository resource).
-            resource.get_object()->set_parent(tree.get_object());
-
-            return true;
-        }
-    };
-
     // Provide rethandler for returning git_tree_entry.
     template<typename... Ts>
     class php_git_tree_entry_rethandler
@@ -148,7 +120,7 @@ static constexpr auto ZIF_GIT_TREE_OWNER = zif_php_git2_function_rethandler<
         php_git2::php_resource<php_git2::php_git_tree>,
         php_git2::php_resource_ref<php_git2::php_git_repository_nofree>
         >,
-    php_git2::php_git_tree_owner_rethandler,
+    php_git2::php_owner_rethandler<php_git2::php_git_tree>,
     php_git2::sequence<0>,
     php_git2::sequence<0>,
     php_git2::sequence<0>
