@@ -73,6 +73,9 @@ ZEND_EXTERN_MODULE_GLOBALS(git2)
 
 #endif
 
+#define PHP_GIT2_CONSTANT(name) \
+    REGISTER_LONG_CONSTANT(#name,name,CONST_CS|CONST_PERSISTENT)
+
 namespace php_git2
 {
 
@@ -133,6 +136,10 @@ namespace php_git2
 
     template<>
     void git_error(int code);
+
+    // Misc.
+
+    void php_git2_register_constants(int module_number TSRMLS_DC);
 
 } // namespace php_git2
 
