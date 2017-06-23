@@ -48,6 +48,24 @@ static constexpr auto ZIF_GIT_OBJECT_LOOKUP = zif_php_git2_function_setdeps<
     php_git2::sequence<0,0,1,2>
     >;
 
+static constexpr auto ZIF_GIT_OBJECT_PEEL = zif_php_git2_function_setdeps<
+    php_git2::func_wrapper<
+        int,
+        git_object**,
+        const git_object*,
+        git_otype>::func<git_object_peel>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_object>,
+        php_git2::php_resource<php_git2::php_git_object>,
+        php_git2::php_long_cast<git_otype>
+        >,
+    php_git2::sequence<0,1>,
+    1,
+    php_git2::sequence<1,2>,
+    php_git2::sequence<0,1,2>,
+    php_git2::sequence<0,1,2>
+    >;
+
 static constexpr auto ZIF_GIT_OBJECT_FREE = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_object> > >;
@@ -57,6 +75,7 @@ static constexpr auto ZIF_GIT_OBJECT_FREE = zif_php_git2_function_free<
 #define GIT_OBJECT_FE \
     PHP_GIT2_FE(git_object_id,ZIF_GIT_OBJECT_ID,NULL)           \
     PHP_GIT2_FE(git_object_lookup,ZIF_GIT_OBJECT_LOOKUP,NULL)   \
+    PHP_GIT2_FE(git_object_peel,ZIF_GIT_OBJECT_PEEL,NULL)       \
     PHP_GIT2_FE(git_object_free,ZIF_GIT_OBJECT_FREE,NULL)
 
 #endif
