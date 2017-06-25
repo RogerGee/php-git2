@@ -27,6 +27,13 @@ namespace php_git2
             }
         }
 
+        ~zval_array()
+        {
+            for (unsigned i = 0;i < Count;++i) {
+                zval_ptr_dtor(params + i);
+            }
+        }
+
         // Create a member function for assigning to the zvals from git2
         // values. We create partial specializations for the kinds of values we
         // are interested in.
@@ -71,6 +78,9 @@ namespace php_git2
             if (h != nullptr) {
                 zval_dtor(params[I]);
                 params[I] = h;
+
+                // Up ref for zval since we will try to destruct it later.
+                Z_ADDREF_P(h);
             }
             assign<I+1>(std::forward<Ts>(ts)...);
         }
