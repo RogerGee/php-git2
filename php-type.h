@@ -650,6 +650,21 @@ namespace php_git2
         git_buf buf;
     };
 
+    // Provide a type for returning a git_buf value using an out parameter.
+
+    class php_git_buf_out:
+        public php_git_buf,
+        public php_value_base
+    {
+    public:
+        ZTS_CONSTRUCTOR(php_git_buf_out)
+
+        ~php_git_buf_out()
+        {
+            ret(value);
+        }
+    };
+
     // Provide a type that converts PHP arrays into arrays of git2 objects. The
     // git2 array is allocated using the PHP allocator and should only be used
     // in read-only contexts.

@@ -89,6 +89,25 @@ function test_create() {
     var_dump($data);
 }
 
+function test_signature() {
+    $repo = git_repository_open_bare(testbed_get_repo_path());
+
+    try {
+        $signature = git_commit_extract_signature(
+            $signedData,
+            $repo,
+            '4c4afe37e0fb4623b25f73f5a8033a92daf76ddf',
+            null);
+
+
+        var_dump($signature);
+        var_dump($signedData);
+    } catch (\Exception $ex) {
+        echo 'Cannot extract commit signature: ' . $ex->getMessage() . PHP_EOL;
+    }
+}
+
 testbed_test('Commit/open','Git2Test\Commit\test_open');
 testbed_test('Commit/lookup','Git2Test\Commit\test_lookup');
 testbed_test('Commit/create','Git2Test\Commit\test_create');
+testbed_test('Commit/signature','Git2Test\Commit\test_signature');

@@ -390,6 +390,10 @@ git_commit_lookup(resource,string)
 
     Returns git_commit resource
 
+git_commit_lookup_prefix(resource,string)
+
+    Returns git_commit resource
+
 git_commit_parentcount(resource)
 
     Returns int
@@ -485,6 +489,28 @@ git_commit_create_buffer(resource,resource,resource,string|null,string,resource,
        is not previously passed in the PHP userspace version. **
 
     Returns string containing the commit object
+
+git_commit_create_with_signature(resource,string,string,string)
+
+    Returns string
+
+git_commit_amend(resource,string|null,resource|null,resource|null,string|null,string|null,resource|null)
+
+    ** The arguments behavior like the C function in that NULL's are disregarded
+       when amending the commit. **
+
+    Returns string
+
+git_commit_dup(resource)
+
+    Returns git_commit resource
+
+git_commit_extract_signature(&string,resource,string,string|null)
+
+    ** The signed data is written to the string out parameter. The signature is
+       returned. **
+
+    Returns string
 
 ----------------------------------------
 [git_blob]

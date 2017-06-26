@@ -74,7 +74,7 @@ Legend:
 . git_cherrypick_init_options
 . git_clone
 . git_clone_init_options
-. git_commit_amend
++ git_commit_amend
 + git_commit_author
 + git_commit_body
 + git_commit_committer
@@ -83,14 +83,14 @@ Legend:
 . git_commit_create_from_callback
 . git_commit_create_from_ids
 . git_commit_create_v
-. git_commit_create_with_signature
-. git_commit_dup
-. git_commit_extract_signature
++ git_commit_create_with_signature
++ git_commit_dup
++ git_commit_extract_signature
 + git_commit_free
 . git_commit_header_field
 + git_commit_id
 + git_commit_lookup
-. git_commit_lookup_prefix
++ git_commit_lookup_prefix
 + git_commit_message
 + git_commit_message_encoding
 + git_commit_message_raw
