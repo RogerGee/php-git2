@@ -21,6 +21,9 @@ function test_open() {
     $owner = git_commit_owner($commit);
     echo PHP_EOL . 'Owner path:' . PHP_EOL;
     var_dump(git_repository_path($owner));
+
+    echo 'Here\'s who made the commit:' . PHP_EOL;
+    var_dump(git2_signature_convert(git_commit_author($commit)));
 }
 
 function test_lookup() {
@@ -42,5 +45,50 @@ function test_lookup() {
     }    
 }
 
+function test_create() {
+    $repo = git_repository_open_bare(testbed_get_repo_path());
+
+    // Use the current HEAD and a static commit as the parents.
+    $head = git_reference_name_to_id($repo,'HEAD');
+    $parents[] = git_commit_lookup($repo,$head);
+    $parents[] = git_commit_lookup($repo,'4c4afe37e0fb4623b25f73f5a8033a92daf76ddf');
+
+    // Create a random reference for this test commit.
+    $ref = "refs/heads/myref" . rand(1,1000);
+
+    // Let this commit use an existing tree (for simplicity).
+    $tree = git_tree_lookup($repo,'80113d972e694eeef398fc7bbac5023ab7d2a311');
+
+    // Create a bogus author.
+    $author = git_signature_now('Bargus Targ','bargus.targ@example.com');
+
+    // Create the commit.
+    $id = git_commit_create(
+        $repo,
+        $ref,
+        $author,
+        $author,
+        null,
+        "Commit initial material using a PHP script\n\nThis reverts everything!",
+        $tree,
+        $parents);
+
+    echo "Created commit with oid=$id.\n";
+
+    // Create same commit but not in the repository.
+    $data = git_commit_create_buffer(
+        $repo,
+        $author,
+        $author,
+        null,
+        "Commit initial material using a PHP script\n\nThis reverts everything!",
+        $tree,
+        $parents);
+
+    echo "\nCreated commit outside repo with contents:\n";
+    var_dump($data);
+}
+
 testbed_test('Commit/open','Git2Test\Commit\test_open');
 testbed_test('Commit/lookup','Git2Test\Commit\test_lookup');
+testbed_test('Commit/create','Git2Test\Commit\test_create');

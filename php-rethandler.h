@@ -26,6 +26,9 @@ namespace php_git2
         }
     };
 
+    // Provide a rethandler to use for setting dependencies. This is modeled for
+    // functions that return their owner as a git2 resource.
+
     template<typename T>
     class php_owner_rethandler
     {
@@ -50,6 +53,29 @@ namespace php_git2
 
             return true;
         }   
+    };
+
+    // Provide a rethandler for returning a resource.
+
+    template<typename ResourceType,typename Git2Type,unsigned Position = 0>
+    class php_resource_rethandler
+    {
+    public:
+        template<typename... Ts>
+        bool ret(Git2Type* handle,zval* return_value,local_pack<Ts...>&& pack)
+        {
+            auto&& obj = pack.template get<Position>();
+            const php_resource_ref<ResourceType> resource;
+
+            *resource.byval_git2() = handle;
+            resource.ret(return_value);
+
+            // Make the resource dependent on the object (which is dependent on
+            // the original resource).
+            resource.get_object()->set_parent(obj.get_object());
+
+            return true;
+        }
     };
 
 } // php_git2

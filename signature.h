@@ -16,9 +16,6 @@ namespace php_git2
         git_signature_free(handle);
     }
 
-
-
-
 } // php_git2
 
 // Functions:

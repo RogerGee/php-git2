@@ -132,12 +132,14 @@ namespace php_git2
     };
 
     // Provide basic type definitions for the core types.
+
     using php_bool = php_value<bool>;
     using php_long = php_value<long>;
     using php_double = php_value<double>;
     using php_string = php_value<char*>;
 
     // Provide a nullable string type.
+
     class php_nullable_string:
         public php_string
     {
@@ -154,6 +156,7 @@ namespace php_git2
     };
 
     // Provide a string connector that returns the string length.
+
     template<typename IntType,typename StringType = php_string>
     class php_string_length_connector
     {
@@ -177,6 +180,7 @@ namespace php_git2
     // Provide a connector for an arbitrary string buffer that can be returned
     // to PHP userspace. The connector connects to a php_long which represents
     // the desired buffer length.
+
     class php_string_buffer_connector
     {
     public:
@@ -207,7 +211,8 @@ namespace php_git2
         connect_t&& conn;
     };
 
-    // Provide a type that casts a php_long to any arbitrary integer type
+    // Provide a type that casts a php_long to any arbitrary integer type.
+
     template<typename IntType>
     class php_long_cast:
         public php_long
@@ -222,6 +227,7 @@ namespace php_git2
     };
 
     // Provide a type that accepts a numeric value from an underlying call.
+
     template<typename IntType>
     class php_long_indirect
     {
@@ -242,6 +248,7 @@ namespace php_git2
     };
 
     // Provide a type for returning a numeric value using an out parameter.
+
     template<typename IntType>
     class php_long_out:
         public php_value_base
@@ -386,6 +393,7 @@ namespace php_git2
             if (rsrc == nullptr) {
                 rsrc = php_git2_create_resource<GitResource>();
             }
+
             return rsrc->get_handle_byref();
             (void)argno;
         }
@@ -398,6 +406,9 @@ namespace php_git2
                 rsrc = php_git2_create_resource<GitResource>();
             }
 
+            // Cast the resource object to have the same kind of constness to
+            // force the compiler to call the correct overloaded member
+            // function. We have to do this since it's mutable.
             return const_cast<const GitResource*>(rsrc)->get_handle_byref();
             (void)argno;
         }
@@ -414,6 +425,7 @@ namespace php_git2
             if (rsrc == nullptr) {
                 rsrc = php_git2_create_resource<GitResource>();
             }
+
             return rsrc;
         }
     private:
@@ -566,6 +578,7 @@ namespace php_git2
     };
 
     // Provide a type for returning an OID value using an out parameter.
+
     class php_git_oid_out:
         public php_git_oid,
         public php_value_base
@@ -637,6 +650,86 @@ namespace php_git2
         git_buf buf;
     };
 
+    // Provide a type that converts PHP arrays into arrays of git2 objects. The
+    // git2 array is allocated using the PHP allocator and should only be used
+    // in read-only contexts.
+
+    template<typename SourceType,typename ConvertType>
+    class php_array:
+        public php_value_base
+    {
+    public:
+        typedef SourceType source_t;
+        typedef ConvertType convert_t;
+
+        php_array():
+            data(nullptr)
+        {
+        }
+
+        ~php_array()
+        {
+            if (data != nullptr) {
+                efree(data);
+            }
+        }
+
+        ConvertType* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            int i;
+            long cnt;
+            HashPosition pos;
+            zval** element;
+
+            // Make sure the zval is an array.
+            if (Z_TYPE_P(value) != IS_ARRAY) {
+                error("array",argno);
+            }
+
+            // Create a C array to hold the converted values.
+            cnt = zend_hash_num_elements(Z_ARRVAL_P(value));
+            data = reinterpret_cast<ConvertType*>(emalloc(sizeof(ConvertType) * cnt));
+
+            // Walk the array, using a SourceType object to convert each
+            // element.
+            i = 0;
+            for (zend_hash_internal_pointer_reset_ex(Z_ARRVAL_P(value),&pos);
+                 zend_hash_get_current_data_ex(Z_ARRVAL_P(value),(void**)&element,&pos) == SUCCESS;
+                 zend_hash_move_forward_ex(Z_ARRVAL_P(value),&pos))
+            {
+                SourceType source;
+                *source.byref_php() = *element;
+                data[i++] = source.byval_git2();
+            }
+
+            return data;
+        }
+    private:
+        ConvertType* data;
+    };
+
+    // Provide an array connector that returns the array length.
+
+    template<typename IntType,typename ArrayType>
+    class php_array_length_connector
+    {
+    public:
+        using connect_t = php_array<typename ArrayType::source_t,typename ArrayType::convert_t>;
+        typedef IntType target_t;
+
+        php_array_length_connector(connect_t&& obj TSRMLS_DC):
+            conn(std::forward<connect_t>(obj))
+        {
+        }
+
+        target_t byval_git2(unsigned p)
+        {
+            return zend_hash_num_elements(Z_ARRVAL_P(conn.byval_php(p)));
+        }
+    private:
+        connect_t&& conn;
+    };
+
     // Enumerate all resource types that we'll care about.
     using php_git_repository = git2_resource<git_repository>;
     using php_git_reference = git2_resource<git_reference>;
@@ -655,6 +748,7 @@ namespace php_git2
     // Enumerate nofree versions of certain resource types.
     using php_git_repository_nofree = git2_resource_nofree<git_repository>;
     using php_git_tree_entry_nofree = git2_resource_nofree<git_tree_entry>;
+    using php_git_signature_nofree = git2_resource_nofree<git_signature>;
 
 } // namespace php_git2
 

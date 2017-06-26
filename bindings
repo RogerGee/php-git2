@@ -75,11 +75,11 @@ Legend:
 . git_clone
 . git_clone_init_options
 . git_commit_amend
-. git_commit_author
++ git_commit_author
 + git_commit_body
-. git_commit_committer
-. git_commit_create
-. git_commit_create_buffer
++ git_commit_committer
++ git_commit_create
++ git_commit_create_buffer
 . git_commit_create_from_callback
 . git_commit_create_from_ids
 . git_commit_create_v

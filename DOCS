@@ -250,10 +250,10 @@ git_indexer_free(resource)
 
 git2_indexer_stats(resource)
 
-    To avoid the expense of translating a stats object every time and indexer
-    operation is performed, the user may call this to get the indexer transfer
-    progress stats at any time. The transfer progress structure is stored in the
-    indexer resource object.
+    ** To avoid the expense of translating a stats object every time and indexer
+       operation is performed, the user may call this to get the indexer
+       transfer progress stats at any time. The transfer progress structure is
+       stored in the indexer resource object. **
 
     Returns array, associative array with git_transfer_progress fields
 
@@ -455,6 +455,36 @@ git_commit_message_encoding(resource)
 git_commit_message_raw(resource)
 
     Returns string
+
+git_commit_author(resource)
+
+    Returns git_signature resource
+
+git_commit_committer(resource)
+
+    Returns git_signature resource
+
+git_commit_create(resource,string|null,resource,resource,string|null,string,resource,array)
+
+    Example:
+        $oid = git_commit_create($repo,$ref,$author,$committer,
+                                 $encoding,$message,$tree,$parents);
+
+    ** The final parameter should be an array of git_commit resources; the size
+       is not previously passed in the PHP userspace version. **
+
+    Returns string containing the new commit's OID
+
+git_commit_create_buffer(resource,resource,resource,string|null,string,resource,array)
+
+    Example:
+        $data = git_commit_create_buffer($repo,$author,$committer,
+                                         $encoding,$message,$tree,$parents);
+
+    ** The final parameter should be an array of git_commit resources; the size
+       is not previously passed in the PHP userspace version. **
+
+    Returns string containing the commit object
 
 ----------------------------------------
 [git_blob]
