@@ -6,24 +6,26 @@
 
 #ifndef PHPGIT2_COMMIT_H
 #define PHPGIT2_COMMIT_H
+#include <git2/sys/commit.h>
 
 namespace php_git2
 {
 
     // Explicitly specialize git2_resource destructor for git_commit.
+
     template<> php_git_commit::~git2_resource()
     {
         git_commit_free(handle);
     }
 
     // Provide a type to manage arrays of git_commits.
-    using php_git_commit_array = php_array<
-        php_resource<php_git_commit>,
-        const git_commit*>;
 
-    using php_git_commit_array_length_connector = php_array_length_connector<
-        size_t,
-        php_git_commit_array
+    using php_git_commit_array = php_resource_array<php_git_commit>;
+
+    using php_git_commit_array_length_connector = php_git2::connector_wrapper<
+        php_git2::php_array_length_connector<
+            size_t,
+            php_git2::php_git_commit_array>
         >;
 
 } // php_git2
@@ -313,7 +315,12 @@ static constexpr auto ZIF_GIT_COMMIT_CREATE = zif_php_git2_function<
         php_git2::php_nullable_string,
         php_git2::php_string,
         php_git2::php_resource<php_git2::php_git_tree>,
-        php_git2::connector_wrapper<php_git2::php_git_commit_array_length_connector>,
+        php_git2::connector_wrapper<
+            php_git2::php_array_length_connector<
+                size_t,
+                php_git2::php_git_commit_array
+                >
+            >,
         php_git2::php_git_commit_array
         >,
     1, // Return the git_oid string
@@ -342,13 +349,85 @@ static constexpr auto ZIF_GIT_COMMIT_CREATE_BUFFER = zif_php_git2_function<
         php_git2::php_nullable_string,
         php_git2::php_string,
         php_git2::php_resource<php_git2::php_git_tree>,
-        php_git2::connector_wrapper<php_git2::php_git_commit_array_length_connector>,
+        php_git2::connector_wrapper<
+            php_git2::php_array_length_connector<
+                size_t,
+                php_git2::php_git_commit_array
+                >
+            >,
         php_git2::php_git_commit_array
         >,
     1, // Return the git_buf string
     php_git2::sequence<1,2,3,4,5,6,8>,
     php_git2::sequence<0,1,2,3,4,5,6,7,8>,
     php_git2::sequence<0,0,1,2,3,4,5,0,6>
+    >;
+
+static constexpr auto ZIF_GIT_COMMIT_CREATE_FROM_CALLBACK = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_oid*,
+        git_repository*,
+        const char*,
+        const git_signature*,
+        const git_signature*,
+        const char*,
+        const char*,
+        const git_oid*,
+        git_commit_parent_callback,
+        void*>::func<git_commit_create_from_callback>,
+    php_git2::local_pack<
+        php_git2::php_git_oid,
+        php_git2::php_resource<php_git2::php_git_repository>,
+        php_git2::php_nullable_string,
+        php_git2::php_resource<php_git2::php_git_signature>,
+        php_git2::php_resource<php_git2::php_git_signature>,
+        php_git2::php_nullable_string,
+        php_git2::php_string,
+        php_git2::php_git_oid_fromstr,
+        php_git2::php_callback_handler<php_git2::commit_parent_callback>,
+        php_git2::commit_parent_callback::sync_callback
+        >,
+    1, // Return the git_oid string
+    php_git2::sequence<1,2,3,4,5,6,7,9,9>, // pass callback twice: for callable and payload
+    php_git2::sequence<0,1,2,3,4,5,6,7,8,9>,
+    php_git2::sequence<0,0,1,2,3,4,5,6,0,7>
+    >;
+
+static constexpr auto ZIF_GIT_COMMIT_CREATE_FROM_IDS = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_oid*,
+        git_repository*,
+        const char*,
+        const git_signature*,
+        const git_signature*,
+        const char*,
+        const char*,
+        const git_oid*,
+        size_t,
+        const git_oid*[]>::func<git_commit_create_from_ids>,
+    php_git2::local_pack<
+        php_git2::php_git_oid,
+        php_git2::php_resource<php_git2::php_git_repository>,
+        php_git2::php_nullable_string,
+        php_git2::php_resource<php_git2::php_git_signature>,
+        php_git2::php_resource<php_git2::php_git_signature>,
+        php_git2::php_nullable_string,
+        php_git2::php_string,
+        php_git2::php_git_oid_fromstr,
+        php_git2::connector_wrapper<
+            php_git2::php_array_length_connector<
+                size_t,
+                php_git2::php_oid_array
+                >
+            >,
+        php_git2::php_oid_array
+        >,
+    1, // Return the git_oid string
+    php_git2::sequence<1,2,3,4,5,6,7,9>,
+    php_git2::sequence<0,1,2,3,4,5,6,7,8,9>,
+    php_git2::sequence<0,0,1,2,3,4,5,6,0,7>
     >;
 
 static constexpr auto ZIF_GIT_COMMIT_CREATE_WITH_SIGNATURE = zif_php_git2_function<
@@ -440,6 +519,23 @@ ZEND_BEGIN_ARG_INFO_EX(git_commit_extract_signature_arginfo,0,0,4)
     ZEND_ARG_PASS_INFO(1)
 ZEND_END_ARG_INFO()
 
+static constexpr auto ZIF_GIT_COMMIT_HEADER_FIELD = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_buf*,
+        const git_commit*,
+        const char*>::func<git_commit_header_field>,
+    php_git2::local_pack<
+        php_git2::php_git_buf,
+        php_git2::php_resource<php_git2::php_git_commit>,
+        php_git2::php_string
+        >,
+    1,
+    php_git2::sequence<1,2>,
+    php_git2::sequence<0,1,2>,
+    php_git2::sequence<0,0,1>
+    >;
+
 // Function Entries:
 
 #define GIT_COMMIT_FE                                                   \
@@ -467,9 +563,12 @@ ZEND_END_ARG_INFO()
     PHP_GIT2_FE(git_commit_create,ZIF_GIT_COMMIT_CREATE,NULL)           \
     PHP_GIT2_FE(git_commit_create_buffer,ZIF_GIT_COMMIT_CREATE_BUFFER,NULL) \
     PHP_GIT2_FE(git_commit_create_with_signature,ZIF_GIT_COMMIT_CREATE_WITH_SIGNATURE,NULL) \
+    PHP_GIT2_FE(git_commit_create_from_callback,ZIF_GIT_COMMIT_CREATE_FROM_CALLBACK,NULL) \
+    PHP_GIT2_FE(git_commit_create_from_ids,ZIF_GIT_COMMIT_CREATE_FROM_IDS,NULL) \
     PHP_GIT2_FE(git_commit_amend,ZIF_GIT_COMMIT_AMEND,NULL)             \
     PHP_GIT2_FE(git_commit_dup,ZIF_GIT_COMMIT_DUP,NULL)                 \
-    PHP_GIT2_FE(git_commit_extract_signature,ZIF_GIT_COMMIT_EXTRACT_SIGNATURE,git_commit_extract_signature_arginfo)
+    PHP_GIT2_FE(git_commit_extract_signature,ZIF_GIT_COMMIT_EXTRACT_SIGNATURE,git_commit_extract_signature_arginfo) \
+    PHP_GIT2_FE(git_commit_header_field,ZIF_GIT_COMMIT_HEADER_FIELD,NULL)
 
 #endif
 

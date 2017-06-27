@@ -479,6 +479,25 @@ git_commit_create(resource,string|null,resource,resource,string|null,string,reso
 
     Returns string containing the new commit's OID
 
+git_commit_create_from_callback(resource,string|null,resource,resource,string|null,string,string,callable,mixed)
+
+    Example
+        $oid = git_commit_from_callback($repo,$ref,$author,$committer,$encoding,
+                                        $message,$treeId,$callable,$payload);
+
+    Returns string containing the new commit's OID
+
+git_commit_create_from_ids(resource,string|null,resource,resource,string|null,string,string,array)
+
+    Example
+        $oid = git_commit_from_ids($repo,$ref,$author,$committer,$encoding,
+                                   $message,$treeId,$parents)
+
+    ** The array should be a list of strings representing the parent commit
+       OIDs. **
+
+    Returns string containing the new commit's OID
+
 git_commit_create_buffer(resource,resource,resource,string|null,string,resource,array)
 
     Example:
@@ -509,6 +528,10 @@ git_commit_extract_signature(&string,resource,string,string|null)
 
     ** The signed data is written to the string out parameter. The signature is
        returned. **
+
+    Returns string
+
+git_commit_header_field(resource,string)
 
     Returns string
 

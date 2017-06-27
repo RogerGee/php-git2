@@ -224,6 +224,24 @@ void php_git2::git_error(int code)
     throw ex;
 }
 
+// Helpers
+
+void php_git2::convert_oid_fromstr(git_oid* dest,const char* src,int srclen)
+{
+    // Use a temporary buffer to hold the OID hex string. We make sure it
+    // contains a string with an exact length of 40 characters.
+    char buf[GIT_OID_HEXSZ + 1];
+
+    if (srclen > GIT_OID_HEXSZ) {
+        srclen = GIT_OID_HEXSZ;
+    }
+
+    memset(buf,'0',GIT_OID_HEXSZ);
+    buf[GIT_OID_HEXSZ] = 0;
+    strncpy(buf,src,srclen);
+    git_oid_fromstr(dest,buf);
+}
+
 /*
  * Local Variables:
  * indent-tabs-mode:nil

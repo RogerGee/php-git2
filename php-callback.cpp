@@ -177,6 +177,53 @@ treewalk_callback::callback(const char* root,const git_tree_entry* entry,void* p
     return GIT_EUSER;
 }
 
+// commit_parent_callback
+
+/*static*/ const git_oid*
+commit_parent_callback::callback(size_t idx,void* payload)
+{
+    commit_parent_callback::sync_callback* cb
+        = reinterpret_cast<commit_parent_callback::sync_callback*>(payload);
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(pc);
+#endif
+
+    if (cb != nullptr) {
+        // Account for when callable is null and do nothing.
+        if (Z_TYPE_P(cb->func) == IS_NULL) {
+            return nullptr;
+        }
+
+        zval retval;
+        git_oid* oid;
+        zval_array<2> params ZTS_CTOR;
+        INIT_ZVAL(retval);
+
+        // Convert arguments to PHP values.
+        params.assign<0>(std::forward<long>(idx));
+        params.assign<1>(std::forward<zval*>(cb->data));
+
+        // Call the userspace callback.
+        params.call(cb->func,&retval);
+
+        // Returning null means the callback ends.
+        if (Z_TYPE(retval) == IS_NULL) {
+            return nullptr;
+        }
+
+        // Otherwise a string is returning representing the ID of a commit. We
+        // convert this to binary and store the result in the git_oid attached
+        // to the callback.
+        oid = &cb->oidbuf;
+        convert_to_string(&retval);
+        convert_oid_fromstr(oid,Z_STRVAL(retval),Z_STRLEN(retval));
+
+        return oid;
+    }
+
+    return nullptr;
+}
+
 /*
  * Local Variables:
  * indent-tabs-mode:nil

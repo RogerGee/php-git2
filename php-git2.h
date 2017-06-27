@@ -137,8 +137,9 @@ namespace php_git2
     template<>
     void git_error(int code);
 
-    // Misc.
+    // Misc. helpers
 
+    void convert_oid_fromstr(git_oid* dest,const char* src,int srclen);
     void php_git2_register_constants(int module_number TSRMLS_DC);
 
 } // namespace php_git2

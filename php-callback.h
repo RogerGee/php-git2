@@ -320,6 +320,23 @@ namespace php_git2
         static int callback(const char* root,const git_tree_entry* entry,void* payload);
     };
 
+    struct commit_parent_callback
+    {
+        // Create a sync callback derivative for storing a git_oid to use as the
+        // callback return value. This will be allocated on the stack for the
+        // duration of calls to the callback.
+        struct sync_callback:
+            php_callback_sync
+        {
+            ZTS_CONSTRUCTOR_WITH_BASE(sync_callback,php_callback_sync)
+
+            git_oid oidbuf;
+        };
+
+        typedef const git_oid* (*type)(size_t idx,void* payload);
+        static const git_oid* callback(size_t idx,void* payload);
+    };
+
 } // namespace php_git2
 
 #endif

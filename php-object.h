@@ -156,7 +156,6 @@ namespace php_git2
 
     // Useful helpers
 
-    void convert_oid_fromstr(git_oid* dest,const char* src,int srclen);
     bool is_method_overridden(zend_class_entry* ce,const char* method,int len);
 
     // Extern variables in this namespace.

@@ -8,6 +8,7 @@
 #define PHPGIT2_TYPE_H
 #include "php-git2.h"
 #include "git2-resource.h"
+#include <new>
 #include <limits>
 
 namespace php_git2
@@ -275,13 +276,13 @@ namespace php_git2
     {
 #ifdef ZTS
     protected:
-        php_zts_base(void*** zts):
-            TSRMLS_C(std::forward<void***>(zts))
+        php_zts_base(TSRMLS_D):
+            TSRMLS_C(TSRMLS_C)
         {
         }
 
     public:
-        void***&& TSRMLS_C;
+        TSRMLS_D;
 #endif
     };
 
@@ -309,6 +310,8 @@ namespace php_git2
         protected php_zts_base
     {
     public:
+        typedef GitResource resource_t;
+
         php_resource(TSRMLS_D):
             php_zts_base(TSRMLS_C), rsrc(nullptr)
         {
@@ -558,19 +561,8 @@ namespace php_git2
                 error("string",argno);
             }
 
-            // Convert PHP string to git_oid. We must ensure the input buffer is
-            // the appropriate size.
-            char buf[GIT_OID_HEXSZ + 1];
-            size_t nbytes = Z_STRLEN_P(value);
-
-            if (nbytes > GIT_OID_HEXSZ) {
-                nbytes = GIT_OID_HEXSZ;
-            }
-            memset(buf,'0',GIT_OID_HEXSZ);
-            buf[GIT_OID_HEXSZ] = 0;
-            strncpy(buf,Z_STRVAL_P(value),nbytes);
-            git_oid_fromstr(&oid,buf);
-
+            // Convert PHP string to git_oid.
+            convert_oid_fromstr(&oid,Z_STRVAL_P(value),Z_STRLEN_P(value));
             return &oid;
         }
     private:
@@ -667,18 +659,20 @@ namespace php_git2
 
     // Provide a type that converts PHP arrays into arrays of git2 objects. The
     // git2 array is allocated using the PHP allocator and should only be used
-    // in read-only contexts.
+    // in read-only contexts. The memory is designed to persist for the duration
+    // of a function call.
 
     template<typename SourceType,typename ConvertType>
     class php_array:
-        public php_value_base
+        public php_value_base,
+        private php_zts_base
     {
     public:
         typedef SourceType source_t;
         typedef ConvertType convert_t;
 
-        php_array():
-            data(nullptr)
+        php_array(TSRMLS_D):
+            php_zts_base(TSRMLS_C), data(nullptr)
         {
         }
 
@@ -686,13 +680,19 @@ namespace php_git2
         {
             if (data != nullptr) {
                 efree(data);
+
+                // Call the destructor on each source object before freeing the
+                // memory.
+                for (long i = 0;i < cnt;++i) {
+                    sources[i].~SourceType();
+                }
+                efree(sources);
             }
         }
 
         ConvertType* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
-            int i;
-            long cnt;
+            long i;
             HashPosition pos;
             zval** element;
 
@@ -700,26 +700,35 @@ namespace php_git2
             if (Z_TYPE_P(value) != IS_ARRAY) {
                 error("array",argno);
             }
-
-            // Create a C array to hold the converted values.
             cnt = zend_hash_num_elements(Z_ARRVAL_P(value));
+
+            // Allocate an array to hold the source objects. We need to call the
+            // constructor on each object.
+            sources = reinterpret_cast<SourceType*>(emalloc(sizeof(SourceType) * cnt));
+            for (i = 0;i < cnt;++i) {
+                new(sources + i) SourceType(TSRMLS_C);
+            }
+
+            // Create an array to hold the converted values.
             data = reinterpret_cast<ConvertType*>(emalloc(sizeof(ConvertType) * cnt));
 
-            // Walk the array, using a SourceType object to convert each
-            // element.
+            // Walk the array, using the corresponding SourceType object to
+            // convert each element.
             i = 0;
             for (zend_hash_internal_pointer_reset_ex(Z_ARRVAL_P(value),&pos);
                  zend_hash_get_current_data_ex(Z_ARRVAL_P(value),(void**)&element,&pos) == SUCCESS;
                  zend_hash_move_forward_ex(Z_ARRVAL_P(value),&pos))
             {
-                SourceType source;
-                *source.byref_php() = *element;
-                data[i++] = source.byval_git2();
+                *sources[i].byref_php() = *element;
+                data[i] = sources[i].byval_git2();
+                i += 1;
             }
 
             return data;
         }
     private:
+        long cnt;
+        SourceType* sources;
         ConvertType* data;
     };
 
@@ -745,7 +754,19 @@ namespace php_git2
         connect_t&& conn;
     };
 
+    // Enumerate common array types.
+
+    template<typename WrapperType>
+    using php_resource_array = php_array<
+        php_resource<WrapperType>,
+        typename WrapperType::const_git2_type>;
+
+    using php_oid_array = php_array<
+        php_git_oid_fromstr,
+        const git_oid*>;
+
     // Enumerate all resource types that we'll care about.
+
     using php_git_repository = git2_resource<git_repository>;
     using php_git_reference = git2_resource<git_reference>;
     using php_git_object = git2_resource<git_object>;
@@ -761,6 +782,7 @@ namespace php_git2
     using php_git_signature = git2_resource<git_signature>;
 
     // Enumerate nofree versions of certain resource types.
+
     using php_git_repository_nofree = git2_resource_nofree<git_repository>;
     using php_git_tree_entry_nofree = git2_resource_nofree<git_tree_entry>;
     using php_git_signature_nofree = git2_resource_nofree<git_signature>;

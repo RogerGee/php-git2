@@ -107,7 +107,61 @@ function test_signature() {
     }
 }
 
+function test_create_alternate() {
+    $repo = git_repository_open_bare(testbed_get_repo_path());
+    $lambda = function($idx,$repo) {
+        $parents = array(
+            '4aa38890c5191cc16f50b057263cbfb305ed7ead',
+            'e88ad7b6240c422a5d2b9a58d9ced716821fbafa',
+        );
+
+        if ($idx >= count($parents)) {
+            echo '  payload: ' . $repo . PHP_EOL;
+            return null;
+        }
+
+        echo "  test_commit_alternate::callback($idx)\n";
+        return $parents[$idx];
+    };
+
+    // Create a random reference for this test commit.
+    $ref = "refs/heads/myref" . rand(1,1000);
+
+    // Create a bogus author.
+    $author = git_signature_now('Bargus Targ','bargus.targ@example.com');
+
+    echo 'Creating a commit via callback:' . PHP_EOL;
+    $id = git_commit_create_from_callback(
+        $repo,
+        $ref,
+        $author,
+        $author,
+        null,
+        "[stupid] Be the boss using git and PHP for whatever it's worth [1]",
+        '80113d972e694eeef398fc7bbac5023ab7d2a311',
+        $lambda,
+        $repo);
+    var_dump($id);
+
+    echo PHP_EOL . 'Creating a commit via OID list' . PHP_EOL;
+    $oids = array(
+        '4aa38890c5191cc16f50b057263cbfb305ed7ead',
+        'e88ad7b6240c422a5d2b9a58d9ced716821fbafa',
+    );
+    $id = git_commit_create_from_ids(
+        $repo,
+        "{$ref}_fromid",
+        $author,
+        $author,
+        null,
+        "[stupid] Be the boss using git and PHP for whatever it's worth [2]",
+        '80113d972e694eeef398fc7bbac5023ab7d2a311',
+        $oids);
+    var_dump($id);
+}
+
 testbed_test('Commit/open','Git2Test\Commit\test_open');
 testbed_test('Commit/lookup','Git2Test\Commit\test_lookup');
 testbed_test('Commit/create','Git2Test\Commit\test_create');
 testbed_test('Commit/signature','Git2Test\Commit\test_signature');
+testbed_test('Commit/create_alternate','Git2Test\Commit\test_create_alternate');
