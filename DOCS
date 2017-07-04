@@ -40,6 +40,7 @@ purpose) are determined by the C++ compiler via 'typeid'.
     git_tree
     git_tree_entry
     git_signature
+    git_treebuilder
 
 The following structures are not represented as resources in the PHP
 API. Instead a primitive or object type is used:
@@ -715,6 +716,38 @@ git2_signature_convert(resource)
         - when.offset
 
     Returns array
+
+----------------------------------------
+[git_treebuilder]
+----------------------------------------
+
+git_treebuilder_new(resource,resource|null)
+
+    Returns git_treebuilder resource
+
+git_treebuilder_free(resource)
+
+git_treebuilder_write(resource)
+
+    Returns string
+
+git_treebuilder_insert(resource,string,string,int)
+
+    ** Note: this function always returns the tree entry. **
+
+    Returns git_tree_entry resource
+
+git_treebuilder_get(resource,string)
+
+    Returns git_tree_entry resource
+
+git_treebuilder_remove(resource,string)
+
+git_treebuilder_clear(resource)
+
+git_treebuilder_entrycount(resource)
+
+    Returns int
 
 --------------------------------------------------------------------------------
 API Class Reference

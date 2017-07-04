@@ -20,6 +20,7 @@
 #include "blob.h"
 #include "tree.h"
 #include "signature.h"
+#include "treebuilder.h"
 #include <cstdio>
 #include <cstdarg>
 using namespace std;
@@ -67,6 +68,7 @@ static zend_function_entry php_git2_functions[] = {
     GIT_BLOB_FE
     GIT_TREE_FE
     GIT_SIGNATURE_FE
+    GIT_TREEBUILDER_FE
     PHP_FE_END
 };
 
@@ -127,7 +129,8 @@ PHP_MINIT_FUNCTION(git2)
         git_blob,
         git_tree,
         git_tree_entry,
-        git_signature >(module_number);
+        git_signature,
+        git_treebuilder >(module_number);
 
     // Register all classes provided by this extension.
     php_git2_register_classes(TSRMLS_C);
