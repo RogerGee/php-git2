@@ -610,7 +610,7 @@ Legend:
 . git_repository_reinit_filesystem
 . git_repository_set_bare
 . git_repository_set_config
-. git_repository_set_head
++ git_repository_set_head
 . git_repository_set_head_detached
 . git_repository_set_head_detached_from_annotated
 . git_repository_set_ident

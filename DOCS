@@ -125,6 +125,8 @@ git_repository_odb(resource)
 
 git_repository_set_odb(resource,resource)
 
+git_repository_set_head(resource,string)
+
 ----------------------------------------
 [git_reference]
 ----------------------------------------

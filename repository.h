@@ -173,22 +173,36 @@ static constexpr auto ZIF_GIT_REPOSITORY_SET_ODB = zif_php_git2_function_setdeps
     php_git2::sequence<1,0> // Make the ODB dependent on the repository.
     >;
 
+static constexpr auto ZIF_GIT_REPOSITORY_SET_HEAD = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_repository*,
+        const char*
+        >::func<git_repository_set_head>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_repository>,
+        php_git2::php_string
+        >,
+    -1
+    >;
+
 // Function Entries:
 
 #define GIT_REPOSITORY_FE \
-    PHP_GIT2_FE(git_repository_init,ZIF_GIT_REPOSITORY_INIT,NULL)           \
-    PHP_GIT2_FE(git_repository_new,ZIF_GIT_REPOSITORY_NEW,NULL)             \
-    PHP_GIT2_FE(git_repository_free,ZIF_GIT_REPOSITORY_FREE,NULL)           \
-    PHP_GIT2_FE(git_repository_open,ZIF_GIT_REPOSITORY_OPEN,NULL)           \
+    PHP_GIT2_FE(git_repository_init,ZIF_GIT_REPOSITORY_INIT,NULL)       \
+    PHP_GIT2_FE(git_repository_new,ZIF_GIT_REPOSITORY_NEW,NULL)         \
+    PHP_GIT2_FE(git_repository_free,ZIF_GIT_REPOSITORY_FREE,NULL)       \
+    PHP_GIT2_FE(git_repository_open,ZIF_GIT_REPOSITORY_OPEN,NULL)       \
     PHP_GIT2_FE(git_repository_open_bare,ZIF_GIT_REPOSITORY_OPEN_BARE,NULL) \
     PHP_GIT2_FE(git_repository__cleanup,ZIF_GIT_REPOSITORY__CLEANUP,NULL) \
     PHP_GIT2_FE(git_repository_detach_head,ZIF_GIT_REPOSITORY_DETACH_HEAD,NULL) \
     PHP_GIT2_FE(git_repository_discover,ZIF_GIT_REPOSITORY_DISCOVER,NULL) \
     PHP_GIT2_FE(git_repository_get_namespace,ZIF_GIT_REPOSITORY_GET_NAMESPACE,NULL) \
-    PHP_GIT2_FE(git_repository_path,ZIF_GIT_REPOSITORY_PATH,NULL) \
+    PHP_GIT2_FE(git_repository_path,ZIF_GIT_REPOSITORY_PATH,NULL)       \
     PHP_GIT2_FE(git_repository_hashfile,ZIF_GIT_REPOSITORY_HASHFILE,NULL) \
     PHP_GIT2_FE(git_repository_odb,ZIF_GIT_REPOSITORY_ODB,NULL)         \
-    PHP_GIT2_FE(git_repository_set_odb,ZIF_GIT_REPOSITORY_SET_ODB,NULL)
+    PHP_GIT2_FE(git_repository_set_odb,ZIF_GIT_REPOSITORY_SET_ODB,NULL) \
+    PHP_GIT2_FE(git_repository_set_head,ZIF_GIT_REPOSITORY_SET_HEAD,NULL)
 
 #endif
 
