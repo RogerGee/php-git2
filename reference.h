@@ -138,6 +138,22 @@ static constexpr auto ZIF_GIT_REFERENCE_CREATE_MATCHING = zif_php_git2_function_
     php_git2::sequence<0,0,1,2,3,4,5>
     >;
 
+static constexpr auto ZIF_GIT_REFERENCE_TARGET = zif_php_git2_function<
+    php_git2::func_wrapper<
+        const git_oid*,
+        const git_reference*>::func<git_reference_target>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_reference> >,
+    0>;
+
+static constexpr auto ZIF_GIT_REFERENCE_TARGET_PEEL = zif_php_git2_function<
+    php_git2::func_wrapper<
+        const git_oid*,
+        const git_reference*>::func<git_reference_target_peel>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_reference> >,
+    0>;
+
 // Function Entries:
 
 #define GIT_REFERENCE_FE \
@@ -147,7 +163,9 @@ static constexpr auto ZIF_GIT_REFERENCE_CREATE_MATCHING = zif_php_git2_function_
     PHP_GIT2_FE(git_reference_peel,ZIF_GIT_REFERENCE_PEEL,NULL)         \
     PHP_GIT2_FE(git_reference_name_to_id,ZIF_GIT_REFERENCE_NAME_TO_ID,NULL) \
     PHP_GIT2_FE(git_reference_create,ZIF_GIT_REFERENCE_CREATE,NULL)     \
-    PHP_GIT2_FE(git_reference_create_matching,ZIF_GIT_REFERENCE_CREATE_MATCHING,NULL)
+    PHP_GIT2_FE(git_reference_create_matching,ZIF_GIT_REFERENCE_CREATE_MATCHING,NULL) \
+    PHP_GIT2_FE(git_reference_target,ZIF_GIT_REFERENCE_TARGET,NULL)     \
+    PHP_GIT2_FE(git_reference_target_peel,ZIF_GIT_REFERENCE_TARGET_PEEL,NULL)
 
 #endif
 

@@ -26,6 +26,18 @@ namespace php_git2
         }
     };
 
+    template<typename Numeric>
+    class php_boolean_rethandler
+    {
+    public:
+        template<typename... Ts>
+        bool ret(Numeric retval,zval* return_value,local_pack<Ts...>&& pack)
+        {
+            RETVAL_BOOL(retval);
+            return true;
+        }
+    };
+
     // Provide a rethandler to use for setting dependencies. This is modeled for
     // functions that return their owner as a git2 resource.
 

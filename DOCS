@@ -129,6 +129,22 @@ git_repository_set_odb(resource,resource)
 
 git_repository_set_head(resource,string)
 
+git_repository_head(resource)
+
+    Returns git_reference resource
+
+git_repository_is_empty(resource)
+
+    Returns bool
+
+git_repository_is_bare(resource)
+
+    Returns bool
+
+git_repository_is_shallow(resource)
+
+    Returns bool
+
 ----------------------------------------
 [git_reference]
 ----------------------------------------
@@ -158,6 +174,14 @@ git_reference_create(resource,string,string,bool,string)
 git_reference_create_matching(resource,string,string,bool,string,string)
 
     Returns git_reference resource
+
+git_reference_target(resource)
+
+    Returns string
+
+git_reference_target_peel(resource)
+
+    Returns string
 
 ----------------------------------------
 [git_object]

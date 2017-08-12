@@ -186,6 +186,52 @@ static constexpr auto ZIF_GIT_REPOSITORY_SET_HEAD = zif_php_git2_function<
     -1
     >;
 
+static constexpr auto ZIF_GIT_REPOSITORY_HEAD = zif_php_git2_function_setdeps<
+    php_git2::func_wrapper<
+        int,
+        git_reference**,
+        git_repository*>::func<git_repository_head>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_reference>,
+        php_git2::php_resource<php_git2::php_git_repository>
+        >,
+    php_git2::sequence<0,1>, // Make the reference dependent on the repository.
+    1,
+    php_git2::sequence<1>,
+    php_git2::sequence<0,1>,
+    php_git2::sequence<0,0>
+    >;
+
+static constexpr auto ZIF_GIT_REPOSITORY_IS_EMPTY = zif_php_git2_function_rethandler<
+    php_git2::func_wrapper<
+        int,
+        git_repository*>::func<git_repository_is_empty>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_repository>
+        >,
+    php_git2::php_boolean_rethandler<int>
+    >;
+
+static constexpr auto ZIF_GIT_REPOSITORY_IS_BARE = zif_php_git2_function_rethandler<
+    php_git2::func_wrapper<
+        int,
+        git_repository*>::func<git_repository_is_bare>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_repository>
+        >,
+    php_git2::php_boolean_rethandler<int>
+    >;
+
+static constexpr auto ZIF_GIT_REPOSITORY_IS_SHALLOW = zif_php_git2_function_rethandler<
+    php_git2::func_wrapper<
+        int,
+        git_repository*>::func<git_repository_is_shallow>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_repository>
+        >,
+    php_git2::php_boolean_rethandler<int>
+    >;
+
 // Function Entries:
 
 #define GIT_REPOSITORY_FE \
@@ -202,7 +248,11 @@ static constexpr auto ZIF_GIT_REPOSITORY_SET_HEAD = zif_php_git2_function<
     PHP_GIT2_FE(git_repository_hashfile,ZIF_GIT_REPOSITORY_HASHFILE,NULL) \
     PHP_GIT2_FE(git_repository_odb,ZIF_GIT_REPOSITORY_ODB,NULL)         \
     PHP_GIT2_FE(git_repository_set_odb,ZIF_GIT_REPOSITORY_SET_ODB,NULL) \
-    PHP_GIT2_FE(git_repository_set_head,ZIF_GIT_REPOSITORY_SET_HEAD,NULL)
+    PHP_GIT2_FE(git_repository_set_head,ZIF_GIT_REPOSITORY_SET_HEAD,NULL) \
+    PHP_GIT2_FE(git_repository_head,ZIF_GIT_REPOSITORY_HEAD,NULL)       \
+    PHP_GIT2_FE(git_repository_is_empty,ZIF_GIT_REPOSITORY_IS_EMPTY,NULL) \
+    PHP_GIT2_FE(git_repository_is_bare,ZIF_GIT_REPOSITORY_IS_BARE,NULL) \
+    PHP_GIT2_FE(git_repository_is_shallow,ZIF_GIT_REPOSITORY_IS_SHALLOW,NULL)
 
 #endif
 
