@@ -23,6 +23,7 @@
 #include "treebuilder.h"
 #include "blame.h"
 #include "revparse.h"
+#include "annotated.h"
 #include <cstdio>
 #include <cstdarg>
 using namespace std;
@@ -73,6 +74,7 @@ static zend_function_entry php_git2_functions[] = {
     GIT_TREEBUILDER_FE
     GIT_BLAME_FE
     GIT_REVPARSE_FE
+    GIT_ANNOTATED_FE
     PHP_FE_END
 };
 
@@ -135,7 +137,8 @@ PHP_MINIT_FUNCTION(git2)
         git_tree_entry,
         git_signature,
         git_treebuilder,
-        git_blame >(module_number);
+        git_blame,
+        git_annotated_commit >(module_number);
 
     // Register all classes provided by this extension.
     php_git2_register_classes(TSRMLS_C);

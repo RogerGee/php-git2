@@ -42,6 +42,7 @@ purpose) are determined by the C++ compiler via 'typeid'.
     git_signature
     git_treebuilder
     git_blame
+    git_annotated_commit
 
 The following structures are not represented as resources in the PHP
 API. Instead a scalar, array or object type is used:
@@ -864,6 +865,32 @@ git_revparse_ext(&resource,resource,string)
 git_revparse_single(resource,string)
 
     Returns git_object resource
+
+----------------------------------------
+[git_annotated_commit]
+----------------------------------------
+
+git_annotated_commit_from_fetchhead(resource,string,string,string)
+
+    Returns git_annotated_commit resource
+
+git_annotated_commit_from_ref(resource,resource)
+
+    Returns git_annotated_commit resource
+
+git_annotated_commit_from_revspec(resource,string)
+
+    Returns git_annotated_commit resource
+
+git_annotated_commit_lookup(resource,string)
+
+    Returns git_annotated_commit resource
+
+git_annotated_commit_id(resource)
+
+    Returns string
+
+git_annotated_commit_free(resource)
 
 --------------------------------------------------------------------------------
 API Class Reference
