@@ -495,7 +495,7 @@ Legend:
 . git_reference_iterator_new
 + git_reference_list
 + git_reference_lookup
-. git_reference_name
++ git_reference_name
 + git_reference_name_to_id
 . git_reference_next
 . git_reference_next_name
@@ -629,9 +629,9 @@ Legend:
 . git_revert
 . git_revert_commit
 . git_revert_init_options
-. git_revparse
-. git_revparse_ext
-. git_revparse_single
++ git_revparse
++ git_revparse_ext
++ git_revparse_single
 . git_revwalk_add_hide_cb
 + git_revwalk_free
 + git_revwalk_hide

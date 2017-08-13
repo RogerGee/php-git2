@@ -27,10 +27,19 @@ namespace php_git2
         }
 
         zval** byref_php(unsigned argno = std::numeric_limits<unsigned>::max())
-        { return &value; }
+        {
+            return &value;
+        }
 
         zval* byval_php(unsigned argno = std::numeric_limits<unsigned>::max()) const
-        { return value; }
+        {
+            return value;
+        }
+
+        void set_zval(zval* zv)
+        {
+            value = zv;
+        }
 
         static inline void error(const char* typeName,unsigned argno)
         {
@@ -39,6 +48,14 @@ namespace php_git2
                     typeName,argno);
             }
             php_error(E_ERROR,"expected '%s' for argument",typeName);
+        }
+
+        static inline void error_custom(const char* message,unsigned argno)
+        {
+            if (argno != std::numeric_limits<unsigned>::max()) {
+                php_error(E_ERROR,"%s for argument position %d",message,argno);
+            }
+            php_error(E_ERROR,"%s",message);
         }
     protected:
         zval* value;
@@ -433,6 +450,95 @@ namespace php_git2
         }
     private:
         mutable GitResource* rsrc;
+    };
+
+    // Provide a variant of php_resource_ref that can return null if the output
+    // value was NULL.
+
+    template<typename GitResource>
+    class php_resource_nullable_ref:
+        private php_zts_base
+    {
+    public:
+        php_resource_nullable_ref(TSRMLS_D):
+            php_zts_base(TSRMLS_C), rsrc(nullptr), handle(nullptr)
+        {
+        }
+
+        typename GitResource::git2_type*
+        byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            // Just return the handle. Delay creating the resource backing until
+            // later and after we know the return value is not NULL.
+            return &handle;
+        }
+
+        void ret(zval* return_value)
+        {
+            // If the handle was non-NULL, create a resource backing. Then pass
+            // it off to a new resource zval.
+            if (handle != nullptr) {
+                if (rsrc == nullptr) {
+                    rsrc = php_git2_create_resource<GitResource>();
+                    rsrc->set_handle(handle);
+                }
+                zend_register_resource(return_value,rsrc,GitResource::resource_le() TSRMLS_CC);
+            }
+            else {
+                ZVAL_NULL(return_value);
+            }
+        }
+
+        GitResource* get_object(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            // Return the resource backing if the handle was non-NULL. Otherwise
+            // return NULL.
+
+            if (handle != nullptr) {
+                if (rsrc == nullptr) {
+                    rsrc = php_git2_create_resource<GitResource>();
+                    rsrc->set_handle(handle);
+                }
+
+                return rsrc;
+            }
+
+            return nullptr;
+        }
+    private:
+        GitResource* rsrc;
+        typename GitResource::git2_type handle;
+    };
+
+    // Provide out parameter variants of php_resource_ref and friends. These
+    // allow new resources to be returned through output parameters.
+
+    template<typename GitResource>
+    class php_resource_ref_out:
+        public php_value_base,
+        public php_resource_ref<GitResource>
+    {
+    public:
+        ZTS_CONSTRUCTOR_WITH_BASE(php_resource_ref_out,php_resource_ref)
+
+        ~php_resource_ref_out()
+        {
+            php_resource_ref<GitResource>::ret(value);
+        }
+    };
+
+    template<typename GitResource>
+    class php_resource_nullable_ref_out:
+        public php_value_base,
+        public php_resource_nullable_ref<GitResource>
+    {
+    public:
+        ZTS_CONSTRUCTOR_WITH_BASE(php_resource_nullable_ref_out,php_resource_nullable_ref)
+
+        ~php_resource_nullable_ref_out()
+        {
+            php_resource_nullable_ref<GitResource>::ret(value);
+        }
     };
 
     // Provide a type that represents an optional resource value (one that could

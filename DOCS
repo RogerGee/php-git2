@@ -183,6 +183,10 @@ git_reference_target_peel(resource)
 
     Returns string
 
+git_reference_name(resource)
+
+    Returns string
+
 ----------------------------------------
 [git_object]
 ----------------------------------------
@@ -832,6 +836,34 @@ git_blame_get_hunk_byline(resource,int)
 git_blame_get_hunk_count(resource)
 
     Returns int
+
+----------------------------------------
+[git_revparse]
+----------------------------------------
+
+git_revparse(resource,string)
+
+    ** Note: the return array contains the fields of the revspec
+       structure. Example:
+
+        array(3) {
+          ["from"]  resource of type git_object (may be null)
+          ["to"]    resource of type git_object (may be null)
+          ["flags"] int
+        } **
+
+    Returns array
+
+git_revparse_ext(&resource,resource,string)
+
+    ** The first argument is an output parameter. A resource of type
+       git_reference may be written or null. **
+
+    Returns git_object resource
+
+git_revparse_single(resource,string)
+
+    Returns git_object resource
 
 --------------------------------------------------------------------------------
 API Class Reference

@@ -154,6 +154,14 @@ static constexpr auto ZIF_GIT_REFERENCE_TARGET_PEEL = zif_php_git2_function<
         php_git2::php_resource<php_git2::php_git_reference> >,
     0>;
 
+static constexpr auto ZIF_GIT_REFERENCE_NAME = zif_php_git2_function<
+    php_git2::func_wrapper<
+        const char*,
+        const git_reference*>::func<git_reference_name>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_reference> >,
+    0>;
+
 // Function Entries:
 
 #define GIT_REFERENCE_FE \
@@ -165,7 +173,8 @@ static constexpr auto ZIF_GIT_REFERENCE_TARGET_PEEL = zif_php_git2_function<
     PHP_GIT2_FE(git_reference_create,ZIF_GIT_REFERENCE_CREATE,NULL)     \
     PHP_GIT2_FE(git_reference_create_matching,ZIF_GIT_REFERENCE_CREATE_MATCHING,NULL) \
     PHP_GIT2_FE(git_reference_target,ZIF_GIT_REFERENCE_TARGET,NULL)     \
-    PHP_GIT2_FE(git_reference_target_peel,ZIF_GIT_REFERENCE_TARGET_PEEL,NULL)
+    PHP_GIT2_FE(git_reference_target_peel,ZIF_GIT_REFERENCE_TARGET_PEEL,NULL) \
+    PHP_GIT2_FE(git_reference_name,ZIF_GIT_REFERENCE_NAME,NULL)
 
 #endif
 

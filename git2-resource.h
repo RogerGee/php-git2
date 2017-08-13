@@ -103,6 +103,11 @@ namespace php_git2
             return const_cast<const_git2_type*>(&handle);
         }
 
+        void set_handle(git2_type ptr)
+        {
+            handle = ptr;
+        }
+
         bool is_owned() const
         {
             return isowned;

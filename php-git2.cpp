@@ -22,6 +22,7 @@
 #include "signature.h"
 #include "treebuilder.h"
 #include "blame.h"
+#include "revparse.h"
 #include <cstdio>
 #include <cstdarg>
 using namespace std;
@@ -71,6 +72,7 @@ static zend_function_entry php_git2_functions[] = {
     GIT_SIGNATURE_FE
     GIT_TREEBUILDER_FE
     GIT_BLAME_FE
+    GIT_REVPARSE_FE
     PHP_FE_END
 };
 
