@@ -39,7 +39,7 @@ static constexpr auto ZIF_GIT_ANNOTATED_COMMIT_FROM_FETCHHEAD = zif_php_git2_fun
     1,
     php_git2::sequence<1,2,3,4>,
     php_git2::sequence<0,1,2,3,4>,
-    php_git2::sequence<0,1,2,3,4>
+    php_git2::sequence<0,0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_ANNOTATED_COMMIT_FROM_REF = zif_php_git2_function_setdeps<
@@ -57,7 +57,7 @@ static constexpr auto ZIF_GIT_ANNOTATED_COMMIT_FROM_REF = zif_php_git2_function_
     1,
     php_git2::sequence<1,2>,
     php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,1,2>
+    php_git2::sequence<0,0,1>
     >;
 
 static constexpr auto ZIF_GIT_ANNOTATED_COMMIT_FROM_REVSPEC = zif_php_git2_function_setdeps<
@@ -75,7 +75,7 @@ static constexpr auto ZIF_GIT_ANNOTATED_COMMIT_FROM_REVSPEC = zif_php_git2_funct
     1,
     php_git2::sequence<1,2>,
     php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,1,2>
+    php_git2::sequence<0,0,1>
     >;
 
 static constexpr auto ZIF_GIT_ANNOTATED_COMMIT_LOOKUP = zif_php_git2_function_setdeps<
@@ -93,7 +93,7 @@ static constexpr auto ZIF_GIT_ANNOTATED_COMMIT_LOOKUP = zif_php_git2_function_se
     1,
     php_git2::sequence<1,2>,
     php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,1,2>
+    php_git2::sequence<0,0,1>
     >;
 
 static constexpr auto ZIF_GIT_ANNOTATED_COMMIT_ID = zif_php_git2_function<

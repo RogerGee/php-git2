@@ -7,6 +7,7 @@
 #ifndef PHPGIT2_RETHANDLER_H
 #define PHPGIT2_RETHANDLER_H
 #include "php-type.h"
+#include "php-function.h"
 
 namespace php_git2
 {
@@ -86,6 +87,62 @@ namespace php_git2
             // the original resource).
             resource.get_object()->set_parent(obj.get_object());
 
+            return true;
+        }
+    };
+
+    // Provide a rethandler that returns null when GIT_ENOTFOUND was
+    // returned. Otherwise it returns a resource at 'Position' within the local
+    // pack having dependencies 'ResourceDeps'.
+
+    template<unsigned Position,typename ResourceDeps>
+    class php_resource_notfound_rethandler
+    {
+    public:
+        template<typename... Ts>
+        bool ret(int retval,zval* return_value,local_pack<Ts...>&& pack)
+        {
+            auto&& obj = pack.template get<Position>();
+
+            if (retval != 0) {
+                if (retval != GIT_ENOTFOUND) {
+                    return false;
+                }
+
+                RETVAL_NULL();
+                return true;
+            }
+
+            obj.ret(return_value);
+            php_set_resource_dependency(std::forward<local_pack<Ts...> >(pack),ResourceDeps());
+            return true;
+        }
+    };
+
+    // Provide a rethandler that returns false when GIT_ITEROVER is
+    // reached. Otherwise it returns a resource at 'Position' within the local
+    // pack having dependencies 'ResourceDeps'.
+
+    template<unsigned Position,typename ResourceDeps>
+    class php_resource_iterover_rethandler
+    {
+    public:
+        template<typename... Ts>
+        bool ret(int retval,zval* return_value,local_pack<Ts...>&& pack)
+        {
+            auto&& obj = pack.template get<Position>();
+
+            if (retval != 0) {
+                if (retval != GIT_ITEROVER) {
+                    return false;
+                }
+
+                RETVAL_FALSE;
+                return true;
+            }
+
+            obj.ret(return_value);
+            php_set_resource_dependency(std::forward<local_pack<Ts...> >(pack),ResourceDeps());
             return true;
         }
     };

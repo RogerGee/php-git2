@@ -43,6 +43,7 @@ purpose) are determined by the C++ compiler via 'typeid'.
     git_treebuilder
     git_blame
     git_annotated_commit
+    git_branch_iterator
 
 The following structures are not represented as resources in the PHP
 API. Instead a scalar, array or object type is used:
@@ -57,6 +58,7 @@ API. Instead a scalar, array or object type is used:
     git_odb_stream                                 object
     git_writestream                                object
     git_blame_hunk                                 array
+    git_revspec                                    array
 
 For objects, see the later section regarding Classes.
 
@@ -76,7 +78,7 @@ Functions provided by the extension that are not git2 wrappers have the form
 
 git2_version()
 
-    Gets a version string
+    Gets a string representing the libgit2 version
 
     Returns string
 
@@ -891,6 +893,56 @@ git_annotated_commit_id(resource)
     Returns string
 
 git_annotated_commit_free(resource)
+
+----------------------------------------
+[git_branch]
+----------------------------------------
+
+git_branch_create(resource,string,resource,bool)
+
+    Returns git_reference resource
+
+git_branch_create_from_annotated(resource,string,resource,bool)
+
+    Returns git_reference resource
+
+git_branch_delete(resource)
+
+git_branch_is_head(resource)
+
+    Returns bool
+
+git_branch_iterator_free(resource)
+
+git_branch_next(&int,resource)
+
+    Returns git_reference resource
+
+git_branch_lookup(resource,string,int)
+
+    Returns git_reference resource
+
+git_branch_move(resource,string,bool)
+
+    Returns git_reference resource
+
+git_branch_name(resource)
+
+    Returns string
+
+git_branch_set_upstream(resource,string|null)
+
+git_branch_upstream(resource)
+
+    Returns git_reference resource if found, null otherwise
+
+git_branch_upstream_name(resource,string)
+
+    Returns string
+
+git_branch_upstream_remote(resource,string)
+
+    Returns string
 
 --------------------------------------------------------------------------------
 API Class Reference

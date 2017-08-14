@@ -173,6 +173,34 @@ namespace php_git2
         }
     };
 
+    // Provide a returnable string type that is set by reference.
+
+    class php_string_ref
+    {
+    public:
+        php_string_ref():
+            ptr(nullptr)
+        {
+        }
+
+        const char** byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            return &ptr;
+        }
+
+        void ret(zval* return_value)
+        {
+            if (ptr != NULL) {
+                RETVAL_STRING(ptr,1);
+                return;
+            }
+
+            ZVAL_NULL(return_value);
+        }
+    private:
+        const char* ptr;
+    };
+
     // Provide a string connector that returns the string length.
 
     template<typename IntType,typename StringType = php_string>
@@ -635,6 +663,30 @@ namespace php_git2
 #endif
     };
 
+    template<typename GitResource>
+    class php_resource_cleanup_delayed:
+        public php_resource<GitResource>
+    {
+    public:
+        php_resource_cleanup_delayed(TSRMLS_D):
+            php_resource<GitResource>(TSRMLS_C)
+        {
+        }
+
+        ~php_resource_cleanup_delayed()
+        {
+            // Delete the PHP resource. This will cause the resource to be
+            // invalidated across any zvals that reference it, and the
+            // underlying handle will be destroyed (if it has no more
+            // references).
+            zend_hash_index_del(&EG(regular_list),Z_RESVAL_P(value));
+            value = nullptr;
+        }
+
+    protected:
+        using php_resource<GitResource>::value;
+    };
+
     class php_git_oid
     {
     public:
@@ -889,6 +941,7 @@ namespace php_git2
     using php_git_treebuilder = git2_resource<git_treebuilder>;
     using php_git_blame = git2_resource<git_blame>;
     using php_git_annotated_commit = git2_resource<git_annotated_commit>;
+    using php_git_branch_iterator = git2_resource<git_branch_iterator>;
 
     // Enumerate nofree versions of certain resource types.
 

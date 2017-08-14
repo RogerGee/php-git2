@@ -24,6 +24,7 @@
 #include "blame.h"
 #include "revparse.h"
 #include "annotated.h"
+#include "branch.h"
 #include <cstdio>
 #include <cstdarg>
 using namespace std;
@@ -75,6 +76,7 @@ static zend_function_entry php_git2_functions[] = {
     GIT_BLAME_FE
     GIT_REVPARSE_FE
     GIT_ANNOTATED_FE
+    GIT_BRANCH_FE
     PHP_FE_END
 };
 
@@ -138,7 +140,8 @@ PHP_MINIT_FUNCTION(git2)
         git_signature,
         git_treebuilder,
         git_blame,
-        git_annotated_commit >(module_number);
+        git_annotated_commit,
+        git_branch_iterator >(module_number);
 
     // Register all classes provided by this extension.
     php_git2_register_classes(TSRMLS_C);
