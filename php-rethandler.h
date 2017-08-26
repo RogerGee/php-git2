@@ -77,6 +77,10 @@ namespace php_git2
         template<typename... Ts>
         bool ret(Git2Type* handle,zval* return_value,local_pack<Ts...>&& pack)
         {
+            if (handle == nullptr) {
+                return false;
+            }
+
             auto&& obj = pack.template get<Position>();
             const php_resource_ref<ResourceType> resource;
 
@@ -86,6 +90,25 @@ namespace php_git2
             // Make the resource dependent on the object (which is dependent on
             // the original resource).
             resource.get_object()->set_parent(obj.get_object());
+
+            return true;
+        }
+    };
+
+    template<typename ResourceType,typename Git2Type>
+    class php_resource_nodeps_rethandler
+    {
+    public:
+        template<typename... Ts>
+        bool ret(Git2Type* handle,zval* return_value,local_pack<Ts...>&& pack)
+        {
+            if (handle == nullptr) {
+                return false;
+            }
+
+            const php_resource_ref<ResourceType> resource;
+            *resource.byval_git2() = handle;
+            resource.ret(return_value);
 
             return true;
         }

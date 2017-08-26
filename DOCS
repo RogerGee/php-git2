@@ -190,6 +190,50 @@ git_reference_name(resource)
 
     Returns string
 
+git_reference_cmp(resource,resource)
+
+    Returns bool
+
+git_reference__alloc(string,string,string)
+
+    Returns git_reference resource
+
+git_reference__alloc_symbolic(string,string)
+
+    Returns git_reference resource
+
+git_reference_delete(resource)
+
+git_reference_dup(resource)
+
+    Returns git_reference resource
+
+git_reference_ensure_log(resource,string)
+
+git_reference_has_log(resource,string)
+
+    Returns bool
+
+git_reference_is_branch(resource)
+
+    Returns bool
+
+git_reference_is_note(resource)
+
+    Returns bool
+
+git_reference_is_remote(resource)
+
+    Returns bool
+
+git_reference_is_tag(resource)
+
+    Returns bool
+
+git_reference_is_valid_name(string)
+
+    Returns bool
+
 ----------------------------------------
 [git_object]
 ----------------------------------------

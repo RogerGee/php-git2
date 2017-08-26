@@ -727,6 +727,23 @@ namespace php_git2
         git_oid oid;
     };
 
+    class php_git_oid_fromstr_nullable:
+        public php_git_oid_fromstr
+    {
+    public:
+        ZTS_CONSTRUCTOR_WITH_BASE(php_git_oid_fromstr_nullable,php_git_oid_fromstr)
+
+        git_oid* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            // Allow the value to be null.
+            if (Z_TYPE_P(value) == IS_NULL) {
+                return nullptr;
+            }
+
+            return php_git_oid_fromstr::byval_git2(argno);
+        }
+    };
+
     // Provide a type for returning an OID value using an out parameter.
 
     class php_git_oid_out:
