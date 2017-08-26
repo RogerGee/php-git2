@@ -21,6 +21,12 @@ namespace php_git2
         git_reference_free(handle);
     }
 
+    // Explicitly specialize git2_resource destructor for git_reference_iterator.
+    template<> php_git_reference_iterator::~git2_resource()
+    {
+        git_reference_iterator_free(handle);
+    }
+
 } // namespace php_git2
 
 // Functions:
@@ -326,6 +332,76 @@ static constexpr auto ZIF_GIT_REFERENCE_IS_VALID_NAME = zif_php_git2_function_re
     php_git2::php_boolean_rethandler<int>
     >;
 
+static constexpr auto ZIF_GIT_REFERENCE_ITERATOR_NEW = zif_php_git2_function_setdeps<
+    php_git2::func_wrapper<
+        int,
+        git_reference_iterator**,
+        git_repository*>::func<git_reference_iterator_new>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_reference_iterator>,
+        php_git2::php_resource<php_git2::php_git_repository>
+        >,
+    php_git2::sequence<0,1>,
+    1,
+    php_git2::sequence<1>,
+    php_git2::sequence<0,1>,
+    php_git2::sequence<0,0>
+    >;
+
+static constexpr auto ZIF_GIT_REFERENCE_ITERATOR_GLOB_NEW = zif_php_git2_function_setdeps<
+    php_git2::func_wrapper<
+        int,
+        git_reference_iterator**,
+        git_repository*,
+        const char*>::func<git_reference_iterator_glob_new>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_reference_iterator>,
+        php_git2::php_resource<php_git2::php_git_repository>,
+        php_git2::php_string
+        >,
+    php_git2::sequence<0,1>,
+    1,
+    php_git2::sequence<1,2>,
+    php_git2::sequence<0,1,2>,
+    php_git2::sequence<0,0,1>
+    >;
+
+static constexpr auto ZIF_GIT_REFERENCE_ITERATOR_FREE = zif_php_git2_function_free<
+    php_git2::local_pack<
+        php_git2::php_resource_cleanup<php_git2::php_git_reference_iterator>
+        >
+    >;
+
+static constexpr auto ZIF_GIT_REFERENCE_NEXT = zif_php_git2_function_rethandler<
+    php_git2::func_wrapper<
+        int,
+        git_reference**,
+        git_reference_iterator*>::func<git_reference_next>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_reference>,
+        php_git2::php_resource<php_git2::php_git_reference_iterator>
+        >,
+    php_git2::php_resource_iterover_rethandler<0,php_git2::sequence<0,1> >,
+    php_git2::sequence<1>,
+    php_git2::sequence<0,1>,
+    php_git2::sequence<0,0>
+    >;
+
+static constexpr auto ZIF_GIT_REFERENCE_NEXT_NAME = zif_php_git2_function_rethandler<
+    php_git2::func_wrapper<
+        int,
+        const char**,
+        git_reference_iterator*>::func<git_reference_next_name>,
+    php_git2::local_pack<
+        php_git2::php_string_ref,
+        php_git2::php_resource<php_git2::php_git_reference_iterator>
+        >,
+    php_git2::php_iterover_rethandler<0>,
+    php_git2::sequence<1>,
+    php_git2::sequence<0,1>,
+    php_git2::sequence<0,0>
+    >;
+
 // Function Entries:
 
 #define GIT_REFERENCE_FE                                                \
@@ -347,11 +423,15 @@ static constexpr auto ZIF_GIT_REFERENCE_IS_VALID_NAME = zif_php_git2_function_re
     PHP_GIT2_FE(git_reference_dwim,ZIF_GIT_REFERENCE_DWIM,NULL)         \
     PHP_GIT2_FE(git_reference_ensure_log,ZIF_GIT_REFERENCE_ENSURE_LOG,NULL) \
     PHP_GIT2_FE(git_reference_has_log,ZIF_GIT_REFERENCE_HAS_LOG,NULL)   \
-    PHP_GIT2_FE(git_reference_is_branch,ZIF_GIT_REFERENCE_IS_BRANCH,NULL)   \
-    PHP_GIT2_FE(git_reference_is_note,ZIF_GIT_REFERENCE_IS_NOTE,NULL)      \
-    PHP_GIT2_FE(git_reference_is_remote,ZIF_GIT_REFERENCE_IS_REMOTE,NULL)   \
-    PHP_GIT2_FE(git_reference_is_tag,ZIF_GIT_REFERENCE_IS_TAG,NULL)   \
-    PHP_GIT2_FE(git_reference_is_valid_name,ZIF_GIT_REFERENCE_IS_VALID_NAME,NULL)
+    PHP_GIT2_FE(git_reference_is_branch,ZIF_GIT_REFERENCE_IS_BRANCH,NULL) \
+    PHP_GIT2_FE(git_reference_is_note,ZIF_GIT_REFERENCE_IS_NOTE,NULL)   \
+    PHP_GIT2_FE(git_reference_is_remote,ZIF_GIT_REFERENCE_IS_REMOTE,NULL) \
+    PHP_GIT2_FE(git_reference_is_tag,ZIF_GIT_REFERENCE_IS_TAG,NULL)     \
+    PHP_GIT2_FE(git_reference_is_valid_name,ZIF_GIT_REFERENCE_IS_VALID_NAME,NULL) \
+    PHP_GIT2_FE(git_reference_iterator_new,ZIF_GIT_REFERENCE_ITERATOR_NEW,NULL) \
+    PHP_GIT2_FE(git_reference_iterator_glob_new,ZIF_GIT_REFERENCE_ITERATOR_GLOB_NEW,NULL) \
+    PHP_GIT2_FE(git_reference_next,ZIF_GIT_REFERENCE_NEXT,NULL)         \
+    PHP_GIT2_FE(git_reference_next_name,ZIF_GIT_REFERENCE_NEXT_NAME,NULL)
 
 #endif
 

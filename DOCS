@@ -44,6 +44,7 @@ purpose) are determined by the C++ compiler via 'typeid'.
     git_blame
     git_annotated_commit
     git_branch_iterator
+    git_reference_iterator
 
 The following structures are not represented as resources in the PHP
 API. Instead a scalar, array or object type is used:
@@ -233,6 +234,22 @@ git_reference_is_tag(resource)
 git_reference_is_valid_name(string)
 
     Returns bool
+
+git_reference_iterator_new(resource)
+
+    Returns git_reference_iterator resource
+
+git_reference_iterator_glob_new(resource)
+
+    Returns git_reference_iterator resource
+
+git_reference_next(resource)
+
+    Returns git_reference resource or false if iteration is over
+
+git_reference_next_name(resource)
+
+    Returns string or false if iteration is over
 
 ----------------------------------------
 [git_object]
