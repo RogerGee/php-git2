@@ -824,11 +824,44 @@ namespace php_git2
         public php_value_base
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_buf_out)
+        ZTS_CONSTRUCTOR_WITH_BASE(php_git_buf_out,php_git_buf)
 
         ~php_git_buf_out()
         {
             ret(value);
+        }
+    };
+
+    // Provide a fixed-length buffer type.
+
+    template<unsigned MaxLength>
+    class php_fixed_buffer
+    {
+    public:
+        ZTS_CONSTRUCTOR(php_fixed_buffer)
+
+        char* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            return buffer;
+        }
+
+        void ret(zval* return_value)
+        {
+            RETVAL_STRING(buffer,1);
+        }
+    private:
+        char buffer[MaxLength];
+    };
+
+    // Provide a type that delivers a constant value to git2.
+
+    template<typename ConstantType,ConstantType Value>
+    class php_constant
+    {
+    public:
+        ConstantType byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            return Value;
         }
     };
 

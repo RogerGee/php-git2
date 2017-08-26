@@ -402,6 +402,128 @@ static constexpr auto ZIF_GIT_REFERENCE_NEXT_NAME = zif_php_git2_function_rethan
     php_git2::sequence<0,0>
     >;
 
+static constexpr auto ZIF_GIT_REFERENCE_NORMALIZE_NAME = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        char*,
+        size_t,
+        const char*,
+        unsigned int>::func<git_reference_normalize_name>,
+    php_git2::local_pack<
+        php_git2::php_fixed_buffer<1024>,
+        php_git2::php_constant<size_t,1024>,
+        php_git2::php_string,
+        php_git2::php_long_cast<unsigned int>
+        >,
+    1,
+    php_git2::sequence<2,3>,
+    php_git2::sequence<0,1,2,3>,
+    php_git2::sequence<0,0,1,2>
+    >;
+
+static constexpr auto ZIF_GIT_REFERENCE_OWNER = zif_php_git2_function_rethandler<
+    php_git2::func_wrapper<
+        git_repository*,
+        const git_reference*>::func<git_reference_owner>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_reference>,
+        php_git2::php_resource_ref<php_git2::php_git_repository_nofree>
+        >,
+    php_git2::php_owner_rethandler<php_git2::php_git_reference>,
+    php_git2::sequence<0>,
+    php_git2::sequence<0>,
+    php_git2::sequence<0>
+    >;
+
+static constexpr auto ZIF_GIT_REFERENCE_REMOVE = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_repository*,
+        const char*>::func<git_reference_remove>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_repository>,
+        php_git2::php_string
+        >
+    >;
+
+static constexpr auto ZIF_GIT_REFERENCE_RENAME = zif_php_git2_function_setdeps<
+    php_git2::func_wrapper<
+        int,
+        git_reference**,
+        git_reference*,
+        const char*,
+        int,
+        const char*>::func<git_reference_rename>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_reference>,
+        php_git2::php_resource<php_git2::php_git_reference>,
+        php_git2::php_string,
+        php_git2::php_bool,
+        php_git2::php_string
+        >,
+    php_git2::sequence<0,1>,
+    1,
+    php_git2::sequence<1,2,3,4>,
+    php_git2::sequence<0,1,2,3,4>,
+    php_git2::sequence<0,0,1,2,3>
+    >;
+
+static constexpr auto ZIF_GIT_REFERENCE_RESOLVE = zif_php_git2_function_setdeps<
+    php_git2::func_wrapper<
+        int,
+        git_reference**,
+        const git_reference*>::func<git_reference_resolve>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_reference>,
+        php_git2::php_resource<php_git2::php_git_reference>
+        >,
+    php_git2::sequence<0,1>,
+    1,
+    php_git2::sequence<1>,
+    php_git2::sequence<0,1>,
+    php_git2::sequence<0,0>
+    >;
+
+static constexpr auto ZIF_GIT_REFERENCE_SET_TARGET = zif_php_git2_function_setdeps<
+    php_git2::func_wrapper<
+        int,
+        git_reference**,
+        git_reference*,
+        const git_oid*,
+        const char*>::func<git_reference_set_target>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_reference>,
+        php_git2::php_resource<php_git2::php_git_reference>,
+        php_git2::php_git_oid_fromstr,
+        php_git2::php_string
+        >,
+    php_git2::sequence<0,1>,
+    1,
+    php_git2::sequence<1,2,3>,
+    php_git2::sequence<0,1,2,3>,
+    php_git2::sequence<0,0,1,2>
+    >;
+
+static constexpr auto ZIF_GIT_REFERENCE_SHORTHAND = zif_php_git2_function<
+    php_git2::func_wrapper<
+        const char*,
+        const git_reference*>::func<git_reference_shorthand>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_reference>
+        >,
+    0
+    >;
+
+static constexpr auto ZIF_GIT_REFERENCE_TYPE = zif_php_git2_function_rethandler<
+    php_git2::func_wrapper<
+        git_ref_t,
+        const git_reference*>::func<git_reference_type>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_reference>
+        >,
+    php_git2::php_numeric_rethandler<git_ref_t>
+    >;
+
 // Function Entries:
 
 #define GIT_REFERENCE_FE                                                \
@@ -431,7 +553,15 @@ static constexpr auto ZIF_GIT_REFERENCE_NEXT_NAME = zif_php_git2_function_rethan
     PHP_GIT2_FE(git_reference_iterator_new,ZIF_GIT_REFERENCE_ITERATOR_NEW,NULL) \
     PHP_GIT2_FE(git_reference_iterator_glob_new,ZIF_GIT_REFERENCE_ITERATOR_GLOB_NEW,NULL) \
     PHP_GIT2_FE(git_reference_next,ZIF_GIT_REFERENCE_NEXT,NULL)         \
-    PHP_GIT2_FE(git_reference_next_name,ZIF_GIT_REFERENCE_NEXT_NAME,NULL)
+    PHP_GIT2_FE(git_reference_next_name,ZIF_GIT_REFERENCE_NEXT_NAME,NULL) \
+    PHP_GIT2_FE(git_reference_normalize_name,ZIF_GIT_REFERENCE_NORMALIZE_NAME,NULL) \
+    PHP_GIT2_FE(git_reference_owner,ZIF_GIT_REFERENCE_OWNER,NULL)       \
+    PHP_GIT2_FE(git_reference_remove,ZIF_GIT_REFERENCE_REMOVE,NULL)     \
+    PHP_GIT2_FE(git_reference_rename,ZIF_GIT_REFERENCE_RENAME,NULL)     \
+    PHP_GIT2_FE(git_reference_resolve,ZIF_GIT_REFERENCE_RESOLVE,NULL)   \
+    PHP_GIT2_FE(git_reference_set_target,ZIF_GIT_REFERENCE_SET_TARGET,NULL) \
+    PHP_GIT2_FE(git_reference_shorthand,ZIF_GIT_REFERENCE_SHORTHAND,NULL) \
+    PHP_GIT2_FE(git_reference_type,ZIF_GIT_REFERENCE_TYPE,NULL)
 
 #endif
 

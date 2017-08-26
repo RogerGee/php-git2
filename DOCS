@@ -251,6 +251,36 @@ git_reference_next_name(resource)
 
     Returns string or false if iteration is over
 
+git_reference_normalize_name(string,int)
+
+    Returns string
+
+git_reference_owner(resource)
+
+    Returns git_repository resource
+
+git_reference_remove(resource,string)
+
+git_reference_rename(resource,string,bool,string)
+
+    Returns git_reference resource
+
+git_reference_resolve(resource)
+
+    Returns git_reference resource
+
+git_reference_set_target(resource,string,string)
+
+    Returns git_reference resource
+
+git_reference_shorthand(resource)
+
+    Returns string
+
+git_reference_type(resource)
+
+    Returns int
+
 ----------------------------------------
 [git_object]
 ----------------------------------------
