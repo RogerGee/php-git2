@@ -176,6 +176,42 @@ git_repository_init_ext(string,array|null)
 
     Returns git_repository resource
 
+git_repository_message(resource)
+
+    Returns string or false
+
+git_repository_message_remove(resource)
+
+git_repository_open_ext(string|null,int,string)
+
+    Returns git_repository resource
+
+git_repository_reinit_filesystem(resource,bool)
+
+git_repository_set_bare(resource)
+
+git_repository_set_head_detached_from_annotated(resource,resource)
+
+git_repository_set_ident(resource,string,string)
+
+git_repository_set_namespace(resource,string)
+
+git_repository_set_workdir(resource,string,bool)
+
+git_repository_state(resource)
+
+    Returns int
+
+git_repository_state_cleanup(resource)
+
+git_repository_workdir(resource)
+
+    Returns string
+
+git_repository_wrap_odb(resource)
+
+    Returns git_repository resource
+
 ----------------------------------------
 [git_reference]
 ----------------------------------------
