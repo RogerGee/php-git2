@@ -298,7 +298,7 @@ Legend:
 . git_index_write_tree_to
 + git_libgit2_features
 - git_libgit2_init
-. git_libgit2_opts
+- git_libgit2_opts
 - git_libgit2_shutdown
 + git_libgit2_version
 . git_mempack_dump
@@ -593,13 +593,13 @@ Legend:
 + git_repository_get_namespace
 + git_repository_hashfile
 + git_repository_head
-. git_repository_head_detached
-. git_repository_head_unborn
-. git_repository_ident
++ git_repository_head_detached
++ git_repository_head_unborn
++ git_repository_ident
 . git_repository_index
 + git_repository_init
-. git_repository_init_ext
-. git_repository_init_init_options
++ git_repository_init_ext
+- git_repository_init_init_options
 + git_repository_is_bare
 + git_repository_is_empty
 + git_repository_is_shallow
@@ -617,7 +617,7 @@ Legend:
 . git_repository_set_bare
 . git_repository_set_config
 + git_repository_set_head
-. git_repository_set_head_detached
++ git_repository_set_head_detached
 . git_repository_set_head_detached_from_annotated
 . git_repository_set_ident
 . git_repository_set_index

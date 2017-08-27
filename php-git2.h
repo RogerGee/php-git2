@@ -73,8 +73,42 @@ ZEND_EXTERN_MODULE_GLOBALS(git2)
 
 #endif
 
+// Simplify constant registration.
+
 #define PHP_GIT2_CONSTANT(name) \
     REGISTER_LONG_CONSTANT(#name,name,CONST_CS|CONST_PERSISTENT)
+
+// Simply common array lookup operations.
+
+#define GIT2_ARRAY_LOOKUP_VARIABLES(value)      \
+    zval** zvp;                                 \
+    zval* zv;                                   \
+    int srclen;                                 \
+    const char* src;                            \
+    HashTable* ht = Z_ARRVAL_P(value);
+
+#define GIT2_ARRAY_LOOKUP_LONG(name,obj)                                \
+    if (zend_hash_find(ht,#name,sizeof(#name),(void**)&zvp) != FAILURE) { \
+        zv = *zvp;                                                      \
+        convert_to_long(zv);                                            \
+        obj.name = Z_LVAL_P(zv);                                        \
+    }
+
+#define GIT2_ARRAY_LOOKUP_STRING(name,obj)                              \
+    if (zend_hash_find(ht,#name,sizeof(#name),(void**)&zvp) != FAILURE) { \
+        zv = *zvp;                                                      \
+        convert_to_string(zv);                                          \
+        obj.name = Z_STRVAL_P(zv);                                      \
+    }
+
+#define GIT2_ARRAY_LOOKUP_OID(name,obj)                                 \
+    if (zend_hash_find(ht,#name,sizeof(#name),(void**)&zvp) != FAILURE) { \
+        zv = *zvp;                                                      \
+        convert_to_string(zv);                                          \
+        src = Z_STRVAL_P(zv);                                           \
+        srclen = Z_STRLEN_P(zv);                                        \
+        convert_oid_fromstr(&obj.name,src,srclen);                      \
+    }
 
 namespace php_git2
 {

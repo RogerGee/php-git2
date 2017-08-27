@@ -32,48 +32,14 @@ namespace php_git2
         git_blame_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
             if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
-                zval** zvp;
-                zval* zv;
-                int srclen;
-                const char* src;
-                HashTable* ht = Z_ARRVAL_P(value);
+                GIT2_ARRAY_LOOKUP_VARIABLES(value);
 
-                if (zend_hash_find(ht,"flags",sizeof("flags"),(void**)&zvp) != FAILURE) {
-                    zv = *zvp;
-                    convert_to_long(zv);
-                    opts.flags = Z_LVAL_P(zv);
-                }
-                if (zend_hash_find(ht,"min_match_characters",sizeof("min_match_characters"),(void**)&zvp) != FAILURE) {
-                    zv = *zvp;
-                    convert_to_long(zv);
-                    opts.min_match_characters = Z_LVAL_P(zv);
-                }
-                if (zend_hash_find(ht,"newest_commit",sizeof("newest_commit"),(void**)&zvp) != FAILURE) {
-                    zv = *zvp;
-                    convert_to_string(zv);
-
-                    src = Z_STRVAL_P(zv);
-                    srclen = Z_STRLEN_P(zv);
-                    convert_oid_fromstr(&opts.newest_commit,src,srclen);
-                }
-                if (zend_hash_find(ht,"oldest_commit",sizeof("oldest_commit"),(void**)&zvp) != FAILURE) {
-                    zv = *zvp;
-                    convert_to_string(zv);
-
-                    src = Z_STRVAL_P(zv);
-                    srclen = Z_STRLEN_P(zv);
-                    convert_oid_fromstr(&opts.oldest_commit,src,srclen);
-                }
-                if (zend_hash_find(ht,"min_line",sizeof("min_line"),(void**)&zvp) != FAILURE) {
-                    zv = *zvp;
-                    convert_to_long(zv);
-                    opts.min_line = Z_LVAL_P(zv);
-                }
-                if (zend_hash_find(ht,"max_line",sizeof("max_line"),(void**)&zvp) != FAILURE) {
-                    zv = *zvp;
-                    convert_to_long(zv);
-                    opts.max_line = Z_LVAL_P(zv);
-                }
+                GIT2_ARRAY_LOOKUP_LONG(flags,opts);
+                GIT2_ARRAY_LOOKUP_LONG(min_match_characters,opts);
+                GIT2_ARRAY_LOOKUP_OID(newest_commit,opts);
+                GIT2_ARRAY_LOOKUP_OID(oldest_commit,opts);
+                GIT2_ARRAY_LOOKUP_LONG(min_line,opts);
+                GIT2_ARRAY_LOOKUP_LONG(max_line,opts);
             }
 
             return &opts;

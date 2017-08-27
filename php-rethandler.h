@@ -114,9 +114,53 @@ namespace php_git2
         }
     };
 
-    // Provide a rethandler that returns null when GIT_ENOTFOUND was
-    // returned. Otherwise it returns a resource at 'Position' within the local
-    // pack having dependencies 'ResourceDeps'.
+    // Provide a rethandler for handling the GIT_ENOTFOUND error condition. We
+    // provide one for returning the boolean condition, another for returning a
+    // pack element and another for returning a resource pack element with
+    // dependencies to set.
+
+    class php_boolean_notfound_rethandler
+    {
+    public:
+        template<typename... Ts>
+        bool ret(int retval,zval* return_value,local_pack<Ts...>&& pack)
+        {
+            if (retval != 0) {
+                if (retval != GIT_ENOTFOUND) {
+                    return false;
+                }
+
+                RETVAL_FALSE;
+                return true;
+            }
+
+            RETVAL_TRUE;
+            return true;
+        }
+    };
+
+    template<unsigned Position>
+    class php_notfound_rethandler
+    {
+    public:
+        template<typename... Ts>
+        bool ret(int retval,zval* return_value,local_pack<Ts...>&& pack)
+        {
+            auto&& obj = pack.template get<Position>();
+
+            if (retval != 0) {
+                if (retval != GIT_ENOTFOUND) {
+                    return false;
+                }
+
+                RETVAL_FALSE;
+                return true;
+            }
+
+            obj.ret(return_value);
+            return true;
+        }
+    };
 
     template<unsigned Position,typename ResourceDeps>
     class php_resource_notfound_rethandler
@@ -132,7 +176,7 @@ namespace php_git2
                     return false;
                 }
 
-                RETVAL_NULL();
+                RETVAL_FALSE;
                 return true;
             }
 

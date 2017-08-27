@@ -178,7 +178,7 @@ namespace php_git2
     class php_string_ref
     {
     public:
-        php_string_ref():
+        php_string_ref(TSRMLS_D):
             ptr(nullptr)
         {
         }
@@ -196,6 +196,35 @@ namespace php_git2
             }
 
             ZVAL_NULL(return_value);
+        }
+    private:
+        const char* ptr;
+    };
+
+    // Provide a string type that can be returned through an out parameter.
+
+    class php_string_out:
+        public php_value_base
+    {
+    public:
+        php_string_out(TSRMLS_D):
+            ptr(nullptr)
+        {
+        }
+
+        ~php_string_out()
+        {
+            if (ptr == nullptr) {
+                ZVAL_NULL(value);
+            }
+            else {
+                ZVAL_STRING(value,ptr,1);
+            }
+        }
+
+        const char** byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            return &ptr;
         }
     private:
         const char* ptr;
