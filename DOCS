@@ -1171,7 +1171,7 @@ class GitODBBackend:
 
         free()
 
-class GitODBWritepack:
+final class GitODBWritepack:
 
     ** This class has properties/methods that align with the git_odb_writepack
        structure. **
@@ -1189,7 +1189,7 @@ class GitODBWritepack:
 
         free()
 
-class GitODBStream:
+final class GitODBStream:
 
     ** This class has properties/methods that align with the git_odb_stream
        structure. **
@@ -1227,3 +1227,10 @@ final class GitWritestream:
 
             ** This method is included for completeness but doesn't actually
                need to be called. It is a noop. **
+
+abstract class GitConfigBackend:
+
+    ** This class has properties/methods that align with the git_config_backend
+       structure. **
+
+    methods:

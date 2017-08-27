@@ -3,7 +3,7 @@
  *
  * This file is a part of php-git2.
  *
- * This unit provides the out-of-line implementation for the gitODBBackend
+ * This unit provides the out-of-line implementation for the GitODBBackend
  * class.
  */
 

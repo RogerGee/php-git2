@@ -7,7 +7,10 @@
 #ifndef PHPGIT2_PHPOBJECT_H
 #define PHPGIT2_PHPOBJECT_H
 #include "php-callback.h"
+extern "C" {
 #include <git2/sys/odb_backend.h>
+#include <git2/sys/config.h>
+}
 
 namespace php_git2
 {
@@ -21,6 +24,7 @@ namespace php_git2
         php_git2_odb_backend_obj,
         php_git2_odb_stream_obj,
         php_git2_writestream_obj,
+        php_git2_config_backend_obj,
         _php_git2_obj_top_
     };
 
@@ -139,6 +143,34 @@ namespace php_git2
         static void init(zend_class_entry* ce);
     };
 
+    struct php_config_backend_object
+    {
+        php_config_backend_object(zend_class_entry* ce TSRMLS_DC);
+        ~php_config_backend_object();
+
+        zend_object base;
+        git_config_backend* backend;
+        php_zts_member zts;
+
+        static zend_object_handlers handlers;
+        static void init(zend_class_entry* ce);
+    private:
+        // Provide a custom config_backend derivation that remembers the PHP
+        // object to which it's attached.
+        struct git_config_backend_php:
+            git_config_backend
+        {
+            git_config_backend_php(zval* zv);
+            ~git_config_backend_php();
+
+            zval* thisobj;
+        };
+
+        // Function entries for custom config_backend implementations provided
+        // from PHP userspace.
+
+    };
+
     // Provide a routine to call during MINIT for registering the custom
     // classes.
 
@@ -164,6 +196,7 @@ namespace php_git2
     extern zend_function_entry odb_backend_methods[];
     extern zend_function_entry odb_stream_methods[];
     extern zend_function_entry writestream_methods[];
+    extern zend_function_entry config_backend_methods[];
 }
 
 // Helper macros

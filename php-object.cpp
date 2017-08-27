@@ -3,9 +3,9 @@
  *
  * This file is a part of php-git2.
  *
- * This unit provides the generic class registration for classes we which to
- * provide to PHP userspace. Each class's methods and handlers are defined in
- * their own compilation unit.
+ * This unit provides the generic class registration for classes we wish to
+ * provide to PHP userspace. The classes' methods and handlers are defined in
+ * their own separate compilation units.
  */
 
 #include "php-object.h"
@@ -55,15 +55,16 @@ void php_git2::php_git2_register_classes(TSRMLS_D)
     zend_object_handlers* stdhandlers = zend_get_std_object_handlers();
     zend_class_entry ce, *pce;
 
-    // ODB_WRITEPACK
+    // final class GitODBWritepack
     INIT_CLASS_ENTRY(ce,"GitODBWritepack",odb_writepack_methods);
     pce = zend_register_internal_class(&ce TSRMLS_CC);
     php_git2::class_entry[php_git2_odb_writepack_obj] = pce;
+    pce->ce_flags |= ZEND_ACC_FINAL_CLASS;
     memcpy(&php_odb_writepack_object::handlers,stdhandlers,sizeof(zend_object_handlers));
     pce->create_object = php_create_object_handler<php_odb_writepack_object>;
     php_odb_writepack_object::init(pce);
 
-    // ODB_BACKEND
+    // class GitODBBackend
     INIT_CLASS_ENTRY(ce,"GitODBBackend",odb_backend_methods);
     pce = zend_register_internal_class(&ce TSRMLS_CC);
     php_git2::class_entry[php_git2_odb_backend_obj] = pce;
@@ -71,7 +72,7 @@ void php_git2::php_git2_register_classes(TSRMLS_D)
     pce->create_object = php_create_object_handler<php_odb_backend_object>;
     php_odb_backend_object::init(pce);
 
-    // ODB_STREAM
+    // class GitODBStream
     INIT_CLASS_ENTRY(ce,"GitODBStream",odb_stream_methods);
     pce = zend_register_internal_class(&ce TSRMLS_CC);
     php_git2::class_entry[php_git2_odb_stream_obj] = pce;
@@ -79,7 +80,7 @@ void php_git2::php_git2_register_classes(TSRMLS_D)
     pce->create_object = php_create_object_handler<php_odb_stream_object>;
     php_odb_stream_object::init(pce);
 
-    // WRITESTREAM [final class]
+    // final class GitWritestream
     INIT_CLASS_ENTRY(ce,"GitWritestream",writestream_methods);
     pce = zend_register_internal_class(&ce TSRMLS_CC);
     php_git2::class_entry[php_git2_writestream_obj] = pce;
@@ -87,6 +88,15 @@ void php_git2::php_git2_register_classes(TSRMLS_D)
     memcpy(&php_writestream_object::handlers,stdhandlers,sizeof(zend_object_handlers));
     pce->create_object = php_create_object_handler<php_writestream_object>;
     php_writestream_object::init(pce);
+
+    // abstract class GitConfigBackend
+    INIT_CLASS_ENTRY(ce,"GitConfigBackend",config_backend_methods);
+    pce = zend_register_internal_class(&ce TSRMLS_CC);
+    php_git2::class_entry[php_git2_config_backend_obj] = pce;
+    pce->ce_flags |= ZEND_ACC_IMPLICIT_ABSTRACT_CLASS;
+    memcpy(&php_odb_backend_object::handlers,stdhandlers,sizeof(zend_object_handlers));
+    pce->create_object = php_create_object_handler<php_config_backend_object>;
+    php_config_backend_object::init(pce);
 }
 
 // Provide implementations for generic make function.
