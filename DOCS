@@ -45,6 +45,7 @@ purpose) are determined by the C++ compiler via 'typeid'.
     git_annotated_commit
     git_branch_iterator
     git_reference_iterator
+    git_config
 
 The following structures are not represented as resources in the PHP
 API. Instead a scalar, array or object type is used:
@@ -1097,6 +1098,56 @@ git_branch_upstream_name(resource,string)
 git_branch_upstream_remote(resource,string)
 
     Returns string
+
+----------------------------------------
+[git_config]
+----------------------------------------
+
+git_config_new()
+
+    Returns git_config resource
+
+git_config_open_default()
+
+    Returns git_config resource
+
+git_config_open_global(resource)
+
+    Returns git_config resource
+
+git_config_open_level(resource,int)
+
+    Returns git_config resource
+
+git_config_open_ondisk(resource,string)
+
+    Returns git_config resource
+
+git_config_parse_bool(string)
+
+    Returns bool
+
+git_config_parse_int32(string)
+
+    Returns int
+
+git_config_parse_int64(string)
+
+    Returns int
+
+git_config_parse_path(string)
+
+    Returns string
+
+git_config_set_bool(resource,string,bool)
+
+git_config_set_int32(resource,string,int)
+
+git_config_set_int64(resource,string,int)
+
+git_config_set_multivar(resource,string,string,strin)
+
+git_config_set_string(resource,string,string)
 
 --------------------------------------------------------------------------------
 API Class Reference
