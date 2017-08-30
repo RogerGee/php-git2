@@ -61,6 +61,7 @@ API. Instead a scalar, array or object type is used:
     git_writestream                                object
     git_blame_hunk                                 array
     git_revspec                                    array
+    git_config_entry                               array
 
 For objects, see the later section regarding Classes.
 
@@ -1107,6 +1108,8 @@ git_config_new()
 
     Returns git_config resource
 
+git_config_free(resource)
+
 git_config_open_default()
 
     Returns git_config resource
@@ -1148,6 +1151,43 @@ git_config_set_int64(resource,string,int)
 git_config_set_multivar(resource,string,string,strin)
 
 git_config_set_string(resource,string,string)
+
+git_config_get_entry(resource,string)
+
+    ** Note: returns an array with the following structure:
+
+      array(3) {
+        ["name"]
+        ["value"]
+        ["level"]
+      } **
+
+    Returns array
+
+git_config_get_int32(resource,string)
+
+    Returns int
+
+git_config_get_int64(resource,string)
+
+    Returns int
+
+git_config_get_path(resource,string)
+
+    Returns string
+
+git_config_get_string(resource,string)
+
+    Returns string
+
+git_config_get_string_buf(resource,string)
+
+    ** Note: this function is functionally equivalent to
+       git_config_get_string(), except that it can encode binary
+       strings. However binary strings are typically not stored in git config
+       files... **
+
+    Returns string
 
 --------------------------------------------------------------------------------
 API Class Reference

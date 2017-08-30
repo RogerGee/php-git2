@@ -321,7 +321,7 @@ static constexpr auto ZIF_GIT_ODB_READ_HEADER = zif_php_git2_function<
         const git_oid*
         >::func<git_odb_read_header>,
     php_git2::local_pack<
-        php_git2::php_long_indirect<size_t>,
+        php_git2::php_long_ref<size_t>,
         php_git2::php_long_out<git_otype>,
         php_git2::php_resource<php_git2::php_git_odb>,
         php_git2::php_git_oid_fromstr

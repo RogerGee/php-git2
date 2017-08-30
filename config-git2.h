@@ -19,6 +19,56 @@ namespace php_git2
         git_config_free(handle);
     }
 
+    // Provide a type for mapping a git_config_entry to a PHP array. One version
+    // does not free while the other frees.
+
+    class php_git_config_entry
+    {
+    public:
+        php_git_config_entry():
+            entry(nullptr)
+        {
+        }
+
+        git_config_entry** byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            return &entry;
+        }
+
+        void ret(zval* return_value)
+        {
+            if (entry == nullptr) {
+                RETURN_NULL();
+            }
+
+            array_init(return_value);
+            add_assoc_string(return_value,"name",(char*)entry->name,1);
+            add_assoc_string(return_value,"value",(char*)entry->value,1);
+            add_assoc_long(return_value,"level",entry->level);
+        }
+    protected:
+        git_config_entry* get_entry() const
+        {
+            return entry;
+        }
+    private:
+        git_config_entry* entry;
+    };
+
+    class php_git_config_entry_freeing:
+        public php_git_config_entry
+    {
+    public:
+        ~php_git_config_entry_freeing()
+        {
+            git_config_entry* ent = get_entry();
+
+            if (ent != nullptr) {
+                git_config_entry_free(ent);
+            }
+        }
+    };
+
 } // namespace php_git2
 
 // Functions:
@@ -34,6 +84,12 @@ static constexpr auto ZIF_GIT_CONFIG_NEW = zif_php_git2_function<
     php_git2::sequence<>,
     php_git2::sequence<0>,
     php_git2::sequence<0>
+    >;
+
+static constexpr auto ZIF_GIT_CONFIG_FREE = zif_php_git2_function_free<
+    php_git2::local_pack<
+        php_git2::php_resource_cleanup<php_git2::php_git_config>
+        >
     >;
 
 static constexpr auto ZIF_GIT_CONFIG_OPEN_DEFAULT = zif_php_git2_function<
@@ -102,7 +158,7 @@ static constexpr auto ZIF_GIT_CONFIG_PARSE_BOOL = zif_php_git2_function_rethandl
         int*,
         const char*>::func<git_config_parse_bool>,
     php_git2::local_pack<
-        php_git2::php_long_indirect<int>,
+        php_git2::php_long_ref<int>,
         php_git2::php_string
         >,
     php_git2::php_convert_boolean_rethandler<int,0>,
@@ -117,7 +173,7 @@ static constexpr auto ZIF_GIT_CONFIG_PARSE_INT32 = zif_php_git2_function<
         int32_t*,
         const char*>::func<git_config_parse_int32>,
     php_git2::local_pack<
-        php_git2::php_long_indirect<int32_t>,
+        php_git2::php_long_ref<int32_t>,
         php_git2::php_string
         >,
     1,
@@ -132,7 +188,7 @@ static constexpr auto ZIF_GIT_CONFIG_PARSE_INT64 = zif_php_git2_function<
         int64_t*,
         const char*>::func<git_config_parse_int64>,
     php_git2::local_pack<
-        php_git2::php_long_indirect<int64_t>,
+        php_git2::php_long_ref<int64_t>,
         php_git2::php_string
         >,
     1,
@@ -223,10 +279,113 @@ static constexpr auto ZIF_GIT_CONFIG_SET_STRING = zif_php_git2_function<
         >
     >;
 
+static constexpr auto ZIF_GIT_CONFIG_GET_ENTRY = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_config_entry**,
+        const git_config*,
+        const char*>::func<git_config_get_entry>,
+    php_git2::local_pack<
+        php_git2::php_git_config_entry_freeing,
+        php_git2::php_resource<php_git2::php_git_config>,
+        php_git2::php_string
+        >,
+    1,
+    php_git2::sequence<1,2>,
+    php_git2::sequence<0,1,2>,
+    php_git2::sequence<0,0,1>
+    >;
+
+static constexpr auto ZIF_GIT_CONFIG_GET_INT32 = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        int32_t*,
+        const git_config*,
+        const char*>::func<git_config_get_int32>,
+    php_git2::local_pack<
+        php_git2::php_long_ref<int32_t>,
+        php_git2::php_resource<php_git2::php_git_config>,
+        php_git2::php_string
+        >,
+    1,
+    php_git2::sequence<1,2>,
+    php_git2::sequence<0,1,2>,
+    php_git2::sequence<0,0,1>
+    >;
+
+static constexpr auto ZIF_GIT_CONFIG_GET_INT64 = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        int64_t*,
+        const git_config*,
+        const char*>::func<git_config_get_int64>,
+    php_git2::local_pack<
+        php_git2::php_long_ref<int64_t>,
+        php_git2::php_resource<php_git2::php_git_config>,
+        php_git2::php_string
+        >,
+    1,
+    php_git2::sequence<1,2>,
+    php_git2::sequence<0,1,2>,
+    php_git2::sequence<0,0,1>
+    >;
+
+static constexpr auto ZIF_GIT_CONFIG_GET_PATH = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_buf*,
+        const git_config*,
+        const char*>::func<git_config_get_path>,
+    php_git2::local_pack<
+        php_git2::php_git_buf,
+        php_git2::php_resource<php_git2::php_git_config>,
+        php_git2::php_string
+        >,
+    1,
+    php_git2::sequence<1,2>,
+    php_git2::sequence<0,1,2>,
+    php_git2::sequence<0,0,1>
+    >;
+
+static constexpr auto ZIF_GIT_CONFIG_GET_STRING = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        const char**,
+        const git_config*,
+        const char*>::func<git_config_get_string>,
+    php_git2::local_pack<
+        php_git2::php_string_ref,
+        php_git2::php_resource<php_git2::php_git_config>,
+        php_git2::php_string
+        >,
+    1,
+    php_git2::sequence<1,2>,
+    php_git2::sequence<0,1,2>,
+    php_git2::sequence<0,0,1>
+    >;
+
+static constexpr auto ZIF_GIT_CONFIG_GET_STRING_BUF = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_buf*,
+        const git_config*,
+        const char*>::func<git_config_get_string_buf>,
+    php_git2::local_pack<
+        php_git2::php_git_buf,
+        php_git2::php_resource<php_git2::php_git_config>,
+        php_git2::php_string
+        >,
+    1,
+    php_git2::sequence<1,2>,
+    php_git2::sequence<0,1,2>,
+    php_git2::sequence<0,0,1>
+    >;
+
 // Function Entries:
 
 #define GIT_CONFIG_FE                                                   \
     PHP_GIT2_FE(git_config_new,ZIF_GIT_CONFIG_NEW,NULL)                 \
+    PHP_GIT2_FE(git_config_free,ZIF_GIT_CONFIG_FREE,NULL)               \
     PHP_GIT2_FE(git_config_open_default,ZIF_GIT_CONFIG_OPEN_DEFAULT,NULL) \
     PHP_GIT2_FE(git_config_open_global,ZIF_GIT_CONFIG_OPEN_GLOBAL,NULL) \
     PHP_GIT2_FE(git_config_open_level,ZIF_GIT_CONFIG_OPEN_LEVEL,NULL)   \
@@ -239,7 +398,13 @@ static constexpr auto ZIF_GIT_CONFIG_SET_STRING = zif_php_git2_function<
     PHP_GIT2_FE(git_config_set_int32,ZIF_GIT_CONFIG_SET_INT32,NULL)     \
     PHP_GIT2_FE(git_config_set_int64,ZIF_GIT_CONFIG_SET_INT64,NULL)     \
     PHP_GIT2_FE(git_config_set_multivar,ZIF_GIT_CONFIG_SET_MULTIVAR,NULL) \
-    PHP_GIT2_FE(git_config_set_string,ZIF_GIT_CONFIG_SET_STRING,NULL)
+    PHP_GIT2_FE(git_config_set_string,ZIF_GIT_CONFIG_SET_STRING,NULL)   \
+    PHP_GIT2_FE(git_config_get_entry,ZIF_GIT_CONFIG_GET_ENTRY,NULL)     \
+    PHP_GIT2_FE(git_config_get_int32,ZIF_GIT_CONFIG_GET_INT32,NULL)     \
+    PHP_GIT2_FE(git_config_get_int64,ZIF_GIT_CONFIG_GET_INT64,NULL)     \
+    PHP_GIT2_FE(git_config_get_path,ZIF_GIT_CONFIG_GET_PATH,NULL)       \
+    PHP_GIT2_FE(git_config_get_string,ZIF_GIT_CONFIG_GET_STRING,NULL)   \
+    PHP_GIT2_FE(git_config_get_string_buf,ZIF_GIT_CONFIG_GET_STRING_BUF,NULL)
 
 #endif
 

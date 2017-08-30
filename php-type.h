@@ -304,10 +304,10 @@ namespace php_git2
     // Provide a type that accepts a numeric value from an underlying call.
 
     template<typename IntType>
-    class php_long_indirect
+    class php_long_ref
     {
     public:
-        ZTS_CONSTRUCTOR(php_long_indirect)
+        ZTS_CONSTRUCTOR(php_long_ref)
 
         IntType* byval_git2(unsigned p)
         {
