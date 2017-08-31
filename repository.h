@@ -488,6 +488,38 @@ static constexpr auto ZIF_GIT_REPOSITORY_WRAP_ODB = zif_php_git2_function<
     php_git2::sequence<0,0>
     >;
 
+static constexpr auto ZIF_GIT_REPOSITORY_CONFIG = zif_php_git2_function_setdeps<
+    php_git2::func_wrapper<
+        int,
+        git_config**,
+        git_repository*>::func<git_repository_config>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_config>,
+        php_git2::php_resource<php_git2::php_git_repository>
+        >,
+    php_git2::sequence<0,1>, // Make the git_config dependent on the repository.
+    1,
+    php_git2::sequence<1>,
+    php_git2::sequence<0,1>,
+    php_git2::sequence<0,0>
+    >;
+
+static constexpr auto ZIF_GIT_REPOSITORY_CONFIG_SNAPSHOT = zif_php_git2_function_setdeps<
+    php_git2::func_wrapper<
+        int,
+        git_config**,
+        git_repository*>::func<git_repository_config_snapshot>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_config>,
+        php_git2::php_resource<php_git2::php_git_repository>
+        >,
+    php_git2::sequence<0,1>, // Make the git_config dependent on the repository.
+    1,
+    php_git2::sequence<1>,
+    php_git2::sequence<0,1>,
+    php_git2::sequence<0,0>
+    >;
+
 // Function Entries:
 
 #define GIT_REPOSITORY_FE                                               \
@@ -526,7 +558,9 @@ static constexpr auto ZIF_GIT_REPOSITORY_WRAP_ODB = zif_php_git2_function<
     PHP_GIT2_FE(git_repository_state,ZIF_GIT_REPOSITORY_STATE,NULL)     \
     PHP_GIT2_FE(git_repository_state_cleanup,ZIF_GIT_REPOSITORY_STATE_CLEANUP,NULL) \
     PHP_GIT2_FE(git_repository_workdir,ZIF_GIT_REPOSITORY_WORKDIR,NULL) \
-    PHP_GIT2_FE(git_repository_wrap_odb,ZIF_GIT_REPOSITORY_WRAP_ODB,NULL)
+    PHP_GIT2_FE(git_repository_wrap_odb,ZIF_GIT_REPOSITORY_WRAP_ODB,NULL) \
+    PHP_GIT2_FE(git_repository_config,ZIF_GIT_REPOSITORY_CONFIG,NULL)   \
+    PHP_GIT2_FE(git_repository_config_snapshot,ZIF_GIT_REPOSITORY_CONFIG_SNAPSHOT,NULL)
 
 #endif
 

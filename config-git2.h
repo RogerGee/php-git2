@@ -381,6 +381,82 @@ static constexpr auto ZIF_GIT_CONFIG_GET_STRING_BUF = zif_php_git2_function<
     php_git2::sequence<0,0,1>
     >;
 
+static constexpr auto ZIF_GIT_CONFIG_DELETE_ENTRY = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_config*,
+        const char*>::func<git_config_delete_entry>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_config>,
+        php_git2::php_string
+        >
+    >;
+
+static constexpr auto ZIF_GIT_CONFIG_DELETE_MULTIVAR = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_config*,
+        const char*,
+        const char*>::func<git_config_delete_multivar>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_config>,
+        php_git2::php_string,
+        php_git2::php_string
+        >
+    >;
+
+static constexpr auto ZIF_GIT_CONFIG_FIND_GLOBAL = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_buf*>::func<git_config_find_global>,
+    php_git2::local_pack<
+        php_git2::php_git_buf
+        >,
+    1,
+    php_git2::sequence<>,
+    php_git2::sequence<0>,
+    php_git2::sequence<0>
+    >;
+
+static constexpr auto ZIF_GIT_CONFIG_FIND_PROGRAMDATA = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_buf*>::func<git_config_find_programdata>,
+    php_git2::local_pack<
+        php_git2::php_git_buf
+        >,
+    1,
+    php_git2::sequence<>,
+    php_git2::sequence<0>,
+    php_git2::sequence<0>
+    >;
+
+static constexpr auto ZIF_GIT_CONFIG_FIND_SYSTEM = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_buf*>::func<git_config_find_system>,
+    php_git2::local_pack<
+        php_git2::php_git_buf
+        >,
+    1,
+    php_git2::sequence<>,
+    php_git2::sequence<0>,
+    php_git2::sequence<0>
+    >;
+
+static constexpr auto ZIF_GIT_CONFIG_FIND_XDG = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_buf*>::func<git_config_find_xdg>,
+    php_git2::local_pack<
+        php_git2::php_git_buf
+        >,
+    1,
+    php_git2::sequence<>,
+    php_git2::sequence<0>,
+    php_git2::sequence<0>
+    >;
+
 // Function Entries:
 
 #define GIT_CONFIG_FE                                                   \
@@ -404,7 +480,13 @@ static constexpr auto ZIF_GIT_CONFIG_GET_STRING_BUF = zif_php_git2_function<
     PHP_GIT2_FE(git_config_get_int64,ZIF_GIT_CONFIG_GET_INT64,NULL)     \
     PHP_GIT2_FE(git_config_get_path,ZIF_GIT_CONFIG_GET_PATH,NULL)       \
     PHP_GIT2_FE(git_config_get_string,ZIF_GIT_CONFIG_GET_STRING,NULL)   \
-    PHP_GIT2_FE(git_config_get_string_buf,ZIF_GIT_CONFIG_GET_STRING_BUF,NULL)
+    PHP_GIT2_FE(git_config_get_string_buf,ZIF_GIT_CONFIG_GET_STRING_BUF,NULL) \
+    PHP_GIT2_FE(git_config_delete_entry,ZIF_GIT_CONFIG_DELETE_ENTRY,NULL) \
+    PHP_GIT2_FE(git_config_delete_multivar,ZIF_GIT_CONFIG_DELETE_MULTIVAR,NULL) \
+    PHP_GIT2_FE(git_config_find_global,ZIF_GIT_CONFIG_FIND_GLOBAL,NULL) \
+    PHP_GIT2_FE(git_config_find_programdata,ZIF_GIT_CONFIG_FIND_PROGRAMDATA,NULL) \
+    PHP_GIT2_FE(git_config_find_system,ZIF_GIT_CONFIG_FIND_SYSTEM,NULL) \
+    PHP_GIT2_FE(git_config_find_xdg,ZIF_GIT_CONFIG_FIND_XDG,NULL)
 
 #endif
 
