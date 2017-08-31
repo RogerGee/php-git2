@@ -506,7 +506,7 @@ template<
     // AllParams is <0> then this means that the third pack variable was the
     // first argument to the PHP function.
     typename AllParams = php_git2::make_seq<FuncWrapper::arg_count()> >
-void zif_php_git2_function(INTERNAL_FUNCTION_PARAMETERS)
+static void zif_php_git2_function(INTERNAL_FUNCTION_PARAMETERS)
 {
     // Create a local_pack object that houses all the variables we need for the
     // call. The constructors take care of any initialization.
@@ -560,7 +560,7 @@ template<
     typename PHPForward = php_git2::make_seq<LocalVars::size()>,
     typename GitForward = php_git2::make_seq<LocalVars::size()>,
     typename AllParams = php_git2::make_seq<FuncWrapper::arg_count()> >
-void zif_php_git2_function_rethandler(INTERNAL_FUNCTION_PARAMETERS)
+static void zif_php_git2_function_rethandler(INTERNAL_FUNCTION_PARAMETERS)
 {
     // Create a local_pack object that houses all the variables we need for the
     // call. The constructors take care of any initialization.
@@ -600,7 +600,7 @@ template<
     typename PHPForward = php_git2::make_seq<LocalVars::size()>,
     typename GitForward = php_git2::make_seq<LocalVars::size()>,
     typename AllParams = php_git2::make_seq<FuncWrapper::arg_count()> >
-void zif_php_git2_function_void(INTERNAL_FUNCTION_PARAMETERS)
+static void zif_php_git2_function_void(INTERNAL_FUNCTION_PARAMETERS)
 {
     LocalVars vars ZTS_CTOR;
     try {
@@ -632,7 +632,7 @@ template<
     typename PHPForward = php_git2::make_seq<LocalVars::size()>,
     typename GitForward = php_git2::make_seq<LocalVars::size()>,
     typename AllParams = php_git2::make_seq<FuncWrapper::arg_count()> >
-void zif_php_git2_function_setdeps(INTERNAL_FUNCTION_PARAMETERS)
+static void zif_php_git2_function_setdeps(INTERNAL_FUNCTION_PARAMETERS)
 {
     // Create a local_pack object that houses all the variables we need for the
     // call. The constructors take care of any initialization.
@@ -682,7 +682,7 @@ template<
     typename PHPForward = php_git2::make_seq<LocalVars::size()>,
     typename GitForward = php_git2::make_seq<LocalVars::size()>,
     typename AllParams = php_git2::make_seq<FuncWrapper::arg_count()> >
-void zif_php_git2_function_setdeps2(INTERNAL_FUNCTION_PARAMETERS)
+static void zif_php_git2_function_setdeps2(INTERNAL_FUNCTION_PARAMETERS)
 {
     // Create a local_pack object that houses all the variables we need for the
     // call. The constructors take care of any initialization.
@@ -731,7 +731,7 @@ template<
     typename PHPForward = php_git2::make_seq<LocalVars::size()>,
     typename GitForward = php_git2::make_seq<LocalVars::size()>,
     typename AllParams = php_git2::make_seq<FuncWrapper::arg_count()> >
-void zif_php_git2_function_setdeps_void(INTERNAL_FUNCTION_PARAMETERS)
+static void zif_php_git2_function_setdeps_void(INTERNAL_FUNCTION_PARAMETERS)
 {
     // Create a local_pack object that houses all the variables we need for the
     // call. The constructors take care of any initialization.
@@ -760,7 +760,7 @@ void zif_php_git2_function_setdeps_void(INTERNAL_FUNCTION_PARAMETERS)
 template<
     typename LocalVars,
     typename PHPForward = php_git2::make_seq<LocalVars::size()> >
-void zif_php_git2_function_free(INTERNAL_FUNCTION_PARAMETERS)
+static void zif_php_git2_function_free(INTERNAL_FUNCTION_PARAMETERS)
 {
     LocalVars vars ZTS_CTOR;
     try {
