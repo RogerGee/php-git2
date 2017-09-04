@@ -486,9 +486,9 @@ Legend:
 + git_reference_dup
 + git_reference_dwim
 + git_reference_ensure_log
-. git_reference_foreach
-. git_reference_foreach_glob
-. git_reference_foreach_name
++ git_reference_foreach
++ git_reference_foreach_glob
++ git_reference_foreach_name
 + git_reference_free
 + git_reference_has_log
 + git_reference_is_branch

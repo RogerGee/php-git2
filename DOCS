@@ -354,6 +354,12 @@ git_reference_type(resource)
 
     Returns int
 
+git_reference_foreach(resource,callable,mixed)
+
+git_reference_foreach_name(resource,callable,mixed)
+
+git_reference_foreach_glob(resource,string,callable,mixed)
+
 ----------------------------------------
 [git_object]
 ----------------------------------------

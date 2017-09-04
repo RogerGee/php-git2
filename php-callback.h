@@ -337,6 +337,18 @@ namespace php_git2
         static const git_oid* callback(size_t idx,void* payload);
     };
 
+    struct reference_foreach_callback
+    {
+        typedef git_reference_foreach_cb type;
+        static int callback(git_reference* ref,void* payload);
+    };
+
+    struct reference_foreach_name_callback
+    {
+        typedef git_reference_foreach_name_cb type;
+        static int callback(const char* name,void* payload);
+    };
+
 } // namespace php_git2
 
 #endif

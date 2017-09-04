@@ -524,6 +524,59 @@ static constexpr auto ZIF_GIT_REFERENCE_TYPE = zif_php_git2_function_rethandler<
     php_git2::php_numeric_rethandler<git_ref_t>
     >;
 
+static constexpr auto ZIF_GIT_REFERENCE_FOREACH = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_repository*,
+        git_reference_foreach_cb,
+        void*>::func<git_reference_foreach>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_repository>,
+        php_git2::php_callback_handler<php_git2::reference_foreach_callback>,
+        php_git2::php_callback_sync
+        >,
+    -1,
+    php_git2::sequence<0,2,2>, // pass callback in twice for function and payload
+    php_git2::sequence<0,1,2>,
+    php_git2::sequence<0,1,2>
+    >;
+
+static constexpr auto ZIF_GIT_REFERENCE_FOREACH_NAME = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_repository*,
+        git_reference_foreach_name_cb,
+        void*>::func<git_reference_foreach_name>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_repository>,
+        php_git2::php_callback_handler<php_git2::reference_foreach_name_callback>,
+        php_git2::php_callback_sync
+        >,
+    -1,
+    php_git2::sequence<0,2,2>, // pass callback in twice for function and payload
+    php_git2::sequence<0,1,2>,
+    php_git2::sequence<0,1,2>
+    >;
+
+static constexpr auto ZIF_GIT_REFERENCE_FOREACH_GLOB = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_repository*,
+        const char*,
+        git_reference_foreach_name_cb,
+        void*>::func<git_reference_foreach_glob>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_repository>,
+        php_git2::php_string,
+        php_git2::php_callback_handler<php_git2::reference_foreach_name_callback>,
+        php_git2::php_callback_sync
+        >,
+    -1,
+    php_git2::sequence<0,1,3,3>, // pass callback in twice for function and payload
+    php_git2::sequence<0,1,2,3>,
+    php_git2::sequence<0,1,2,3>
+    >;
+
 // Function Entries:
 
 #define GIT_REFERENCE_FE                                                \
@@ -561,7 +614,10 @@ static constexpr auto ZIF_GIT_REFERENCE_TYPE = zif_php_git2_function_rethandler<
     PHP_GIT2_FE(git_reference_resolve,ZIF_GIT_REFERENCE_RESOLVE,NULL)   \
     PHP_GIT2_FE(git_reference_set_target,ZIF_GIT_REFERENCE_SET_TARGET,NULL) \
     PHP_GIT2_FE(git_reference_shorthand,ZIF_GIT_REFERENCE_SHORTHAND,NULL) \
-    PHP_GIT2_FE(git_reference_type,ZIF_GIT_REFERENCE_TYPE,NULL)
+    PHP_GIT2_FE(git_reference_type,ZIF_GIT_REFERENCE_TYPE,NULL)         \
+    PHP_GIT2_FE(git_reference_foreach,ZIF_GIT_REFERENCE_FOREACH,NULL)   \
+    PHP_GIT2_FE(git_reference_foreach_name,ZIF_GIT_REFERENCE_FOREACH_NAME,NULL) \
+    PHP_GIT2_FE(git_reference_foreach_glob,ZIF_GIT_REFERENCE_FOREACH_GLOB,NULL)
 
 #endif
 

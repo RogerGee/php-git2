@@ -224,6 +224,78 @@ commit_parent_callback::callback(size_t idx,void* payload)
     return nullptr;
 }
 
+// reference_foreach_callback
+
+int reference_foreach_callback::callback(git_reference* ref,void* payload)
+{
+    php_callback_sync* cb = reinterpret_cast<php_callback_sync*>(payload);
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(pc);
+#endif
+
+    if (cb != nullptr) {
+        // Account for when callable is null and do nothing.
+        if (Z_TYPE_P(cb->func) == IS_NULL) {
+            return GIT_OK;
+        }
+
+        long r;
+        zval retval;
+        zval_array<2> params ZTS_CTOR;
+        const php_resource_ref<php_git_reference> res;
+
+        // Convert arguments to PHP values.
+        *res.byval_git2() = ref;
+        res.ret(params[0]);
+        params.assign<1>(std::forward<zval*>(cb->data));
+
+        // Call the userspace callback.
+        params.call(cb->func,&retval);
+        convert_to_long(&retval);
+        r = Z_LVAL(retval);
+        zval_dtor(&retval);
+
+        return r;
+    }
+
+    return GIT_EUSER;
+}
+
+// reference_foreach_name_callback
+
+int reference_foreach_name_callback::callback(const char* name,void* payload)
+{
+    php_callback_sync* cb = reinterpret_cast<php_callback_sync*>(payload);
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(pc);
+#endif
+
+    if (cb != nullptr) {
+        // Account for when callable is null and do nothing.
+        if (Z_TYPE_P(cb->func) == IS_NULL) {
+            return GIT_OK;
+        }
+
+        long r;
+        zval retval;
+        zval_array<2> params ZTS_CTOR;
+
+        // Convert arguments to PHP values.
+        params.assign<0>(std::forward<const char*>(name));
+        params.assign<1>(std::forward<zval*>(cb->data));
+
+        // Call the userspace callback.
+        params.call(cb->func,&retval);
+        convert_to_long(&retval);
+        r = Z_LVAL(retval);
+        zval_dtor(&retval);
+
+        return r;
+    }
+
+    return GIT_EUSER;
+}
+
 /*
  * Local Variables:
  * indent-tabs-mode:nil
