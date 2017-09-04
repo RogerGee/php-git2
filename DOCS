@@ -838,15 +838,15 @@ git_tree_entry_free(resource)
 
 git_tree_entry_byid(resource,string)
 
-    Returns git_tree_entry resource
+    Returns git_tree_entry resource or null
 
 git_tree_entry_byindex(resource,int)
 
-    Returns git_tree_entry resource
+    Returns git_tree_entry resource or null
 
 git_tree_entry_byname(resource,string)
 
-    Returns git_tree_entry resource
+    Returns git_tree_entry resource or null
 
 git_tree_entry_bypath(resource,string)
 

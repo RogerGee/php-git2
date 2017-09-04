@@ -10,7 +10,7 @@ function testbed_get_root() {
 
     if (is_null($root)) {
         $env = getenv('TEMPDIR');
-        if (is_null($env)) {
+        if (empty($env)) {
             $env = '/tmp';
         }
 

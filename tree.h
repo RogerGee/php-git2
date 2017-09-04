@@ -31,8 +31,12 @@ namespace php_git2
             zval* return_value,
             local_pack<Ts...>&& pack)
         {
+            // The functions that target this return handler return NULL if the
+            // entry wasn't found. This doesn't generate a giterr so we return
+            // NULL as well in userspace.
             if (retval == nullptr) {
-                return false;
+                RETVAL_NULL();
+                return true;
             }
 
             auto&& tree = pack.template get<0>();
