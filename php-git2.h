@@ -165,7 +165,7 @@ namespace php_git2
     {
         // Default to GIT_ERROR if the return_type is not 'int'.
 
-        git_error(GIT_ERROR);
+        git_error<int>(GIT_ERROR);
     }
 
     template<>
