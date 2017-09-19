@@ -77,7 +77,7 @@ namespace php_git2
         {
         }
 
-        ~git2_resource()
+        virtual ~git2_resource()
         {
             // The destructor should be specialized for the git_type used by the
             // particular template class instantiation.

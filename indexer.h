@@ -32,11 +32,13 @@ namespace php_git2
             memset(&stats,0,sizeof(git_transfer_progress));
         }
 
-        ~php_git_indexer_with_stats()
+        virtual ~php_git_indexer_with_stats()
         {
             // Free callback structure.
-            cb->~php_callback_sync();
-            efree(cb);
+            if (cb != nullptr) {
+                cb->~php_callback_sync();
+                efree(cb);
+            }
         }
 
         git_transfer_progress* get_stats()

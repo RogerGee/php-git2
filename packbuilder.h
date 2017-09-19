@@ -32,7 +32,7 @@ namespace php_git2
         {
         }
 
-        ~php_git_packbuilder_with_callback()
+        virtual ~php_git_packbuilder_with_callback()
         {
             // Free callback object.
             if (cb != nullptr) {

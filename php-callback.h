@@ -140,8 +140,8 @@ namespace php_git2
         {
             // Delete our references to the variables. We always assume that
             // byval_git2() ran successfully.
-            Z_DELREF_P(func);
-            Z_DELREF_P(data);
+            zval_ptr_dtor(&func);
+            zval_ptr_dtor(&data);
         }
 
         zval** byref_php(unsigned pos)
