@@ -416,15 +416,18 @@ git_packbuilder_insert_tree(resource,string)
 
 git_packbuilder_insert(resource,string,string|null)
 
-git_packbuilder_foreach(resource,callable|stream,mixed)
+git_packbuilder_foreach(resource,callable,mixed)
 
-    ** The 2nd parameter may optionally be a stream resource instead of a
-       callable. In this case the data is written to the stream at each
-       iteration. Payload data is ignored. **
+    ** If the 3rd parameter is a stream and the 2nd parameter is null, then each
+       call will write the data to the stream. **
 
-    Callback signature: callback(string $data,long $length,mixed $payload)
+    Callback signature: callback(string $data,int $length,mixed $payload)
 
 git_packbuilder_set_threads(resource,int)
+
+git_packbuilder_set_callbacks(resource,callable,mixed)
+
+    Callback signature: callback(int $stage,int $current,int $total,mixed $payload)
 
 ----------------------------------------
 [git_indexer]

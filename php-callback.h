@@ -225,7 +225,7 @@ namespace php_git2
             cb = new (emalloc(sizeof(php_callback_sync))) php_callback_sync(TSRMLS_C);
 
             // Assign php_callback_sync object to resource object. It must have
-            // a member called 'cb' to which it has access.
+            // a member called 'cb' to which we have access.
             GitResource* rsrc = conn.get_object(
                 std::numeric_limits<unsigned>::max());
             rsrc->cb = cb;
@@ -260,7 +260,7 @@ namespace php_git2
         {
             // Allocate php_callback_sync object. Assign a new php_callback_sync
             // object to the connected object. It must have a member called 'cb'
-            // to which it has access.
+            // to which we have access.
             conn.cb = new (emalloc(sizeof(php_callback_sync))) php_callback_sync(TSRMLS_C);
         }
 
@@ -275,6 +275,55 @@ namespace php_git2
         }
     private:
         connect_t&& stor;
+    };
+
+
+    // This alternate form of php_callback_async writes the callback to the
+    // resource object at the end of its lifetime. This allows assignment to an
+    // exiting resource which may not yet exist.
+
+    template<typename GitResource>
+    class php_callback_async_existing
+    {
+    public:
+        // Connect to an arbitrary resource type. It must be a newly created
+        // resource (i.e. resource ref).
+        using connect_t = php_resource<GitResource>;
+        typedef void* target_t;
+
+        php_callback_async_existing(connect_t&& conn TSRMLS_DC):
+            stor(std::forward<connect_t>(conn))
+        {
+            // Allocate php_callback_sync object.
+            cb = new (emalloc(sizeof(php_callback_sync))) php_callback_sync(TSRMLS_C);
+        }
+
+        ~php_callback_async_existing()
+        {
+            // Assign php_callback_sync object to resource object. It must have
+            // a member called 'cb' to which we have access. This is run here in
+            // the destructor to allow the resource wrapper's zval to get
+            // assigned.
+
+            GitResource* rsrc = stor.get_object(
+                std::numeric_limits<unsigned>::max());
+            if (rsrc->cb == nullptr) {
+                rsrc->cb = cb;
+            }
+        }
+
+        zval** byref_php(unsigned pos)
+        {
+            return cb->byref_php(pos);
+        }
+
+        void* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            return cb->byval_git2(argno);
+        }
+    private:
+        connect_t&& stor;
+        php_callback_sync* cb;
     };
 
     // Define a type to represent a callback function handler. All this does is
@@ -347,6 +396,12 @@ namespace php_git2
     {
         typedef git_reference_foreach_name_cb type;
         static int callback(const char* name,void* payload);
+    };
+
+    struct packbuilder_progress_callback
+    {
+        typedef int (*type)(int stage,uint32_t current,uint32_t total,void* payload);
+        static int callback(int stage,uint32_t current,uint32_t total,void* payload);
     };
 
 } // namespace php_git2

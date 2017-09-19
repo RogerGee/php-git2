@@ -21,9 +21,9 @@ packbuilder_foreach_callback::callback(void* buf,size_t size,void* payload)
 #endif
 
     if (cb != nullptr) {
-        // Special Case: if the callback payload is a stream, we write directly
-        // to the stream and avoid the callback altogether.
-        if (cb->data != nullptr && Z_TYPE_P(cb->data) == IS_RESOURCE
+        // Special Case: if the callback is null but the payload is a stream, we
+        // write directly to the stream.
+        if (Z_TYPE_P(cb->func) == IS_NULL && cb->data != nullptr && Z_TYPE_P(cb->data) == IS_RESOURCE
             && strcmp(zend_rsrc_list_get_rsrc_type(Z_RESVAL_P(cb->data) TSRMLS_CC),"stream") == 0)
         {
             php_stream* stream = nullptr;
@@ -283,6 +283,43 @@ int reference_foreach_name_callback::callback(const char* name,void* payload)
         // Convert arguments to PHP values.
         params.assign<0>(std::forward<const char*>(name));
         params.assign<1>(std::forward<zval*>(cb->data));
+
+        // Call the userspace callback.
+        params.call(cb->func,&retval);
+        convert_to_long(&retval);
+        r = Z_LVAL(retval);
+        zval_dtor(&retval);
+
+        return r;
+    }
+
+    return GIT_EUSER;
+}
+
+// packbuilder_progress_callback
+
+int packbuilder_progress_callback::callback(int stage,uint32_t current,uint32_t total,void* payload)
+{
+    php_callback_sync* cb = reinterpret_cast<php_callback_sync*>(payload);
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
+    if (cb != nullptr) {
+        // Avoid setup for null callables.
+        if (Z_TYPE_P(cb->func) == IS_NULL) {
+            return GIT_OK;
+        }
+
+        long r;
+        zval retval;
+        zval_array<4> params ZTS_CTOR;
+
+        // Convert arguments to PHP values.
+        params.assign<0>(std::forward<long>((long)stage));
+        params.assign<1>(std::forward<long>((long)current));
+        params.assign<2>(std::forward<long>((long)total));
+        params.assign<3>(std::forward<zval*>(cb->data));
 
         // Call the userspace callback.
         params.call(cb->func,&retval);
