@@ -1169,6 +1169,10 @@ git_config_set_multivar(resource,string,string,strin)
 
 git_config_set_string(resource,string,string)
 
+git_config_get_bool(resource,string)
+
+    Returns bool
+
 git_config_get_entry(resource,string)
 
     ** Note: returns an array with the following structure:
@@ -1217,6 +1221,12 @@ git_config_find_programdata()
 git_config_find_system()
 
 git_config_find_xdg()
+
+git_config_snapshot(resource)
+
+    Returns git_config resource
+
+git_config_add_file_ondisk(resource,string,int,bool)
 
 --------------------------------------------------------------------------------
 API Class Reference

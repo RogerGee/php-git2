@@ -112,7 +112,7 @@ Legend:
 + git_commit_tree
 + git_commit_tree_id
 . git_config_add_backend
-. git_config_add_file_ondisk
++ git_config_add_file_ondisk
 . git_config_backend_foreach_match
 + git_config_delete_entry
 + git_config_delete_multivar
@@ -124,7 +124,7 @@ Legend:
 . git_config_foreach
 . git_config_foreach_match
 + git_config_free
-. git_config_get_bool
++ git_config_get_bool
 + git_config_get_entry
 + git_config_get_int32
 + git_config_get_int64
@@ -155,7 +155,7 @@ Legend:
 + git_config_set_int64
 + git_config_set_multivar
 + git_config_set_string
-. git_config_snapshot
++ git_config_snapshot
 . git_cred_default_new
 . git_cred_free
 . git_cred_has_username

@@ -102,7 +102,7 @@ namespace php_git2
 
         void ret(zval* return_value) const
         {
-            RETVAL_LONG(Z_BVAL_P(value));
+            RETVAL_BOOL(Z_BVAL_P(value));
         }
     };
 

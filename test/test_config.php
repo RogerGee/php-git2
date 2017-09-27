@@ -43,5 +43,24 @@ function test_get_indv() {
     }
 }
 
+function test_set() {
+    $repo = git_repository_open_bare(testbed_get_repo_path());
+    $config = git_repository_config($repo);
+
+    try {
+        git_config_set_bool($config,"thing.place.value",false);
+        $val = git_config_get_bool($config,"thing.place.value");
+        var_dump($val);
+    } catch (Exception $ex) {
+        echo "failed: " . $ex->getMessage() . PHP_EOL;
+    }
+
+    $path = git_repository_path($repo);
+    $path .= 'config.alt';
+    git_config_add_file_ondisk($config,$path,GIT_CONFIG_LEVEL_LOCAL,true);
+    git_config_set_int32($config,"roger.gee.id",33);
+}
+
 testbed_test('Config/get','Git2Test\Config\test_get');
 testbed_test('Config/get_indv','Git2Test\Config\test_get_indv');
+testbed_test('Config/set','Git2Test\Config\test_set');

@@ -279,6 +279,23 @@ static constexpr auto ZIF_GIT_CONFIG_SET_STRING = zif_php_git2_function<
         >
     >;
 
+static constexpr auto ZIF_GIT_CONFIG_GET_BOOL = zif_php_git2_function_rethandler<
+    php_git2::func_wrapper<
+        int,
+        int*,
+        const git_config*,
+        const char*>::func<git_config_get_bool>,
+    php_git2::local_pack<
+        php_git2::php_long_ref<int>,
+        php_git2::php_resource<php_git2::php_git_config>,
+        php_git2::php_string
+        >,
+    php_git2::php_convert_boolean_rethandler<int,0>,
+    php_git2::sequence<1,2>,
+    php_git2::sequence<0,1,2>,
+    php_git2::sequence<0,0,1>
+    >;
+
 static constexpr auto ZIF_GIT_CONFIG_GET_ENTRY = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
@@ -457,6 +474,36 @@ static constexpr auto ZIF_GIT_CONFIG_FIND_XDG = zif_php_git2_function<
     php_git2::sequence<0>
     >;
 
+static constexpr auto ZIF_GIT_CONFIG_SNAPSHOT = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_config**,
+        git_config*>::func<git_config_snapshot>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_config>,
+        php_git2::php_resource<php_git2::php_git_config>
+        >,
+    1,
+    php_git2::sequence<1>,
+    php_git2::sequence<0,1>,
+    php_git2::sequence<0,1>
+    >;
+
+static constexpr auto ZIF_GIT_CONFIG_ADD_FILE_ONDISK = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_config*,
+        const char*,
+        git_config_level_t,
+        int>::func<git_config_add_file_ondisk>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_config>,
+        php_git2::php_string,
+        php_git2::php_long_cast<git_config_level_t>,
+        php_git2::php_bool
+        >
+    >;
+
 // Function Entries:
 
 #define GIT_CONFIG_FE                                                   \
@@ -475,6 +522,7 @@ static constexpr auto ZIF_GIT_CONFIG_FIND_XDG = zif_php_git2_function<
     PHP_GIT2_FE(git_config_set_int64,ZIF_GIT_CONFIG_SET_INT64,NULL)     \
     PHP_GIT2_FE(git_config_set_multivar,ZIF_GIT_CONFIG_SET_MULTIVAR,NULL) \
     PHP_GIT2_FE(git_config_set_string,ZIF_GIT_CONFIG_SET_STRING,NULL)   \
+    PHP_GIT2_FE(git_config_get_bool,ZIF_GIT_CONFIG_GET_BOOL,NULL)     \
     PHP_GIT2_FE(git_config_get_entry,ZIF_GIT_CONFIG_GET_ENTRY,NULL)     \
     PHP_GIT2_FE(git_config_get_int32,ZIF_GIT_CONFIG_GET_INT32,NULL)     \
     PHP_GIT2_FE(git_config_get_int64,ZIF_GIT_CONFIG_GET_INT64,NULL)     \
@@ -486,7 +534,9 @@ static constexpr auto ZIF_GIT_CONFIG_FIND_XDG = zif_php_git2_function<
     PHP_GIT2_FE(git_config_find_global,ZIF_GIT_CONFIG_FIND_GLOBAL,NULL) \
     PHP_GIT2_FE(git_config_find_programdata,ZIF_GIT_CONFIG_FIND_PROGRAMDATA,NULL) \
     PHP_GIT2_FE(git_config_find_system,ZIF_GIT_CONFIG_FIND_SYSTEM,NULL) \
-    PHP_GIT2_FE(git_config_find_xdg,ZIF_GIT_CONFIG_FIND_XDG,NULL)
+    PHP_GIT2_FE(git_config_find_xdg,ZIF_GIT_CONFIG_FIND_XDG,NULL)       \
+    PHP_GIT2_FE(git_config_snapshot,ZIF_GIT_CONFIG_SNAPSHOT,NULL)       \
+    PHP_GIT2_FE(git_config_add_file_ondisk,ZIF_GIT_CONFIG_ADD_FILE_ONDISK,NULL)
 
 #endif
 
