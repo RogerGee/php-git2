@@ -1228,6 +1228,19 @@ git_config_snapshot(resource)
 
 git_config_add_file_ondisk(resource,string,int,bool)
 
+git_config_foreach(resource,callable,mixed)
+
+    ** Note: if an iteration of the callback returns non-zero, the operation is
+       aborted. Return a positive value (or true) to abort and avoid throwing an
+       exception. If a negative value is returned, then the function assumes its
+       a git error. **
+
+    Callback signature: callback(array $entry,mixed $payload)
+
+git_config_foreach_match(resource,string,callable,mixed)
+
+    ** See notes for git_config_foreach. **
+
 --------------------------------------------------------------------------------
 API Class Reference
 

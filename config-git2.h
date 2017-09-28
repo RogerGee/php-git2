@@ -504,6 +504,63 @@ static constexpr auto ZIF_GIT_CONFIG_ADD_FILE_ONDISK = zif_php_git2_function<
         >
     >;
 
+static constexpr auto ZIF_GIT_CONFIG_FOREACH = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        const git_config*,
+        git_config_foreach_cb,
+        void*>::func<git_config_foreach>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_config>,
+        php_git2::php_callback_handler<php_git2::config_foreach_callback>,
+        php_git2::php_callback_sync
+        >,
+    -1,
+    php_git2::sequence<0,2,2>,
+    php_git2::sequence<0,1,2>,
+    php_git2::sequence<0,0,1>
+    >;
+
+static constexpr auto ZIF_GIT_CONFIG_FOREACH_MATCH = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        const git_config*,
+        const char*,
+        git_config_foreach_cb,
+        void*>::func<git_config_foreach_match>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_config>,
+        php_git2::php_string,
+        php_git2::php_callback_handler<php_git2::config_foreach_callback>,
+        php_git2::php_callback_sync
+        >,
+    -1,
+    php_git2::sequence<0,1,3,3>,
+    php_git2::sequence<0,1,2,3>,
+    php_git2::sequence<0,1,0,2>
+    >;
+
+static constexpr auto ZIF_GIT_CONFIG_GET_MULTIVAR_FOREACH = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        const git_config*,
+        const char*,
+        const char*,
+        git_config_foreach_cb,
+        void*>::func<git_config_get_multivar_foreach>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_config>,
+        php_git2::php_string,
+        php_git2::php_nullable_string,
+        php_git2::php_callback_handler<php_git2::config_foreach_callback>,
+        php_git2::php_callback_sync
+        >,
+    -1,
+    php_git2::sequence<0,1,2,4,4>,
+    php_git2::sequence<0,1,2,3,4>,
+    php_git2::sequence<0,1,2,0,3>
+    >;
+
 // Function Entries:
 
 #define GIT_CONFIG_FE                                                   \
@@ -536,7 +593,10 @@ static constexpr auto ZIF_GIT_CONFIG_ADD_FILE_ONDISK = zif_php_git2_function<
     PHP_GIT2_FE(git_config_find_system,ZIF_GIT_CONFIG_FIND_SYSTEM,NULL) \
     PHP_GIT2_FE(git_config_find_xdg,ZIF_GIT_CONFIG_FIND_XDG,NULL)       \
     PHP_GIT2_FE(git_config_snapshot,ZIF_GIT_CONFIG_SNAPSHOT,NULL)       \
-    PHP_GIT2_FE(git_config_add_file_ondisk,ZIF_GIT_CONFIG_ADD_FILE_ONDISK,NULL)
+    PHP_GIT2_FE(git_config_add_file_ondisk,ZIF_GIT_CONFIG_ADD_FILE_ONDISK,NULL) \
+    PHP_GIT2_FE(git_config_foreach,ZIF_GIT_CONFIG_FOREACH,NULL)         \
+    PHP_GIT2_FE(git_config_foreach_match,ZIF_GIT_CONFIG_FOREACH_MATCH,NULL) \
+    PHP_GIT2_FE(git_config_get_multivar_foreach,ZIF_GIT_CONFIG_GET_MULTIVAR_FOREACH,NULL)
 
 #endif
 

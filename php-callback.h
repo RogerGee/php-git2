@@ -404,6 +404,12 @@ namespace php_git2
         static int callback(int stage,uint32_t current,uint32_t total,void* payload);
     };
 
+    struct config_foreach_callback
+    {
+        typedef git_config_foreach_cb type;
+        static int callback(const git_config_entry* entry,void* payload);
+    };
+
 } // namespace php_git2
 
 #endif

@@ -61,6 +61,28 @@ function test_set() {
     git_config_set_int32($config,"roger.gee.id",33);
 }
 
+function test_foreach() {
+    $repo = git_repository_open_bare(testbed_get_repo_path());
+    $config = git_repository_config($repo);
+
+    $lambda = function($entry,$payload) {
+        var_dump($entry);
+        var_dump($payload);
+    };
+
+    $quitearly = function($entry) {
+        print "----BAIL----\n";
+        var_dump($entry);
+        print "------------\n";
+        return 1;
+    };
+
+    git_config_foreach($config,$lambda,45);
+    git_config_foreach($config,$quitearly,null);
+    git_config_foreach_match($config,"remote",$lambda,33);
+}
+
 testbed_test('Config/get','Git2Test\Config\test_get');
 testbed_test('Config/get_indv','Git2Test\Config\test_get_indv');
 testbed_test('Config/set','Git2Test\Config\test_set');
+testbed_test('Config/foreach','Git2Test\Config\test_foreach');
