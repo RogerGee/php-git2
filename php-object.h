@@ -202,7 +202,7 @@ namespace php_git2
 // Helper macros
 
 #define LOOKUP_OBJECT(type,val)                         \
-    (type*)zend_object_store_get_object(val TSRMLS_CC)
+    ((type*)zend_object_store_get_object(val TSRMLS_CC))
 
 #define is_subclass_of(a,b)                     \
     (a == b || instanceof_function(a,b))

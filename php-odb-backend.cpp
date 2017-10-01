@@ -20,6 +20,11 @@ using namespace php_git2;
 #define EXTRACT_THISOBJ(backend) \
     EXTRACT_BACKEND(backend)->thisobj
 
+// Custom class handlers
+
+static zval* odb_backend_read_property(zval* obj,zval* prop,int type,const zend_literal* key TSRMLS_DC);
+static int odb_backend_has_property(zval* obj,zval* prop,int chk_type,const zend_literal* key TSRMLS_DC);
+
 // Class method entries
 
 // string GitODBBackend::read(&$type,$oid);
@@ -84,9 +89,6 @@ void php_git2::php_git2_make_odb_backend(zval* zp,git_odb_backend* backend,bool 
     // Assign the git2 odb_backend object.
     obj->backend = backend;
     obj->isowner = owner;
-
-    // Update the version property to the version specified by the backend.
-    zend_update_property_long(ce,zp,"version",sizeof("version")-1,backend->version TSRMLS_CC);
 }
 
 // Implementation of php_odb_backend_object
@@ -134,11 +136,9 @@ void php_odb_backend_object::create_custom_backend(zval* zobj)
 
 /*static*/ void php_odb_backend_object::init(zend_class_entry* ce)
 {
-    zend_declare_property_long(
-        ce,
-        "version", sizeof("version") - 1,
-        GIT_ODB_BACKEND_VERSION,
-        ZEND_ACC_PUBLIC);
+    handlers.read_property = odb_backend_read_property;
+    handlers.has_property = odb_backend_has_property;
+    (void)ce;
 }
 
 /*static*/ int php_odb_backend_object::read(void** datap,size_t* sizep,
@@ -742,6 +742,86 @@ git_odb_backend_php::~git_odb_backend_php()
 {
     // Free object zval.
     zval_ptr_dtor(&thisobj);
+}
+
+// Implementation of custom class handlers
+
+zval* odb_backend_read_property(zval* obj,zval* prop,int type,const zend_literal* key TSRMLS_DC)
+{
+    zval* ret;
+    zval* tmp_prop;
+    const char* str;
+    php_git_odb* rsrc;
+    git_odb_backend* backend = LOOKUP_OBJECT(php_odb_backend_object,obj)->backend;
+
+    // Ensure deep copy of member zval.
+    if (Z_TYPE_P(prop) != IS_STRING) {
+        MAKE_STD_ZVAL(tmp_prop);
+        *tmp_prop = *prop;
+        INIT_PZVAL(tmp_prop);
+        zval_copy_ctor(tmp_prop);
+        convert_to_string(tmp_prop);
+        prop = tmp_prop;
+        key = NULL;
+    }
+
+    // Handle special properties of the git_odb_backend.
+
+    str = Z_STRVAL_P(prop);
+    if (strcmp(str,"version") == 0 && backend != nullptr) {
+        ALLOC_INIT_ZVAL(ret);
+        ZVAL_LONG(ret,backend->version);
+    }
+    else if (strcmp(str,"odb") == 0 && backend != nullptr) {
+        ALLOC_INIT_ZVAL(ret);
+        if (backend->odb != nullptr) {
+            rsrc = php_git2_create_resource<php_git_odb>();
+            rsrc->set_handle(backend->odb);
+            zend_register_resource(ret,rsrc,php_git_odb::resource_le() TSRMLS_CC);
+        }
+    }
+    else {
+        ret = (*std_object_handlers.read_property)(obj,prop,type,key TSRMLS_CC);
+    }
+
+    return ret;
+}
+
+int odb_backend_has_property(zval* obj,zval* prop,int chk_type,const zend_literal* key TSRMLS_DC)
+{
+    int result;
+    zval* tmp_prop;
+    const char* src;
+    git_odb_backend* backend = LOOKUP_OBJECT(php_odb_backend_object,obj)->backend;
+
+    // Ensure deep copy of member zval.
+    if (Z_TYPE_P(prop) != IS_STRING) {
+        MAKE_STD_ZVAL(tmp_prop);
+        *tmp_prop = *prop;
+        INIT_PZVAL(tmp_prop);
+        zval_copy_ctor(tmp_prop);
+        convert_to_string(tmp_prop);
+        prop = tmp_prop;
+        key = NULL;
+    }
+
+    src = Z_STRVAL_P(prop);
+    if (strcmp(src,"version") == 0) {
+        result = (backend != nullptr);
+    }
+    else if (strcmp(src,"odb") == 0) {
+        if (chk_type == 2) {
+            result = (backend != nullptr);
+        }
+        else {
+            result = (backend != nullptr && backend->odb != nullptr);
+        }
+    }
+    else {
+        result = (*std_object_handlers.has_property)(obj,prop,chk_type,key TSRMLS_CC);
+    }
+
+    return result;
 }
 
 // Implementation of class methods

@@ -94,7 +94,7 @@ void php_git2::php_git2_register_classes(TSRMLS_D)
     pce = zend_register_internal_class(&ce TSRMLS_CC);
     php_git2::class_entry[php_git2_config_backend_obj] = pce;
     pce->ce_flags |= ZEND_ACC_IMPLICIT_ABSTRACT_CLASS;
-    memcpy(&php_odb_backend_object::handlers,stdhandlers,sizeof(zend_object_handlers));
+    memcpy(&php_config_backend_object::handlers,stdhandlers,sizeof(zend_object_handlers));
     pce->create_object = php_create_object_handler<php_config_backend_object>;
     php_config_backend_object::init(pce);
 }

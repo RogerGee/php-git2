@@ -1114,6 +1114,7 @@ class GitODBBackend:
 
     properties:
         version: int
+        odb: resource
 
     methods:
         ** All methods should throw on failure. **
