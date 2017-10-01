@@ -1179,6 +1179,7 @@ final class GitODBWritepack:
 
     properties:
         backend: object instance of type GitODBBackend
+
     methods:
         append(string)
 

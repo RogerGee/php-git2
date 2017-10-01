@@ -693,11 +693,8 @@ git_odb_backend_php::git_odb_backend_php(zval* zv)
     MAKE_STD_ZVAL(thisobj);
     ZVAL_ZVAL(thisobj,zv,1,0);
 
-    // Read properties from the object zval and assign them to the backing
-    // structure.
     zend_class_entry* ce = Z_OBJCE_P(thisobj);
-    zval* zp = zend_read_property(ce,thisobj,"version",sizeof("version")-1,1);
-    version = Z_LVAL_P(zp);
+    version = GIT_ODB_BACKEND_VERSION;
 
     // Every custom backend gets the free function (whether it is overloaded in
     // userspace or not).
@@ -776,7 +773,7 @@ zval* odb_backend_read_property(zval* obj,zval* prop,int type,const zend_literal
         ZVAL_LONG(ret,backend->version);
     }
     else if (strcmp(str,"odb") == 0 && backend != nullptr) {
-        if (key) {
+        if (key != nullptr) {
             ret = zend_hash_quick_find(Z_OBJPROP_P(obj),"odb",sizeof("odb"),key->hash_value,(void**)&zfind) != FAILURE
                 ? *zfind : nullptr;
         }
@@ -793,7 +790,13 @@ zval* odb_backend_read_property(zval* obj,zval* prop,int type,const zend_literal
                 zend_register_resource(ret,rsrc,php_git_odb::resource_le() TSRMLS_CC);
 
                 Z_ADDREF_P(ret);
-                zend_hash_add(Z_OBJPROP_P(obj),"odb",sizeof("odb"),&ret,sizeof(zval*),NULL);
+                if (key != nullptr) {
+                    zend_hash_quick_add(Z_OBJPROP_P(obj),"odb",sizeof("odb"),key->hash_value,
+                        &ret,sizeof(zval*),NULL);
+                }
+                else {
+                    zend_hash_add(Z_OBJPROP_P(obj),"odb",sizeof("odb"),&ret,sizeof(zval*),NULL);
+                }
             }
         }
     }
