@@ -9,6 +9,7 @@
 
 #include "php-object.h"
 #include "php-callback.h"
+#include <cstring>
 #include <new>
 using namespace php_git2;
 
@@ -23,6 +24,7 @@ using namespace php_git2;
 // Custom class handlers
 
 static zval* odb_backend_read_property(zval* obj,zval* prop,int type,const zend_literal* key TSRMLS_DC);
+static void odb_backend_write_property(zval* obj,zval* prop,zval* value,const zend_literal* key TSRMLS_DC);
 static int odb_backend_has_property(zval* obj,zval* prop,int chk_type,const zend_literal* key TSRMLS_DC);
 
 // Class method entries
@@ -137,6 +139,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj)
 /*static*/ void php_odb_backend_object::init(zend_class_entry* ce)
 {
     handlers.read_property = odb_backend_read_property;
+    handlers.write_property = odb_backend_write_property;
     handlers.has_property = odb_backend_has_property;
     (void)ce;
 }
@@ -749,9 +752,9 @@ git_odb_backend_php::~git_odb_backend_php()
 zval* odb_backend_read_property(zval* obj,zval* prop,int type,const zend_literal* key TSRMLS_DC)
 {
     zval* ret;
-    zval* tmp_prop;
+    zval** zfind;
+    zval* tmp_prop = nullptr;
     const char* str;
-    php_git_odb* rsrc;
     git_odb_backend* backend = LOOKUP_OBJECT(php_odb_backend_object,obj)->backend;
 
     // Ensure deep copy of member zval.
@@ -773,24 +776,73 @@ zval* odb_backend_read_property(zval* obj,zval* prop,int type,const zend_literal
         ZVAL_LONG(ret,backend->version);
     }
     else if (strcmp(str,"odb") == 0 && backend != nullptr) {
-        ALLOC_INIT_ZVAL(ret);
-        if (backend->odb != nullptr) {
-            rsrc = php_git2_create_resource<php_git_odb>();
-            rsrc->set_handle(backend->odb);
-            zend_register_resource(ret,rsrc,php_git_odb::resource_le() TSRMLS_CC);
+        if (key) {
+            ret = zend_hash_quick_find(Z_OBJPROP_P(obj),"odb",sizeof("odb"),key->hash_value,(void**)&zfind) != FAILURE
+                ? *zfind : nullptr;
+        }
+        else {
+            ret = zend_hash_find(Z_OBJPROP_P(obj),"odb",sizeof("odb"),(void**)&zfind) != FAILURE
+                ? *zfind : nullptr;
+        }
+
+        if (ret == nullptr) {
+            ALLOC_INIT_ZVAL(ret);
+            if (backend->odb != nullptr) {
+                php_git_odb_nofree* rsrc = php_git2_create_resource<php_git_odb_nofree>();
+                rsrc->set_handle(backend->odb);
+                zend_register_resource(ret,rsrc,php_git_odb::resource_le() TSRMLS_CC);
+
+                Z_ADDREF_P(ret);
+                zend_hash_add(Z_OBJPROP_P(obj),"odb",sizeof("odb"),&ret,sizeof(zval*),NULL);
+            }
         }
     }
     else {
         ret = (*std_object_handlers.read_property)(obj,prop,type,key TSRMLS_CC);
     }
 
+    if (tmp_prop != nullptr) {
+        Z_ADDREF_P(ret);
+        zval_ptr_dtor(&tmp_prop);
+        Z_DELREF_P(ret);
+    }
+
     return ret;
+}
+
+void odb_backend_write_property(zval* obj,zval* prop,zval* value,const zend_literal* key TSRMLS_DC)
+{
+    zval* tmp_prop = nullptr;
+    const char* str;
+
+    // Ensure deep copy of member zval.
+    if (Z_TYPE_P(prop) != IS_STRING) {
+        MAKE_STD_ZVAL(tmp_prop);
+        *tmp_prop = *prop;
+        INIT_PZVAL(tmp_prop);
+        zval_copy_ctor(tmp_prop);
+        convert_to_string(tmp_prop);
+        prop = tmp_prop;
+        key = NULL;
+    }
+
+    str = Z_STRVAL_P(prop);
+    if (strcmp(str,"version") == 0 || strcmp(str,"odb") == 0) {
+        php_error(E_ERROR,"GitODBBackend: the %s property is read-only",str);
+    }
+    else {
+        (*std_object_handlers.write_property)(obj,prop,value,key);
+    }
+
+    if (tmp_prop != nullptr) {
+        zval_ptr_dtor(&tmp_prop);
+    }
 }
 
 int odb_backend_has_property(zval* obj,zval* prop,int chk_type,const zend_literal* key TSRMLS_DC)
 {
     int result;
-    zval* tmp_prop;
+    zval* tmp_prop = nullptr;
     const char* src;
     git_odb_backend* backend = LOOKUP_OBJECT(php_odb_backend_object,obj)->backend;
 
@@ -819,6 +871,10 @@ int odb_backend_has_property(zval* obj,zval* prop,int chk_type,const zend_litera
     }
     else {
         result = (*std_object_handlers.has_property)(obj,prop,chk_type,key TSRMLS_CC);
+    }
+
+    if (tmp_prop != nullptr) {
+        zval_ptr_dtor(&tmp_prop);
     }
 
     return result;
