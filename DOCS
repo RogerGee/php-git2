@@ -1241,6 +1241,37 @@ git_config_foreach_match(resource,string,callable,mixed)
 
     ** See notes for git_config_foreach. **
 
+----------------------------------------
+[git_clone]
+----------------------------------------
+
+git_clone(string,string,array|null)
+
+    ** Note: the last parameter (options) is passed as an array with the keys
+       representing the properties of the git_clone_options struct. The
+       checkout_opts and fetch_opts properties may be arrays to their respective
+       structures. Any properties that are not specified inherit the defaults
+       provided via calling git_clone_init_options(). You may specify null to
+       use only the defaults. **
+
+    Returns git_repository resource
+
+----------------------------------------
+[git_checkout]
+----------------------------------------
+
+git_checkout_head(resource,array|null)
+
+    ** Note: the last parameter (options) is passed as an array with the keys
+       matching the properties of the git_checkout_options struct. Any
+       properties that are not specified inherit the defaults provided via
+       calling git_checkout_init_options(). You may specify null to use only the
+       defaults. **
+
+git_checkout_tree(resource,resource,array|null)
+
+    ** See notes for git_checkout_head(). **
+
 --------------------------------------------------------------------------------
 API Class Reference
 

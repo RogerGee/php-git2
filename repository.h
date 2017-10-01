@@ -41,8 +41,6 @@ namespace php_git2
                 GIT2_ARRAY_LOOKUP_STRING(template_path,opts);
                 GIT2_ARRAY_LOOKUP_STRING(initial_head,opts);
                 GIT2_ARRAY_LOOKUP_STRING(origin_url,opts);
-                (void)src;
-                (void)srclen;
             }
 
             return &opts;

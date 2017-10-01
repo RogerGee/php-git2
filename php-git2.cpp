@@ -26,6 +26,8 @@
 #include "annotated.h"
 #include "branch.h"
 #include "config-git2.h"
+#include "clone.h"
+#include "checkout.h"
 #include <cstdio>
 #include <cstdarg>
 using namespace std;
@@ -79,6 +81,8 @@ static zend_function_entry php_git2_functions[] = {
     GIT_ANNOTATED_FE
     GIT_BRANCH_FE
     GIT_CONFIG_FE
+    GIT_CLONE_FE
+    GIT_CHECKOUT_FE
     PHP_FE_END
 };
 
