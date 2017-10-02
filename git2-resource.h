@@ -12,30 +12,20 @@
 
 namespace php_git2
 {
-
     // Provide a base class for git2_resource that can dynamically dispatch
-    // calls to various instantiations of git2_resource.
+    // calls to various instantiations of git2_resource to free the resource
+    // handle. This also allows us to polymorphically store resource
+    // dependencies regardless of resource type.
+
     class git2_resource_base
     {
     public:
-        git2_resource_base* get_parent()
-        {
-            return parent;
-        }
-
         void set_parent(git2_resource_base* resource)
         {
             if (resource != nullptr) {
-                resource->ref += 1;
+                resource->up_ref();
                 parent = resource;
             }
-        }
-
-        virtual bool free_handle() = 0;
-    protected:
-        git2_resource_base():
-            ref(1), parent(nullptr)
-        {
         }
 
         void up_ref()
@@ -43,16 +33,33 @@ namespace php_git2
             ref += 1;
         }
 
+        static void free_recursive(git2_resource_base* self)
+        {
+            // We must free the git2 handle. If the handle was freed, then free
+            // the object itself. Recursively delete any parent.
+
+            if (self->free_handle()) {
+                // If we have a parent resource, attempt to free it as well.
+                if (self->parent != nullptr) {
+                    free_recursive(self->parent);
+                }
+
+                efree(self);
+            }
+        }
+    protected:
+        git2_resource_base():
+            ref(1), parent(nullptr)
+        {
+        }
+
         bool down_ref()
         {
             return (--ref <= 0);
         }
-
-        int get_ref()
-        {
-            return ref;
-        }
     private:
+        virtual bool free_handle() = 0;
+
         // A reference counter for the handle. If the counter reaches zero when
         // a resource is destroyed we can free the object.
         int ref;
@@ -63,6 +70,7 @@ namespace php_git2
     };
 
     // Encapsulate resource structure and basic operations.
+
     template<typename git_type>
     class git2_resource:
         public git2_resource_base
@@ -120,13 +128,24 @@ namespace php_git2
         }
 
         static int resource_le()
-        { return le; }
+        {
+            return le;
+        }
+
         static const char* resource_name()
-        { return typeid(git2_type).name(); }
+        {
+            return typeid(git2_type).name();
+        }
     private:
         static int le;
 
-        bool free_handle()
+        static void destroy_resource(zend_rsrc_list_entry* rsrc TSRMLS_DC)
+        {
+            git2_resource* self = reinterpret_cast<git2_resource*>(rsrc->ptr);
+            free_recursive(self);
+        }
+
+        virtual bool free_handle()
         {
             // Call the destructor to free the handle. We only call the
             // destructor if the handle exists, we own the handle and the ref
@@ -141,28 +160,6 @@ namespace php_git2
                 return true;
             }
             return false;
-        }
-
-        static void destroy_resource(zend_rsrc_list_entry* rsrc TSRMLS_DC)
-        {
-            git2_resource* self = reinterpret_cast<git2_resource*>(rsrc->ptr);
-            free_recursive(self);
-        }
-
-        static void free_recursive(git2_resource_base* self)
-        {
-            // We must free the git2 handle. If the handle was freed, then free
-            // the object itself. Recursively delete any parent.
-
-            if (self->free_handle()) {
-                // If we have a parent resource, attempt to free it as well.
-                git2_resource_base* parent = self->get_parent();
-                if (parent != nullptr) {
-                    free_recursive(parent);
-                }
-
-                efree(self);
-            }
         }
 
         // This is a pointer to the libgit2 type that the object wraps as a PHP
@@ -180,6 +177,7 @@ namespace php_git2
     // Provide a custom derivation for handling resources that do not own their
     // underlying handles. This is useful for helping PHP userspace not bork
     // git2 by freeing things incorrectly.
+
     template<typename git_type>
     class git2_resource_nofree:
         public git2_resource<git_type>
@@ -193,6 +191,7 @@ namespace php_git2
 
     // Provide a function for creating resource objects. This must exist outside
     // of the git2_resource<T> class so that we can allocate derived objects.
+
     template<typename GitResource>
     GitResource* php_git2_create_resource()
     {
@@ -204,6 +203,7 @@ namespace php_git2
     // Provide a function for registering any number of resource types. The
     // template arguments each represent a git2 type that is tracked via a PHP
     // resource type.
+
     template<typename... Args>
     void php_git2_define_resource_types(int moduleNumber)
     {

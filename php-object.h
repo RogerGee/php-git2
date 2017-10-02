@@ -32,32 +32,16 @@ namespace php_git2
     // backend structure. Each class must provide a static 'handlers' member and
     // a static 'init' function for handling class initialization.
 
-    struct php_odb_writepack_object
-    {
-        php_odb_writepack_object(zend_class_entry* ce TSRMLS_DC);
-        ~php_odb_writepack_object();
-
-        zend_object base;
-        git_odb_writepack* writepack;
-        git_transfer_progress prog;
-        php_callback_sync* cb;
-        php_zts_member zts;
-
-        static zend_object_handlers handlers;
-        static void init(zend_class_entry* ce);
-    };
-
-    struct php_odb_backend_object
+    struct php_odb_backend_object : zend_object
     {
         php_odb_backend_object(zend_class_entry* ce TSRMLS_DC);
         ~php_odb_backend_object();
 
-        zend_object base;
         git_odb_backend* backend;
-        bool isowner;
+        php_git_odb* owner;
         php_zts_member zts;
 
-        void create_custom_backend(zval* zobj);
+        void create_custom_backend(zval* zobj,php_git_odb* newOwner);
 
         static zend_object_handlers handlers;
         static void init(zend_class_entry* ce);
@@ -97,6 +81,21 @@ namespace php_git2
         static int writepack(git_odb_writepack** writepackp,git_odb_backend* backend,
             git_odb* odb,git_transfer_progress_cb progress_cb,void* progress_payload);
         static void free(git_odb_backend* backend);
+    };
+
+    struct php_odb_writepack_object : zend_object
+    {
+        php_odb_writepack_object(zend_class_entry* ce TSRMLS_DC);
+        ~php_odb_writepack_object();
+
+        git_odb_writepack* writepack;
+        git_transfer_progress prog;
+        php_callback_sync* cb;
+        php_git_odb* owner;
+        php_zts_member zts;
+
+        static zend_object_handlers handlers;
+        static void init(zend_class_entry* ce);
     };
 
     struct php_odb_stream_object
@@ -180,9 +179,9 @@ namespace php_git2
     // *should* be used when instantiating an object from the extension.
 
     void php_git2_make_object(zval* zp,php_git2_object_t type TSRMLS_DC);
+    void php_git2_make_odb_backend(zval* zp,git_odb_backend* backend,php_git_odb* owner TSRMLS_DC);
     void php_git2_make_odb_writepack(zval* zp,git_odb_writepack* writepack,
-        php_callback_sync* cb,zval* zbackend TSRMLS_DC);
-    void php_git2_make_odb_backend(zval* zp,git_odb_backend* backend,bool owner TSRMLS_DC);
+        php_callback_sync* cb,zval* zbackend,php_git_odb* owner TSRMLS_DC);
     void php_git2_make_odb_stream(zval* zp,git_odb_stream* stream,bool isstd TSRMLS_DC);
     void php_git2_make_writestream(zval* zp,git_writestream* ws TSRMLS_DC);
 

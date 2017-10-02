@@ -31,7 +31,7 @@ zend_function_entry php_git2::odb_writepack_methods[] = {
 // Make function implementation
 
 void php_git2::php_git2_make_odb_writepack(zval* zp,git_odb_writepack* writepack,
-    php_callback_sync* cb,zval* zbackend TSRMLS_DC)
+    php_callback_sync* cb,zval* zbackend,php_git_odb* owner TSRMLS_DC)
 {
     php_odb_writepack_object* obj;
     zend_class_entry* ce = php_git2::class_entry[php_git2_odb_writepack_obj];
@@ -43,6 +43,13 @@ void php_git2::php_git2_make_odb_writepack(zval* zp,git_odb_writepack* writepack
     // ride so it can be destroyed at the proper time.
     obj->writepack = writepack;
     obj->cb = cb;
+    obj->owner = owner;
+
+    // Increment owner refcount if set. This will prevent the ODB from freeing
+    // while the backend is in use.
+    if (obj->owner != nullptr) {
+        obj->owner->up_ref();
+    }
 
     // Assign backend property if we have a backend specified.
     if (zbackend != nullptr) {
@@ -55,10 +62,10 @@ void php_git2::php_git2_make_odb_writepack(zval* zp,git_odb_writepack* writepack
 
 /*static*/ zend_object_handlers php_odb_writepack_object::handlers;
 php_odb_writepack_object::php_odb_writepack_object(zend_class_entry* ce TSRMLS_DC):
-    writepack(nullptr), cb(nullptr), zts(TSRMLS_C)
+    writepack(nullptr), cb(nullptr), owner(nullptr), zts(TSRMLS_C)
 {
-    zend_object_std_init(&base,ce TSRMLS_CC);
-    object_properties_init(&base,ce);
+    zend_object_std_init(this,ce TSRMLS_CC);
+    object_properties_init(this,ce);
     memset(&prog,0,sizeof(git_transfer_progress));
 }
 
@@ -74,7 +81,13 @@ php_odb_writepack_object::~php_odb_writepack_object()
         efree(cb);
     }
 
-    zend_object_std_dtor(&base ZTS_MEMBER_CC(this->zts));
+    // Attempt to free the owner resource. This only really frees the owner if
+    // its refcount reaches zero.
+    if (owner != nullptr) {
+        git2_resource_base::free_recursive(owner);
+    }
+
+    zend_object_std_dtor(this ZTS_MEMBER_CC(this->zts));
 }
 
 /*static*/ void php_odb_writepack_object::init(zend_class_entry* ce)
@@ -93,7 +106,8 @@ zval* odb_writepack_read_property(zval* obj,zval* prop,int type,const zend_liter
     zval** zfind;
     zval* tmp_prop = nullptr;
     const char* str;
-    git_odb_writepack* writepack = LOOKUP_OBJECT(php_odb_writepack_object,obj)->writepack;
+    php_odb_writepack_object* wrapper = LOOKUP_OBJECT(php_odb_writepack_object,obj);
+    git_odb_writepack* writepack = wrapper->writepack;
 
     // Ensure deep copy of member zval.
     if (Z_TYPE_P(prop) != IS_STRING) {
@@ -125,7 +139,7 @@ zval* odb_writepack_read_property(zval* obj,zval* prop,int type,const zend_liter
                 // Create GitODBBackend object instance to represent the
                 // git_odb_backend attached to the writepack. The object does not
                 // own the underlying backend object.
-                php_git2_make_odb_backend(ret,writepack->backend,false);
+                php_git2_make_odb_backend(ret,writepack->backend,wrapper->owner);
 
                 Z_ADDREF_P(ret);
                 if (key != nullptr) {

@@ -79,7 +79,7 @@ zend_function_entry php_git2::odb_backend_methods[] = {
 
 // Make function implementation
 
-void php_git2::php_git2_make_odb_backend(zval* zp,git_odb_backend* backend,bool owner TSRMLS_DC)
+void php_git2::php_git2_make_odb_backend(zval* zp,git_odb_backend* backend,php_git_odb* owner TSRMLS_DC)
 {
     php_odb_backend_object* obj;
     zend_class_entry* ce = php_git2::class_entry[php_git2_odb_backend_obj];
@@ -90,32 +90,45 @@ void php_git2::php_git2_make_odb_backend(zval* zp,git_odb_backend* backend,bool 
 
     // Assign the git2 odb_backend object.
     obj->backend = backend;
-    obj->isowner = owner;
+    obj->owner = owner;
+
+    // Increment owner refcount if set. This will prevent the ODB from freeing
+    // while the backend is in use.
+    if (obj->owner != nullptr) {
+        obj->owner->up_ref();
+    }
 }
 
 // Implementation of php_odb_backend_object
 
 /*static*/ zend_object_handlers php_odb_backend_object::handlers;
 php_odb_backend_object::php_odb_backend_object(zend_class_entry* ce TSRMLS_DC):
-    backend(nullptr), isowner(false), zts(TSRMLS_C)
+    backend(nullptr), owner(nullptr), zts(TSRMLS_C)
 {
-    zend_object_std_init(&base,ce TSRMLS_CC);
-    object_properties_init(&base,ce);
+    zend_object_std_init(this,ce TSRMLS_CC);
+    object_properties_init(this,ce);
 }
 
 php_odb_backend_object::~php_odb_backend_object()
 {
-    // AFAIK we never call the free() function on git_odb_backend objects unless
-    // they were returned directly from a library call. We've marked this using
-    // the 'isowner' flag.
-    if (isowner && backend != nullptr) {
+    // AFAIK we never call the free() function on git_odb_backend objects that
+    // we returned from a call that referenced a git_odb. This is the case if
+    // 'owner' is set.
+
+    if (owner == nullptr && backend != nullptr) {
         backend->free(backend);
     }
 
-    zend_object_std_dtor(&base ZTS_MEMBER_CC(this->zts));
+    // Attempt to free the owner resource. This only really frees the owner if
+    // its refcount reaches zero.
+    if (owner != nullptr) {
+        git2_resource_base::free_recursive(owner);
+    }
+
+    zend_object_std_dtor(this ZTS_MEMBER_CC(this->zts));
 }
 
-void php_odb_backend_object::create_custom_backend(zval* zobj)
+void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOwner)
 {
     // NOTE: the zval should be any zval that points to an object with 'this' as
     // its backing (i.e. result of zend_objects_get_address()). This is really
@@ -124,16 +137,34 @@ void php_odb_backend_object::create_custom_backend(zval* zobj)
 
     // Free any existing backend.
     if (backend != nullptr) {
-        if (isowner) {
+        zval** zfind;
+
+        if (owner == nullptr) {
             backend->free(backend);
         }
+        else if (owner != nullptr) {
+            // Attempt to free the owner resource. This only really frees the
+            // owner if its refcount reaches zero.
+            git2_resource_base::free_recursive(owner);
+        }
+
         backend = nullptr;
+        owner = nullptr;
+        if (zend_hash_find(Z_OBJPROP_P(zobj),"odb",sizeof("odb"),(void**)&zfind) != FAILURE) {
+            zval_ptr_dtor(zfind);
+            zend_hash_del(Z_OBJPROP_P(zobj),"odb",sizeof("odb"));
+        }
     }
 
     // Create custom backend. Custom backends are always passed off to git2, so
     // we are not responsible for calling its free function.
     backend = new (emalloc(sizeof(git_odb_backend_php))) git_odb_backend_php(zobj);
-    isowner = false;
+
+    // Assume new owner, increment refcount if set.
+    owner = newOwner;
+    if (owner != nullptr) {
+        owner->up_ref();
+    }
 }
 
 /*static*/ void php_odb_backend_object::init(zend_class_entry* ce)
@@ -752,7 +783,8 @@ zval* odb_backend_read_property(zval* obj,zval* prop,int type,const zend_literal
     zval** zfind;
     zval* tmp_prop = nullptr;
     const char* str;
-    git_odb_backend* backend = LOOKUP_OBJECT(php_odb_backend_object,obj)->backend;
+    php_odb_backend_object* backendWrapper = LOOKUP_OBJECT(php_odb_backend_object,obj);
+    git_odb_backend* backend = backendWrapper->backend;
 
     // Ensure deep copy of member zval.
     if (Z_TYPE_P(prop) != IS_STRING) {
@@ -785,8 +817,18 @@ zval* odb_backend_read_property(zval* obj,zval* prop,int type,const zend_literal
         if (ret == nullptr) {
             ALLOC_INIT_ZVAL(ret);
             if (backend->odb != nullptr) {
-                php_git_odb_nofree* rsrc = php_git2_create_resource<php_git_odb_nofree>();
-                rsrc->set_handle(backend->odb);
+                php_git_odb* rsrc;
+                if (backendWrapper->owner == nullptr) {
+                    // Create new resource that will not free the git_odb.
+                    rsrc = php_git2_create_resource<php_git_odb_nofree>();
+                    rsrc->set_handle(backend->odb);
+                }
+                else {
+                    // Use owner resource, increment refcount. We assume the
+                    // owner is backend->odb.
+                    rsrc = backendWrapper->owner;
+                    rsrc->up_ref();
+                }
                 zend_register_resource(ret,rsrc,php_git_odb::resource_le() TSRMLS_CC);
 
                 Z_ADDREF_P(ret);
@@ -1323,7 +1365,7 @@ PHP_METHOD(GitODBBackend,writepack)
 
         // Create return value out of the writepack and callback. The callback
         // will be managed by the GitODBWritepack object.
-        php_git2_make_odb_writepack(return_value,wp,callback,thisobj TSRMLS_CC);
+        php_git2_make_odb_writepack(return_value,wp,callback,thisobj,object->owner TSRMLS_CC);
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
             zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
@@ -1344,11 +1386,11 @@ PHP_METHOD(GitODBBackend,free)
 
     // We really don't want people to be able to shoot themselves in the foot
     // with this one (after all, crashing the Web server is generally not
-    // considered a good thing to do). We only call free if the owner flag is
-    // set to true. If owner is false we silently do nothing (the user really
-    // has no business calling this anyway since our destructor will get it).
+    // considered a good thing to do). We only call free if the owner is not
+    // set. If the owner is set then we silently do nothing (the user really has
+    // no business calling this anyway since our destructor will get it).
 
-    if (object->isowner) {
+    if (object->owner == nullptr) {
         object->backend->free(object->backend);
 
         // Avoid double free's later on.
