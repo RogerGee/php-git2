@@ -199,8 +199,13 @@ namespace php_git2
         private php_zts_base
     {
     public:
-        php_git_odb_stream_byref(TSRMLS_D):
-            php_zts_base(TSRMLS_C), stream(nullptr)
+        // Make this object a connector to a php_resource that looks up a
+        // php_git_odb resource wrapper.
+        using connect_t = php_resource<php_git_odb>;
+        typedef git_odb_stream** target_t;
+
+        php_git_odb_stream_byref(connect_t&& conn TSRMLS_DC):
+            php_zts_base(TSRMLS_C), stream(nullptr), ownerWrapper(std::forward<connect_t>(conn))
         {
         }
 
@@ -212,10 +217,11 @@ namespace php_git2
         void ret(zval* return_value)
         {
             // Wrap the git_odb_backend handle in an object zval.
-            php_git2_make_odb_stream(return_value,stream,true TSRMLS_CC);
+            php_git2_make_odb_stream(return_value,stream,ownerWrapper.get_object() TSRMLS_CC);
         }
     private:
         git_odb_stream* stream;
+        connect_t&& ownerWrapper;
     };
 
     // Provide a rethandler for git_odb_object_data().
@@ -515,7 +521,7 @@ static constexpr auto ZIF_GIT_ODB_OPEN_RSTREAM = zif_php_git2_function<
         const git_oid*
         >::func<git_odb_open_rstream>,
     php_git2::local_pack<
-        php_git2::php_git_odb_stream_byref,
+        php_git2::connector_wrapper<php_git2::php_git_odb_stream_byref>,
         php_git2::php_resource<php_git2::php_git_odb>,
         php_git2::php_git_oid_fromstr>,
     1,
@@ -533,7 +539,7 @@ static constexpr auto ZIF_GIT_ODB_OPEN_WSTREAM = zif_php_git2_function<
         git_otype
         >::func<git_odb_open_wstream>,
     php_git2::local_pack<
-        php_git2::php_git_odb_stream_byref,
+        php_git2::connector_wrapper<php_git2::php_git_odb_stream_byref>,
         php_git2::php_resource<php_git2::php_git_odb>,
         php_git2::php_long_cast<git_off_t>,
         php_git2::php_long_cast<git_otype> >,

@@ -98,14 +98,13 @@ namespace php_git2
         static void init(zend_class_entry* ce);
     };
 
-    struct php_odb_stream_object
+    struct php_odb_stream_object : zend_object
     {
         php_odb_stream_object(zend_class_entry* ce TSRMLS_DC);
         ~php_odb_stream_object();
 
-        zend_object base;
         git_odb_stream* stream;
-        bool isstd;
+        php_git_odb* owner;
         php_zts_member zts;
 
         void create_custom_stream(zval* zobj,unsigned int mode);
@@ -182,7 +181,7 @@ namespace php_git2
     void php_git2_make_odb_backend(zval* zp,git_odb_backend* backend,php_git_odb* owner TSRMLS_DC);
     void php_git2_make_odb_writepack(zval* zp,git_odb_writepack* writepack,
         php_callback_sync* cb,zval* zbackend,php_git_odb* owner TSRMLS_DC);
-    void php_git2_make_odb_stream(zval* zp,git_odb_stream* stream,bool isstd TSRMLS_DC);
+    void php_git2_make_odb_stream(zval* zp,git_odb_stream* stream,php_git_odb* owner TSRMLS_DC);
     void php_git2_make_writestream(zval* zp,git_writestream* ws TSRMLS_DC);
 
     // Useful helpers

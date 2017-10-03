@@ -1161,7 +1161,7 @@ PHP_METHOD(GitODBBackend,writestream)
 
     if (outstream != nullptr) {
         // Create GitODBStream object to wrap git_odb_stream.
-        php_git2_make_odb_stream(return_value,outstream,false TSRMLS_CC);
+        php_git2_make_odb_stream(return_value,outstream,nullptr TSRMLS_CC);
     }
 }
 
@@ -1201,7 +1201,7 @@ PHP_METHOD(GitODBBackend,readstream)
 
     if (outstream != nullptr) {
         // Create GitODBStream object to wrap git_odb_stream.
-        php_git2_make_odb_stream(return_value,outstream,false TSRMLS_CC);
+        php_git2_make_odb_stream(return_value,outstream,nullptr TSRMLS_CC);
     }
 }
 
