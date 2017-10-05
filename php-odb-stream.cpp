@@ -49,13 +49,19 @@ void php_git2::php_git2_make_odb_stream(zval* zp,git_odb_stream* stream,php_git_
     // Assign the stream handle.
     obj->stream = stream;
     obj->owner = owner;
+
+    // Increment owner refcount if set. This will prevent the ODB from freeing
+    // while the writestream is in use.
+    if (obj->owner != nullptr) {
+        obj->owner->up_ref();
+    }
 }
 
 // Implementation of php_odb_stream_object
 
 /*static*/ zend_object_handlers php_odb_stream_object::handlers;
 php_odb_stream_object::php_odb_stream_object(zend_class_entry* ce TSRMLS_DC):
-    stream(nullptr), owner(nullptr), zts(TSRMLS_C)
+    stream(nullptr), owner(nullptr), zbackend(nullptr), zts(TSRMLS_C)
 {
     zend_object_std_init(this,ce TSRMLS_CC);
     object_properties_init(this,ce);
@@ -64,13 +70,14 @@ php_odb_stream_object::php_odb_stream_object(zend_class_entry* ce TSRMLS_DC):
 php_odb_stream_object::~php_odb_stream_object()
 {
     if (stream != nullptr) {
-        // If the stream has an owner, then it was created conventional using
+        // If the stream has an owner, then it was created conventionally using
         // the higher-level functions. To prevent memory leaks we must call the
         // high-level git_odb_stream_free(). This will call stream->free() at
         // some point.
 
         if (owner != nullptr) {
             git_odb_stream_free(stream);
+            git2_resource_base::free_recursive(owner);
         }
         else {
             // Otherwise we assume the object was created outside of the
@@ -82,10 +89,15 @@ php_odb_stream_object::~php_odb_stream_object()
         }
     }
 
+    // Free backend object zval (if any).
+    if (zbackend != nullptr) {
+        zval_ptr_dtor(&zbackend);
+    }
+
     zend_object_std_dtor(this ZTS_MEMBER_CC(zts));
 }
 
-void php_odb_stream_object::create_custom_stream(zval* zobj,unsigned int mode)
+void php_odb_stream_object::create_custom_stream(zval* zobj,unsigned int mode,zval* zodbBackend)
 {
     // NOTE: the zval should be any zval that points to an object with 'this' as
     // its backing (i.e. result of zend_objects_get_address()). This is really
@@ -103,10 +115,19 @@ void php_odb_stream_object::create_custom_stream(zval* zobj,unsigned int mode)
         }
     }
 
+    // Free existing zbackend (just in case).
+    if (zbackend != nullptr) {
+        zval_ptr_dtor(&zbackend);
+    }
+
     // Create new custom stream. Assume the stream has no owner (this is our
     // only use case really).
     stream = new (emalloc(sizeof(git_odb_stream_php))) git_odb_stream_php(zobj,mode);
     owner = nullptr;
+    if (zodbBackend != nullptr) {
+        Z_ADDREF_P(zodbBackend);
+        zbackend = zodbBackend;
+    }
 }
 
 /*static*/ void php_odb_stream_object::init(zend_class_entry* ce)
@@ -327,7 +348,6 @@ git_odb_stream_php::~git_odb_stream_php()
 zval* odb_stream_read_property(zval* obj,zval* prop,int type,const zend_literal* key TSRMLS_DC)
 {
     zval* ret;
-    zval** zfind;
     zval* tmp_prop = nullptr;
     const char* str;
     php_odb_stream_object* streamWrapper = LOOKUP_OBJECT(php_odb_stream_object,obj);
@@ -360,28 +380,27 @@ zval* odb_stream_read_property(zval* obj,zval* prop,int type,const zend_literal*
         ZVAL_LONG(ret,stream->received_bytes);
     }
     else if (strcmp(str,"backend") == 0 && stream != nullptr) {
-        if (key != nullptr) {
-            ret = zend_hash_quick_find(Z_OBJPROP_P(obj),"backend",sizeof("backend"),key->hash_value,(void**)&zfind) != FAILURE
-                ? *zfind : nullptr;
+        if (streamWrapper->zbackend != NULL) {
+            Z_ADDREF_P(streamWrapper->zbackend);
+            ret = streamWrapper->zbackend;
         }
         else {
-            ret = zend_hash_find(Z_OBJPROP_P(obj),"backend",sizeof("backend"),(void**)&zfind) != FAILURE
-                ? *zfind : nullptr;
-        }
+            // NOTE: In practice, this case should never get executed for custom
+            // backends overriding the write/readpack methods since
+            // create_custom_stream() should be called in every use case to set
+            // the zbackend in internal storage. However it will get called for
+            // internal backends/backends that employ the default "fake" ODB
+            // streams.
 
-        if (ret == nullptr) {
             ALLOC_INIT_ZVAL(ret);
             if (stream->backend != nullptr) {
-                // TODO Handle backend property.
+                // Create backend object to return to userspace.
+                php_git2_make_odb_backend(ret,stream->backend,streamWrapper->owner);
 
+                // Assign the object zval to internal storage for possible
+                // lookup later on. We'll need to increase refcount to 2.
                 Z_ADDREF_P(ret);
-                if (key != nullptr) {
-                    zend_hash_quick_add(Z_OBJPROP_P(obj),"backend",sizeof("backend"),key->hash_value,
-                        &ret,sizeof(zval*),NULL);
-                }
-                else {
-                    zend_hash_add(Z_OBJPROP_P(obj),"backend",sizeof("backend"),&ret,sizeof(zval*),NULL);
-                }
+                streamWrapper->zbackend = ret;
             }
         }
     }

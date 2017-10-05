@@ -105,9 +105,10 @@ namespace php_git2
 
         git_odb_stream* stream;
         php_git_odb* owner;
+        zval* zbackend;
         php_zts_member zts;
 
-        void create_custom_stream(zval* zobj,unsigned int mode);
+        void create_custom_stream(zval* zobj,unsigned int mode,zval* zodbBackend = nullptr);
 
         static zend_object_handlers handlers;
         static void init(zend_class_entry* ce);

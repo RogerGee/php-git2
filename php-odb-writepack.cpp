@@ -141,7 +141,6 @@ zval* odb_writepack_read_property(zval* obj,zval* prop,int type,const zend_liter
                 // own the underlying backend object.
                 php_git2_make_odb_backend(ret,writepack->backend,wrapper->owner);
 
-                Z_ADDREF_P(ret);
                 if (key != nullptr) {
                     zend_hash_quick_add(Z_OBJPROP_P(obj),"backend",sizeof("backend"),key->hash_value,
                         &ret,sizeof(zval*),NULL);

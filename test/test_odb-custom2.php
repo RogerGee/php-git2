@@ -29,7 +29,7 @@ class SessionODB extends GitODBBackend {
     }
 
     public function writestream($size,$type) {
-        return new TestWritestream($this,$size,$type);
+        return new TestWritestream($size,$type);
     }
 
     public function exists($oid) {
@@ -42,11 +42,9 @@ class SessionODB extends GitODBBackend {
  */
 class TestWritestream extends GitODBStream {
     private $filebuf;
-    private $backend;
     private $type;
 
-    public function __construct(SessionODB $backend,$size,$type) {
-        $this->backend = $backend;
+    public function __construct($size,$type) {
         $this->filebuf = tmpfile();
         $this->type = $type;
     }
@@ -57,6 +55,7 @@ class TestWritestream extends GitODBStream {
 
     public function finalize_write($oid) {
         fseek($this->filebuf,0);
+        //var_dump($this->backend);
         $this->backend->write($oid,stream_get_contents($this->filebuf),$this->type);
     }
 }
@@ -68,9 +67,11 @@ function transfer_object($oid,$store) {
     $data = git_odb_object_data($obj);
     $type = git_odb_object_type($obj);
 
-    // This will work because git2 opens a fake wstream when the backend doesn't
-    // have a direct wstream implementation.
+    // This stream is a custom stream.
     $stream = git_odb_open_wstream($dst,strlen($data),$type);
+    //var_dump($stream);
+    //var_dump($stream->backend);
+
     $stream->write($data);
     $stream->finalize_write($oid);
     $stream->free();

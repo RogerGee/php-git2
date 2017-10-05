@@ -151,7 +151,6 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
         backend = nullptr;
         owner = nullptr;
         if (zend_hash_find(Z_OBJPROP_P(zobj),"odb",sizeof("odb"),(void**)&zfind) != FAILURE) {
-            zval_ptr_dtor(zfind);
             zend_hash_del(Z_OBJPROP_P(zobj),"odb",sizeof("odb"));
         }
     }
@@ -450,12 +449,13 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
             return GIT_ERROR;
         }
 
-        // Now create the custom stream backing.
+        // Now create the custom stream backing. The stream tracks this object
+        // to keep it alive and provide access to the GitODBBackend derivation.
         php_odb_stream_object* sobj = LOOKUP_OBJECT(php_odb_stream_object,&retval);
-        sobj->create_custom_stream(&retval,GIT_STREAM_WRONLY);
+        sobj->create_custom_stream(&retval,GIT_STREAM_WRONLY,thisobj);
 
-        // Help out the implementation by providing a reference to the ODB
-        // backend.
+        // The libgit2 implementation expects the custom backing to provide a
+        // reference to the ODB backend.
         sobj->stream->backend = backend;
 
         // Assign the git_odb_stream to the out parameter. This is safe since
@@ -519,7 +519,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 
         // Now create the custom stream backing.
         php_odb_stream_object* sobj = LOOKUP_OBJECT(php_odb_stream_object,&retval);
-        sobj->create_custom_stream(&retval,GIT_STREAM_RDONLY);
+        sobj->create_custom_stream(&retval,GIT_STREAM_RDONLY,thisobj);
 
         // Help out the implementation by providing a reference to the ODB
         // backend.
@@ -698,13 +698,11 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 
 /*static*/ void php_odb_backend_object::free(git_odb_backend* backend)
 {
-    // First mark the custom backend as having been deleted for extra
-    // sanity. Then explicitly call the destructor on the custom
-    // backend. Finally free the block of memory that holds the custom backend.
+    // Explicitly call the destructor on the custom backend. Finally free the
+    // block of memory that holds the custom backend.
 
     git_odb_backend_php* wrapper = EXTRACT_BACKEND(backend);
-    php_odb_backend_object* obj = LOOKUP_OBJECT(php_odb_backend_object,wrapper->thisobj);
-    obj->backend = nullptr;
+
     wrapper->~git_odb_backend_php();
     efree(backend);
 }
@@ -831,7 +829,6 @@ zval* odb_backend_read_property(zval* obj,zval* prop,int type,const zend_literal
                 }
                 zend_register_resource(ret,rsrc,php_git_odb::resource_le() TSRMLS_CC);
 
-                Z_ADDREF_P(ret);
                 if (key != nullptr) {
                     zend_hash_quick_add(Z_OBJPROP_P(obj),"odb",sizeof("odb"),key->hash_value,
                         &ret,sizeof(zval*),NULL);
@@ -941,7 +938,7 @@ PHP_METHOD(GitODBBackend,read)
     // Grab object backing. Verify that the backend exists and the function is
     // implemented.
     object = LOOKUP_OBJECT(php_odb_backend_object,getThis());
-    if (object->backend == nullptr || object->backend->read_prefix == nullptr) {
+    if (object->backend == nullptr || object->backend->read == nullptr) {
         php_error(E_ERROR,"GitODBBackend::read(): method is not available");
         return;
     }
