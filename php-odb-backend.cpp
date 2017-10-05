@@ -698,11 +698,14 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 
 /*static*/ void php_odb_backend_object::free(git_odb_backend* backend)
 {
-    // Explicitly call the destructor on the custom backend. Finally free the
-    // block of memory that holds the custom backend.
+    // Set backend to null in internal storage (just in case). Then explicitly
+    // call the destructor on the custom backend. Finally free the block of
+    // memory that holds the custom backend.
 
     git_odb_backend_php* wrapper = EXTRACT_BACKEND(backend);
+    php_odb_backend_object* obj = LOOKUP_OBJECT(php_odb_backend_object,wrapper->thisobj);
 
+    obj->backend = nullptr;
     wrapper->~git_odb_backend_php();
     efree(backend);
 }
@@ -716,11 +719,9 @@ git_odb_backend_php::git_odb_backend_php(zval* zv)
     // headers).
     memset(this,0,sizeof(struct git_odb_backend));
 
-    // Copy the object zval so that we have a new zval we can track that refers
-    // to the same specified object. We keep this zval alive as long as the
-    // git_odb_backend is alive.
-    MAKE_STD_ZVAL(thisobj);
-    ZVAL_ZVAL(thisobj,zv,1,0);
+    // Assign zval to keep object alive while backend is in use in the library.
+    Z_ADDREF_P(zv);
+    thisobj = zv;
 
     zend_class_entry* ce = Z_OBJCE_P(thisobj);
     version = GIT_ODB_BACKEND_VERSION;
