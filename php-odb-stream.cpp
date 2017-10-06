@@ -284,8 +284,15 @@ void php_odb_stream_object::create_custom_stream(zval* zobj,unsigned int mode,zv
     // stream. Finally free the block of memory that holds the custom stream.
 
     git_odb_stream_php* wrapper = EXTRACT_STREAM(stream);
-    php_odb_stream_object* obj = LOOKUP_OBJECT(php_odb_stream_object,wrapper->thisobj);
-    obj->stream = nullptr;
+    php_odb_stream_object* obj;
+
+    // Make sure object buckets still exist to lookup object (in case the
+    // destructor was already called).
+    if (EG(objects_store).object_buckets != nullptr) {
+        obj = LOOKUP_OBJECT(php_odb_stream_object,wrapper->thisobj);
+        obj->stream = nullptr;
+    }
+
     wrapper->~git_odb_stream_php();
     efree(stream);
 }

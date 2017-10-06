@@ -703,9 +703,15 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     // memory that holds the custom backend.
 
     git_odb_backend_php* wrapper = EXTRACT_BACKEND(backend);
-    php_odb_backend_object* obj = LOOKUP_OBJECT(php_odb_backend_object,wrapper->thisobj);
+    php_odb_backend_object* obj;
 
-    obj->backend = nullptr;
+    // Make sure object buckets still exist to lookup object (in case the
+    // destructor was already called).
+    if (EG(objects_store).object_buckets != nullptr) {
+        obj = LOOKUP_OBJECT(php_odb_backend_object,wrapper->thisobj);
+        obj->backend = nullptr;
+    }
+
     wrapper->~git_odb_backend_php();
     efree(backend);
 }
