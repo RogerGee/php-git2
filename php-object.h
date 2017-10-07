@@ -129,12 +129,11 @@ namespace php_git2
         static void free(git_odb_stream *stream);
     };
 
-    struct php_writestream_object
+    struct php_writestream_object : zend_object
     {
         php_writestream_object(zend_class_entry* ce TSRMLS_DC);
         ~php_writestream_object();
 
-        zend_object base;
         git_writestream* ws;
         php_zts_member zts;
 
@@ -142,12 +141,11 @@ namespace php_git2
         static void init(zend_class_entry* ce);
     };
 
-    struct php_config_backend_object
+    struct php_config_backend_object : zend_object
     {
         php_config_backend_object(zend_class_entry* ce TSRMLS_DC);
         ~php_config_backend_object();
 
-        zend_object base;
         git_config_backend* backend;
         php_zts_member zts;
 
@@ -167,7 +165,18 @@ namespace php_git2
 
         // Function entries for custom config_backend implementations provided
         // from PHP userspace.
-
+        static int open(git_config_backend* cfg,git_config_level_t level);
+        static int get(git_config_backend* cfg,const char* key,git_config_entry** out);
+        static int set(git_config_backend* cfg,const char* name,const char* value);
+        static int set_multivar(git_config_backend* cfg,const char* name,
+            const char* regexp,const char* value);
+        static int del(git_config_backend* cfg,const char* name);
+        static int del_multivar(git_config_backend* cfg,const char* name,const char* regexp);
+        static int iterator(git_config_iterator** iter,git_config_backend* cfg);
+        static int snapshot(git_config_backend** out,git_config_backend* cfg);
+        static int lock(git_config_backend* cfg);
+        static int unlock(git_config_backend* cfg,int success);
+        static void free(git_config_backend* cfg);
     };
 
     // Provide a routine to call during MINIT for registering the custom
