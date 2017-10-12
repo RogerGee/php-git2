@@ -147,7 +147,10 @@ namespace php_git2
         ~php_config_backend_object();
 
         git_config_backend* backend;
+        php_git_config* owner;
         php_zts_member zts;
+
+        void create_custom_backend(zval* zobj,php_git_config* owner);
 
         static zend_object_handlers handlers;
         static void init(zend_class_entry* ce);

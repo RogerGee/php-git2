@@ -135,24 +135,10 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     // only used by the implementation to obtain class entry info for the class
     // that was used to create the object.
 
-    // Free any existing backend.
+    // Make sure object doesn't already have a backing. This would imply it is
+    // in use already in an ODB.
     if (backend != nullptr) {
-        zval** zfind;
-
-        if (owner == nullptr) {
-            backend->free(backend);
-        }
-        else if (owner != nullptr) {
-            // Attempt to free the owner resource. This only really frees the
-            // owner if its refcount reaches zero.
-            git2_resource_base::free_recursive(owner);
-        }
-
-        backend = nullptr;
-        owner = nullptr;
-        if (zend_hash_find(Z_OBJPROP_P(zobj),"odb",sizeof("odb"),(void**)&zfind) != FAILURE) {
-            zend_hash_del(Z_OBJPROP_P(zobj),"odb",sizeof("odb"));
-        }
+        php_error(E_ERROR,"cannot create custom ODB backend - object already in use");
     }
 
     // Create custom backend. Custom backends are always passed off to git2, so

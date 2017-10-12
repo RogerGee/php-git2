@@ -44,7 +44,7 @@ zend_function_entry php_git2::config_backend_methods[] = {
 
 /*static*/ zend_object_handlers php_config_backend_object::handlers;
 php_config_backend_object::php_config_backend_object(zend_class_entry* ce TSRMLS_DC):
-    backend(nullptr), zts(TSRMLS_C)
+    backend(nullptr), owner(nullptr), zts(TSRMLS_C)
 {
     zend_object_std_init(this,ce TSRMLS_CC);
     object_properties_init(this,ce);
@@ -52,8 +52,35 @@ php_config_backend_object::php_config_backend_object(zend_class_entry* ce TSRMLS
 
 php_config_backend_object::~php_config_backend_object()
 {
+    // Attempt to free the owner resource. This only really frees the owner if
+    // its refcount reaches zero.
+    if (owner != nullptr) {
+        git2_resource_base::free_recursive(owner);
+    }
 
     zend_object_std_dtor(this ZTS_MEMBER_CC(this->zts));
+}
+
+void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config* newOwner)
+{
+    // NOTE: 'zobj' is the zval to the outer object that wraps this custom
+    // zend_object derivation.
+
+    // Make sure this config backend object is not in use anywhere else
+    // (i.e. does not yet have a backing).
+    if (backend != nullptr) {
+        php_error(E_ERROR,"cannot create custom config backend - object already in use");
+    }
+
+    // Create custom backend. Custom backends are always passed off to git2, so
+    // we are not responsible for calling its free function.
+    backend = new (emalloc(sizeof(git_config_backend_php))) git_config_backend_php(zobj);
+
+    // Assume new owner, increment refcount if set.
+    owner = newOwner;
+    if (owner != nullptr) {
+        owner->up_ref();
+    }
 }
 
 /*static*/ int php_config_backend_object::open(git_config_backend* cfg,git_config_level_t level)

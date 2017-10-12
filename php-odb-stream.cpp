@@ -104,15 +104,9 @@ void php_odb_stream_object::create_custom_stream(zval* zobj,unsigned int mode,zv
     // only used by the implementation to obtain class entry info for the class
     // that was used to create the object.
 
-    // Free any existing stream.
+    // Make sure the stream does not already exist.
     if (stream != nullptr) {
-        if (owner != nullptr) {
-            git_odb_stream_free(stream);
-            git2_resource_base::free_recursive(owner);
-        }
-        else {
-            stream->free(stream);
-        }
+        php_error(E_ERROR,"cannot create custom ODB stream - object already in use");
     }
 
     // Free existing zbackend (just in case).
