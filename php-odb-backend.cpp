@@ -3,12 +3,13 @@
  *
  * This file is a part of php-git2.
  *
- * This unit provides the out-of-line implementation for the gitODBBackend
+ * This unit provides the out-of-line implementation for the GitODBBackend
  * class.
  */
 
 #include "php-object.h"
 #include "php-callback.h"
+#include <cstring>
 #include <new>
 using namespace php_git2;
 
@@ -19,6 +20,12 @@ using namespace php_git2;
 
 #define EXTRACT_THISOBJ(backend) \
     EXTRACT_BACKEND(backend)->thisobj
+
+// Custom class handlers
+
+static zval* odb_backend_read_property(zval* obj,zval* prop,int type,const zend_literal* key TSRMLS_DC);
+static void odb_backend_write_property(zval* obj,zval* prop,zval* value,const zend_literal* key TSRMLS_DC);
+static int odb_backend_has_property(zval* obj,zval* prop,int chk_type,const zend_literal* key TSRMLS_DC);
 
 // Class method entries
 
@@ -72,7 +79,7 @@ zend_function_entry php_git2::odb_backend_methods[] = {
 
 // Make function implementation
 
-void php_git2::php_git2_make_odb_backend(zval* zp,git_odb_backend* backend,bool owner TSRMLS_DC)
+void php_git2::php_git2_make_odb_backend(zval* zp,git_odb_backend* backend,php_git_odb* owner TSRMLS_DC)
 {
     php_odb_backend_object* obj;
     zend_class_entry* ce = php_git2::class_entry[php_git2_odb_backend_obj];
@@ -83,35 +90,45 @@ void php_git2::php_git2_make_odb_backend(zval* zp,git_odb_backend* backend,bool 
 
     // Assign the git2 odb_backend object.
     obj->backend = backend;
-    obj->isowner = owner;
+    obj->owner = owner;
 
-    // Update the version property to the version specified by the backend.
-    zend_update_property_long(ce,zp,"version",sizeof("version")-1,backend->version TSRMLS_CC);
+    // Increment owner refcount if set. This will prevent the ODB from freeing
+    // while the backend is in use.
+    if (obj->owner != nullptr) {
+        obj->owner->up_ref();
+    }
 }
 
 // Implementation of php_odb_backend_object
 
 /*static*/ zend_object_handlers php_odb_backend_object::handlers;
 php_odb_backend_object::php_odb_backend_object(zend_class_entry* ce TSRMLS_DC):
-    backend(nullptr), isowner(false), zts(TSRMLS_C)
+    backend(nullptr), owner(nullptr), zts(TSRMLS_C)
 {
-    zend_object_std_init(&base,ce TSRMLS_CC);
-    object_properties_init(&base,ce);
+    zend_object_std_init(this,ce TSRMLS_CC);
+    object_properties_init(this,ce);
 }
 
 php_odb_backend_object::~php_odb_backend_object()
 {
-    // AFAIK we never call the free() function on git_odb_backend objects unless
-    // they were returned directly from a library call. We've marked this using
-    // the 'isowner' flag.
-    if (isowner && backend != nullptr) {
+    // AFAIK we never call the free() function on git_odb_backend objects that
+    // we returned from a call that referenced a git_odb. This is the case if
+    // 'owner' is set.
+
+    if (owner == nullptr && backend != nullptr) {
         backend->free(backend);
     }
 
-    zend_object_std_dtor(&base ZTS_MEMBER_CC(this->zts));
+    // Attempt to free the owner resource. This only really frees the owner if
+    // its refcount reaches zero.
+    if (owner != nullptr) {
+        git2_resource_base::free_recursive(owner);
+    }
+
+    zend_object_std_dtor(this ZTS_MEMBER_CC(this->zts));
 }
 
-void php_odb_backend_object::create_custom_backend(zval* zobj)
+void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOwner)
 {
     // NOTE: the zval should be any zval that points to an object with 'this' as
     // its backing (i.e. result of zend_objects_get_address()). This is really
@@ -120,25 +137,41 @@ void php_odb_backend_object::create_custom_backend(zval* zobj)
 
     // Free any existing backend.
     if (backend != nullptr) {
-        if (isowner) {
+        zval** zfind;
+
+        if (owner == nullptr) {
             backend->free(backend);
         }
+        else if (owner != nullptr) {
+            // Attempt to free the owner resource. This only really frees the
+            // owner if its refcount reaches zero.
+            git2_resource_base::free_recursive(owner);
+        }
+
         backend = nullptr;
+        owner = nullptr;
+        if (zend_hash_find(Z_OBJPROP_P(zobj),"odb",sizeof("odb"),(void**)&zfind) != FAILURE) {
+            zend_hash_del(Z_OBJPROP_P(zobj),"odb",sizeof("odb"));
+        }
     }
 
     // Create custom backend. Custom backends are always passed off to git2, so
     // we are not responsible for calling its free function.
     backend = new (emalloc(sizeof(git_odb_backend_php))) git_odb_backend_php(zobj);
-    isowner = false;
+
+    // Assume new owner, increment refcount if set.
+    owner = newOwner;
+    if (owner != nullptr) {
+        owner->up_ref();
+    }
 }
 
 /*static*/ void php_odb_backend_object::init(zend_class_entry* ce)
 {
-    zend_declare_property_long(
-        ce,
-        "version", sizeof("version") - 1,
-        GIT_ODB_BACKEND_VERSION,
-        ZEND_ACC_PUBLIC);
+    handlers.read_property = odb_backend_read_property;
+    handlers.write_property = odb_backend_write_property;
+    handlers.has_property = odb_backend_has_property;
+    (void)ce;
 }
 
 /*static*/ int php_odb_backend_object::read(void** datap,size_t* sizep,
@@ -416,12 +449,13 @@ void php_odb_backend_object::create_custom_backend(zval* zobj)
             return GIT_ERROR;
         }
 
-        // Now create the custom stream backing.
+        // Now create the custom stream backing. The stream tracks this object
+        // to keep it alive and provide access to the GitODBBackend derivation.
         php_odb_stream_object* sobj = LOOKUP_OBJECT(php_odb_stream_object,&retval);
-        sobj->create_custom_stream(&retval,GIT_STREAM_WRONLY);
+        sobj->create_custom_stream(&retval,GIT_STREAM_WRONLY,thisobj);
 
-        // Help out the implementation by providing a reference to the ODB
-        // backend.
+        // The libgit2 implementation expects the custom backing to provide a
+        // reference to the ODB backend.
         sobj->stream->backend = backend;
 
         // Assign the git_odb_stream to the out parameter. This is safe since
@@ -485,7 +519,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj)
 
         // Now create the custom stream backing.
         php_odb_stream_object* sobj = LOOKUP_OBJECT(php_odb_stream_object,&retval);
-        sobj->create_custom_stream(&retval,GIT_STREAM_RDONLY);
+        sobj->create_custom_stream(&retval,GIT_STREAM_RDONLY,thisobj);
 
         // Help out the implementation by providing a reference to the ODB
         // backend.
@@ -664,13 +698,20 @@ void php_odb_backend_object::create_custom_backend(zval* zobj)
 
 /*static*/ void php_odb_backend_object::free(git_odb_backend* backend)
 {
-    // First mark the custom backend as having been deleted for extra
-    // sanity. Then explicitly call the destructor on the custom
-    // backend. Finally free the block of memory that holds the custom backend.
+    // Set backend to null in internal storage (just in case). Then explicitly
+    // call the destructor on the custom backend. Finally free the block of
+    // memory that holds the custom backend.
 
     git_odb_backend_php* wrapper = EXTRACT_BACKEND(backend);
-    php_odb_backend_object* obj = LOOKUP_OBJECT(php_odb_backend_object,wrapper->thisobj);
-    obj->backend = nullptr;
+    php_odb_backend_object* obj;
+
+    // Make sure object buckets still exist to lookup object (in case the
+    // destructor was already called).
+    if (EG(objects_store).object_buckets != nullptr) {
+        obj = LOOKUP_OBJECT(php_odb_backend_object,wrapper->thisobj);
+        obj->backend = nullptr;
+    }
+
     wrapper->~git_odb_backend_php();
     efree(backend);
 }
@@ -684,17 +725,12 @@ git_odb_backend_php::git_odb_backend_php(zval* zv)
     // headers).
     memset(this,0,sizeof(struct git_odb_backend));
 
-    // Copy the object zval so that we have a new zval we can track that refers
-    // to the same specified object. We keep this zval alive as long as the
-    // git_odb_backend is alive.
-    MAKE_STD_ZVAL(thisobj);
-    ZVAL_ZVAL(thisobj,zv,1,0);
+    // Assign zval to keep object alive while backend is in use in the library.
+    Z_ADDREF_P(zv);
+    thisobj = zv;
 
-    // Read properties from the object zval and assign them to the backing
-    // structure.
     zend_class_entry* ce = Z_OBJCE_P(thisobj);
-    zval* zp = zend_read_property(ce,thisobj,"version",sizeof("version")-1,1);
-    version = Z_LVAL_P(zp);
+    version = GIT_ODB_BACKEND_VERSION;
 
     // Every custom backend gets the free function (whether it is overloaded in
     // userspace or not).
@@ -744,6 +780,155 @@ git_odb_backend_php::~git_odb_backend_php()
     zval_ptr_dtor(&thisobj);
 }
 
+// Implementation of custom class handlers
+
+zval* odb_backend_read_property(zval* obj,zval* prop,int type,const zend_literal* key TSRMLS_DC)
+{
+    zval* ret;
+    zval** zfind;
+    zval* tmp_prop = nullptr;
+    const char* str;
+    php_odb_backend_object* backendWrapper = LOOKUP_OBJECT(php_odb_backend_object,obj);
+    git_odb_backend* backend = backendWrapper->backend;
+
+    // Ensure deep copy of member zval.
+    if (Z_TYPE_P(prop) != IS_STRING) {
+        MAKE_STD_ZVAL(tmp_prop);
+        *tmp_prop = *prop;
+        INIT_PZVAL(tmp_prop);
+        zval_copy_ctor(tmp_prop);
+        convert_to_string(tmp_prop);
+        prop = tmp_prop;
+        key = NULL;
+    }
+
+    // Handle special properties of the git_odb_backend.
+
+    str = Z_STRVAL_P(prop);
+    if (strcmp(str,"version") == 0 && backend != nullptr) {
+        ALLOC_INIT_ZVAL(ret);
+        ZVAL_LONG(ret,backend->version);
+    }
+    else if (strcmp(str,"odb") == 0 && backend != nullptr) {
+        if (key != nullptr) {
+            ret = zend_hash_quick_find(Z_OBJPROP_P(obj),"odb",sizeof("odb"),key->hash_value,(void**)&zfind) != FAILURE
+                ? *zfind : nullptr;
+        }
+        else {
+            ret = zend_hash_find(Z_OBJPROP_P(obj),"odb",sizeof("odb"),(void**)&zfind) != FAILURE
+                ? *zfind : nullptr;
+        }
+
+        if (ret == nullptr) {
+            ALLOC_INIT_ZVAL(ret);
+            if (backend->odb != nullptr) {
+                php_git_odb* rsrc;
+                if (backendWrapper->owner == nullptr) {
+                    // Create new resource that will not free the git_odb.
+                    rsrc = php_git2_create_resource<php_git_odb_nofree>();
+                    rsrc->set_handle(backend->odb);
+                }
+                else {
+                    // Use owner resource, increment refcount. We assume the
+                    // owner is backend->odb.
+                    rsrc = backendWrapper->owner;
+                    rsrc->up_ref();
+                }
+                zend_register_resource(ret,rsrc,php_git_odb::resource_le() TSRMLS_CC);
+
+                if (key != nullptr) {
+                    zend_hash_quick_add(Z_OBJPROP_P(obj),"odb",sizeof("odb"),key->hash_value,
+                        &ret,sizeof(zval*),NULL);
+                }
+                else {
+                    zend_hash_add(Z_OBJPROP_P(obj),"odb",sizeof("odb"),&ret,sizeof(zval*),NULL);
+                }
+            }
+        }
+    }
+    else {
+        ret = (*std_object_handlers.read_property)(obj,prop,type,key TSRMLS_CC);
+    }
+
+    if (tmp_prop != nullptr) {
+        Z_ADDREF_P(ret);
+        zval_ptr_dtor(&tmp_prop);
+        Z_DELREF_P(ret);
+    }
+
+    return ret;
+}
+
+void odb_backend_write_property(zval* obj,zval* prop,zval* value,const zend_literal* key TSRMLS_DC)
+{
+    zval* tmp_prop = nullptr;
+    const char* str;
+
+    // Ensure deep copy of member zval.
+    if (Z_TYPE_P(prop) != IS_STRING) {
+        MAKE_STD_ZVAL(tmp_prop);
+        *tmp_prop = *prop;
+        INIT_PZVAL(tmp_prop);
+        zval_copy_ctor(tmp_prop);
+        convert_to_string(tmp_prop);
+        prop = tmp_prop;
+        key = NULL;
+    }
+
+    str = Z_STRVAL_P(prop);
+    if (strcmp(str,"version") == 0 || strcmp(str,"odb") == 0) {
+        php_error(E_ERROR,"GitODBBackend: the %s property is read-only",str);
+    }
+    else {
+        (*std_object_handlers.write_property)(obj,prop,value,key);
+    }
+
+    if (tmp_prop != nullptr) {
+        zval_ptr_dtor(&tmp_prop);
+    }
+}
+
+int odb_backend_has_property(zval* obj,zval* prop,int chk_type,const zend_literal* key TSRMLS_DC)
+{
+    int result;
+    zval* tmp_prop = nullptr;
+    const char* src;
+    git_odb_backend* backend = LOOKUP_OBJECT(php_odb_backend_object,obj)->backend;
+
+    // Ensure deep copy of member zval.
+    if (Z_TYPE_P(prop) != IS_STRING) {
+        MAKE_STD_ZVAL(tmp_prop);
+        *tmp_prop = *prop;
+        INIT_PZVAL(tmp_prop);
+        zval_copy_ctor(tmp_prop);
+        convert_to_string(tmp_prop);
+        prop = tmp_prop;
+        key = NULL;
+    }
+
+    src = Z_STRVAL_P(prop);
+    if (strcmp(src,"version") == 0) {
+        result = (backend != nullptr);
+    }
+    else if (strcmp(src,"odb") == 0) {
+        if (chk_type == 2) {
+            result = (backend != nullptr);
+        }
+        else {
+            result = (backend != nullptr && backend->odb != nullptr);
+        }
+    }
+    else {
+        result = (*std_object_handlers.has_property)(obj,prop,chk_type,key TSRMLS_CC);
+    }
+
+    if (tmp_prop != nullptr) {
+        zval_ptr_dtor(&tmp_prop);
+    }
+
+    return result;
+}
+
 // Implementation of class methods
 
 PHP_METHOD(GitODBBackend,read)
@@ -760,7 +945,7 @@ PHP_METHOD(GitODBBackend,read)
     // Grab object backing. Verify that the backend exists and the function is
     // implemented.
     object = LOOKUP_OBJECT(php_odb_backend_object,getThis());
-    if (object->backend == nullptr || object->backend->read_prefix == nullptr) {
+    if (object->backend == nullptr || object->backend->read == nullptr) {
         php_error(E_ERROR,"GitODBBackend::read(): method is not available");
         return;
     }
@@ -980,7 +1165,7 @@ PHP_METHOD(GitODBBackend,writestream)
 
     if (outstream != nullptr) {
         // Create GitODBStream object to wrap git_odb_stream.
-        php_git2_make_odb_stream(return_value,outstream,false TSRMLS_CC);
+        php_git2_make_odb_stream(return_value,outstream,nullptr TSRMLS_CC);
     }
 }
 
@@ -1020,7 +1205,7 @@ PHP_METHOD(GitODBBackend,readstream)
 
     if (outstream != nullptr) {
         // Create GitODBStream object to wrap git_odb_stream.
-        php_git2_make_odb_stream(return_value,outstream,false TSRMLS_CC);
+        php_git2_make_odb_stream(return_value,outstream,nullptr TSRMLS_CC);
     }
 }
 
@@ -1184,7 +1369,7 @@ PHP_METHOD(GitODBBackend,writepack)
 
         // Create return value out of the writepack and callback. The callback
         // will be managed by the GitODBWritepack object.
-        php_git2_make_odb_writepack(return_value,wp,callback,thisobj TSRMLS_CC);
+        php_git2_make_odb_writepack(return_value,wp,callback,thisobj,object->owner TSRMLS_CC);
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
             zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
@@ -1205,11 +1390,11 @@ PHP_METHOD(GitODBBackend,free)
 
     // We really don't want people to be able to shoot themselves in the foot
     // with this one (after all, crashing the Web server is generally not
-    // considered a good thing to do). We only call free if the owner flag is
-    // set to true. If owner is false we silently do nothing (the user really
-    // has no business calling this anyway since our destructor will get it).
+    // considered a good thing to do). We only call free if the owner is not
+    // set. If the owner is set then we silently do nothing (the user really has
+    // no business calling this anyway since our destructor will get it).
 
-    if (object->isowner) {
+    if (object->owner == nullptr) {
         object->backend->free(object->backend);
 
         // Avoid double free's later on.

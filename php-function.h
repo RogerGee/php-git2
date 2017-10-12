@@ -131,6 +131,17 @@ namespace php_git2
         T connector;
     };
 
+    template<typename T>
+    class connector_wrapper_ex:
+        public connector_wrapper<T>
+    {
+    public:
+        connector_wrapper_ex(connector_wrapper<typename T::connect_t>&& obj TSRMLS_DC):
+            connector_wrapper<T>(std::forward<typename T::connect_t>(obj.get_connector()) TSRMLS_CC)
+        {
+        }
+    };
+
     template<typename T,typename... Ts>
     class local_pack<connector_wrapper<T>,Ts...>:
         local_pack<Ts...>
@@ -187,6 +198,65 @@ namespace php_git2
         { return sizeof...(Ts) + 1; }
     private:
         connector_wrapper<T> local;
+    };
+
+    template<typename T,typename... Ts>
+    class local_pack<connector_wrapper_ex<T>,Ts...>:
+        local_pack<Ts...>
+    {
+    protected:
+        // Provide some meta-constructs to access an arbitrary type from a
+        // parameter pack.
+
+        template<unsigned K,typename U>
+        struct type_selector;
+
+        template<typename U,typename... Us>
+        struct type_selector<0,local_pack<U,Us...> >
+        {
+            typedef U type;
+        };
+
+        template<unsigned K,typename U,typename... Us>
+        struct type_selector<K,local_pack<U,Us...> >
+        {
+            typedef typename type_selector<K-1,
+                local_pack<Us...> >::type type;
+        };
+    public:
+        // Initialize to default. This is important if PHP assumes default
+        // values for some parameters.
+        local_pack(TSRMLS_D):
+            local_pack<Ts...>(TSRMLS_C),
+            local(std::forward<connector_wrapper<typename T::connect_t> >(get<1>()) TSRMLS_CC)
+        {
+        }
+
+        // The get<K> member function is used to extract a reference to the
+        // zero-based, Kth element in the local variable pack.
+
+        template<unsigned K>
+        typename std::enable_if<K == 0,
+            typename type_selector<0,
+                local_pack<connector_wrapper_ex<T>,Ts...> >::type&>::type get()
+        {
+            return local;
+        }
+
+        template<unsigned K>
+        typename std::enable_if<(K != 0),
+            typename type_selector<K,
+                local_pack<connector_wrapper_ex<T>,Ts...> >::type&>::type get()
+        {
+            return ((local_pack<Ts...>*)this)->template get<K-1>();
+        }
+
+        // Provide the size of the pack as a constant function expression.
+
+        static constexpr unsigned size()
+        { return sizeof...(Ts) + 1; }
+    private:
+        connector_wrapper_ex<T> local;
     };
 
     // Provide some meta-constructs to generate a zero-based, integer sequence

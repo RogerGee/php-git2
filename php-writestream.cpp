@@ -38,8 +38,8 @@ void php_git2::php_git2_make_writestream(zval* zp,git_writestream* ws TSRMLS_DC)
 php_writestream_object::php_writestream_object(zend_class_entry* ce TSRMLS_DC):
     ws(nullptr), zts(TSRMLS_C)
 {
-    zend_object_std_init(&base,ce TSRMLS_CC);
-    object_properties_init(&base,ce);
+    zend_object_std_init(this,ce TSRMLS_CC);
+    object_properties_init(this,ce);
 }
 
 php_writestream_object::~php_writestream_object()
@@ -48,7 +48,7 @@ php_writestream_object::~php_writestream_object()
         ws->free(ws);
     }
 
-    zend_object_std_dtor(&base ZTS_MEMBER_CC(zts));
+    zend_object_std_dtor(this ZTS_MEMBER_CC(zts));
 }
 
 /*static*/ void php_writestream_object::init(zend_class_entry* ce)

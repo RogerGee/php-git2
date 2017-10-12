@@ -1029,6 +1029,7 @@ namespace php_git2
     using php_git_repository_nofree = git2_resource_nofree<git_repository>;
     using php_git_tree_entry_nofree = git2_resource_nofree<git_tree_entry>;
     using php_git_signature_nofree = git2_resource_nofree<git_signature>;
+    using php_git_odb_nofree = git2_resource_nofree<git_odb>;
 
 } // namespace php_git2
 

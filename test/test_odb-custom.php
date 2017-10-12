@@ -10,11 +10,13 @@ require_once 'test_base.php';
  * Create a custom ODB backend that uses the PHP session.
  */
 class SessionODB extends GitODBBackend {
-    public function __construct() {
-        if (session_status() == PHP_SESSION_NONE) {
-            @session_id('git2-test-repo');
-            @session_start();
+    public function __construct($id = 'git2-test-repo') {
+        if (session_status() != PHP_SESSION_NONE) {
+            session_destroy();
         }
+
+        @session_id($id);
+        @session_start();
     }
 
     public function read(&$type,$oid) {
@@ -59,6 +61,9 @@ function test_session_backend() {
     git_odb_add_backend($odb,$backend,1);
     git_repository_set_odb($repo,$odb);
 
+    var_dump($odb);
+    var_dump($backend->odb);
+
     if (!git_odb_exists($odb,'9182bfa491861a4ac38b955d0b7262b09d8ddbd6')) {
         // Create a blob in the repository.
         $data =<<<EOF
@@ -100,4 +105,31 @@ EOF;
     }
 }
 
+function test_default_writepack() {
+    // Create a new git repository and add a blob to its ODB.
+
+    $dt = new \DateTime;
+    $tm = $dt->format('Y-m-d H:i:s');
+    $data = "This is a blob created on $tm";
+
+    $backend = new SessionODB("s" . rand());
+    $repo = git_repository_new();
+    $odb = git_odb_new();
+
+    git_odb_add_backend($odb,$backend,1);
+    git_repository_set_odb($repo,$odb);
+
+    $stream = git_odb_open_wstream($odb,strlen($data),GIT_OBJ_BLOB);
+
+    // The backend is not a direct SessionODB (since the git_odb resource
+    // doesn't track it). But it will wind up calling into the methods of
+    // $backend (which is a SessionODB).
+    var_dump($stream->backend);
+
+    $stream->write($data);
+    $stream->finalize_write(sha1($data));
+    $stream->free();
+}
+
 testbed_test('Custom ODB/Create','\Git2Test\ODBCustom\test_session_backend');
+testbed_test('Custom ODB/Default Writepack','\Git2Test\ODBCustom\test_default_writepack');
