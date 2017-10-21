@@ -203,7 +203,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
         // Return values to caller. We have to copy the data to use a persistent
         // memory buffer that git2 can free.
         convert_to_string(&retval);
-        data = malloc(Z_STRLEN(retval));
+        data = pemalloc(Z_STRLEN(retval),1);
         memcpy(data,Z_STRVAL(retval),Z_STRLEN(retval));
         *datap = data;
         *sizep = Z_STRLEN(retval);
@@ -264,7 +264,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
         // Return values to caller. We have to copy the data to use a persistent
         // memory buffer that git2 can free.
         convert_to_string(&retval);
-        data = malloc(Z_STRLEN(retval));
+        data = pemalloc(Z_STRLEN(retval),1);
         memcpy(data,Z_STRVAL(retval),Z_STRLEN(retval));
         *datap = data;
         *sizep = Z_STRLEN(retval);

@@ -1410,3 +1410,17 @@ abstract class GitConfigBackend:
        structure. **
 
     methods:
+        mixed open(int level)
+
+            ** Method may return false to indicate failure. If the method has no
+               return value (i.e. returns null), or a truthy value is returned,
+               then the implementation assumes success. **
+
+        array get(string key)
+
+            ** Method returns array with properties 'name', 'value' and 'level'
+               corresponding to git_config_entry. If the method fails lookup, it
+               should return false or some falsy value (e.g. 0, null). **
+
+            ** If 'level' is not specified in the return array, then level
+               defaults to GIT_CONFIG_LEVEL_APP. **

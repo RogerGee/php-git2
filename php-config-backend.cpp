@@ -11,13 +11,86 @@
 #include <new>
 using namespace php_git2;
 
-// Helper macros
+// Helper macros and functions
 
 #define EXTRACT_BACKEND(backend) \
     reinterpret_cast<php_config_backend_object::git_config_backend_php*>(backend)
 
 #define EXTRACT_THISOBJ(backend) \
     EXTRACT_BACKEND(backend)->thisobj
+
+static void custom_backend_entry_free(git_config_entry* ent)
+{
+    pefree(ent->payload,1);
+    pefree(ent,1);
+}
+
+static int set_custom_backend_entry(zval* arr,git_config_entry* ent,const char** err)
+{
+    char* buffer;
+    zval** zvpName;
+    zval** zvpValue;
+    zval** zvpLevel;
+    HashTable* ht = Z_ARRVAL_P(arr);
+    const char* name, *value;
+    zval cpyName;
+    zval cpyValue;
+    int name_len;
+    int value_len;
+    git_config_level_t level = GIT_CONFIG_LEVEL_APP;
+
+    if (zend_hash_find(ht,"name",sizeof("name"),(void**)&zvpName) == FAILURE) {
+        *err = "expected array element 'name'";
+        return FAILURE;
+    }
+    if (zend_hash_find(ht,"value",sizeof("value"),(void**)&zvpValue) == FAILURE) {
+        *err = "expected array element 'value'";
+        return FAILURE;
+    }
+    if (zend_hash_find(ht,"level",sizeof("level"),(void**)&zvpLevel) == FAILURE) {
+        // NOTE: level is optional and will default to GIT_CONFIG_LEVEL_APP.
+        if (Z_TYPE_PP(zvpLevel) == IS_LONG) {
+            level = (git_config_level_t)Z_LVAL_PP(zvpLevel);
+        }
+    }
+
+    if (Z_TYPE_PP(zvpName) != IS_STRING) {
+        ZVAL_COPY_VALUE(&cpyName,*zvpName);
+        zval_copy_ctor(&cpyName);
+        convert_to_string(&cpyName);
+        name = Z_STRVAL(cpyName);
+    }
+    else {
+        INIT_ZVAL(cpyName);
+        name = Z_STRVAL_P(*zvpName);
+    }
+
+    if (Z_TYPE_PP(zvpValue) != IS_STRING) {
+        ZVAL_COPY_VALUE(&cpyValue,*zvpValue);
+        zval_copy_ctor(&cpyValue);
+        convert_to_string(&cpyValue);
+        value = Z_STRVAL(cpyValue);
+    }
+    else {
+        INIT_ZVAL(cpyValue);
+        value = Z_STRVAL_P(*zvpValue);
+    }
+
+    // Copy name and length into buffer and assign sections to fields.
+    name_len = strlen(name);
+    value_len = strlen(value);
+    buffer = (char*)pemalloc(name_len + value_len + 2,1);
+    ent->name = buffer;
+    ent->value = buffer + name_len + 1;
+    memcpy(buffer,name,name_len+1);
+    memcpy(buffer + name_len + 1,value,value_len+1);
+
+    ent->level = level;
+    ent->free = custom_backend_entry_free;
+    ent->payload = buffer;
+
+    return SUCCESS;
+}
 
 // Class method entries
 
@@ -86,6 +159,40 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
 /*static*/ int php_config_backend_object::open(git_config_backend* cfg,git_config_level_t level)
 {
     int result = GIT_OK;
+    zval fname;
+    zval retval;
+    zval* zlevel;
+    zval* thisobj = EXTRACT_THISOBJ(cfg);
+
+    INIT_ZVAL(fname);
+    INIT_ZVAL(retval);
+    ALLOC_INIT_ZVAL(zlevel);
+
+    // Assign method name and parameters.
+    ZVAL_STRING(&fname,"open",1);
+    ZVAL_LONG(zlevel,level);
+
+    // Call userspace method.
+    if (call_user_function(NULL,&thisobj,&fname,&retval,1,&zlevel
+        ZTS_MEMBER_CC(object->zts)) == FAILURE)
+    {
+        result = GIT_ERROR;
+    }
+    else {
+        // Allow userspace to indicate failure by returning false. If NULL is
+        // returned, the function assumes success.
+        if (Z_TYPE(retval) != IS_NULL) {
+            convert_to_boolean(&retval);
+            if (!Z_BVAL(retval)) {
+                giterr_set_str(GITERR_CONFIG,"php-config-backend: fail open()");
+                result = GIT_ERROR;
+            }
+        }
+    }
+
+    zval_dtor(&fname);
+    zval_dtor(&retval);
+    zval_ptr_dtor(&zlevel);
 
     return result;
 }
@@ -94,6 +201,50 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
     git_config_entry** out)
 {
     int result = GIT_OK;
+    zval fname;
+    zval retval;
+    zval* zkey;
+    zval* thisobj = EXTRACT_THISOBJ(cfg);
+    git_config_entry* entry;
+
+    INIT_ZVAL(fname);
+    INIT_ZVAL(retval);
+    ALLOC_INIT_ZVAL(zkey);
+
+    ZVAL_STRING(&fname,"get",1);
+    ZVAL_STRING(zkey,key,1);
+
+    if (call_user_function(NULL,&thisobj,&fname,&retval,1,&zkey
+        ZTS_MEMBER_CC(object->zts)) == FAILURE)
+    {
+    }
+    else {
+        if (Z_TYPE(retval) == IS_ARRAY) {
+            const char* err;
+            entry = (git_config_entry*)pemalloc(sizeof(git_config_entry),1);
+            memset(entry,0,sizeof(git_config_entry));
+            if (set_custom_backend_entry(&retval,entry,&err) == FAILURE) {
+                custom_backend_entry_free(entry);
+                php_error(E_ERROR,"GitConfigBackend: get(): bad return value: %s",err);
+                return GIT_ERROR;
+            }
+            *out = entry;
+        }
+        else {
+            convert_to_boolean(&retval);
+            if (!Z_BVAL(retval)) {
+                result = GIT_ENOTFOUND;
+            }
+            else {
+                php_error(E_ERROR,"GitConfigBackend: get(): return value must be an array");
+                return GIT_ERROR;
+            }
+        }
+    }
+
+    zval_dtor(&fname);
+    zval_dtor(&retval);
+    zval_ptr_dtor(&zkey);
 
     return result;
 }

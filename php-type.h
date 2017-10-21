@@ -660,7 +660,6 @@ namespace php_git2
         byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
             GitResource* rsrc;
-            typename GitResource::git2_type handle;
 
             // Make sure this is a resource zval.
             if (Z_TYPE_P(value) != IS_RESOURCE) {

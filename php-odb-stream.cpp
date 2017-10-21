@@ -294,7 +294,7 @@ void php_odb_stream_object::create_custom_stream(zval* zobj,unsigned int mode,zv
 // php_odb_stream::git_odb_stream_php
 
 php_odb_stream_object::
-git_odb_stream_php::git_odb_stream_php(zval* zv,unsigned int mode)
+git_odb_stream_php::git_odb_stream_php(zval* zv,unsigned int newMode)
 {
     // Blank out the base class (which is the structure defined in the git2
     // headers).
@@ -334,7 +334,7 @@ git_odb_stream_php::git_odb_stream_php(zval* zv,unsigned int mode)
     finalize_write = php_odb_stream_object::finalize_write;
     free = php_odb_stream_object::free;
 
-    mode = mode;
+    mode = newMode;
 }
 
 php_odb_stream_object::
