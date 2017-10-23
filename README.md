@@ -107,6 +107,22 @@ installed on the system. If you want to static link git2 into the extension,
 install the archive library for git2 in place of the dynamic link one (or alter
 the compile macros in the config file to point at your static archive).
 
+When you configure the build, there are a couple of different options you should
+consider to make the binary useful for your particular purpose. Add options to
+the CXXFLAGS variable since the C++ compiler is used for all compilation
+units. For release builds, enable optimizations like so:
+
+    ./configure CXXFLAGS='-O3'
+
+Since the code uses a lot of inline template functions, optimizations will
+really help improve the performance of the binary (and makes it a lot
+smaller). However this is not great for testing since it collapses function
+calls down. For a development environment, we recommend something like
+
+    ./configure CXXFLAGS='-g -O0 -Wfatal-errors -Wall -Wno-deprecated-register'
+
+This configuration will produce a huge binary, but it will be easier to trace.
+
 Windows
 -------
 

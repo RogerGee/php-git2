@@ -24,13 +24,13 @@ namespace php_git2
         git_clone_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
             if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
-                GIT2_ARRAY_LOOKUP_VARIABLES(value);
+                array_wrapper arr(value);
 
-                GIT2_ARRAY_LOOKUP_LONG(version,opts);
-                GIT2_ARRAY_LOOKUP_LONG(bare,opts);
-                GIT2_ARRAY_LOOKUP_LONG(local,opts);
-                GIT2_ARRAY_LOOKUP_STRING_NULLABLE(checkout_branch,opts);
-                GIT2_ARRAY_LOOKUP_SUBOBJECT_BYVAL(checkoutOpts,checkout_opts,opts);
+                GIT2_ARRAY_LOOKUP_LONG(arr,version,opts);
+                GIT2_ARRAY_LOOKUP_LONG(arr,bare,opts);
+                GIT2_ARRAY_LOOKUP_LONG(arr,local,opts);
+                GIT2_ARRAY_LOOKUP_STRING_NULLABLE(arr,checkout_branch,opts);
+                GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(arr,checkoutOpts,checkout_opts,opts);
 
                 // TODO Handle custom git_repository_create_cb and
                 // git_remote_create_cb callbacks.

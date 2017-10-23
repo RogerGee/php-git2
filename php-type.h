@@ -7,6 +7,7 @@
 #ifndef PHPGIT2_TYPE_H
 #define PHPGIT2_TYPE_H
 #include "php-git2.h"
+#include "php-array.h"
 #include "git2-resource.h"
 #include <new>
 #include <limits>
@@ -896,7 +897,8 @@ namespace php_git2
     // Provide a type that converts PHP arrays into arrays of git2 objects. The
     // git2 array is allocated using the PHP allocator and should only be used
     // in read-only contexts. The memory is designed to persist for the duration
-    // of a function call.
+    // of a function call. The SourceType should be some php_value_base
+    // derivation.
 
     template<typename SourceType,typename ConvertType>
     class php_array:
@@ -955,7 +957,7 @@ namespace php_git2
                  zend_hash_get_current_data_ex(Z_ARRVAL_P(value),(void**)&element,&pos) == SUCCESS;
                  zend_hash_move_forward_ex(Z_ARRVAL_P(value),&pos))
             {
-                *sources[i].byref_php() = *element;
+                sources[i].set_zval(*element);
                 data[i] = sources[i].byval_git2();
                 i += 1;
             }

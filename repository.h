@@ -31,16 +31,16 @@ namespace php_git2
         git_repository_init_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
             if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
-                GIT2_ARRAY_LOOKUP_VARIABLES(value);
+                array_wrapper arr(value);
 
-                GIT2_ARRAY_LOOKUP_LONG(flags,opts);
-                GIT2_ARRAY_LOOKUP_LONG(version,opts);
-                GIT2_ARRAY_LOOKUP_LONG(mode,opts);
-                GIT2_ARRAY_LOOKUP_STRING(workdir_path,opts);
-                GIT2_ARRAY_LOOKUP_STRING(description,opts);
-                GIT2_ARRAY_LOOKUP_STRING(template_path,opts);
-                GIT2_ARRAY_LOOKUP_STRING(initial_head,opts);
-                GIT2_ARRAY_LOOKUP_STRING(origin_url,opts);
+                GIT2_ARRAY_LOOKUP_LONG(arr,flags,opts);
+                GIT2_ARRAY_LOOKUP_LONG(arr,version,opts);
+                GIT2_ARRAY_LOOKUP_LONG(arr,mode,opts);
+                GIT2_ARRAY_LOOKUP_STRING(arr,workdir_path,opts);
+                GIT2_ARRAY_LOOKUP_STRING(arr,description,opts);
+                GIT2_ARRAY_LOOKUP_STRING(arr,template_path,opts);
+                GIT2_ARRAY_LOOKUP_STRING(arr,initial_head,opts);
+                GIT2_ARRAY_LOOKUP_STRING(arr,origin_url,opts);
             }
 
             return &opts;

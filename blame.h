@@ -32,14 +32,14 @@ namespace php_git2
         git_blame_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
             if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
-                GIT2_ARRAY_LOOKUP_VARIABLES(value);
+                array_wrapper arr(value);
 
-                GIT2_ARRAY_LOOKUP_LONG(flags,opts);
-                GIT2_ARRAY_LOOKUP_LONG(min_match_characters,opts);
-                GIT2_ARRAY_LOOKUP_OID(newest_commit,opts);
-                GIT2_ARRAY_LOOKUP_OID(oldest_commit,opts);
-                GIT2_ARRAY_LOOKUP_LONG(min_line,opts);
-                GIT2_ARRAY_LOOKUP_LONG(max_line,opts);
+                GIT2_ARRAY_LOOKUP_LONG(arr,flags,opts);
+                GIT2_ARRAY_LOOKUP_LONG(arr,min_match_characters,opts);
+                GIT2_ARRAY_LOOKUP_OID(arr,newest_commit,opts);
+                GIT2_ARRAY_LOOKUP_OID(arr,oldest_commit,opts);
+                GIT2_ARRAY_LOOKUP_LONG(arr,min_line,opts);
+                GIT2_ARRAY_LOOKUP_LONG(arr,max_line,opts);
             }
 
             return &opts;

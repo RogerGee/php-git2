@@ -22,21 +22,21 @@ namespace php_git2
         git_checkout_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
             if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
-                GIT2_ARRAY_LOOKUP_VARIABLES(value);
+                array_wrapper arr(value);
 
-                GIT2_ARRAY_LOOKUP_LONG(version,opts);
-                GIT2_ARRAY_LOOKUP_LONG(checkout_strategy,opts);
-                GIT2_ARRAY_LOOKUP_LONG(dir_mode,opts);
-                GIT2_ARRAY_LOOKUP_LONG(file_mode,opts);
-                GIT2_ARRAY_LOOKUP_LONG(file_open_flags,opts);
+                GIT2_ARRAY_LOOKUP_LONG(arr,version,opts);
+                GIT2_ARRAY_LOOKUP_LONG(arr,checkout_strategy,opts);
+                GIT2_ARRAY_LOOKUP_LONG(arr,dir_mode,opts);
+                GIT2_ARRAY_LOOKUP_LONG(arr,file_mode,opts);
+                GIT2_ARRAY_LOOKUP_LONG(arr,file_open_flags,opts);
                 // TODO Handle git_checkout_notify_cb and payload properties.
                 // TODO Handle git_checkout_progress_cb and payload properties.
-                GIT2_ARRAY_LOOKUP_RESOURCE(php_git_tree,baseline,opts);
+                GIT2_ARRAY_LOOKUP_RESOURCE(arr,php_git_tree,baseline,opts);
                 // TODO Handle baseline_index property
-                GIT2_ARRAY_LOOKUP_STRING(target_directory,opts);
-                GIT2_ARRAY_LOOKUP_STRING(ancestor_label,opts);
-                GIT2_ARRAY_LOOKUP_STRING(our_label,opts);
-                GIT2_ARRAY_LOOKUP_STRING(their_label,opts);
+                GIT2_ARRAY_LOOKUP_STRING(arr,target_directory,opts);
+                GIT2_ARRAY_LOOKUP_STRING(arr,ancestor_label,opts);
+                GIT2_ARRAY_LOOKUP_STRING(arr,our_label,opts);
+                GIT2_ARRAY_LOOKUP_STRING(arr,their_label,opts);
                 // TODO Handle git_checkout_perfdata_cb and payload properties.
 
                 return &opts;
