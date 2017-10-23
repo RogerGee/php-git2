@@ -21,8 +21,8 @@ using namespace php_git2;
 
 static void custom_backend_entry_free(git_config_entry* ent)
 {
-    pefree(ent->payload,1);
-    pefree(ent,1);
+    efree(ent->payload);
+    efree(ent);
 }
 
 static int set_custom_backend_entry(zval* arr,git_config_entry* ent,const char** err)
@@ -79,7 +79,7 @@ static int set_custom_backend_entry(zval* arr,git_config_entry* ent,const char**
     // Copy name and length into buffer and assign sections to fields.
     name_len = strlen(name);
     value_len = strlen(value);
-    buffer = (char*)pemalloc(name_len + value_len + 2,1);
+    buffer = (char*)emalloc(name_len + value_len + 2);
     ent->name = buffer;
     ent->value = buffer + name_len + 1;
     memcpy(buffer,name,name_len+1);
@@ -164,6 +164,12 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
     zval* zlevel;
     zval* thisobj = EXTRACT_THISOBJ(cfg);
 
+    // We only need to lookup the object backing to get at the ZTS globals.
+#ifdef ZTS
+    php_config_backend_object* object;
+    object = LOOKUP_OBJECT(php_config_backend_object,thisobj);
+#endif
+
     INIT_ZVAL(fname);
     INIT_ZVAL(retval);
     ALLOC_INIT_ZVAL(zlevel);
@@ -207,6 +213,12 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
     zval* thisobj = EXTRACT_THISOBJ(cfg);
     git_config_entry* entry;
 
+    // We only need to lookup the object backing to get at the ZTS globals.
+#ifdef ZTS
+    php_config_backend_object* object;
+    object = LOOKUP_OBJECT(php_config_backend_object,thisobj);
+#endif
+
     INIT_ZVAL(fname);
     INIT_ZVAL(retval);
     ALLOC_INIT_ZVAL(zkey);
@@ -217,11 +229,12 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
     if (call_user_function(NULL,&thisobj,&fname,&retval,1,&zkey
         ZTS_MEMBER_CC(object->zts)) == FAILURE)
     {
+        result = GIT_ERROR;
     }
     else {
         if (Z_TYPE(retval) == IS_ARRAY) {
             const char* err;
-            entry = (git_config_entry*)pemalloc(sizeof(git_config_entry),1);
+            entry = (git_config_entry*)emalloc(sizeof(git_config_entry));
             memset(entry,0,sizeof(git_config_entry));
             if (set_custom_backend_entry(&retval,entry,&err) == FAILURE) {
                 custom_backend_entry_free(entry);
@@ -253,6 +266,50 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
     const char* value)
 {
     int result = GIT_OK;
+    zval fname;
+    zval retval;
+    zval* zname;
+    zval* zvalue;
+    zval* thisobj = EXTRACT_THISOBJ(cfg);
+    zval* params[2];
+
+    // We only need to lookup the object backing to get at the ZTS globals.
+#ifdef ZTS
+    php_config_backend_object* object;
+    object = LOOKUP_OBJECT(php_config_backend_object,thisobj);
+#endif
+
+    INIT_ZVAL(fname);
+    INIT_ZVAL(retval);
+    ALLOC_INIT_ZVAL(zname);
+    ALLOC_INIT_ZVAL(zvalue);
+    ZVAL_STRING(&fname,"set",1);
+    ZVAL_STRING(zname,name,1);
+    ZVAL_STRING(zvalue,value,1);
+    params[0] = zname;
+    params[1] = zvalue;
+
+    if (call_user_function(NULL,&thisobj,&fname,&retval,2,params
+            ZTS_MEMBER_CC(object->zts)) == FAILURE)
+    {
+        result = GIT_ERROR;
+    }
+    else {
+        // Allow userspace to indicate failure by returning false. If NULL is
+        // returned, the function assumes success.
+        if (Z_TYPE(retval) != IS_NULL) {
+            convert_to_boolean(&retval);
+            if (!Z_BVAL(retval)) {
+                giterr_set_str(GITERR_CONFIG,"php-config-backend: fail set()");
+                result = GIT_ERROR;
+            }
+        }
+    }
+
+    zval_dtor(&fname);
+    zval_dtor(&retval);
+    zval_ptr_dtor(&zname);
+    zval_ptr_dtor(&zvalue);
 
     return result;
 }
@@ -261,6 +318,55 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
     const char* name,const char* regexp,const char* value)
 {
     int result = GIT_OK;
+    zval fname;
+    zval retval;
+    zval* zname;
+    zval* zregexp;
+    zval* zvalue;
+    zval* thisobj = EXTRACT_THISOBJ(cfg);
+    zval* params[3];
+
+    // We only need to lookup the object backing to get at the ZTS globals.
+#ifdef ZTS
+    php_config_backend_object* object;
+    object = LOOKUP_OBJECT(php_config_backend_object,thisobj);
+#endif
+
+    INIT_ZVAL(fname);
+    INIT_ZVAL(retval);
+    ALLOC_INIT_ZVAL(zname);
+    ALLOC_INIT_ZVAL(zregexp);
+    ALLOC_INIT_ZVAL(zvalue);
+    ZVAL_STRING(&fname,"set_multivar",1);
+    ZVAL_STRING(zname,name,1);
+    ZVAL_STRING(zregexp,regexp,1);
+    ZVAL_STRING(zvalue,value,1);
+    params[0] = zname;
+    params[1] = zregexp;
+    params[2] = zvalue;
+
+    if (call_user_function(NULL,&thisobj,&fname,&retval,3,params
+            ZTS_MEMBER_CC(object->zts)) == FAILURE)
+    {
+        result = GIT_ERROR;
+    }
+    else {
+        // Allow userspace to indicate failure by returning false. If NULL is
+        // returned, the function assumes success.
+        if (Z_TYPE(retval) != IS_NULL) {
+            convert_to_boolean(&retval);
+            if (!Z_BVAL(retval)) {
+                giterr_set_str(GITERR_CONFIG,"php-config-backend: fail set_multivar()");
+                result = GIT_ERROR;
+            }
+        }
+    }
+
+    zval_dtor(&fname);
+    zval_dtor(&retval);
+    zval_ptr_dtor(&zname);
+    zval_ptr_dtor(&zregexp);
+    zval_ptr_dtor(&zvalue);
 
     return result;
 }
@@ -268,6 +374,43 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
 /*static*/ int php_config_backend_object::del(git_config_backend* cfg,const char* name)
 {
     int result = GIT_OK;
+    zval fname;
+    zval retval;
+    zval* zname;
+    zval* thisobj = EXTRACT_THISOBJ(cfg);
+
+    // We only need to lookup the object backing to get at the ZTS globals.
+#ifdef ZTS
+    php_config_backend_object* object;
+    object = LOOKUP_OBJECT(php_config_backend_object,thisobj);
+#endif
+
+    INIT_ZVAL(fname);
+    INIT_ZVAL(retval);
+    ALLOC_INIT_ZVAL(zname);
+    ZVAL_STRING(&fname,"del",1);
+    ZVAL_STRING(zname,name,1);
+
+    if (call_user_function(NULL,&thisobj,&fname,&retval,1,&zname
+            ZTS_MEMBER_CC(object->zts)) == FAILURE)
+    {
+        result = GIT_ERROR;
+    }
+    else {
+        // Allow userspace to indicate failure by returning false. If NULL is
+        // returned, the function assumes success.
+        if (Z_TYPE(retval) != IS_NULL) {
+            convert_to_boolean(&retval);
+            if (!Z_BVAL(retval)) {
+                giterr_set_str(GITERR_CONFIG,"php-config-backend: fail del()");
+                result = GIT_ERROR;
+            }
+        }
+    }
+
+    zval_dtor(&fname);
+    zval_dtor(&retval);
+    zval_ptr_dtor(&zname);
 
     return result;
 }
@@ -276,6 +419,50 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
     const char* name,const char* regexp)
 {
     int result = GIT_OK;
+    zval fname;
+    zval retval;
+    zval* zname;
+    zval* zregexp;
+    zval* thisobj = EXTRACT_THISOBJ(cfg);
+    zval* params[2];
+
+    // We only need to lookup the object backing to get at the ZTS globals.
+#ifdef ZTS
+    php_config_backend_object* object;
+    object = LOOKUP_OBJECT(php_config_backend_object,thisobj);
+#endif
+
+    INIT_ZVAL(fname);
+    INIT_ZVAL(retval);
+    ALLOC_INIT_ZVAL(zname);
+    ALLOC_INIT_ZVAL(zregexp);
+    ZVAL_STRING(&fname,"del_multivar",1);
+    ZVAL_STRING(zname,name,1);
+    ZVAL_STRING(zregexp,regexp,1);
+    params[0] = zname;
+    params[1] = zregexp;
+
+    if (call_user_function(NULL,&thisobj,&fname,&retval,2,params
+            ZTS_MEMBER_CC(object->zts)) == FAILURE)
+    {
+        result = GIT_ERROR;
+    }
+    else {
+        // Allow userspace to indicate failure by returning false. If NULL is
+        // returned, the function assumes success.
+        if (Z_TYPE(retval) != IS_NULL) {
+            convert_to_boolean(&retval);
+            if (!Z_BVAL(retval)) {
+                giterr_set_str(GITERR_CONFIG,"php-config-backend: fail del_multivar()");
+                result = GIT_ERROR;
+            }
+        }
+    }
+
+    zval_dtor(&fname);
+    zval_dtor(&retval);
+    zval_ptr_dtor(&zname);
+    zval_ptr_dtor(&zregexp);
 
     return result;
 }
@@ -284,6 +471,9 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
     git_config_backend* cfg)
 {
     int result = GIT_OK;
+    zval fname;
+    zval retval;
+    zval* thisobj = EXTRACT_THISOBJ(cfg);
 
     return result;
 }
@@ -292,6 +482,52 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
     git_config_backend* cfg)
 {
     int result = GIT_OK;
+    zval fname;
+    zval retval;
+    zval* thisobj = EXTRACT_THISOBJ(cfg);
+    php_config_backend_object* object = LOOKUP_OBJECT(php_config_backend_object,thisobj);
+
+    INIT_ZVAL(fname);
+    INIT_ZVAL(retval);
+    ZVAL_STRING(&fname,"snapshot",1);
+
+    // Call userspace method.
+    if (call_user_function(NULL,&thisobj,&fname,&retval,0,NULL
+            ZTS_MEMBER_CC(object->zts)) == FAILURE)
+    {
+        result = GIT_ERROR;
+    }
+    else {
+        zval* zobj;
+        php_config_backend_object* internal;
+
+        // Make sure the function returned an object that extends
+        // GitConfigBackend.
+        if (Z_TYPE(retval) != IS_OBJECT) {
+            convert_to_boolean(&retval);
+            if (!Z_BVAL(retval)) {
+                giterr_set_str(GITERR_CONFIG,"php-config-backend: fail snapshot()");
+                result = GIT_ERROR;
+            }
+        }
+        else if (!is_subclass_of(Z_OBJCE(retval),class_entry[php_git2_config_backend_obj])) {
+            php_error(E_ERROR,"GitConfigBackend: snapshot(): return value must extend GitConfigBackend");
+            return GIT_ERROR;
+        }
+
+        // Create git_config_backend that wraps the object. It will point to the
+        // same set of functions. It is up to userspace to enforce any readonly
+        // behavior as desired.
+        ALLOC_ZVAL(zobj);
+        ZVAL_COPY_VALUE(zobj,&retval);
+        zval_copy_ctor(zobj);
+        internal = LOOKUP_OBJECT(php_config_backend_object,zobj);
+        internal->create_custom_backend(zobj,object->owner);
+        *out = internal->backend;
+    }
+
+    zval_dtor(&fname);
+    zval_dtor(&retval);
 
     return result;
 }
@@ -299,6 +535,40 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
 /*static*/ int php_config_backend_object::lock(git_config_backend* cfg)
 {
     int result = GIT_OK;
+    zval fname;
+    zval retval;
+    zval* thisobj = EXTRACT_THISOBJ(cfg);
+
+    // We only need to lookup the object backing to get at the ZTS globals.
+#ifdef ZTS
+    php_config_backend_object* object;
+    object = LOOKUP_OBJECT(php_config_backend_object,thisobj);
+#endif
+
+    INIT_ZVAL(fname);
+    INIT_ZVAL(retval);
+    ZVAL_STRING(&fname,"lock",1);
+
+    // Call userspace method.
+    if (call_user_function(NULL,&thisobj,&fname,&retval,0,NULL
+            ZTS_MEMBER_CC(object->zts)) == FAILURE)
+    {
+        result = GIT_ERROR;
+    }
+    else {
+        // Make sure the function returned an object that extends
+        // GitConfigBackend.
+        if (Z_TYPE(retval) != IS_NULL) {
+            convert_to_boolean(&retval);
+            if (!Z_BVAL(retval)) {
+                giterr_set_str(GITERR_CONFIG,"php-config-backend: fail lock()");
+                result = GIT_ERROR;
+            }
+        }
+    }
+
+    zval_dtor(&fname);
+    zval_dtor(&retval);
 
     return result;
 }
@@ -306,12 +576,65 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
 /*static*/ int php_config_backend_object::unlock(git_config_backend* cfg,int success)
 {
     int result = GIT_OK;
+    zval fname;
+    zval retval;
+    zval* zsuccess;
+    zval* thisobj = EXTRACT_THISOBJ(cfg);
+
+    // We only need to lookup the object backing to get at the ZTS globals.
+#ifdef ZTS
+    php_config_backend_object* object;
+    object = LOOKUP_OBJECT(php_config_backend_object,thisobj);
+#endif
+
+    INIT_ZVAL(fname);
+    INIT_ZVAL(retval);
+    ALLOC_INIT_ZVAL(zsuccess);
+    ZVAL_STRING(&fname,"unlock",1);
+    ZVAL_BOOL(zsuccess,success);
+
+    // Call userspace method.
+    if (call_user_function(NULL,&thisobj,&fname,&retval,1,&zsuccess
+            ZTS_MEMBER_CC(object->zts)) == FAILURE)
+    {
+        result = GIT_ERROR;
+    }
+    else {
+        // Make sure the function returned an object that extends
+        // GitConfigBackend.
+        if (Z_TYPE(retval) != IS_NULL) {
+            convert_to_boolean(&retval);
+            if (!Z_BVAL(retval)) {
+                giterr_set_str(GITERR_CONFIG,"php-config-backend: fail unlock()");
+                result = GIT_ERROR;
+            }
+        }
+    }
+
+    zval_dtor(&fname);
+    zval_dtor(&retval);
 
     return result;
 }
 
 /*static*/ void php_config_backend_object::free(git_config_backend* cfg)
 {
+    // Set backend to null in internal storage (just in case). Then explicitly
+    // call the destructor on the custom backend. Finally free the block of
+    // memory that holds the custom backend.
+
+    git_config_backend_php* wrapper = EXTRACT_BACKEND(cfg);
+    php_config_backend_object* obj;
+
+    // Make sure object buckets still exist to lookup object (in case the
+    // destructor was already called).
+    if (EG(objects_store).object_buckets != nullptr) {
+        obj = LOOKUP_OBJECT(php_config_backend_object,wrapper->thisobj);
+        obj->backend = nullptr;
+    }
+
+    wrapper->~git_config_backend_php();
+    efree(cfg);
 }
 
 // Implementation of php_config_backend_object::git_config_backend_php
