@@ -986,6 +986,11 @@ namespace php_git2
 
         target_t byval_git2(unsigned p)
         {
+            zval* zv = conn.byval_php(p);
+            if (Z_TYPE_P(zv) != IS_ARRAY) {
+                return IntType();
+            }
+
             return zend_hash_num_elements(Z_ARRVAL_P(conn.byval_php(p)));
         }
     private:

@@ -69,6 +69,33 @@ namespace php_git2
         }
     };
 
+    // Provide a type for converting a PHP array to a git_cvar_map.
+
+    class php_git_cvar_map:
+        public php_value_base
+    {
+    public:
+        git_cvar_map byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            git_cvar_map result;
+            array_wrapper arr(value);
+
+            GIT2_ARRAY_INDEX_LONG(arr,0,cvar_type,result);
+            GIT2_ARRAY_INDEX_STRING_NULLABLE(arr,1,str_match,result);
+            GIT2_ARRAY_INDEX_LONG(arr,2,map_value,result);
+
+            return result;
+        }
+    };
+
+    using php_cvar_map_array = php_array<php_git_cvar_map,git_cvar_map>;
+
+    using php_cvar_map_array_length_connector = connector_wrapper<
+        php_array_length_connector<
+            size_t, php_cvar_map_array
+            >
+        >;
+
 } // namespace php_git2
 
 // Functions:
@@ -561,6 +588,27 @@ static constexpr auto ZIF_GIT_CONFIG_GET_MULTIVAR_FOREACH = zif_php_git2_functio
     php_git2::sequence<0,1,2,0,3>
     >;
 
+static constexpr auto ZIF_GIT_CONFIG_GET_MAPPED = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        int*,
+        const git_config*,
+        const char*,
+        const git_cvar_map*,
+        size_t>::func<git_config_get_mapped>,
+    php_git2::local_pack<
+        php_git2::php_long_ref<int>,
+        php_git2::php_resource<php_git2::php_git_config>,
+        php_git2::php_string,
+        php_git2::php_cvar_map_array_length_connector,
+        php_git2::php_cvar_map_array
+        >,
+    1,
+    php_git2::sequence<1,2,4>,
+    php_git2::sequence<0,1,2,4,3>,
+    php_git2::sequence<0,0,1,2,0>
+    >;
+
 // Function Entries:
 
 #define GIT_CONFIG_FE                                                   \
@@ -596,7 +644,8 @@ static constexpr auto ZIF_GIT_CONFIG_GET_MULTIVAR_FOREACH = zif_php_git2_functio
     PHP_GIT2_FE(git_config_add_file_ondisk,ZIF_GIT_CONFIG_ADD_FILE_ONDISK,NULL) \
     PHP_GIT2_FE(git_config_foreach,ZIF_GIT_CONFIG_FOREACH,NULL)         \
     PHP_GIT2_FE(git_config_foreach_match,ZIF_GIT_CONFIG_FOREACH_MATCH,NULL) \
-    PHP_GIT2_FE(git_config_get_multivar_foreach,ZIF_GIT_CONFIG_GET_MULTIVAR_FOREACH,NULL)
+    PHP_GIT2_FE(git_config_get_multivar_foreach,ZIF_GIT_CONFIG_GET_MULTIVAR_FOREACH,NULL) \
+    PHP_GIT2_FE(git_config_get_mapped,ZIF_GIT_CONFIG_GET_MAPPED,NULL)
 
 #endif
 

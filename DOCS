@@ -1241,6 +1241,15 @@ git_config_foreach_match(resource,string,callable,mixed)
 
     ** See notes for git_config_foreach. **
 
+git_config_get_mapped(resource,string,array)
+
+    ** The array must be an indexed array of indexed arrays, with each inner
+       array having the structure of the git_cvar_map in the order
+       [cvar_type,str_match,map_value]. The map_value entry is forced to be an
+       integer. **
+
+    Returns int
+
 ----------------------------------------
 [git_clone]
 ----------------------------------------

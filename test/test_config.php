@@ -82,7 +82,28 @@ function test_foreach() {
     git_config_foreach_match($config,"remote",$lambda,33);
 }
 
+function test_get_mapped() {
+    $repo = git_repository_open_bare(testbed_get_repo_path());
+    $config = git_repository_config($repo);
+
+    git_config_set_string($config,"wasTested.a","yes");
+    git_config_set_string($config,"wasTested.b","no");
+    git_config_set_string($config,"wasTested.c","tested");
+
+    $cvars = array(
+        [GIT_CVAR_TRUE,null,1000],
+        [GIT_CVAR_FALSE,null,1001],
+        [GIT_CVAR_STRING,"tested",1002],
+    );
+
+    foreach (array('a','b','c') as $property) {
+        $val = git_config_get_mapped($config,"wasTested.$property",$cvars);
+        var_dump($val);
+    }
+}
+
 testbed_test('Config/get','Git2Test\Config\test_get');
 testbed_test('Config/get_indv','Git2Test\Config\test_get_indv');
 testbed_test('Config/set','Git2Test\Config\test_set');
 testbed_test('Config/foreach','Git2Test\Config\test_foreach');
+testbed_test('Config/get_mapped','Git2Test\Config\test_get_mapped');

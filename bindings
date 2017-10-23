@@ -128,7 +128,7 @@ Legend:
 + git_config_get_entry
 + git_config_get_int32
 + git_config_get_int64
-. git_config_get_mapped
++ git_config_get_mapped
 + git_config_get_multivar_foreach
 + git_config_get_path
 + git_config_get_string
