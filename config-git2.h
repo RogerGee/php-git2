@@ -96,6 +96,51 @@ namespace php_git2
             >
         >;
 
+    // Provide type for handling config backend parameters.
+
+    class php_git_config_backend:
+        public php_value_base,
+        private php_zts_base
+    {
+    public:
+        // Make this object a connector to a php_resource that looks up a
+        // php_git_config resource wrapper.
+        using connect_t = php_resource<php_git_config>;
+        typedef git_config_backend* target_t;
+
+        php_git_config_backend(connect_t&& conn TSRMLS_DC):
+            php_zts_base(TSRMLS_DC), ownerWrapper(std::forward<connect_t>(conn))
+        {
+        }
+
+        git_config_backend* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            // Make sure the zval is an object of or derived from class
+            // GitConfigBackend.
+            if (Z_TYPE_P(value) != IS_OBJECT
+                || !is_subclass_of(Z_OBJCE_P(value),
+                        class_entry[php_git2_config_backend_obj]))
+            {
+                error("GitConfigBackend",argno);
+            }
+
+            // Extract the git_config_backend from the object zval.
+            php_config_backend_object* object;
+            object = reinterpret_cast<php_config_backend_object*>
+                (zend_objects_get_address(value TSRMLS_CC));
+
+            // Create custom backing if one doesn't already exist.
+            if (object->backend == nullptr) {
+                object->create_custom_backend(value,ownerWrapper.get_object());
+            }
+
+            return object->backend;
+        }
+
+    private:
+        connect_t&& ownerWrapper;
+    };
+
 } // namespace php_git2
 
 // Functions:
@@ -609,6 +654,25 @@ static constexpr auto ZIF_GIT_CONFIG_GET_MAPPED = zif_php_git2_function<
     php_git2::sequence<0,0,1,2,0>
     >;
 
+static constexpr auto ZIF_GIT_CONFIG_ADD_BACKEND = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_config*,
+        git_config_backend*,
+        git_config_level_t,
+        int>::func<git_config_add_backend>,
+    php_git2::local_pack<
+        php_git2::connector_wrapper<php_git2::php_git_config_backend>,
+        php_git2::php_resource<php_git2::php_git_config>,
+        php_git2::php_long_cast<git_config_level_t>,
+        php_git2::php_long
+        >,
+    -1,
+    php_git2::sequence<1,0,2,3>,
+    php_git2::sequence<1,0,2,3>,
+    php_git2::sequence<1,0,2,3>
+    >;
+
 // Function Entries:
 
 #define GIT_CONFIG_FE                                                   \
@@ -645,7 +709,8 @@ static constexpr auto ZIF_GIT_CONFIG_GET_MAPPED = zif_php_git2_function<
     PHP_GIT2_FE(git_config_foreach,ZIF_GIT_CONFIG_FOREACH,NULL)         \
     PHP_GIT2_FE(git_config_foreach_match,ZIF_GIT_CONFIG_FOREACH_MATCH,NULL) \
     PHP_GIT2_FE(git_config_get_multivar_foreach,ZIF_GIT_CONFIG_GET_MULTIVAR_FOREACH,NULL) \
-    PHP_GIT2_FE(git_config_get_mapped,ZIF_GIT_CONFIG_GET_MAPPED,NULL)
+    PHP_GIT2_FE(git_config_get_mapped,ZIF_GIT_CONFIG_GET_MAPPED,NULL)   \
+    PHP_GIT2_FE(git_config_add_backend,ZIF_GIT_CONFIG_ADD_BACKEND,NULL)
 
 #endif
 

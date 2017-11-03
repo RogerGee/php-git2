@@ -111,7 +111,7 @@ Legend:
 + git_commit_time_offset
 + git_commit_tree
 + git_commit_tree_id
-. git_config_add_backend
++ git_config_add_backend
 + git_config_add_file_ondisk
 . git_config_backend_foreach_match
 + git_config_delete_entry

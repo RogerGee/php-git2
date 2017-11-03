@@ -1250,6 +1250,8 @@ git_config_get_mapped(resource,string,array)
 
     Returns int
 
+git_config_add_backend(resource,object,int,int)
+
 ----------------------------------------
 [git_clone]
 ----------------------------------------
