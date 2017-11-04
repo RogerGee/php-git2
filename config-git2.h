@@ -739,6 +739,26 @@ static constexpr auto ZIF_GIT_CONFIG_ITERATOR_NEW = zif_php_git2_function_setdep
     php_git2::sequence<0,0>
     >;
 
+static constexpr auto ZIF_GIT_CONFIG_MULTIVAR_ITERATOR_NEW = zif_php_git2_function_setdeps<
+    php_git2::func_wrapper<
+        int,
+        git_config_iterator**,
+        const git_config*,
+        const char*,
+        const char*>::func<git_config_multivar_iterator_new>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_config_iterator>,
+        php_git2::php_resource<php_git2::php_git_config>,
+        php_git2::php_string,
+        php_git2::php_nullable_string
+        >,
+    php_git2::sequence<0,1>,
+    1,
+    php_git2::sequence<1,2,3>,
+    php_git2::sequence<0,1,2,3>,
+    php_git2::sequence<0,0,1,2>
+    >;
+
 static constexpr auto ZIF_GIT_CONFIG_ITERATOR_GLOB_NEW = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
@@ -776,6 +796,25 @@ static constexpr auto ZIF_GIT_CONFIG_NEXT = zif_php_git2_function_rethandler<
     php_git2::sequence<1>,
     php_git2::sequence<0,1>,
     php_git2::sequence<0,0>
+    >;
+
+static constexpr auto ZIF_GIT_CONFIG_LOOKUP_MAP_VALUE = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        int*,
+        const git_cvar_map*,
+        size_t,
+        const char*>::func<git_config_lookup_map_value>,
+    php_git2::local_pack<
+        php_git2::php_long_ref<int>,
+        php_git2::php_cvar_map_array_length_connector,
+        php_git2::php_cvar_map_array,
+        php_git2::php_string
+        >,
+    1,
+    php_git2::sequence<2,3>,
+    php_git2::sequence<0,2,1,3>,
+    php_git2::sequence<0,0,0,1>
     >;
 
 // Function Entries:
@@ -818,8 +857,10 @@ static constexpr auto ZIF_GIT_CONFIG_NEXT = zif_php_git2_function_rethandler<
     PHP_GIT2_FE(git_config_add_backend,ZIF_GIT_CONFIG_ADD_BACKEND,NULL) \
     PHP_GIT2_FE(git_config_backend_foreach_match,ZIF_GIT_CONFIG_BACKEND_FOREACH_MATCH,NULL) \
     PHP_GIT2_FE(git_config_iterator_new,ZIF_GIT_CONFIG_ITERATOR_NEW,NULL) \
+    PHP_GIT2_FE(git_config_multivar_iterator_new,ZIF_GIT_CONFIG_MULTIVAR_ITERATOR_NEW,NULL) \
     PHP_GIT2_FE(git_config_iterator_glob_new,ZIF_GIT_CONFIG_ITERATOR_GLOB_NEW,NULL) \
-    PHP_GIT2_FE(git_config_next,ZIF_GIT_CONFIG_NEXT,NULL)
+    PHP_GIT2_FE(git_config_next,ZIF_GIT_CONFIG_NEXT,NULL)               \
+    PHP_GIT2_FE(git_config_lookup_map_value,ZIF_GIT_CONFIG_LOOKUP_MAP_VALUE,NULL)
 
 #endif
 

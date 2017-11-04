@@ -1263,7 +1263,15 @@ git_config_iterator_new(resource)
 
     Returns git_config_iterator resource
 
+git_config_iterator_new(resource,string,string|null)
+
+    Returns git_config_iterator resource
+
 git_config_iterator_glob_new(resource,string)
+
+    Returns git_config_iterator resource
+
+git_config_multivar_iterator_new(resource,string,string|null)
 
     Returns git_config_iterator resource
 
@@ -1274,6 +1282,13 @@ git_config_next(resource)
     ** See git_config_get_entry() for details on returned value. **
 
     Returns array
+
+git_config_lookup_map_value(array,string)
+
+    ** The array must be an indexed array of indexed arrays, with each inner
+       array having the structure of the git_cvar_map in the order
+       [cvar_type,str_match,map_value]. The map_value entry is forced to be an
+       integer. **
 
 ----------------------------------------
 [git_clone]
@@ -1483,7 +1498,21 @@ abstract class GitConfigBackend:
                return value (i.e. returns null), or a truthy value is returned,
                then the implementation assumes success. **
 
-        array iterator()
+        mixed iterator_new()
+
+            ** Method should initialize the object for a new
+               iteration. Iteration will call the iterator_next() method. This
+               method may optionally return a context value to identify the
+               iterator. This is largely not useful since git2 config iteration
+               is currently only synchronous. **
+
+        array iterator_next(mixed $context)
+
+            ** Method should return next config value. The return value is the
+               same as for get(). The $context argument holds any value returned
+               from iterator_new(). **
+
+            ** Method returns false on iteration over. **
 
         GitConfigBackend snapshot()
 

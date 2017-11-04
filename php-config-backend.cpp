@@ -105,6 +105,87 @@ static int set_custom_backend_entry(zval* arr,git_config_entry* ent,const char**
     return SUCCESS;
 }
 
+struct custom_backend_iterator : git_config_iterator
+{
+    // Custom backend object handling iteration.
+    zval* zobject;
+
+    // Context parameter for method call.
+    zval* zcontext;
+};
+
+static void custom_backend_iterator_free(custom_backend_iterator* iter)
+{
+    zval_ptr_dtor(&iter->zobject);
+    if (iter->zcontext != NULL) {
+        zval_ptr_dtor(&iter->zcontext);
+    }
+    efree(iter);
+}
+
+static int custom_backend_iterator_next(git_config_entry** out,custom_backend_iterator* iter)
+{
+    int result = GIT_OK;
+    int nparams;
+    zval** params;
+    zval fname;
+    zval retval;
+
+    // We only need to lookup the object backing to get at the ZTS globals.
+#ifdef ZTS
+    php_config_backend_object* object;
+    object = LOOKUP_OBJECT(php_config_backend_object,iter->zobject);
+#endif
+
+    INIT_ZVAL(fname);
+    INIT_ZVAL(retval);
+    ZVAL_STRING(&fname,"iterator_next",1);
+
+    if (iter->zcontext) {
+        nparams = 1;
+        params = &iter->zcontext;
+    }
+    else {
+        nparams = 0;
+        params = NULL;
+    }
+
+    if (call_user_function(NULL,&iter->zobject,&fname,&retval,nparams,params
+            ZTS_MEMBER_CC(object->zts)) == FAILURE)
+    {
+        result = GIT_ERROR;
+    }
+    else {
+        if (Z_TYPE(retval) == IS_ARRAY) {
+            const char* err;
+            git_config_entry* entry;
+            entry = (git_config_entry*)emalloc(sizeof(git_config_entry));
+            memset(entry,0,sizeof(git_config_entry));
+            if (set_custom_backend_entry(&retval,entry,&err) == FAILURE) {
+                custom_backend_entry_free(entry);
+                php_error(E_ERROR,"GitConfigBackend: iterator_next(): bad return value: %s",err);
+                return GIT_ERROR;
+            }
+            *out = entry;
+        }
+        else {
+            convert_to_boolean(&retval);
+            if (!Z_BVAL(retval)) {
+                result = GIT_ITEROVER;
+            }
+            else {
+                php_error(E_ERROR,"GitConfigBackend::iterator_next(): return value must be an array");
+                return GIT_ERROR;
+            }
+        }
+    }
+
+    zval_dtor(&fname);
+    zval_dtor(&retval);
+
+    return result;
+}
+
 // Class method entries
 
 zend_function_entry php_git2::config_backend_methods[] = {
@@ -114,7 +195,8 @@ zend_function_entry php_git2::config_backend_methods[] = {
     PHP_ABSTRACT_ME(GitConfigBackend,set_multivar,NULL)
     PHP_ABSTRACT_ME(GitConfigBackend,del,NULL)
     PHP_ABSTRACT_ME(GitConfigBackend,del_multivar,NULL)
-    PHP_ABSTRACT_ME(GitConfigBackend,iterator,NULL)
+    PHP_ABSTRACT_ME(GitConfigBackend,iterator_new,NULL)
+    PHP_ABSTRACT_ME(GitConfigBackend,iterator_next,NULL)
     PHP_ABSTRACT_ME(GitConfigBackend,snapshot,NULL)
     PHP_ABSTRACT_ME(GitConfigBackend,lock,NULL)
     PHP_ABSTRACT_ME(GitConfigBackend,unlock,NULL)
@@ -480,13 +562,55 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
     return result;
 }
 
-/*static*/ int php_config_backend_object::iterator(git_config_iterator** iter,
+/*static*/ int php_config_backend_object::iterator(git_config_iterator** out,
     git_config_backend* cfg)
 {
     int result = GIT_OK;
     zval fname;
     zval retval;
     zval* thisobj = EXTRACT_THISOBJ(cfg);
+
+    // We only need to lookup the object backing to get at the ZTS globals.
+#ifdef ZTS
+    php_config_backend_object* object;
+    object = LOOKUP_OBJECT(php_config_backend_object,thisobj);
+#endif
+
+    INIT_ZVAL(fname);
+    INIT_ZVAL(retval);
+    ZVAL_STRING(&fname,"iterator_new",1);
+
+    if (call_user_function(NULL,&thisobj,&fname,&retval,0,NULL
+            ZTS_MEMBER_CC(object->zts)) == FAILURE)
+    {
+        result = GIT_ERROR;
+    }
+    else if (Z_TYPE(retval) == IS_BOOL && !Z_BVAL(retval)) {
+        // Let false generate an error. Anything else is the context parameter
+        // (including NULL).
+        giterr_set_str(GITERR_CONFIG,"php-config-backend: fail iterator()");
+        result = GIT_ERROR;
+    }
+    else {
+        custom_backend_iterator* iter;
+        iter = (custom_backend_iterator*)emalloc(sizeof(custom_backend_iterator));
+        iter->backend = cfg;
+        iter->flags = 0;
+        iter->next = (int(*)(git_config_entry**,git_config_iterator*))custom_backend_iterator_next;
+        iter->free = (void(*)(git_config_iterator*))custom_backend_iterator_free;
+        Z_ADDREF_P(thisobj);
+        iter->zobject = thisobj;
+        if (Z_TYPE(retval) != IS_NULL) {
+            MAKE_STD_ZVAL(iter->zcontext);
+            ZVAL_COPY_VALUE(iter->zcontext,&retval);
+            zval_copy_ctor(iter->zcontext);
+        }
+        else {
+            iter->zcontext = NULL;
+        }
+
+        *out = iter;
+    }
 
     return result;
 }

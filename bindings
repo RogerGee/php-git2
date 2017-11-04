@@ -138,8 +138,8 @@ Legend:
 + git_config_iterator_glob_new
 + git_config_iterator_new
 - git_config_lock
-. git_config_lookup_map_value
-. git_config_multivar_iterator_new
++ git_config_lookup_map_value
++ git_config_multivar_iterator_new
 + git_config_new
 + git_config_next
 + git_config_open_default

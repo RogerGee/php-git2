@@ -56,8 +56,23 @@ class PHPGitConfig extends GitConfigBackend {
 
     }
 
-    public function iterator() {
+    public function iterator_new() {
+        reset($this->backing);
+    }
 
+    public function iterator_next() {
+        if (is_null(key($this->backing))) {
+            return false;
+        }
+
+        $ent = array(
+            'name' => key($this->backing),
+            'value' => current($this->backing),
+        );
+
+        next($this->backing);
+
+        return $ent;
     }
 
     public function snapshot() {
@@ -103,6 +118,26 @@ function test_custom_backend() {
 
     var_dump(git_config_get_string_buf($config,"user.name"));
     var_dump(git_config_get_path($config,"projects.php-git2"));
+
+    $iter = git_config_iterator_new($config);
+    while (true) {
+        $ent = git_config_next($iter);
+        if ($ent == false) {
+            break;
+        }
+        var_dump($ent);
+    }
+
+    git_config_delete_entry($config,"processor.bits");
+
+    $iter = git_config_iterator_new($config);
+    while (true) {
+        $ent = git_config_next($iter);
+        if ($ent == false) {
+            break;
+        }
+        var_dump($ent);
+    }
 }
 
 testbed_test('Config Backend','Git2Test\ConfigBackend\test_custom_backend');
