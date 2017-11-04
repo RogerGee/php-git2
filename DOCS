@@ -1250,7 +1250,7 @@ git_config_get_mapped(resource,string,array)
 
     Returns int
 
-git_config_add_backend(resource,object,int,int)
+git_config_add_backend(resource,object,int,bool)
 
 ----------------------------------------
 [git_clone]
@@ -1435,3 +1435,35 @@ abstract class GitConfigBackend:
 
             ** If 'level' is not specified in the return array, then level
                defaults to GIT_CONFIG_LEVEL_APP. **
+
+        mixed set(string key,string value)
+
+            ** Method may return false to indicate failure. If the method has no
+               return value (i.e. returns null), or a truthy value is returned,
+               then the implementation assumes success. **
+
+        mixed set_multivar(string name,string regexp,string value)
+
+            ** Method may return false to indicate failure. If the method has no
+               return value (i.e. returns null), or a truthy value is returned,
+               then the implementation assumes success. **
+
+        mixed del(string name)
+
+            ** Method may return false to indicate failure. If the method has no
+               return value (i.e. returns null), or a truthy value is returned,
+               then the implementation assumes success. **
+
+        mixed del_multivar(string name,string regexp)
+
+            ** Method may return false to indicate failure. If the method has no
+               return value (i.e. returns null), or a truthy value is returned,
+               then the implementation assumes success. **
+
+        array iterator()
+
+        GitConfigBackend snapshot()
+
+        void lock()
+
+        void unlock(int success)

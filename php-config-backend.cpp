@@ -37,21 +37,31 @@ static int set_custom_backend_entry(zval* arr,git_config_entry* ent,const char**
     zval cpyValue;
     int name_len;
     int value_len;
-    git_config_level_t level = GIT_CONFIG_LEVEL_APP;
+    git_config_level_t level;
 
     if (zend_hash_find(ht,"name",sizeof("name"),(void**)&zvpName) == FAILURE) {
         *err = "expected array element 'name'";
         return FAILURE;
     }
+
     if (zend_hash_find(ht,"value",sizeof("value"),(void**)&zvpValue) == FAILURE) {
         *err = "expected array element 'value'";
         return FAILURE;
     }
+
+    // NOTE: level is optional and will default to GIT_CONFIG_LEVEL_APP.
     if (zend_hash_find(ht,"level",sizeof("level"),(void**)&zvpLevel) == FAILURE) {
-        // NOTE: level is optional and will default to GIT_CONFIG_LEVEL_APP.
-        if (Z_TYPE_PP(zvpLevel) == IS_LONG) {
-            level = (git_config_level_t)Z_LVAL_PP(zvpLevel);
-        }
+        level = GIT_CONFIG_LEVEL_APP;
+    }
+    else if (Z_TYPE_PP(zvpLevel) == IS_LONG) {
+        level = (git_config_level_t)Z_LVAL_PP(zvpLevel);
+    }
+    else {
+        zval cpyLevel;
+        ZVAL_COPY_VALUE(&cpyLevel,*zvpLevel);
+        zval_copy_ctor(&cpyLevel);
+        convert_to_long(&cpyLevel);
+        level = (git_config_level_t)Z_LVAL(cpyLevel);
     }
 
     if (Z_TYPE_PP(zvpName) != IS_STRING) {
@@ -88,6 +98,9 @@ static int set_custom_backend_entry(zval* arr,git_config_entry* ent,const char**
     ent->level = level;
     ent->free = custom_backend_entry_free;
     ent->payload = buffer;
+
+    zval_dtor(&cpyName);
+    zval_dtor(&cpyValue);
 
     return SUCCESS;
 }
@@ -556,8 +569,8 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
         result = GIT_ERROR;
     }
     else {
-        // Make sure the function returned an object that extends
-        // GitConfigBackend.
+        // Allow userspace to indicate failure by returning false. If NULL is
+        // returned, the function assumes success.
         if (Z_TYPE(retval) != IS_NULL) {
             convert_to_boolean(&retval);
             if (!Z_BVAL(retval)) {
@@ -600,8 +613,8 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
         result = GIT_ERROR;
     }
     else {
-        // Make sure the function returned an object that extends
-        // GitConfigBackend.
+        // Allow userspace to indicate failure by returning false. If NULL is
+        // returned, the function assumes success.
         if (Z_TYPE(retval) != IS_NULL) {
             convert_to_boolean(&retval);
             if (!Z_BVAL(retval)) {

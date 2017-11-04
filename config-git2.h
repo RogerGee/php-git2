@@ -665,7 +665,7 @@ static constexpr auto ZIF_GIT_CONFIG_ADD_BACKEND = zif_php_git2_function<
         php_git2::connector_wrapper<php_git2::php_git_config_backend>,
         php_git2::php_resource<php_git2::php_git_config>,
         php_git2::php_long_cast<git_config_level_t>,
-        php_git2::php_long
+        php_git2::php_bool
         >,
     -1,
     php_git2::sequence<1,0,2,3>,
