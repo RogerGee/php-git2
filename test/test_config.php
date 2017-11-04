@@ -102,8 +102,23 @@ function test_get_mapped() {
     }
 }
 
+function test_iterator() {
+    $repo = git_repository_open_bare(testbed_get_repo_path());
+    $config = git_repository_config($repo);
+    $iter = git_config_iterator_new($config);
+
+    while (true) {
+        $ent = git_config_next($iter);
+        if ($ent === false) {
+            break;
+        }
+        var_dump($ent);
+    }
+}
+
 testbed_test('Config/get','Git2Test\Config\test_get');
 testbed_test('Config/get_indv','Git2Test\Config\test_get_indv');
 testbed_test('Config/set','Git2Test\Config\test_set');
 testbed_test('Config/foreach','Git2Test\Config\test_foreach');
 testbed_test('Config/get_mapped','Git2Test\Config\test_get_mapped');
+testbed_test('Config/iterator','Git2Test\Config\test_iterator');

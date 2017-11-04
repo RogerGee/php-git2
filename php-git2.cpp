@@ -149,7 +149,8 @@ PHP_MINIT_FUNCTION(git2)
         git_annotated_commit,
         git_branch_iterator,
         git_reference_iterator,
-        git_config >(module_number);
+        git_config,
+        git_config_iterator >(module_number);
 
     // Register all classes provided by this extension.
     php_git2_register_classes(TSRMLS_C);

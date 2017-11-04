@@ -46,6 +46,7 @@ purpose) are determined by the C++ compiler via 'typeid'.
     git_branch_iterator
     git_reference_iterator
     git_config
+    git_config_iterator
 
 The following structures are not represented as resources in the PHP
 API. Instead a scalar, array or object type is used:
@@ -221,6 +222,8 @@ git_repository_config(resource)
 git_repository_config_snapshot(resource)
 
     Returns git_config resource
+
+git_repository_set_config(resource,resource)
 
 ----------------------------------------
 [git_reference]
@@ -1251,6 +1254,26 @@ git_config_get_mapped(resource,string,array)
     Returns int
 
 git_config_add_backend(resource,object,int,bool)
+
+git_config_backend_foreach_match(object,string|null,callable,mixed)
+
+    ** See notes for git_config_foreach. **
+
+git_config_iterator_new(resource)
+
+    Returns git_config_iterator resource
+
+git_config_iterator_glob_new(resource,string)
+
+    Returns git_config_iterator resource
+
+git_config_iterator_free(resource)
+
+git_config_next(resource)
+
+    ** See git_config_get_entry() for details on returned value. **
+
+    Returns array
 
 ----------------------------------------
 [git_clone]

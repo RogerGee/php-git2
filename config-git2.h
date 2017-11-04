@@ -19,6 +19,12 @@ namespace php_git2
         git_config_free(handle);
     }
 
+    // Explicitly specialize git2_resource destructor for git_config_iterator.
+    template<> php_git_config_iterator::~git2_resource()
+    {
+        git_config_iterator_free(handle);
+    }
+
     // Provide a type for mapping a git_config_entry to a PHP array. One version
     // does not free while the other frees.
 
@@ -139,6 +145,31 @@ namespace php_git2
 
     private:
         connect_t&& ownerWrapper;
+    };
+
+    class php_git_config_backend_byval:
+        public php_value_base,
+        private php_zts_base
+    {
+    public:
+        git_config_backend* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            // Make sure the zval is an object of or derived from class
+            // GitConfigBackend.
+            if (Z_TYPE_P(value) != IS_OBJECT
+                || !is_subclass_of(Z_OBJCE_P(value),
+                        class_entry[php_git2_config_backend_obj]))
+            {
+                error("GitConfigBackend",argno);
+            }
+
+            // Extract the git_config_backend from the object zval.
+            php_config_backend_object* object;
+            object = reinterpret_cast<php_config_backend_object*>
+                (zend_objects_get_address(value TSRMLS_CC));
+
+            return object->backend;
+        }
     };
 
 } // namespace php_git2
@@ -673,6 +704,80 @@ static constexpr auto ZIF_GIT_CONFIG_ADD_BACKEND = zif_php_git2_function<
     php_git2::sequence<1,0,2,3>
     >;
 
+static constexpr auto ZIF_GIT_CONFIG_BACKEND_FOREACH_MATCH = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_config_backend*,
+        const char*,
+        git_config_foreach_cb,
+        void*>::func<git_config_backend_foreach_match>,
+    php_git2::local_pack<
+        php_git2::php_git_config_backend_byval,
+        php_git2::php_nullable_string,
+        php_git2::php_callback_handler<php_git2::config_foreach_callback>,
+        php_git2::php_callback_sync
+        >,
+    -1,
+    php_git2::sequence<0,1,3,3>,
+    php_git2::sequence<0,1,2,3>,
+    php_git2::sequence<0,1,0,2>
+    >;
+
+static constexpr auto ZIF_GIT_CONFIG_ITERATOR_NEW = zif_php_git2_function_setdeps<
+    php_git2::func_wrapper<
+        int,
+        git_config_iterator**,
+        const git_config*>::func<git_config_iterator_new>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_config_iterator>,
+        php_git2::php_resource<php_git2::php_git_config>
+        >,
+    php_git2::sequence<0,1>,
+    1,
+    php_git2::sequence<1>,
+    php_git2::sequence<0,1>,
+    php_git2::sequence<0,0>
+    >;
+
+static constexpr auto ZIF_GIT_CONFIG_ITERATOR_GLOB_NEW = zif_php_git2_function_setdeps<
+    php_git2::func_wrapper<
+        int,
+        git_config_iterator**,
+        const git_config*,
+        const char*>::func<git_config_iterator_glob_new>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_config_iterator>,
+        php_git2::php_resource<php_git2::php_git_config>,
+        php_git2::php_string
+        >,
+    php_git2::sequence<0,1>,
+    1,
+    php_git2::sequence<1,2>,
+    php_git2::sequence<0,1,2>,
+    php_git2::sequence<0,0,1>
+    >;
+
+static constexpr auto ZIF_GIT_CONFIG_ITERATOR_FREE = zif_php_git2_function_free<
+    php_git2::local_pack<
+        php_git2::php_resource_cleanup<php_git2::php_git_config_iterator>
+        >
+    >;
+
+static constexpr auto ZIF_GIT_CONFIG_NEXT = zif_php_git2_function_rethandler<
+    php_git2::func_wrapper<
+        int,
+        git_config_entry**,
+        git_config_iterator*>::func<git_config_next>,
+    php_git2::local_pack<
+        php_git2::php_git_config_entry,
+        php_git2::php_resource<php_git2::php_git_config_iterator>
+        >,
+    php_git2::php_iterover_rethandler<0>,
+    php_git2::sequence<1>,
+    php_git2::sequence<0,1>,
+    php_git2::sequence<0,0>
+    >;
+
 // Function Entries:
 
 #define GIT_CONFIG_FE                                                   \
@@ -710,7 +815,11 @@ static constexpr auto ZIF_GIT_CONFIG_ADD_BACKEND = zif_php_git2_function<
     PHP_GIT2_FE(git_config_foreach_match,ZIF_GIT_CONFIG_FOREACH_MATCH,NULL) \
     PHP_GIT2_FE(git_config_get_multivar_foreach,ZIF_GIT_CONFIG_GET_MULTIVAR_FOREACH,NULL) \
     PHP_GIT2_FE(git_config_get_mapped,ZIF_GIT_CONFIG_GET_MAPPED,NULL)   \
-    PHP_GIT2_FE(git_config_add_backend,ZIF_GIT_CONFIG_ADD_BACKEND,NULL)
+    PHP_GIT2_FE(git_config_add_backend,ZIF_GIT_CONFIG_ADD_BACKEND,NULL) \
+    PHP_GIT2_FE(git_config_backend_foreach_match,ZIF_GIT_CONFIG_BACKEND_FOREACH_MATCH,NULL) \
+    PHP_GIT2_FE(git_config_iterator_new,ZIF_GIT_CONFIG_ITERATOR_NEW,NULL) \
+    PHP_GIT2_FE(git_config_iterator_glob_new,ZIF_GIT_CONFIG_ITERATOR_GLOB_NEW,NULL) \
+    PHP_GIT2_FE(git_config_next,ZIF_GIT_CONFIG_NEXT,NULL)
 
 #endif
 

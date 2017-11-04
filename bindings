@@ -113,7 +113,7 @@ Legend:
 + git_commit_tree_id
 + git_config_add_backend
 + git_config_add_file_ondisk
-. git_config_backend_foreach_match
++ git_config_backend_foreach_match
 + git_config_delete_entry
 + git_config_delete_multivar
 - git_config_entry_free
@@ -134,14 +134,14 @@ Legend:
 + git_config_get_string
 + git_config_get_string_buf
 - git_config_init_backend
-. git_config_iterator_free
-. git_config_iterator_glob_new
-. git_config_iterator_new
++ git_config_iterator_free
++ git_config_iterator_glob_new
++ git_config_iterator_new
 - git_config_lock
 . git_config_lookup_map_value
 . git_config_multivar_iterator_new
 + git_config_new
-. git_config_next
++ git_config_next
 + git_config_open_default
 + git_config_open_global
 + git_config_open_level
@@ -615,7 +615,7 @@ Legend:
 . git_repository_refdb
 + git_repository_reinit_filesystem
 + git_repository_set_bare
-. git_repository_set_config
++ git_repository_set_config
 + git_repository_set_head
 + git_repository_set_head_detached
 + git_repository_set_head_detached_from_annotated

@@ -1029,6 +1029,7 @@ namespace php_git2
     using php_git_branch_iterator = git2_resource<git_branch_iterator>;
     using php_git_reference_iterator = git2_resource<git_reference_iterator>;
     using php_git_config = git2_resource<git_config>;
+    using php_git_config_iterator = git2_resource<git_config_iterator>;
 
     // Enumerate nofree versions of certain resource types.
 
