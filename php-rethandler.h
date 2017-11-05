@@ -111,6 +111,32 @@ namespace php_git2
         }
     };
 
+    template<typename ResourceType,typename Git2Type,unsigned Position = 0>
+    class php_resource_nullable_rethandler
+    {
+    public:
+        template<typename... Ts>
+        bool ret(Git2Type* handle,zval* return_value,local_pack<Ts...>&& pack)
+        {
+            if (handle == nullptr) {
+                ZVAL_NULL(return_value); // just in case
+                return true;
+            }
+
+            auto&& obj = pack.template get<Position>();
+            const php_resource_ref<ResourceType> resource;
+
+            *resource.byval_git2() = handle;
+            resource.ret(return_value);
+
+            // Make the resource dependent on the object (which is dependent on
+            // the original resource).
+            resource.get_object()->set_parent(obj.get_object());
+
+            return true;
+        }
+    };
+
     template<typename ResourceType,typename Git2Type>
     class php_resource_nodeps_rethandler
     {

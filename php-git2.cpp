@@ -28,6 +28,7 @@
 #include "config-git2.h"
 #include "clone.h"
 #include "checkout.h"
+#include "tag.h"
 #include <cstdio>
 #include <cstdarg>
 using namespace std;
@@ -83,6 +84,7 @@ static zend_function_entry php_git2_functions[] = {
     GIT_CONFIG_FE
     GIT_CLONE_FE
     GIT_CHECKOUT_FE
+    GIT_TAG_FE
     PHP_FE_END
 };
 
@@ -150,7 +152,8 @@ PHP_MINIT_FUNCTION(git2)
         git_branch_iterator,
         git_reference_iterator,
         git_config,
-        git_config_iterator >(module_number);
+        git_config_iterator,
+        git_tag >(module_number);
 
     // Register all classes provided by this extension.
     php_git2_register_classes(TSRMLS_C);

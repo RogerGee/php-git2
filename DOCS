@@ -47,6 +47,7 @@ purpose) are determined by the C++ compiler via 'typeid'.
     git_reference_iterator
     git_config
     git_config_iterator
+    git_tag
 
 The following structures are not represented as resources in the PHP
 API. Instead a scalar, array or object type is used:
@@ -67,7 +68,7 @@ API. Instead a scalar, array or object type is used:
 For objects, see the later section regarding Classes.
 
 --------------------------------------------------------------------------------
-API Function Reference
+Function API Reference
 
 Core API routines operate on opaque, resource values. They try to conform to the
 original, C library calls they wrap. These most if not all of the time have the
@@ -1321,8 +1322,80 @@ git_checkout_tree(resource,resource,array|null)
 
     ** See notes for git_checkout_head(). **
 
+----------------------------------------
+[git_tag]
+----------------------------------------
+
+git_tag_annotation_create(resource,string,resource,resource,string)
+
+    Returns string
+
+git_tag_create(resource,string,resource,resource,string,bool)
+
+    Returns string
+
+git_tag_create_frombuffer(resource,string,bool)
+
+    Returns string
+
+git_tag_create_lightweight(resource,string,resource,bool)
+
+    Returns string
+
+git_tag_lookup(resource,string)
+
+    Returns git_tag resource
+
+git_tag_lookup_prefix(resource,string)
+
+    Returns git_tag resource
+
+git_tag_free(resource)
+
+git_tag_id(resource)
+
+    Returns string
+
+git_tag_target_id(resource)
+
+    Returns string
+
+git_tag_message(resource)
+
+    Returns string
+
+git_tag_name(resource)
+
+    Returns string
+
+git_tag_owner(resource)
+
+    Returns git_repository resource
+
+git_tag_peel(resource)
+
+    Returns git_object resource
+
+git_tag_target(resource)
+
+    Returns git_object resource
+
+git_tag_tagger(resource)
+
+    Returns git_signature resource (or null)
+
+git_tag_target_type(resource)
+
+    Returns int
+
+git_tag_delete(resource,string)
+
+git_tag_dup(resource)
+
+    Returns git_tag resource
+
 --------------------------------------------------------------------------------
-API Class Reference
+Class API Reference
 
 The php-git2 extension provides an abstraction as a PHP class only when it is
 useful for subclassing the construct (e.g. in the case of a git_odb_backend) or
