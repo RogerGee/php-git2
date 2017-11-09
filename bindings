@@ -722,11 +722,11 @@ Legend:
 + git_tag_create_lightweight
 + git_tag_delete
 + git_tag_dup
-. git_tag_foreach
++ git_tag_foreach
 + git_tag_free
 + git_tag_id
-. git_tag_list
-. git_tag_list_match
++ git_tag_list
++ git_tag_list_match
 + git_tag_lookup
 + git_tag_lookup_prefix
 + git_tag_message

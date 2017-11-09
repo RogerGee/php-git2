@@ -1,7 +1,7 @@
 <?php
 
 function testbed_fatal_error($message) {
-    fwrite(STDERR,"php-git2 testbed: fatal error: $message" . PHP_EOL);
+    color_echo("php-git2 testbed: fatal error: $message",COLOR_RED);
     exit(1);
 }
 

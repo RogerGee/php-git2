@@ -374,7 +374,44 @@ int config_foreach_callback::callback(const git_config_entry* entry,void* payloa
         return r;
     }
 
-    return GIT_EUSER;    
+    return GIT_EUSER;
+}
+
+// tag_foreach_callback
+
+int tag_foreach_callback::callback(const char* name,git_oid* oid,void* payload)
+{
+    php_callback_sync* cb = reinterpret_cast<php_callback_sync*>(payload);
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
+    if (cb != nullptr) {
+        // Avoid setup for null callables.
+        if (Z_TYPE_P(cb->func) == IS_NULL) {
+            return GIT_OK;
+        }
+
+        int error;
+        zval retval;
+        char buf[GIT_OID_HEXSZ+1];
+        zval_array<3> params ZTS_CTOR;
+
+        git_oid_tostr(buf,sizeof(buf),oid);
+        params.assign<0>(
+            std::forward<const char*>(name),
+            std::forward<const char*>(buf),
+            std::forward<zval*>(cb->data));
+
+        params.call(cb->func,&retval);
+        convert_to_long(&retval);
+        error = (int)Z_LVAL(retval);
+        zval_dtor(&retval);
+
+        return error;
+    }
+
+    return GIT_EUSER;
 }
 
 /*

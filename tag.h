@@ -289,6 +289,55 @@ static constexpr auto ZIF_GIT_TAG_DUP = zif_php_git2_function_setdeps<
     php_git2::sequence<0,0>
     >;
 
+static constexpr auto ZIF_GIT_TAG_LIST = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_strarray*,
+        git_repository*>::func<git_tag_list>,
+    php_git2::local_pack<
+        php_git2::php_strarray,
+        php_git2::php_resource<php_git2::php_git_repository>
+        >,
+    1,
+    php_git2::sequence<1>,
+    php_git2::sequence<0,1>,
+    php_git2::sequence<0,0>
+    >;
+
+static constexpr auto ZIF_GIT_TAG_LIST_MATCH = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_strarray*,
+        const char*,
+        git_repository*>::func<git_tag_list_match>,
+    php_git2::local_pack<
+        php_git2::php_strarray,
+        php_git2::php_string,
+        php_git2::php_resource<php_git2::php_git_repository>
+        >,
+    1,
+    php_git2::sequence<1,2>,
+    php_git2::sequence<0,1,2>,
+    php_git2::sequence<0,0,1>
+    >;
+
+static constexpr auto ZIF_GIT_TAG_FOREACH = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_repository*,
+        git_tag_foreach_cb,
+        void*>::func<git_tag_foreach>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_repository>,
+        php_git2::php_callback_handler<php_git2::tag_foreach_callback>,
+        php_git2::php_callback_sync
+        >,
+    -1,
+    php_git2::sequence<0,2,2>, // pass callback in twice for function and payload
+    php_git2::sequence<0,1,2>,
+    php_git2::sequence<0,1,2>
+    >;
+
 // Function Entries:
 
 #define GIT_TAG_FE                                                      \
@@ -309,7 +358,10 @@ static constexpr auto ZIF_GIT_TAG_DUP = zif_php_git2_function_setdeps<
     PHP_GIT2_FE(git_tag_tagger,ZIF_GIT_TAG_TAGGER,NULL)                 \
     PHP_GIT2_FE(git_tag_target_type,ZIF_GIT_TAG_TARGET_TYPE,NULL)       \
     PHP_GIT2_FE(git_tag_delete,ZIF_GIT_TAG_DELETE,NULL)                 \
-    PHP_GIT2_FE(git_tag_dup,ZIF_GIT_TAG_DUP,NULL)
+    PHP_GIT2_FE(git_tag_dup,ZIF_GIT_TAG_DUP,NULL)                       \
+    PHP_GIT2_FE(git_tag_list,ZIF_GIT_TAG_LIST,NULL)                     \
+    PHP_GIT2_FE(git_tag_list_match,ZIF_GIT_TAG_LIST_MATCH,NULL)         \
+    PHP_GIT2_FE(git_tag_foreach,ZIF_GIT_TAG_FOREACH,NULL)
 
 #endif
 

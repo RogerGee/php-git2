@@ -1394,6 +1394,16 @@ git_tag_dup(resource)
 
     Returns git_tag resource
 
+git_tag_list(resource)
+
+    Returns array
+
+git_tag_list_match(resource,string)
+
+    Returns array
+
+git_tag_foreach(resource,callable,mixed)
+
 --------------------------------------------------------------------------------
 Class API Reference
 

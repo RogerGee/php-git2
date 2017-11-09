@@ -94,7 +94,7 @@ namespace php_git2
                 return;
             }
 
-            ZVAL_NULL(ret);
+            INIT_PZVAL(ret);
             r = call_user_function(EG(function_table),NULL,func,ret,Count,params TSRMLS_CC);
             if (r == FAILURE) {
                 if (EG(exception)) {
@@ -408,6 +408,12 @@ namespace php_git2
     {
         typedef git_config_foreach_cb type;
         static int callback(const git_config_entry* entry,void* payload);
+    };
+
+    struct tag_foreach_callback
+    {
+        typedef git_tag_foreach_cb type;
+        static int callback(const char* name,git_oid* oid,void* payload);
     };
 
 } // namespace php_git2

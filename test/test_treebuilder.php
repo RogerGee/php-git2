@@ -2,6 +2,8 @@
 
 namespace Git2Test\Treebuilder;
 
+use Exception;
+
 require_once 'test_base.php';
 
 function test_create() {
@@ -17,16 +19,24 @@ function test_create() {
 
     echo 'Wrote tree with OID=' . ($treeid = git_treebuilder_write($builder)) . PHP_EOL;
 
+    try {
+        $refName = "refs/heads/test_treebuilder";
+        $ref = git_reference_lookup($repo,$refName);
+        $parents = [git_reference_target($ref)];
+    } catch (Exception $ex) {
+        $parents = [];
+    }
+
     $author = git_signature_now('Dorkus Barg','dork@email.example.com');
     $commitid = git_commit_create_from_ids(
         $repo,
-        "refs/heads/test_treebuilder",
+        $refName,
         $author,
         $author,
         null,
         "[test] Add paper clips documentation",
         $treeid,
-        []);
+        $parents);
     echo "Created a commit with OID=$commitid to reference the tree. See ref=test_treebuilder";
 
     git_treebuilder_clear($builder);

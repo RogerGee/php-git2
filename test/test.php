@@ -18,3 +18,5 @@ require_once 'test_revparse.php';
 require_once 'test_treebuilder.php';
 require_once 'test_tree.php';
 require_once 'test_packbuilder.php';
+require_once 'test_tag.php';
+require_once 'test_config-backend.php';
