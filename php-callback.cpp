@@ -80,20 +80,23 @@ transfer_progress_callback::callback(const git_transfer_progress* stats,void* pa
         zval* zstats;
         zval retval;
         zval_array<2> params ZTS_CTOR;
+
         zstats = params[0];
         params.assign<1>(std::forward<zval*>(cb->data));
         array_init(zstats);
-        add_assoc_long_ex(zstats,"total_objects",14,stats->total_objects);
-        add_assoc_long_ex(zstats,"indexed_objects",16,stats->indexed_objects);
-        add_assoc_long_ex(zstats,"received_objects",17,stats->received_objects);
-        add_assoc_long_ex(zstats,"local_objects",14,stats->local_objects);
-        add_assoc_long_ex(zstats,"total_objects",14,stats->total_objects);
-        add_assoc_long_ex(zstats,"indexed_deltas",15,stats->indexed_deltas);
-        add_assoc_long_ex(zstats,"received_bytes",15,stats->received_bytes);
+        add_assoc_long_ex(zstats,"total_objects",sizeof("total_objects"),stats->total_objects);
+        add_assoc_long_ex(zstats,"indexed_objects",sizeof("indexed_objects"),stats->indexed_objects);
+        add_assoc_long_ex(zstats,"received_objects",sizeof("received_objects"),stats->received_objects);
+        add_assoc_long_ex(zstats,"local_objects",sizeof("local_objects"),stats->local_objects);
+        add_assoc_long_ex(zstats,"total_objects",sizeof("total_objects"),stats->total_objects);
+        add_assoc_long_ex(zstats,"indexed_deltas",sizeof("indexed_deltas"),stats->indexed_deltas);
+        add_assoc_long_ex(zstats,"received_bytes",sizeof("received_bytes"),stats->received_bytes);
+
         params.call(cb->func,&retval);
         convert_to_long(&retval);
         r = Z_LVAL(retval);
         zval_dtor(&retval);
+
         return r;
     }
 

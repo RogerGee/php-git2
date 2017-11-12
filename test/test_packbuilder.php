@@ -44,5 +44,38 @@ function test_callbacks() {
     git_packbuilder_foreach($build,null,$pack);
 }
 
+function test_write() {
+    $repo = git_repository_open_bare(testbed_get_repo_path());
+    $ref = git_repository_head($repo);
+    $build = git_packbuilder_new($repo);
+
+    git_packbuilder_insert_recur($build,git_reference_target($ref),null);
+    $path = testbed_path('packdir',true);
+
+    $progressCallback = function(array $stats,$payload) {
+        $keys = array_keys($stats);
+        foreach ($keys as $key) {
+            /**
+             * NOTE: Skip this because of libgit2 bug where stats in
+             * git_packbuilder_write is uninitialized. This ensures we don't get
+             * uninitialized errors from valgrind. This value will contain
+             * garbage, but since it's just an integer (and not a pointer that
+             * will be dereferenced) it is a harmless issue.
+             */
+            if ($key == 'received_bytes') {
+                continue;
+            }
+
+            print str_pad($stats[$key],4,' ',STR_PAD_LEFT);
+        }
+        print PHP_EOL;
+        var_dump($payload);
+    };
+
+    git_packbuilder_write($build,$path,0660,$progressCallback,33);
+    var_dump(git_packbuilder_written($build));
+}
+
 testbed_test('Packbuilder/generate','Git2Test\Packbuilder\test_generate');
 testbed_test('Packbuilder/callbacks','Git2Test\Packbuilder\test_callbacks');
+testbed_test('Packbuilder/write','Git2Test\Packbuilder\test_write');

@@ -433,6 +433,20 @@ git_packbuilder_set_callbacks(resource,callable,mixed)
 
     Callback signature: callback(int $stage,int $current,int $total,mixed $payload)
 
+git_packbuilder_object_count(resource)
+
+    Returns int
+
+git_packbuilder_write(resource,string,int,callable,mixed)
+
+    Callback signature: callback(array $stats)
+
+        ** Stats array has properties of git2 git_transfer_progress struct. **
+
+git_packbuilder_written(resource)
+
+    Returns int
+
 ----------------------------------------
 [git_indexer]
 ----------------------------------------

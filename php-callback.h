@@ -94,7 +94,7 @@ namespace php_git2
                 return;
             }
 
-            INIT_PZVAL(ret);
+            INIT_ZVAL(*ret);
             r = call_user_function(EG(function_table),NULL,func,ret,Count,params TSRMLS_CC);
             if (r == FAILURE) {
                 if (EG(exception)) {

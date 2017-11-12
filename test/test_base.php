@@ -26,8 +26,12 @@ function testbed_get_root() {
     return $root;
 }
 
-function testbed_path($suffix) {
-    return testbed_get_root() . '/' . $suffix;
+function testbed_path($suffix,$ensure = false) {
+    $path = testbed_get_root() . '/' . $suffix;
+    if ($ensure && !is_dir($path)) {
+        mkdir($path);
+    }
+    return $path;
 }
 
 function testbed_get_repo_path() {
