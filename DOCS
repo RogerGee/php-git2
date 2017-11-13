@@ -1318,6 +1318,10 @@ git_clone(string,string,array|null)
        provided via calling git_clone_init_options(). You may specify null to
        use only the defaults. **
 
+    repository_cb signature: callback(string $path,bool $bare,mixed $payload)
+
+        Should return git_repository resource
+
     Returns git_repository resource
 
 ----------------------------------------

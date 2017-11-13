@@ -1,7 +1,11 @@
 <?php
 
+function testbed_error($message) {
+    color_echo("php-git2 testbed: error: $message",COLOR_RED);
+}
+
 function testbed_fatal_error($message) {
-    color_echo("php-git2 testbed: fatal error: $message",COLOR_RED);
+    testbed_error($message);
     exit(1);
 }
 
@@ -39,9 +43,10 @@ function testbed_get_repo_path() {
     if (!file_exists($path)) {
         $reposrc = git_repository_discover('.',false,null);
 
-        // TODO: replace with git2 functionality instead of external process
-        // invocation.
-        shell_exec("git clone --bare $reposrc $path");
+        $opts = array(
+            'bare' => true,
+        );
+        $repo = git_clone("file://$reposrc",$path,$opts);
     }
     return $path;
 }
@@ -51,9 +56,10 @@ function testbed_get_localrepo_path() {
     if (!file_exists($path)) {
         $reposrc = git_repository_discover('.',false,null);
 
-        // TODO: replace with git2 functionality instead of external process
-        // invocation.
-        shell_exec("git clone $reposrc $path");
+        $opts = array(
+            'bare' => false,
+        );
+        $repo = git_clone("file://$reposrc",$path,$opts);
     }
     return $path;
 }

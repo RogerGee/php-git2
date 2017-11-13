@@ -121,6 +121,11 @@ namespace php_git2
             return isowned;
         }
 
+        void revoke_ownership()
+        {
+            isowned = false;
+        }
+
         static void define_resource_type(int moduleNumber)
         {
             le = zend_register_list_destructors_ex(
@@ -155,8 +160,9 @@ namespace php_git2
             if (down_ref()) {
                 if (handle != nullptr && isowned) {
                     this->~git2_resource();
-                    handle = nullptr;
                 }
+
+                handle = nullptr;
                 return true;
             }
             return false;

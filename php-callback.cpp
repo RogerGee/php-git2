@@ -417,6 +417,78 @@ int tag_foreach_callback::callback(const char* name,git_oid* oid,void* payload)
     return GIT_EUSER;
 }
 
+// repository_create_callback
+
+int repository_create_callback::callback(git_repository** out,const char* path,int bare,void* payload)
+{
+    php_callback_sync* cb = reinterpret_cast<php_callback_sync*>(payload);
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
+    if (cb != nullptr) {
+        // Avoid setup for null callables.
+        if (Z_TYPE_P(cb->func) == IS_NULL) {
+            return GIT_OK;
+        }
+
+        zval retval;
+        zval_array<3> params ZTS_CTOR;
+
+        params.assign<0>(
+            std::forward<const char*>(path),
+            std::forward<bool>(bare),
+            std::forward<zval*>(cb->data));
+
+        params.call(cb->func,&retval);
+
+        // Allow userspace to generate failure by returning null or false.
+        if (Z_TYPE(retval) == IS_NULL || (Z_TYPE(retval) == IS_BOOL && !Z_BVAL(retval))) {
+            return -1;
+        }
+
+        // Make sure a git_repository resource was returned.
+        if (Z_TYPE(retval) != IS_RESOURCE) {
+            php_error(E_WARNING,"repository_create_callback: must return git_repository resource");
+            return -1;
+        }
+
+        // Extract resource from return value.
+        php_git_repository* resource;
+        resource = (php_git_repository*)zend_fetch_resource(
+            NULL TSRMLS_CC,
+            Z_RESVAL(retval),
+            php_git_repository::resource_name(),
+            NULL,
+            1,
+            php_git_repository::resource_le());
+        if (resource == nullptr) {
+            // NOTE: PHP raises error if resource type didn't match.
+            return -1;
+        }
+
+        // The repository resource *MUST* be owned (i.e. this resource is
+        // responsible for freeing the handle). We assume that the caller is
+        // going to return the repository as an owned resource (potentially),
+        // and at the very least, the caller is responsible for freeing the repo
+        // handle we assign here. Therefore, we cannot have a git_repository
+        // handle from a non-owned context (since it could be freed in another
+        // context at some future point). Furthermore, we must revoke ownership
+        // on this resource to avoid a double free.
+        if (!resource->is_owned()) {
+            php_error(E_WARNING,"repository_create_callback: cannot return non-owner resource");
+            return -1;
+        }
+
+        resource->revoke_ownership();
+        *out = resource->get_handle();
+
+        return 0;
+    }
+
+    return GIT_EUSER;
+}
+
 /*
  * Local Variables:
  * indent-tabs-mode:nil

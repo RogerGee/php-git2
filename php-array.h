@@ -46,7 +46,8 @@ namespace php_git2
     };
 }
 
-// Define convenience macros for working with array_wrapper instances.
+// Define convenience macros for working with array_wrapper instances. These
+// should be used in a byval_git2 implementation with parameter named 'argno'.
 
 #define GIT2_ARRAY_LOOKUP_STRING(wrapper,name,var)    \
     if (wrapper.query(#name,sizeof(#name))) {         \
@@ -140,6 +141,22 @@ namespace php_git2
             r = rr.get_object(argno);                                   \
             var.name = r.get_handle();                                  \
         }                                                               \
+    }
+
+#define GIT2_ARRAY_LOOKUP_CALLBACK(wrapper,callbackWrapper,callbackObject,funcName,payloadName,var) \
+    if (wrapper.query(#funcName,sizeof(#funcName))) {                   \
+        *callbackObject.byref_php(argno) = wrapper.get_zval();          \
+        if (wrapper.query(#payloadName,sizeof(#payloadName))) {         \
+            *callbackObject.byref_php(argno+1) = wrapper.get_zval();    \
+        }                                                               \
+        else {                                                          \
+            zval* zvalNull;                                             \
+            ALLOC_INIT_ZVAL(zvalNull);                                  \
+            Z_DELREF_P(zvalNull);                                       \
+            *callbackObject.byref_php(argno+1) = zvalNull;              \
+        }                                                               \
+        var.funcName = callbackWrapper::callback;                       \
+        var.payloadName = (void*)&callbackObject;                       \
     }
 
 #endif

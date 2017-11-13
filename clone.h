@@ -31,9 +31,15 @@ namespace php_git2
                 GIT2_ARRAY_LOOKUP_LONG(arr,local,opts);
                 GIT2_ARRAY_LOOKUP_STRING_NULLABLE(arr,checkout_branch,opts);
                 GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(arr,checkoutOpts,checkout_opts,opts);
+                GIT2_ARRAY_LOOKUP_CALLBACK(
+                    arr,
+                    repository_create_callback,
+                    callback,
+                    repository_cb,
+                    repository_cb_payload,
+                    opts);
 
-                // TODO Handle custom git_repository_create_cb and
-                // git_remote_create_cb callbacks.
+                // TODO Handle git_remote_create_cb callback property.
 
                 return &opts;
             }
@@ -44,6 +50,7 @@ namespace php_git2
     private:
         git_clone_options opts;
         php_git_checkout_options checkoutOpts;
+        php_callback_sync callback;
     };
 
 } // namespace php_git2

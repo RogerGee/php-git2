@@ -59,6 +59,13 @@ namespace php_git2
         }
 
         template<unsigned I,typename... Ts>
+        void assign(bool&& b,Ts&&... ts)
+        {
+            ZVAL_BOOL(params[I],b);
+            assign<I+1>(std::forward<Ts>(ts)...);
+        }
+
+        template<unsigned I,typename... Ts>
         void assign(const char*&& h,Ts&&... ts)
         {
             ZVAL_STRING(params[I],h,1);
@@ -140,8 +147,12 @@ namespace php_git2
         {
             // Delete our references to the variables. We always assume that
             // byval_git2() ran successfully.
-            zval_ptr_dtor(&func);
-            zval_ptr_dtor(&data);
+            if (func != nullptr) {
+                zval_ptr_dtor(&func);
+            }
+            if (data != nullptr) {
+                zval_ptr_dtor(&data);
+            }
         }
 
         zval** byref_php(unsigned pos)
@@ -414,6 +425,12 @@ namespace php_git2
     {
         typedef git_tag_foreach_cb type;
         static int callback(const char* name,git_oid* oid,void* payload);
+    };
+
+    struct repository_create_callback
+    {
+        typedef git_repository_create_cb type;
+        static int callback(git_repository** out,const char* path,int bare,void* payload);
     };
 
 } // namespace php_git2
