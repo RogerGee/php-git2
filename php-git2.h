@@ -67,18 +67,16 @@ ZEND_EXTERN_MODULE_GLOBALS(git2)
 #define ZTS_MEMBER_PC(obj)
 #define ZTS_MEMBER_PCC(obj)
 
-// Make ZTS_CTOR insert nothing. It cannot be "( )" since because C++ resolves
+// Make ZTS_CTOR insert nothing. It cannot be "( )" because C++ resolves
 // ambiguity in parsing 'T X()' in favor of a function declaration.
 #define ZTS_CTOR
 
 #endif
 
-// Simplify constant registration.
-
-#define PHP_GIT2_CONSTANT(name) \
-    REGISTER_LONG_CONSTANT(#name,name,CONST_CS|CONST_PERSISTENT)
-
 #define UNUSED(var) ((void)var)
+
+#define add_assoc_const_string(zv,key,str)      \
+    add_assoc_string_ex(zv,key,sizeof(key),(char*)str,1)
 
 namespace php_git2
 {
@@ -141,10 +139,21 @@ namespace php_git2
     template<>
     void git_error(int code);
 
-    // Misc. helpers
+    // Function to register constants defined in php-constants.cpp.
+
+    void php_git2_register_constants(int module_number TSRMLS_DC);
+
+    // Helper functions for converting git2 values to PHP values.
 
     void convert_oid_fromstr(git_oid* dest,const char* src,int srclen);
-    void php_git2_register_constants(int module_number TSRMLS_DC);
+    void convert_transfer_progress(zval* zv,const git_transfer_progress* stats);
+    void convert_blame_hunk(zval* zv,const git_blame_hunk* hunk);
+    void convert_diff_delta(zval* zv,const git_diff_delta* delta);
+    void convert_diff_file(zval* zv,const git_diff_file* file);
+    void convert_diff_binary(zval* zv,const git_diff_binary* binary);
+    void convert_diff_binary_file(zval* zv,const git_diff_binary_file* file);
+    void convert_diff_hunk(zval* zv,const git_diff_hunk* hunk);
+    void convert_diff_line(zval* zv,const git_diff_line* line);
 
 } // namespace php_git2
 

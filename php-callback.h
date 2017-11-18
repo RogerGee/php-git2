@@ -11,8 +11,8 @@
 namespace php_git2
 {
 
-    // Provide a type that contains an array of zvals converted from arbitrary
-    // git2 values.
+    // Provide a type that contains an array of zvals converted from primative
+    // values.
 
     template<unsigned Count>
     class zval_array:
@@ -34,9 +34,10 @@ namespace php_git2
             }
         }
 
-        // Create a member function for assigning to the zvals from git2
-        // values. We create partial specializations for the kinds of values we
-        // are interested in.
+        // Create a member function for assigning to the zvals from primative
+        // values. The assignment may be recursive to allow multiple
+        // assignments. We create partial specializations for the kinds of
+        // values we are interested in.
 
         template<unsigned I>
         void assign()
@@ -45,42 +46,54 @@ namespace php_git2
         }
 
         template<unsigned I,typename... Ts>
-        void assign(long&& h,Ts&&... ts)
+        void assign(long h,Ts&&... ts)
         {
             ZVAL_LONG(params[I],h);
             assign<I+1>(std::forward<Ts>(ts)...);
         }
 
         template<unsigned I,typename... Ts>
-        void assign(double&& h,Ts&&... ts)
+        void assign(size_t sz,Ts&&... ts)
+        {
+            ZVAL_LONG(params[I],sz);
+            assign<I+1>(std::forward<Ts>(ts)...);
+        }
+
+        template<unsigned I,typename... Ts>
+        void assign(double h,Ts&&... ts)
         {
             ZVAL_DOUBLE(params[I],h);
             assign<I+1>(std::forward<Ts>(ts)...);
         }
 
         template<unsigned I,typename... Ts>
-        void assign(bool&& b,Ts&&... ts)
+        void assign(bool b,Ts&&... ts)
         {
             ZVAL_BOOL(params[I],b);
             assign<I+1>(std::forward<Ts>(ts)...);
         }
 
         template<unsigned I,typename... Ts>
-        void assign(const char*&& h,Ts&&... ts)
+        void assign(const char* str,Ts&&... ts)
         {
-            ZVAL_STRING(params[I],h,1);
+            if (str == nullptr) {
+                ZVAL_NULL(params[I]);
+            }
+            else {
+                ZVAL_STRING(params[I],str,1);
+            }
             assign<I+1>(std::forward<Ts>(ts)...);
         }
 
         template<unsigned I,typename... Ts>
-        void assign(const void*&& a,size_t&& b,Ts&&... ts)
+        void assign(const void* a,size_t&& b,Ts&&... ts)
         {
             ZVAL_STRINGL(params[I],(const char*)a,b,1);
             assign<I+1>(std::forward<Ts>(ts)...);
         }
 
         template<unsigned I,typename... Ts>
-        void assign(zval*&& h,Ts&&... ts)
+        void assign(zval* h,Ts&&... ts)
         {
             if (h != nullptr) {
                 zval_dtor(params[I]);
@@ -145,8 +158,7 @@ namespace php_git2
 
         ~php_callback_sync()
         {
-            // Delete our references to the variables. We always assume that
-            // byval_git2() ran successfully.
+            // Delete the references to the variables.
             if (func != nullptr) {
                 zval_ptr_dtor(&func);
             }
@@ -431,6 +443,74 @@ namespace php_git2
     {
         typedef git_repository_create_cb type;
         static int callback(git_repository** out,const char* path,int bare,void* payload);
+    };
+
+    struct git_diff_options_callback_info
+    {
+        php_callback_sync notifyCallback;
+        php_callback_sync progressCallback;
+    };
+
+    struct diff_notify_callback
+    {
+        typedef git_diff_notify_cb type;
+        static int callback(
+            const git_diff* diff_so_far,
+            const git_diff_delta* delta_to_add,
+            const char* matched_pathspec,
+            void* payload /* git_diff_options_callback_info */);
+    };
+
+    struct diff_progress_callback
+    {
+        typedef git_diff_progress_cb type;
+        static int callback(
+            const git_diff* diff_so_far,
+            const char* old_path,
+            const char* new_path,
+            void* payload /* git_diff_options_callback_info */);
+    };
+
+    struct git_diff_callback_info
+    {
+        php_callback_sync fileCallback;
+        php_callback_sync binaryCallback;
+        php_callback_sync hunkCallback;
+        php_callback_sync lineCallback;
+    };
+
+    struct diff_file_callback
+    {
+        typedef git_diff_file_cb type;
+        static int callback(const git_diff_delta* delta,float progress,void* payload);
+    };
+
+    struct diff_binary_callback
+    {
+        typedef git_diff_binary_cb type;
+        static int callback(
+            const git_diff_delta* delta,
+            const git_diff_binary* binary,
+            void* payload);
+    };
+
+    struct diff_hunk_callback
+    {
+        typedef git_diff_hunk_cb type;
+        static int callback(
+            const git_diff_delta* delta,
+            const git_diff_hunk* hunk,
+            void* payload);
+    };
+
+    struct diff_line_callback
+    {
+        typedef git_diff_line_cb type;
+        static int callback(
+            const git_diff_delta* delta,
+            const git_diff_hunk* hunk,
+            const git_diff_line* line,
+            void* payload);
     };
 
 } // namespace php_git2

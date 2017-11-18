@@ -964,6 +964,11 @@ namespace php_git2
 
             return data;
         }
+
+        long get_count() const
+        {
+            return cnt;
+        }
     private:
         long cnt;
         SourceType* sources;
@@ -1008,6 +1013,42 @@ namespace php_git2
         php_git_oid_fromstr,
         const git_oid*>;
 
+    using php_string_array = php_array<
+        php_string,
+        const char*>;
+
+    class php_strarray_array:
+        public php_string_array
+    {
+    public:
+        ~php_strarray_array()
+        {
+            for (size_t i = 0;i < arr.count;++i) {
+                efree(arr.strings[i]);
+            }
+            efree(arr.strings);
+        }
+
+        git_strarray byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            const char** lines = php_string_array::byval_git2(argno);
+
+            // Copy lines into git_strarray structure.
+            arr.count = get_count();
+            arr.strings = reinterpret_cast<char**>(emalloc(sizeof(char*) * arr.count));
+            for (size_t i = 0;i < arr.count;++i) {
+                arr.strings[i] = estrdup(lines[i]);
+            }
+
+            // Return structure by value. This is still a shallow copy of the
+            // data.
+            return arr;
+        }
+
+    private:
+        git_strarray arr;
+    };
+
     // Enumerate all resource types that we'll care about.
 
     using php_git_repository = git2_resource<git_repository>;
@@ -1031,6 +1072,7 @@ namespace php_git2
     using php_git_config = git2_resource<git_config>;
     using php_git_config_iterator = git2_resource<git_config_iterator>;
     using php_git_tag = git2_resource<git_tag>;
+    using php_git_diff = git2_resource<git_diff>;
 
     // Enumerate nofree versions of certain resource types.
 
@@ -1038,6 +1080,7 @@ namespace php_git2
     using php_git_tree_entry_nofree = git2_resource_nofree<git_tree_entry>;
     using php_git_signature_nofree = git2_resource_nofree<git_signature>;
     using php_git_odb_nofree = git2_resource_nofree<git_odb>;
+    using php_git_diff_nofree = git2_resource_nofree<git_diff>;
 
 } // namespace php_git2
 

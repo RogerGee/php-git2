@@ -59,38 +59,11 @@ namespace php_git2
             zval* return_value,
             local_pack<Ts...>&& pack)
         {
-            char buf[GIT_OID_HEXSZ + 1];
-
             if (hunk == nullptr) {
                 return false;
             }
 
-            // Convert the git_blame_hunk into a single-dimensional PHP array
-            // that contains only primative types (i.e. no objects, resources or
-            // arrays). The assumption is here that userspace is more interested
-            // in reading the data then having the values in the "proper" format
-            // (e.g. git_signature resource type, ETC.).
-
-            array_init(return_value);
-            add_assoc_long(return_value,"lines_in_hunk",hunk->lines_in_hunk);
-            git_oid_tostr(buf,sizeof(buf),&hunk->final_commit_id);
-            add_assoc_string(return_value,"final_commit_id",buf,1);
-            add_assoc_long(return_value,"final_start_line_number",hunk->final_start_line_number);
-            add_assoc_string(return_value,"final_signature.name",hunk->final_signature->name,1);
-            add_assoc_string(return_value,"final_signature.email",hunk->final_signature->email,1);
-            add_assoc_long(return_value,"final_signature.when.time",hunk->final_signature->when.time);
-            add_assoc_long(return_value,"final_signature.when.offset",hunk->final_signature->when.offset);
-            git_oid_tostr(buf,sizeof(buf),&hunk->orig_commit_id);
-            add_assoc_string(return_value,"orig_commit_id",buf,1);
-            add_assoc_string(return_value,"orig_path",(char*)hunk->orig_path,1);
-            add_assoc_long(return_value,"orig_start_line_number",hunk->orig_start_line_number);
-            add_assoc_string(return_value,"orig_signature.name",hunk->orig_signature->name,1);
-            add_assoc_string(return_value,"orig_signature.email",hunk->orig_signature->email,1);
-            add_assoc_long(return_value,"orig_signature.when.time",hunk->orig_signature->when.time);
-            add_assoc_long(return_value,"orig_signature.when.offset",hunk->orig_signature->when.offset);
-            buf[0] = hunk->boundary;
-            buf[1] = 0;
-            add_assoc_string(return_value,"boundary",buf,1);
+            convert_blame_hunk(return_value,hunk);
 
             return true;
         }

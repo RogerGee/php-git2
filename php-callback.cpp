@@ -43,10 +43,7 @@ packbuilder_foreach_callback::callback(void* buf,size_t size,void* payload)
         long r;
         zval retval;
         zval_array<3> params ZTS_CTOR;
-        params.assign<0>(std::forward<const void*>(buf),
-            std::forward<size_t>(size),
-            std::forward<long>(size),
-            std::forward<zval*>(cb->data));
+        params.assign<0>(buf,size,size,cb->data);
         params.call(cb->func,&retval);
         convert_to_long(&retval);
         r = Z_LVAL(retval);
@@ -82,15 +79,8 @@ transfer_progress_callback::callback(const git_transfer_progress* stats,void* pa
         zval_array<2> params ZTS_CTOR;
 
         zstats = params[0];
-        params.assign<1>(std::forward<zval*>(cb->data));
-        array_init(zstats);
-        add_assoc_long_ex(zstats,"total_objects",sizeof("total_objects"),stats->total_objects);
-        add_assoc_long_ex(zstats,"indexed_objects",sizeof("indexed_objects"),stats->indexed_objects);
-        add_assoc_long_ex(zstats,"received_objects",sizeof("received_objects"),stats->received_objects);
-        add_assoc_long_ex(zstats,"local_objects",sizeof("local_objects"),stats->local_objects);
-        add_assoc_long_ex(zstats,"total_objects",sizeof("total_objects"),stats->total_objects);
-        add_assoc_long_ex(zstats,"indexed_deltas",sizeof("indexed_deltas"),stats->indexed_deltas);
-        add_assoc_long_ex(zstats,"received_bytes",sizeof("received_bytes"),stats->received_bytes);
+        params.assign<1>(cb->data);
+        php_git2::convert_transfer_progress(zstats,stats);
 
         params.call(cb->func,&retval);
         convert_to_long(&retval);
@@ -129,7 +119,7 @@ odb_foreach_callback::callback(const git_oid* oid,void* payload)
 
         git_oid_tostr(buf,sizeof(buf),oid);
         ZVAL_STRING(params[0],buf,1);
-        params.assign<1>(std::forward<zval*>(cb->data));
+        params.assign<1>(cb->data);
         params.call(cb->func,&retval);
         convert_to_long(&retval);
         r = Z_LVAL(retval);
@@ -163,7 +153,7 @@ treewalk_callback::callback(const char* root,const git_tree_entry* entry,void* p
         const php_resource_ref<php_git_tree_entry_nofree> res; // it cannot free
 
         // Convert arguments to PHP values.
-        params.assign<0>(std::forward<const char*>(root));
+        params.assign<0>(root);
         *res.byval_git2() = entry;
         res.ret(params[1]);
         params.assign<2>(std::forward<zval*>(cb->data));
@@ -203,8 +193,7 @@ commit_parent_callback::callback(size_t idx,void* payload)
         INIT_ZVAL(retval);
 
         // Convert arguments to PHP values.
-        params.assign<0>(std::forward<long>(idx));
-        params.assign<1>(std::forward<zval*>(cb->data));
+        params.assign<0>(idx,cb->data);
 
         // Call the userspace callback.
         params.call(cb->func,&retval);
@@ -250,7 +239,7 @@ int reference_foreach_callback::callback(git_reference* ref,void* payload)
         // Convert arguments to PHP values.
         *res.byval_git2() = ref;
         res.ret(params[0]);
-        params.assign<1>(std::forward<zval*>(cb->data));
+        params.assign<1>(cb->data);
 
         // Call the userspace callback.
         params.call(cb->func,&retval);
@@ -284,8 +273,7 @@ int reference_foreach_name_callback::callback(const char* name,void* payload)
         zval_array<2> params ZTS_CTOR;
 
         // Convert arguments to PHP values.
-        params.assign<0>(std::forward<const char*>(name));
-        params.assign<1>(std::forward<zval*>(cb->data));
+        params.assign<0>(name,cb->data);
 
         // Call the userspace callback.
         params.call(cb->func,&retval);
@@ -319,10 +307,7 @@ int packbuilder_progress_callback::callback(int stage,uint32_t current,uint32_t 
         zval_array<4> params ZTS_CTOR;
 
         // Convert arguments to PHP values.
-        params.assign<0>(std::forward<long>((long)stage));
-        params.assign<1>(std::forward<long>((long)current));
-        params.assign<2>(std::forward<long>((long)total));
-        params.assign<3>(std::forward<zval*>(cb->data));
+        params.assign<0>((long)stage,(long)current,(long)total,cb->data);
 
         // Call the userspace callback.
         params.call(cb->func,&retval);
@@ -362,7 +347,7 @@ int config_foreach_callback::callback(const git_config_entry* entry,void* payloa
 
         // Convert arguments to PHP values.
         zentry = params[0];
-        params.assign<1>(std::forward<zval*>(cb->data));
+        params.assign<1>(cb->data);
         array_init(zentry);
         add_assoc_string(zentry,"name",(char*)entry->name,1);
         add_assoc_string(zentry,"value",(char*)entry->value,1);
@@ -401,10 +386,7 @@ int tag_foreach_callback::callback(const char* name,git_oid* oid,void* payload)
         zval_array<3> params ZTS_CTOR;
 
         git_oid_tostr(buf,sizeof(buf),oid);
-        params.assign<0>(
-            std::forward<const char*>(name),
-            std::forward<const char*>(buf),
-            std::forward<zval*>(cb->data));
+        params.assign<0>(name,buf,cb->data);
 
         params.call(cb->func,&retval);
         convert_to_long(&retval);
@@ -435,11 +417,7 @@ int repository_create_callback::callback(git_repository** out,const char* path,i
         zval retval;
         zval_array<3> params ZTS_CTOR;
 
-        params.assign<0>(
-            std::forward<const char*>(path),
-            std::forward<bool>(bare),
-            std::forward<zval*>(cb->data));
-
+        params.assign<0>(path,static_cast<bool>(bare),cb->data);
         params.call(cb->func,&retval);
 
         // Allow userspace to generate failure by returning null or false.
@@ -475,6 +453,7 @@ int repository_create_callback::callback(git_repository** out,const char* path,i
         // handle from a non-owned context (since it could be freed in another
         // context at some future point). Furthermore, we must revoke ownership
         // on this resource to avoid a double free.
+
         if (!resource->is_owned()) {
             php_error(E_WARNING,"repository_create_callback: cannot return non-owner resource");
             return -1;
@@ -482,6 +461,200 @@ int repository_create_callback::callback(git_repository** out,const char* path,i
 
         resource->revoke_ownership();
         *out = resource->get_handle();
+
+        return 0;
+    }
+
+    return GIT_EUSER;
+}
+
+// diff_notify_callback
+
+int diff_notify_callback::callback(
+    const git_diff* diff_so_far,
+    const git_diff_delta* delta_to_add,
+    const char* matched_pathspec,
+    void* payload /* git_diff_options_callback_info */)
+{
+    git_diff_options_callback_info* info;
+
+    info = reinterpret_cast<git_diff_options_callback_info*>(payload);
+    if (info != nullptr) {
+        php_callback_sync* cb = &info->notifyCallback;
+        if (Z_TYPE_P(cb->func) == IS_NULL) {
+            return 0;
+        }
+
+        int result;
+        zval retval;
+        zval_array<4> params ZTS_CTOR;
+        const php_resource_ref<php_git_diff_nofree> diffRes;
+
+        *diffRes.byval_git2() = diff_so_far;
+        diffRes.ret(params[0]);
+        convert_diff_delta(params[1],delta_to_add);
+        params.assign<2>(matched_pathspec,cb->data);
+        params.call(cb->func,&retval);
+
+        convert_to_long(&retval);
+        result = static_cast<int>(Z_LVAL(retval));
+        zval_dtor(&retval);
+
+        return result;
+    }
+
+    return GIT_EUSER;
+}
+
+// diff_progress_callback
+
+int diff_progress_callback::callback(
+    const git_diff* diff_so_far,
+    const char* old_path,
+    const char* new_path,
+    void* payload)
+{
+    git_diff_options_callback_info* info;
+
+    info = reinterpret_cast<git_diff_options_callback_info*>(payload);
+    if (info != nullptr) {
+        php_callback_sync* cb = &info->progressCallback;
+        if (Z_TYPE_P(cb->func) == IS_NULL) {
+            return 0;
+        }
+
+        int result;
+        zval retval;
+        zval_array<4> params;
+        const php_resource_ref<php_git_diff_nofree> diffRes;
+
+        *diffRes.byval_git2() = diff_so_far;
+        diffRes.ret(params[0]);
+        params.assign<1>(old_path,new_path,cb->data);
+        params.call(cb->func,&retval);
+
+        convert_to_boolean(&retval);
+        result = Z_BVAL(retval) ? 0 : -1;
+        zval_dtor(&retval);
+
+        return result;
+    }
+
+    return GIT_EUSER;
+}
+
+// diff_file_callback
+
+int diff_file_callback::callback(const git_diff_delta* delta,float progress,void* payload)
+{
+    git_diff_callback_info* info;
+
+    info = reinterpret_cast<git_diff_callback_info*>(payload);
+    if (info != nullptr) {
+        php_callback_sync* cb = &info->fileCallback;
+        if (Z_TYPE_P(cb->func) == IS_NULL) {
+            return 0;
+        }
+
+        zval retval;
+        zval_array<3> params;
+
+        convert_diff_delta(params[0],delta);
+        params.assign<1>(progress,cb->data);
+        params.call(cb->func,&retval);
+        zval_dtor(&retval);
+
+        return 0;
+    }
+
+    return GIT_EUSER;
+}
+
+// diff_binary_callback
+
+int callback(const git_diff_delta* delta,
+    const git_diff_binary* binary,
+    void* payload)
+{
+    git_diff_callback_info* info;
+
+    info = reinterpret_cast<git_diff_callback_info*>(payload);
+    if (info != nullptr) {
+        php_callback_sync* cb = &info->binaryCallback;
+        if (Z_TYPE_P(cb->func) == IS_NULL) {
+            return 0;
+        }
+
+        zval retval;
+        zval_array<3> params;
+
+        convert_diff_delta(params[0],delta);
+        convert_diff_binary(params[1],binary);
+        params.assign<2>(cb->data);
+        params.call(cb->func,&retval);
+        zval_dtor(&retval);
+
+        return 0;
+    }
+
+    return GIT_EUSER;
+}
+
+// diff_hunk_callback
+
+int callback(const git_diff_delta* delta,
+    const git_diff_hunk* hunk,
+    void* payload)
+{
+    git_diff_callback_info* info;
+
+    info = reinterpret_cast<git_diff_callback_info*>(payload);
+    if (info != nullptr) {
+        php_callback_sync* cb = &info->hunkCallback;
+        if (Z_TYPE_P(cb->func) == IS_NULL) {
+            return 0;
+        }
+
+        zval retval;
+        zval_array<3> params;
+
+        convert_diff_delta(params[0],delta);
+        convert_diff_hunk(params[1],hunk);
+        params.assign<2>(cb->data);
+        params.call(cb->func,&retval);
+        zval_dtor(&retval);
+
+        return 0;
+    }
+
+    return GIT_EUSER;
+}
+
+// diff_line_callback
+
+int callback(const git_diff_delta* delta,
+    const git_diff_hunk* hunk,
+    const git_diff_line* line,
+    void* payload)
+{
+    git_diff_callback_info* info;
+
+    info = reinterpret_cast<git_diff_callback_info*>(payload);
+    if (info != nullptr) {
+        php_callback_sync* cb = &info->lineCallback;
+        if (Z_TYPE_P(cb->func) == IS_NULL) {
+            return 0;
+        }
+
+        zval retval;
+        zval_array<4> params;
+
+        convert_diff_delta(params[0],delta);
+        convert_diff_hunk(params[1],hunk);
+        convert_diff_line(params[2],line);
+        params.assign<3>(cb->data);
+        params.call(cb->func,&retval);
+        zval_dtor(&retval);
 
         return 0;
     }

@@ -48,6 +48,7 @@ purpose) are determined by the C++ compiler via 'typeid'.
     git_config
     git_config_iterator
     git_tag
+    git_diff
 
 The following structures are not represented as resources in the PHP
 API. Instead a scalar, array or object type is used:
@@ -61,9 +62,16 @@ API. Instead a scalar, array or object type is used:
     git_odb_backend                                object
     git_odb_stream                                 object
     git_writestream                                object
+    git_config_backend                             object
     git_blame_hunk                                 array
     git_revspec                                    array
     git_config_entry                               array
+    git_diff_delta                                 array
+    git_diff_file                                  array
+    git_diff_binary                                array
+    git_diff_binary_file                           array
+    git_diff_hunk                                  array
+    git_diff_line                                  array
 
 For objects, see the later section regarding Classes.
 
@@ -1421,6 +1429,12 @@ git_tag_list_match(resource,string)
     Returns array
 
 git_tag_foreach(resource,callable,mixed)
+
+----------------------------------------
+[git_diff]
+----------------------------------------
+
+git_diff_free(resource)
 
 --------------------------------------------------------------------------------
 Class API Reference

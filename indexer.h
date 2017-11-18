@@ -158,14 +158,7 @@ static PHP_FUNCTION(git2_indexer_stats)
         return;
     }
 
-    array_init(return_value);
-    add_assoc_long(return_value,"total_objects",stats->total_objects);
-    add_assoc_long(return_value,"indexed_objects",stats->indexed_objects);
-    add_assoc_long(return_value,"received_objects",stats->received_objects);
-    add_assoc_long(return_value,"local_objects",stats->local_objects);
-    add_assoc_long(return_value,"total_deltas",stats->total_deltas);
-    add_assoc_long(return_value,"indexed_deltas",stats->indexed_deltas);
-    add_assoc_long(return_value,"received_bytes",stats->received_bytes);
+    php_git2::convert_transfer_progress(return_value,stats);
 }
 
 // Function Entries:

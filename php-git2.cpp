@@ -29,6 +29,7 @@
 #include "clone.h"
 #include "checkout.h"
 #include "tag.h"
+#include "diff.h"
 #include <cstdio>
 #include <cstdarg>
 using namespace std;
@@ -85,6 +86,7 @@ static zend_function_entry php_git2_functions[] = {
     GIT_CLONE_FE
     GIT_CHECKOUT_FE
     GIT_TAG_FE
+    GIT_DIFF_FE
     PHP_FE_END
 };
 
@@ -153,7 +155,8 @@ PHP_MINIT_FUNCTION(git2)
         git_reference_iterator,
         git_config,
         git_config_iterator,
-        git_tag >(module_number);
+        git_tag,
+        git_diff >(module_number);
 
     // Register all classes provided by this extension.
     php_git2_register_classes(TSRMLS_C);
@@ -266,6 +269,140 @@ void php_git2::convert_oid_fromstr(git_oid* dest,const char* src,int srclen)
     buf[GIT_OID_HEXSZ] = 0;
     strncpy(buf,src,srclen);
     git_oid_fromstr(dest,buf);
+}
+
+void php_git2::convert_transfer_progress(zval* zv,const git_transfer_progress* stats)
+{
+    array_init(zv);
+    add_assoc_long_ex(zv,"total_objects",sizeof("total_objects"),stats->total_objects);
+    add_assoc_long_ex(zv,"indexed_objects",sizeof("indexed_objects"),stats->indexed_objects);
+    add_assoc_long_ex(zv,"received_objects",sizeof("received_objects"),stats->received_objects);
+    add_assoc_long_ex(zv,"local_objects",sizeof("local_objects"),stats->local_objects);
+    add_assoc_long_ex(zv,"total_objects",sizeof("total_objects"),stats->total_objects);
+    add_assoc_long_ex(zv,"indexed_deltas",sizeof("indexed_deltas"),stats->indexed_deltas);
+    add_assoc_long_ex(zv,"received_bytes",sizeof("received_bytes"),stats->received_bytes);
+}
+
+void php_git2::convert_blame_hunk(zval* zv,const git_blame_hunk* hunk)
+{
+    char buf[GIT_OID_HEXSZ + 1];
+
+    // Convert the git_blame_hunk into a single-dimensional PHP array
+    // that contains only primative types (i.e. no objects, resources or
+    // arrays). The assumption is here that userspace is more interested
+    // in reading the data then having the values in the "proper" format
+    // (e.g. git_signature resource type, ETC.).
+
+    array_init(zv);
+    add_assoc_long(zv,"lines_in_hunk",hunk->lines_in_hunk);
+    git_oid_tostr(buf,sizeof(buf),&hunk->final_commit_id);
+    add_assoc_string(zv,"final_commit_id",buf,1);
+    add_assoc_long(zv,"final_start_line_number",hunk->final_start_line_number);
+    add_assoc_string(zv,"final_signature.name",hunk->final_signature->name,1);
+    add_assoc_string(zv,"final_signature.email",hunk->final_signature->email,1);
+    add_assoc_long(zv,"final_signature.when.time",hunk->final_signature->when.time);
+    add_assoc_long(zv,"final_signature.when.offset",hunk->final_signature->when.offset);
+    git_oid_tostr(buf,sizeof(buf),&hunk->orig_commit_id);
+    add_assoc_string(zv,"orig_commit_id",buf,1);
+    add_assoc_string(zv,"orig_path",const_cast<char*>(hunk->orig_path),1);
+    add_assoc_long(zv,"orig_start_line_number",hunk->orig_start_line_number);
+    add_assoc_string(zv,"orig_signature.name",hunk->orig_signature->name,1);
+    add_assoc_string(zv,"orig_signature.email",hunk->orig_signature->email,1);
+    add_assoc_long(zv,"orig_signature.when.time",hunk->orig_signature->when.time);
+    add_assoc_long(zv,"orig_signature.when.offset",hunk->orig_signature->when.offset);
+    buf[0] = hunk->boundary;
+    buf[1] = 0;
+    add_assoc_string(zv,"boundary",buf,1);
+}
+
+void php_git2::convert_diff_delta(zval* zv,const git_diff_delta* delta)
+{
+    zval* zfile;
+
+    array_init(zv);
+    add_assoc_long_ex(zv,"status",sizeof("status"),delta->status);
+    add_assoc_long_ex(zv,"flags",sizeof("flags"),delta->flags);
+    add_assoc_long_ex(zv,"similarity",sizeof("similarity"),delta->similarity);
+    add_assoc_long_ex(zv,"nfiles",sizeof("nfiles"),delta->nfiles);
+
+    MAKE_STD_ZVAL(zfile);
+    convert_diff_file(zfile,&delta->old_file);
+    add_assoc_zval_ex(zv,"old_file",sizeof("old_file"),zfile);
+
+    MAKE_STD_ZVAL(zfile);
+    convert_diff_file(zfile,&delta->new_file);
+    add_assoc_zval_ex(zv,"new_file",sizeof("new_file"),zfile);
+}
+
+void php_git2::convert_diff_file(zval* zv,const git_diff_file* file)
+{
+    uint16_t idlen = file->id_abbrev;
+    char buf[GIT_OID_HEXSZ + 1];
+
+    if (idlen > GIT_OID_HEXSZ) {
+        idlen = GIT_OID_HEXSZ;
+    }
+
+    array_init(zv);
+    git_oid_tostr(buf,sizeof(buf),&file->id);
+    buf[idlen] = 0;
+    add_assoc_const_string(zv,"id",buf);
+    add_assoc_const_string(zv,"path",file->path);
+    add_assoc_long_ex(zv,"size",sizeof("size"),file->size);
+    add_assoc_long_ex(zv,"flags",sizeof("flags"),file->flags);
+    add_assoc_long_ex(zv,"mode",sizeof("mode"),file->mode);
+}
+
+void php_git2::convert_diff_binary(zval* zv,const git_diff_binary* binary)
+{
+    zval* zold;
+    zval* znew;
+
+    array_init(zv);
+    add_assoc_bool_ex(zv,"contains_data",sizeof("contains_data"),binary->contains_data);
+
+    MAKE_STD_ZVAL(zold);
+    MAKE_STD_ZVAL(znew);
+    convert_diff_binary_file(zold,&binary->old_file);
+    convert_diff_binary_file(znew,&binary->new_file);
+    add_assoc_zval_ex(zv,"old_file",sizeof("old_file"),zold);
+    add_assoc_zval_ex(zv,"new_file",sizeof("new_file"),znew);
+}
+
+void php_git2::convert_diff_binary_file(zval* zv,const git_diff_binary_file* file)
+{
+    array_init(zv);
+    add_assoc_long_ex(zv,"type",sizeof("type"),file->type);
+    if (file->data == nullptr || file->datalen == 0) {
+        add_assoc_null_ex(zv,"data",sizeof("data"));
+    }
+    else {
+        add_assoc_stringl_ex(zv,"data",sizeof("data"),const_cast<char*>(file->data),file->datalen,1);
+    }
+    add_assoc_long_ex(zv,"inflatedlen",sizeof("inflatedlen"),file->inflatedlen);
+}
+
+void php_git2::convert_diff_hunk(zval* zv,const git_diff_hunk* hunk)
+{
+    array_init(zv);
+    add_assoc_long_ex(zv,"old_start",sizeof("old_start"),hunk->old_start);
+    add_assoc_long_ex(zv,"old_lines",sizeof("old_lines"),hunk->old_lines);
+    add_assoc_long_ex(zv,"new_start",sizeof("new_start"),hunk->new_start);
+    add_assoc_long_ex(zv,"new_lines",sizeof("new_lines"),hunk->new_lines);
+
+    // The header is NUL terminated so we just let PHP copy it over.
+    add_assoc_string_ex(zv,"header",sizeof("header"),const_cast<char*>(hunk->header),1);
+}
+
+void php_git2::convert_diff_line(zval* zv,const git_diff_line* line)
+{
+    array_init(zv);
+    add_assoc_long_ex(zv,"origin",sizeof("origin"),line->origin);
+    add_assoc_long_ex(zv,"old_lineno",sizeof("old_lineno"),line->old_lineno);
+    add_assoc_long_ex(zv,"new_lineno",sizeof("new_lineno"),line->new_lineno);
+    add_assoc_long_ex(zv,"num_lines",sizeof("num_lines"),line->num_lines);
+    add_assoc_long_ex(zv,"content_offset",sizeof("content_offset"),line->content_offset);
+    add_assoc_stringl_ex(zv,"content",sizeof("content"),const_cast<char*>(line->content),line->content_len,1);
 }
 
 /*
