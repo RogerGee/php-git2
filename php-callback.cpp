@@ -10,6 +10,32 @@
 #include "php-callback.h"
 using namespace php_git2;
 
+// php_callback_base
+
+php_callback_base::php_callback_base():
+    func(nullptr), data(nullptr)
+{
+}
+
+bool php_callback_base::is_callable() const
+{
+    if (Z_TYPE_P(func) != IS_NULL) {
+        char* error = nullptr;
+        zend_bool retval;
+        retval = zend_is_callable_ex(func,NULL,0,NULL,NULL,NULL,&error TSRMLS_CC);
+        if (error) {
+            efree(error);
+        }
+
+        return retval;
+    }
+
+    // NOTE: A null zval is considered a valid callable in this
+    // extension for any callback.
+
+    return true;
+}
+
 // packbuilder_foreach_callback
 
 /*static*/ int
@@ -480,7 +506,7 @@ int diff_notify_callback::callback(
 
     info = reinterpret_cast<git_diff_options_callback_info*>(payload);
     if (info != nullptr) {
-        php_callback_sync* cb = &info->notifyCallback;
+        php_callback_base* cb = &info->notifyCallback;
         if (Z_TYPE_P(cb->func) == IS_NULL) {
             return 0;
         }
@@ -518,7 +544,7 @@ int diff_progress_callback::callback(
 
     info = reinterpret_cast<git_diff_options_callback_info*>(payload);
     if (info != nullptr) {
-        php_callback_sync* cb = &info->progressCallback;
+        php_callback_base* cb = &info->progressCallback;
         if (Z_TYPE_P(cb->func) == IS_NULL) {
             return 0;
         }
@@ -533,8 +559,13 @@ int diff_progress_callback::callback(
         params.assign<1>(old_path,new_path,cb->data);
         params.call(cb->func,&retval);
 
-        convert_to_boolean(&retval);
-        result = Z_BVAL(retval) ? 0 : -1;
+        if (Z_TYPE(retval) != IS_NULL) {
+            convert_to_boolean(&retval);
+            result = Z_BVAL(retval) ? 0 : -1;
+        }
+        else {
+            result = 0;
+        }
         zval_dtor(&retval);
 
         return result;
@@ -551,7 +582,7 @@ int diff_file_callback::callback(const git_diff_delta* delta,float progress,void
 
     info = reinterpret_cast<git_diff_callback_info*>(payload);
     if (info != nullptr) {
-        php_callback_sync* cb = &info->fileCallback;
+        php_callback_base* cb = &info->fileCallback;
         if (Z_TYPE_P(cb->func) == IS_NULL) {
             return 0;
         }
@@ -560,7 +591,7 @@ int diff_file_callback::callback(const git_diff_delta* delta,float progress,void
         zval_array<3> params;
 
         convert_diff_delta(params[0],delta);
-        params.assign<1>(progress,cb->data);
+        params.assign<1>(progress,info->zpayload);
         params.call(cb->func,&retval);
         zval_dtor(&retval);
 
@@ -572,7 +603,7 @@ int diff_file_callback::callback(const git_diff_delta* delta,float progress,void
 
 // diff_binary_callback
 
-int callback(const git_diff_delta* delta,
+int diff_binary_callback::callback(const git_diff_delta* delta,
     const git_diff_binary* binary,
     void* payload)
 {
@@ -580,7 +611,7 @@ int callback(const git_diff_delta* delta,
 
     info = reinterpret_cast<git_diff_callback_info*>(payload);
     if (info != nullptr) {
-        php_callback_sync* cb = &info->binaryCallback;
+        php_callback_base* cb = &info->binaryCallback;
         if (Z_TYPE_P(cb->func) == IS_NULL) {
             return 0;
         }
@@ -590,7 +621,7 @@ int callback(const git_diff_delta* delta,
 
         convert_diff_delta(params[0],delta);
         convert_diff_binary(params[1],binary);
-        params.assign<2>(cb->data);
+        params.assign<2>(info->zpayload);
         params.call(cb->func,&retval);
         zval_dtor(&retval);
 
@@ -602,7 +633,7 @@ int callback(const git_diff_delta* delta,
 
 // diff_hunk_callback
 
-int callback(const git_diff_delta* delta,
+int diff_hunk_callback::callback(const git_diff_delta* delta,
     const git_diff_hunk* hunk,
     void* payload)
 {
@@ -610,7 +641,7 @@ int callback(const git_diff_delta* delta,
 
     info = reinterpret_cast<git_diff_callback_info*>(payload);
     if (info != nullptr) {
-        php_callback_sync* cb = &info->hunkCallback;
+        php_callback_base* cb = &info->hunkCallback;
         if (Z_TYPE_P(cb->func) == IS_NULL) {
             return 0;
         }
@@ -620,7 +651,7 @@ int callback(const git_diff_delta* delta,
 
         convert_diff_delta(params[0],delta);
         convert_diff_hunk(params[1],hunk);
-        params.assign<2>(cb->data);
+        params.assign<2>(info->zpayload);
         params.call(cb->func,&retval);
         zval_dtor(&retval);
 
@@ -632,7 +663,7 @@ int callback(const git_diff_delta* delta,
 
 // diff_line_callback
 
-int callback(const git_diff_delta* delta,
+int diff_line_callback::callback(const git_diff_delta* delta,
     const git_diff_hunk* hunk,
     const git_diff_line* line,
     void* payload)
@@ -641,7 +672,7 @@ int callback(const git_diff_delta* delta,
 
     info = reinterpret_cast<git_diff_callback_info*>(payload);
     if (info != nullptr) {
-        php_callback_sync* cb = &info->lineCallback;
+        php_callback_base* cb = &info->lineCallback;
         if (Z_TYPE_P(cb->func) == IS_NULL) {
             return 0;
         }
@@ -652,7 +683,7 @@ int callback(const git_diff_delta* delta,
         convert_diff_delta(params[0],delta);
         convert_diff_hunk(params[1],hunk);
         convert_diff_line(params[2],line);
-        params.assign<3>(cb->data);
+        params.assign<3>(info->zpayload);
         params.call(cb->func,&retval);
         zval_dtor(&retval);
 

@@ -66,6 +66,7 @@ API. Instead a scalar, array or object type is used:
     git_blame_hunk                                 array
     git_revspec                                    array
     git_config_entry                               array
+    git_diff_options                               array
     git_diff_delta                                 array
     git_diff_file                                  array
     git_diff_binary                                array
@@ -1434,7 +1435,28 @@ git_tag_foreach(resource,callable,mixed)
 [git_diff]
 ----------------------------------------
 
+* Callback signatures *
+
+    notify_callback(resource $diff,array $delta,string $matchedPathspec,mixed $payload)
+
+        returns int
+
+    progress_callback(resource $diff,string $oldPath,string $newPath,mixed $payload)
+
+        returns bool: false value aborts diff (except null)
+
+    file_callback(array $delta,float $progress,mixed $payload)
+
+    binary_callback(array $delta,array $binary,mixed $payload)
+
+    hunk_callback(array $delta,array $hunk,mixed $payload)
+
+    line_callback(array $delta,array $hunk,array $line,mixed $payload)
+
 git_diff_free(resource)
+
+git_diff_blob_to_buffer(resource,string,string,string,array|null,callable,
+    callable,callable,callable,mixed)
 
 --------------------------------------------------------------------------------
 Class API Reference

@@ -174,7 +174,7 @@ Legend:
 . git_describe_result_free
 . git_describe_workdir
 . git_diff_blobs
-. git_diff_blob_to_buffer
++ git_diff_blob_to_buffer
 . git_diff_buffers
 . git_diff_commit_as_email
 . git_diff_entrycount
@@ -183,7 +183,7 @@ Legend:
 . git_diff_foreach
 . git_diff_format_email
 . git_diff_format_email_init_options
-. git_diff_free
++ git_diff_free
 . git_diff_from_buffer
 . git_diff_get_delta
 . git_diff_get_perfdata

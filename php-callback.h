@@ -133,6 +133,18 @@ namespace php_git2
         zval* params[Count];
     };
 
+    // Provide a base class for callbacks.
+
+    struct php_callback_base
+    {
+        php_callback_base();
+
+        zval* func;
+        zval* data;
+
+        bool is_callable() const;
+    };
+
     /**
      * Synchronous Callbacks
      *
@@ -146,13 +158,13 @@ namespace php_git2
      * not define the order of parameter evaluation.
      */
 
-    struct php_callback_sync:
-        public php_zts_base
+    class php_callback_sync:
+        public php_zts_base,
+        public php_callback_base
     {
     public:
         php_callback_sync(TSRMLS_D):
-            php_zts_base(TSRMLS_C), func(nullptr), data(nullptr),
-            p(std::numeric_limits<unsigned>::max())
+            php_zts_base(TSRMLS_C), p(std::numeric_limits<unsigned>::max())
         {
         }
 
@@ -186,23 +198,16 @@ namespace php_git2
 
         void* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
-            // Figure out which parameters are which and swap as needed.
-            if (!p) {
+            // Figure out which parameters are which and swap as needed. Only
+            // consider a swap if both were set (assume 'func' is always set).
+            if (!p && data != nullptr) {
                 std::swap(func,data);
             }
 
             // Make sure the function zval is a callable. We always allow the
             // user to omit a callable if the zval is null.
-            if (Z_TYPE_P(func) != IS_NULL) {
-                char* error = nullptr;
-                zend_bool retval;
-                retval = zend_is_callable_ex(func,NULL,0,NULL,NULL,NULL,&error TSRMLS_CC);
-                if (error) {
-                    efree(error);
-                }
-                if (!retval) {
-                    php_value_base::error("callable",argno);
-                }
+            if (!is_callable()) {
+                php_value_base::error("callable",argno);
             }
 
             // Up reference count. This is really only needed for when this
@@ -212,9 +217,6 @@ namespace php_git2
             Z_ADDREF_P(data);
             return this;
         }
-
-        zval* func;
-        zval* data;
     private:
         unsigned p;
     };
@@ -358,7 +360,7 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR(php_callback_handler)
 
-        typename CallbackFunc::type byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        constexpr typename CallbackFunc::type byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
             // Return the static address of the wrapped callback function.
             return &CallbackFunc::callback;
@@ -447,8 +449,8 @@ namespace php_git2
 
     struct git_diff_options_callback_info
     {
-        php_callback_sync notifyCallback;
-        php_callback_sync progressCallback;
+        php_callback_base notifyCallback;
+        php_callback_base progressCallback;
     };
 
     struct diff_notify_callback
@@ -473,10 +475,11 @@ namespace php_git2
 
     struct git_diff_callback_info
     {
-        php_callback_sync fileCallback;
-        php_callback_sync binaryCallback;
-        php_callback_sync hunkCallback;
-        php_callback_sync lineCallback;
+        php_callback_base fileCallback;
+        php_callback_base binaryCallback;
+        php_callback_base hunkCallback;
+        php_callback_base lineCallback;
+        zval* zpayload;
     };
 
     struct diff_file_callback

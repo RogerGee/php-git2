@@ -45,7 +45,7 @@ namespace php_git2
         static inline void error(const char* typeName,unsigned argno)
         {
             if (argno != std::numeric_limits<unsigned>::max()) {
-                php_error(E_ERROR,"expected '%s' for argument position %d",
+                php_error(E_ERROR,"expected '%s' for argument at position %d",
                     typeName,argno);
             }
             php_error(E_ERROR,"expected '%s' for argument",typeName);
@@ -54,7 +54,7 @@ namespace php_git2
         static inline void error_custom(const char* message,unsigned argno)
         {
             if (argno != std::numeric_limits<unsigned>::max()) {
-                php_error(E_ERROR,"%s for argument position %d",message,argno);
+                php_error(E_ERROR,"%s for argument at position %d",message,argno);
             }
             php_error(E_ERROR,"%s",message);
         }
@@ -1021,12 +1021,19 @@ namespace php_git2
         public php_string_array
     {
     public:
+        php_strarray_array()
+        {
+            memset(&arr,0,sizeof(git_strarray));
+        }
+
         ~php_strarray_array()
         {
-            for (size_t i = 0;i < arr.count;++i) {
-                efree(arr.strings[i]);
+            if (arr.strings != nullptr) {
+                for (size_t i = 0;i < arr.count;++i) {
+                    efree(arr.strings[i]);
+                }
+                efree(arr.strings);
             }
-            efree(arr.strings);
         }
 
         git_strarray byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())

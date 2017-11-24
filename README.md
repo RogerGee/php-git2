@@ -51,8 +51,8 @@ userspace with what PHP devs expect. At times we add some calls to facilitate
 certain tasks in userspace or to optimize an otherwise costly operation
 (e.g. like converting values back-and-forth between userspace and the
 library). We also provide several abstractions as PHP classes so that they can
-be subclassed from userspace (e.g. the git_odb_backend is a class called
-GitODBBackend).
+be subclassed from userspace (e.g. the `git_odb_backend` is a class called
+`GitODBBackend`).
 
 #### Stability
 
