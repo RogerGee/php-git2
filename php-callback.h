@@ -86,7 +86,7 @@ namespace php_git2
         }
 
         template<unsigned I,typename... Ts>
-        void assign(const void* a,size_t&& b,Ts&&... ts)
+        void assign(const void* a,size_t& b,Ts&&... ts)
         {
             ZVAL_STRINGL(params[I],(const char*)a,b,1);
             assign<I+1>(std::forward<Ts>(ts)...);
@@ -244,7 +244,7 @@ namespace php_git2
         using connect_t = php_resource_ref<GitResource>;
         typedef void* target_t;
 
-        php_callback_async(connect_t&& conn TSRMLS_DC)
+        php_callback_async(connect_t& conn TSRMLS_DC)
         {
             // Allocate php_callback_sync object.
             cb = new (emalloc(sizeof(php_callback_sync))) php_callback_sync(TSRMLS_C);
@@ -280,8 +280,8 @@ namespace php_git2
         using connect_t = ConnectType;
         typedef void* target_t;
 
-        php_callback_async_ex(connect_t&& conn TSRMLS_DC):
-            stor(std::forward<connect_t>(conn))
+        php_callback_async_ex(connect_t& conn TSRMLS_DC):
+            stor(conn)
         {
             // Allocate php_callback_sync object. Assign a new php_callback_sync
             // object to the connected object. It must have a member called 'cb'
@@ -299,7 +299,7 @@ namespace php_git2
             return stor.cb->byval_git2(argno);
         }
     private:
-        connect_t&& stor;
+        connect_t& stor;
     };
 
 
@@ -316,8 +316,8 @@ namespace php_git2
         using connect_t = php_resource<GitResource>;
         typedef void* target_t;
 
-        php_callback_async_existing(connect_t&& conn TSRMLS_DC):
-            stor(std::forward<connect_t>(conn))
+        php_callback_async_existing(connect_t& conn TSRMLS_DC):
+            stor(conn)
         {
             // Allocate php_callback_sync object.
             cb = new (emalloc(sizeof(php_callback_sync))) php_callback_sync(TSRMLS_C);
@@ -347,7 +347,7 @@ namespace php_git2
             return cb->byval_git2(argno);
         }
     private:
-        connect_t&& stor;
+        connect_t& stor;
         php_callback_sync* cb;
     };
 

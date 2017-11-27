@@ -54,10 +54,7 @@ namespace php_git2
     class php_git_blame_hunk_rethandler
     {
     public:
-        bool ret(
-            const git_blame_hunk* hunk,
-            zval* return_value,
-            local_pack<Ts...>&& pack)
+        bool ret(const git_blame_hunk* hunk,zval* return_value,local_pack<Ts...>& pack)
         {
             if (hunk == nullptr) {
                 return false;

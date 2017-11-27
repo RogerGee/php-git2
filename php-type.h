@@ -240,8 +240,8 @@ namespace php_git2
         using connect_t = StringType;
         typedef IntType target_t;
 
-        php_string_length_connector(connect_t&& obj TSRMLS_DC):
-            conn(std::forward<connect_t>(obj))
+        php_string_length_connector(connect_t& obj TSRMLS_DC):
+            conn(obj)
         {
         }
 
@@ -250,7 +250,7 @@ namespace php_git2
             return Z_STRLEN_P(conn.byval_php(p));
         }
     private:
-        connect_t&& conn;
+        connect_t& conn;
     };
 
     // Provide a connector for an arbitrary string buffer that can be returned
@@ -263,10 +263,9 @@ namespace php_git2
         using connect_t = php_long;
         using target_t = char*;
 
-        php_string_buffer_connector(connect_t&& obj TSRMLS_DC):
-            conn(std::forward<connect_t>(obj))
+        php_string_buffer_connector(connect_t& obj TSRMLS_DC)
         {
-            bufsz = (size_t)conn.byval_git2();
+            bufsz = (size_t)obj.byval_git2();
             buffer = (char*)emalloc(bufsz);
         }
 
@@ -284,7 +283,6 @@ namespace php_git2
     private:
         char* buffer;
         size_t bufsz;
-        connect_t&& conn;
     };
 
     // Provide a type that casts a php_long to any arbitrary integer type.
@@ -984,8 +982,8 @@ namespace php_git2
         using connect_t = php_array<typename ArrayType::source_t,typename ArrayType::convert_t>;
         typedef IntType target_t;
 
-        php_array_length_connector(connect_t&& obj TSRMLS_DC):
-            conn(std::forward<connect_t>(obj))
+        php_array_length_connector(connect_t& obj TSRMLS_DC):
+            conn(obj)
         {
         }
 
@@ -999,7 +997,7 @@ namespace php_git2
             return zend_hash_num_elements(Z_ARRVAL_P(conn.byval_php(p)));
         }
     private:
-        connect_t&& conn;
+        connect_t& conn;
     };
 
     // Enumerate common array types.

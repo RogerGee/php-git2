@@ -26,10 +26,7 @@ namespace php_git2
     class php_git_tree_entry_rethandler
     {
     public:
-        bool ret(
-            const git_tree_entry* retval,
-            zval* return_value,
-            local_pack<Ts...>&& pack)
+        bool ret(const git_tree_entry* retval,zval* return_value,local_pack<Ts...>& pack)
         {
             // The functions that target this return handler return NULL if the
             // entry wasn't found. This doesn't generate a giterr so we return

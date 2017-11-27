@@ -29,13 +29,15 @@ namespace php_git2
         }
 
         static constexpr unsigned size()
-        { return 0; }
+        {
+            return 0;
+        }
     };
 
     // Recursive object inherits object containing the rest of the pack.
     template<typename T,typename... Ts>
     class local_pack<T,Ts...>:
-        local_pack<Ts...>
+        private local_pack<Ts...>
     {
     protected:
         // Provide some meta-constructs to access an arbitrary type from a
@@ -86,7 +88,9 @@ namespace php_git2
         // Provide the size of the pack as a constant function expression.
 
         static constexpr unsigned size()
-        { return sizeof...(Ts) + 1; }
+        {
+            return sizeof...(Ts) + 1;
+        }
     private:
         T local;
     };
@@ -101,6 +105,11 @@ namespace php_git2
     class connector_wrapper
     {
     public:
+        connector_wrapper(typename T::connect_t& obj TSRMLS_DC):
+            connector(obj TSRMLS_CC)
+        {
+        }
+
         connector_wrapper(typename T::connect_t&& obj TSRMLS_DC):
             connector(std::forward<typename T::connect_t>(obj) TSRMLS_CC)
         {
@@ -123,10 +132,14 @@ namespace php_git2
         }
 
         T& get_connector()
-        { return connector; }
+        {
+            return connector;
+        }
 
         const T& get_connector() const
-        { return connector; }
+        {
+            return connector;
+        }
     private:
         T connector;
     };
@@ -136,8 +149,13 @@ namespace php_git2
         public connector_wrapper<T>
     {
     public:
+        connector_wrapper_ex(connector_wrapper<typename T::connect_t>& obj TSRMLS_DC):
+            connector_wrapper<T>(obj.get_connector() TSRMLS_CC)
+        {
+        }
+
         connector_wrapper_ex(connector_wrapper<typename T::connect_t>&& obj TSRMLS_DC):
-            connector_wrapper<T>(std::forward<typename T::connect_t>(obj.get_connector()) TSRMLS_CC)
+            connector_wrapper<T>(obj.get_connector() TSRMLS_CC)
         {
         }
     };
@@ -169,7 +187,7 @@ namespace php_git2
         // Initialize to default. This is important if PHP assumes default
         // values for some parameters.
         local_pack(TSRMLS_D):
-            local_pack<Ts...>(TSRMLS_C), local(std::forward<typename T::connect_t>(get<1>()) TSRMLS_CC)
+            local_pack<Ts...>(TSRMLS_C), local(get<1>() TSRMLS_CC)
         {
         }
 
@@ -195,14 +213,16 @@ namespace php_git2
         // Provide the size of the pack as a constant function expression.
 
         static constexpr unsigned size()
-        { return sizeof...(Ts) + 1; }
+        {
+            return sizeof...(Ts) + 1;
+        }
     private:
         connector_wrapper<T> local;
     };
 
     template<typename T,typename... Ts>
     class local_pack<connector_wrapper_ex<T>,Ts...>:
-        local_pack<Ts...>
+        private local_pack<Ts...>
     {
     protected:
         // Provide some meta-constructs to access an arbitrary type from a
@@ -227,8 +247,7 @@ namespace php_git2
         // Initialize to default. This is important if PHP assumes default
         // values for some parameters.
         local_pack(TSRMLS_D):
-            local_pack<Ts...>(TSRMLS_C),
-            local(std::forward<connector_wrapper<typename T::connect_t> >(get<1>()) TSRMLS_CC)
+            local_pack<Ts...>(TSRMLS_C), local(get<1>() TSRMLS_CC)
         {
         }
 
@@ -254,7 +273,9 @@ namespace php_git2
         // Provide the size of the pack as a constant function expression.
 
         static constexpr unsigned size()
-        { return sizeof...(Ts) + 1; }
+        {
+            return sizeof...(Ts) + 1;
+        }
     private:
         connector_wrapper_ex<T> local;
     };
@@ -293,7 +314,7 @@ namespace php_git2
     // Provide a function that extracts zvals into a local pack.
 
     template<typename... Ts,unsigned... Ns,unsigned... Ps>
-    inline void php_extract_args_impl(local_pack<Ts...>&& pack,
+    inline void php_extract_args_impl(local_pack<Ts...>& pack,
         sequence<Ns...>&& seq,
         sequence<Ps...>&& pos)
     {
@@ -305,22 +326,20 @@ namespace php_git2
     }
 
     template<typename... Ts,unsigned... Ns>
-    inline void php_extract_args(local_pack<Ts...>&& pack,sequence<Ns...>&& seq)
+    inline void php_extract_args(local_pack<Ts...>& pack,sequence<Ns...>&& seq)
     {
         // Produce a meta-construct that contains the position parameters.
-        php_extract_args_impl(std::forward<local_pack<Ts...> >(pack),
+        php_extract_args_impl(pack,
             std::forward<sequence<Ns...> >(seq),
             std::forward<make_seq<sizeof...(Ns)> >(
                 make_seq<sizeof...(Ns)>()));
     }
 
     template<typename... Ts>
-    inline void php_extract_args(local_pack<Ts...>&& pack,sequence<>&& seq)
+    inline void php_extract_args(local_pack<Ts...>&,sequence<>&&)
     {
         // Specialize call for empty sequence where no args need to be extracted
         // from userspace.
-        (void)pack;
-        (void)seq;
     }
 
     // Provide a template type that contains the function pointer and signature
@@ -336,7 +355,10 @@ namespace php_git2
         {
             typedef T return_type;
             static constexpr unsigned arg_count()
-            { return sizeof...(Ts); }
+            {
+                return sizeof...(Ts);
+            }
+
             static constexpr func_type name = F;
         };
     };
@@ -350,97 +372,71 @@ namespace php_git2
         unsigned... Ps>
     inline typename FuncWrapper::return_type library_call(
         FuncWrapper&& wrapper,
-        local_pack<Ts...>&& pack,
+        local_pack<Ts...>& pack,
         sequence<Ns...>&& seq,
         sequence<Ps...>&& pos)
     {
         return FuncWrapper::name(pack.template get<Ns>().byval_git2(Ps+1)...);
     }
 
-    // Provide a template function to handle return values. We enable different
-    // specializations depending on if we want the actual library call return
-    // value or to assign no return value.
+    // Provide template function overloads to handle return values. We enable
+    // different specializations depending on which value (if any) is to be used
+    // as the return value (i.e. the function return value or some value in the
+    // local pack).
 
-    // This case assigns a return value from the local variable pack. The
-    // variable in the pack must have a 'ret' member function.
-    template<int ReturnPos,
-        typename T,
-        typename... Ts>
+    // CASE #1: Assign a return value from the local variable pack. The variable
+    // in the pack must have a 'ret' member function.
+
+    template<int ReturnPos,typename T,typename... Ts>
     inline typename std::enable_if<0 < ReturnPos,void>::type
-    php_return(
-        T&& retval,
-        local_pack<Ts...>&& pack,
-        zval* return_value)
+    php_return(const T&,local_pack<Ts...>& pack,zval* return_value)
     {
         pack.template get<unsigned(ReturnPos) - 1>().ret(return_value);
-        (void)retval;
     }
 
-    // This case assigns the return value from the actual libgit2 library
-    // call. We have specializations for: int, char*, git_oid*.
-    template<int ReturnPos,
-        typename... Ts>
+    // CASE #2: Assign the return value from the actual libgit2 library call. We
+    // have specializations for many various types. These functions use the
+    // RETVAL_* macros from the PHP API that expect a zval in scope called
+    // "return_value".
+
+    template<int ReturnPos,typename... Ts>
     inline typename std::enable_if<ReturnPos == 0,void>::type
-    php_return(
-        long&& retval,
-        local_pack<Ts...>&& pack,
-        zval* return_value)
+    php_return(long retval,local_pack<Ts...>&,zval* return_value)
     {
         RETVAL_LONG(retval);
-        (void)pack;
-    }
-    template<int ReturnPos,
-        typename... Ts>
-    inline typename std::enable_if<ReturnPos == 0,void>::type
-    php_return(
-        int&& retval,
-        local_pack<Ts...>&& pack,
-        zval* return_value)
-    {
-        RETVAL_LONG(long(retval));
-        (void)pack;
-    }
-    template<int ReturnPos,
-        typename... Ts>
-    inline typename std::enable_if<ReturnPos == 0,void>::type
-    php_return(
-        unsigned int&& retval,
-        local_pack<Ts...>&& pack,
-        zval* return_value)
-    {
-        RETVAL_LONG(long(retval));
-        (void)pack;
-    }
-    template<int ReturnPos,
-        typename... Ts>
-    inline typename std::enable_if<ReturnPos == 0,void>::type
-    php_return(
-        long unsigned int&& retval,
-        local_pack<Ts...>&& pack,
-        zval* return_value)
-    {
-        RETVAL_LONG(long(retval));
-        (void)pack;
-    }
-    template<int ReturnPos,
-        typename... Ts>
-    inline typename std::enable_if<ReturnPos == 0,void>::type
-    php_return(
-        long long int&& retval,
-        local_pack<Ts...>&& pack,
-        zval* return_value)
-    {
-        RETVAL_LONG(long(retval));
-        (void)pack;
     }
 
-    template<int ReturnPos,
-        typename... Ts>
+    template<int ReturnPos,typename... Ts>
     inline typename std::enable_if<ReturnPos == 0,void>::type
-    php_return(
-        const char*&& retval,
-        local_pack<Ts...>&& pack,
-        zval* return_value)
+    php_return(int retval,local_pack<Ts...>&,zval* return_value)
+    {
+        RETVAL_LONG(static_cast<long>(retval));
+    }
+
+    template<int ReturnPos,typename... Ts>
+    inline typename std::enable_if<ReturnPos == 0,void>::type
+    php_return(unsigned int retval,local_pack<Ts...>&,zval* return_value)
+    {
+        RETVAL_LONG(static_cast<long>(retval));
+    }
+
+    template<int ReturnPos,typename... Ts>
+    inline typename std::enable_if<ReturnPos == 0,void>::type
+    php_return(long unsigned int retval,local_pack<Ts...>&,zval* return_value)
+    {
+        RETVAL_LONG(static_cast<long>(retval));
+    }
+
+    template<int ReturnPos,typename... Ts>
+    inline typename std::enable_if<ReturnPos == 0,void>::type
+    php_return(long long int& retval,local_pack<Ts...>&,zval* return_value)
+    {
+        RETVAL_LONG(static_cast<long>(retval));
+    }
+
+    template<int ReturnPos,typename... Ts>
+    inline typename std::enable_if<ReturnPos == 0,void>::type
+    php_return(const char* retval,local_pack<Ts...>& pack,zval* return_value)
     {
         if (retval != nullptr) {
             RETVAL_STRING(retval,1);
@@ -451,14 +447,9 @@ namespace php_git2
         }
     }
 
-    // Specialize php_return() for 'const git_oid*'.
-    template<int ReturnPos,
-        typename... Ts>
+    template<int ReturnPos,typename... Ts>
     inline typename std::enable_if<ReturnPos == 0,void>::type
-    php_return(
-        const git_oid*&& retval,
-        local_pack<Ts...>&& pack,
-        zval* return_value)
+    php_return(const git_oid* retval,local_pack<Ts...>& pack,zval* return_value)
     {
         if (retval != nullptr) {
             char buf[GIT_OID_HEXSZ + 1];
@@ -470,19 +461,12 @@ namespace php_git2
         }
     }
 
-    // Otherwise, no action is taken.
-    template<int ReturnPos,
-        typename T,
-        typename... Ts>
+    // CASE #3: Assign no return value.
+
+    template<int ReturnPos,typename T,typename... Ts>
     inline typename std::enable_if<ReturnPos < 0,void>::type
-    php_return(
-        T&& retval,
-        local_pack<Ts...>&& pack,
-        zval* return_value)
+    php_return(const T&,local_pack<Ts...>&,zval*)
     {
-        (void)retval;
-        (void)pack;
-        (void)return_value;
     }
 
     // Provide a function that specializes checking return values from php
@@ -515,7 +499,7 @@ namespace php_git2
     }
 
     template<typename... Ts,unsigned... Ns>
-    inline void php_set_resource_dependency(local_pack<Ts...>&& pack,sequence<Ns...>&& seq)
+    inline void php_set_resource_dependency(local_pack<Ts...>& pack,sequence<Ns...>&& seq)
     {
         php_set_resource_dependency_impl(pack.template get<Ns>().get_object()...);
     }
@@ -554,7 +538,8 @@ template<
     // The function wrapper type used to call the wrapped function.
     typename FuncWrapper,
 
-    // The local variable pack type to instantiate local variables for the call.
+    // The local variable pack type to instantiate local variables for the
+    // call. This should be some instantiation of local_pack<T,Ts...>.
     typename LocalVars,
 
     // The position of the local pack variable to return. If -1 then no value
@@ -585,22 +570,15 @@ static void zif_php_git2_function(INTERNAL_FUNCTION_PARAMETERS)
 
     try {
         // Obtain values from PHP userspace.
-        php_git2::php_extract_args(std::forward<LocalVars>(vars),PHPForward());
+        php_git2::php_extract_args(vars,PHPForward());
 
         // Call wrapped function.
-        retval = php_git2::library_call(
-            FuncWrapper(),
-            std::forward<LocalVars>(vars),
-            GitForward(),
-            AllParams());
+        retval = php_git2::library_call(FuncWrapper(),vars,GitForward(),AllParams());
 
         // Check for errors (when return value is less than zero).
         if (php_git2::check_return(retval)) {
             // Handle the return value.
-            php_git2::php_return<ReturnPos>(
-                std::forward<typename FuncWrapper::return_type>(retval),
-                std::forward<LocalVars>(vars),
-                return_value);
+            php_git2::php_return<ReturnPos>(retval,vars,return_value);
         }
         else {
             // Throw error with formatted message from git2.
@@ -639,18 +617,14 @@ static void zif_php_git2_function_rethandler(INTERNAL_FUNCTION_PARAMETERS)
 
     try {
         // Obtain values from PHP userspace.
-        php_git2::php_extract_args(std::forward<LocalVars>(vars),PHPForward());
+        php_git2::php_extract_args(vars,PHPForward());
 
         // Call wrapped function.
-        retval = php_git2::library_call(
-            FuncWrapper(),
-            std::forward<LocalVars>(vars),
-            GitForward(),
-            AllParams());
+        retval = php_git2::library_call(FuncWrapper(),vars,GitForward(),AllParams());
 
         // Instantiate a return value handler to handle the return value.
         ReturnHandler rethandler;
-        if (!rethandler.ret(retval,return_value,std::forward<LocalVars>(vars))) {
+        if (!rethandler.ret(retval,return_value,vars)) {
             // Throw error with formatted message from git2.
             php_git2::git_error(retval);
         }
@@ -673,13 +647,10 @@ template<
 static void zif_php_git2_function_void(INTERNAL_FUNCTION_PARAMETERS)
 {
     LocalVars vars ZTS_CTOR;
+
     try {
-        php_git2::php_extract_args(std::forward<LocalVars>(vars),PHPForward());
-        php_git2::library_call(
-            FuncWrapper(),
-            std::forward<LocalVars>(vars),
-            GitForward(),
-            AllParams());
+        php_git2::php_extract_args(vars,PHPForward());
+        php_git2::library_call(FuncWrapper(),vars,GitForward(),AllParams());
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
             zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
@@ -711,26 +682,19 @@ static void zif_php_git2_function_setdeps(INTERNAL_FUNCTION_PARAMETERS)
 
     try {
         // Obtain values from PHP userspace.
-        php_git2::php_extract_args(std::forward<LocalVars>(vars),PHPForward());
+        php_git2::php_extract_args(vars,PHPForward());
 
         // Call wrapped function.
-        retval = php_git2::library_call(
-            FuncWrapper(),
-            std::forward<LocalVars>(vars),
-            GitForward(),
-            AllParams());
+        retval = php_git2::library_call(FuncWrapper(),vars,GitForward(),AllParams());
 
         // Check for errors (when return value is less than zero).
         if (php_git2::check_return(retval)) {
             // Handle the return value.
-            php_git2::php_return<ReturnPos>(
-                std::forward<typename FuncWrapper::return_type>(retval),
-                std::forward<LocalVars>(vars),
-                return_value);
+            php_git2::php_return<ReturnPos>(retval,vars,return_value);
 
             // Call function to set resource dependency. We only do this on
             // success!
-            php_git2::php_set_resource_dependency(std::forward<LocalVars>(vars),ResourceDeps());
+            php_git2::php_set_resource_dependency(vars,ResourceDeps());
         }
         else {
             // Throw error with formatted message from git2.
@@ -761,27 +725,20 @@ static void zif_php_git2_function_setdeps2(INTERNAL_FUNCTION_PARAMETERS)
 
     try {
         // Obtain values from PHP userspace.
-        php_git2::php_extract_args(std::forward<LocalVars>(vars),PHPForward());
+        php_git2::php_extract_args(vars,PHPForward());
 
         // Call wrapped function.
-        retval = php_git2::library_call(
-            FuncWrapper(),
-            std::forward<LocalVars>(vars),
-            GitForward(),
-            AllParams());
+        retval = php_git2::library_call(FuncWrapper(),vars,GitForward(),AllParams());
 
         // Check for errors (when return value is less than zero).
         if (php_git2::check_return(retval)) {
             // Handle the return value.
-            php_git2::php_return<ReturnPos>(
-                std::forward<typename FuncWrapper::return_type>(retval),
-                std::forward<LocalVars>(vars),
-                return_value);
+            php_git2::php_return<ReturnPos>(retval,vars,return_value);
 
             // Call function to set resource dependencies. We only do this on
             // success!
-            php_git2::php_set_resource_dependency(std::forward<LocalVars>(vars),ResourceDeps1());
-            php_git2::php_set_resource_dependency(std::forward<LocalVars>(vars),ResourceDeps2());
+            php_git2::php_set_resource_dependency(vars,ResourceDeps1());
+            php_git2::php_set_resource_dependency(vars,ResourceDeps2());
         }
         else {
             // Throw error with formatted message from git2.
@@ -809,23 +766,23 @@ static void zif_php_git2_function_setdeps_void(INTERNAL_FUNCTION_PARAMETERS)
 
     try {
         // Obtain values from PHP userspace.
-        php_git2::php_extract_args(std::forward<LocalVars>(vars),PHPForward());
+        php_git2::php_extract_args(vars,PHPForward());
 
         // Make call to underlying git2 function.
-        php_git2::library_call(
-            FuncWrapper(),
-            std::forward<LocalVars>(vars),
-            GitForward(),
-            AllParams());
+        php_git2::library_call(FuncWrapper(),vars,GitForward(),AllParams());
 
         // Call function to set resource dependency.
-        php_git2::php_set_resource_dependency(std::forward<LocalVars>(vars),ResourceDeps());
+        php_git2::php_set_resource_dependency(vars,ResourceDeps());
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
             zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
         }
     }
 }
+
+// Provide a variant for handling the free functions. These never call the
+// underlying free function in libgit2 directly. Instead, they invalidate the
+// resource and let PHP decide if the resource object should get cleaned up.
 
 template<
     typename LocalVars,
@@ -834,7 +791,7 @@ static void zif_php_git2_function_free(INTERNAL_FUNCTION_PARAMETERS)
 {
     LocalVars vars ZTS_CTOR;
     try {
-        php_git2::php_extract_args(std::forward<LocalVars>(vars),PHPForward());
+        php_git2::php_extract_args(vars,PHPForward());
 
         // Assume the first element is the resource to delete. Call its
         // byval_git2() member function to cause it to be freed. We never call

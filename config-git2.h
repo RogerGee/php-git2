@@ -114,8 +114,8 @@ namespace php_git2
         using connect_t = php_resource<php_git_config>;
         typedef git_config_backend* target_t;
 
-        php_git_config_backend(connect_t&& conn TSRMLS_DC):
-            php_zts_base(TSRMLS_DC), ownerWrapper(std::forward<connect_t>(conn))
+        php_git_config_backend(connect_t& conn TSRMLS_DC):
+            php_zts_base(TSRMLS_DC), ownerWrapper(conn)
         {
         }
 
@@ -144,7 +144,7 @@ namespace php_git2
         }
 
     private:
-        connect_t&& ownerWrapper;
+        connect_t& ownerWrapper;
     };
 
     class php_git_config_backend_byval:

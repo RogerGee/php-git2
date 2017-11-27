@@ -20,7 +20,7 @@ namespace php_git2
     {
     public:
         template<typename... Ts>
-        bool ret(Numeric retval,zval* return_value,local_pack<Ts...>&& pack)
+        bool ret(Numeric retval,zval* return_value,local_pack<Ts...>& pack)
         {
             RETVAL_LONG(retval);
             return true;
@@ -32,7 +32,7 @@ namespace php_git2
     {
     public:
         template<typename... Ts>
-        bool ret(Numeric retval,zval* return_value,local_pack<Ts...>&& pack)
+        bool ret(Numeric retval,zval* return_value,local_pack<Ts...>& pack)
         {
             RETVAL_BOOL(retval);
             return true;
@@ -46,7 +46,7 @@ namespace php_git2
     {
     public:
         template<typename T,typename... Ts>
-        bool ret(T retval,zval* return_value,local_pack<Ts...>&& pack)
+        bool ret(T retval,zval* return_value,local_pack<Ts...>& pack)
         {
             auto&& value = pack.template get<Position>();
             value.ret(return_value);
@@ -64,7 +64,7 @@ namespace php_git2
     public:
         using pack_type = local_pack<php_resource<T>,php_resource_ref<php_git_repository_nofree> >;
 
-        bool ret(git_repository* owner,zval* return_value,pack_type&& pack)
+        bool ret(git_repository* owner,zval* return_value,pack_type& pack)
         {
             if (owner == nullptr) {
                 return false;
@@ -91,7 +91,7 @@ namespace php_git2
     {
     public:
         template<typename... Ts>
-        bool ret(Git2Type* handle,zval* return_value,local_pack<Ts...>&& pack)
+        bool ret(Git2Type* handle,zval* return_value,local_pack<Ts...>& pack)
         {
             if (handle == nullptr) {
                 return false;
@@ -116,7 +116,7 @@ namespace php_git2
     {
     public:
         template<typename... Ts>
-        bool ret(Git2Type* handle,zval* return_value,local_pack<Ts...>&& pack)
+        bool ret(Git2Type* handle,zval* return_value,local_pack<Ts...>& pack)
         {
             if (handle == nullptr) {
                 ZVAL_NULL(return_value); // just in case
@@ -142,7 +142,7 @@ namespace php_git2
     {
     public:
         template<typename... Ts>
-        bool ret(Git2Type* handle,zval* return_value,local_pack<Ts...>&& pack)
+        bool ret(Git2Type* handle,zval* return_value,local_pack<Ts...>& pack)
         {
             if (handle == nullptr) {
                 return false;
@@ -165,7 +165,7 @@ namespace php_git2
     {
     public:
         template<typename... Ts>
-        bool ret(int retval,zval* return_value,local_pack<Ts...>&& pack)
+        bool ret(int retval,zval* return_value,local_pack<Ts...>& pack)
         {
             if (retval != 0) {
                 if (retval != GIT_ENOTFOUND) {
@@ -186,7 +186,7 @@ namespace php_git2
     {
     public:
         template<typename... Ts>
-        bool ret(int retval,zval* return_value,local_pack<Ts...>&& pack)
+        bool ret(int retval,zval* return_value,local_pack<Ts...>& pack)
         {
             auto&& obj = pack.template get<Position>();
 
@@ -209,7 +209,7 @@ namespace php_git2
     {
     public:
         template<typename... Ts>
-        bool ret(int retval,zval* return_value,local_pack<Ts...>&& pack)
+        bool ret(int retval,zval* return_value,local_pack<Ts...>& pack)
         {
             auto&& obj = pack.template get<Position>();
 
@@ -223,7 +223,7 @@ namespace php_git2
             }
 
             obj.ret(return_value);
-            php_set_resource_dependency(std::forward<local_pack<Ts...> >(pack),ResourceDeps());
+            php_set_resource_dependency(pack,ResourceDeps());
             return true;
         }
     };
@@ -239,7 +239,7 @@ namespace php_git2
     {
     public:
         template<typename... Ts>
-        bool ret(int retval,zval* return_value,local_pack<Ts...>&& pack)
+        bool ret(int retval,zval* return_value,local_pack<Ts...>& pack)
         {
             auto&& obj = pack.template get<Position>();
 
@@ -262,7 +262,7 @@ namespace php_git2
     {
     public:
         template<typename... Ts>
-        bool ret(int retval,zval* return_value,local_pack<Ts...>&& pack)
+        bool ret(int retval,zval* return_value,local_pack<Ts...>& pack)
         {
             auto&& obj = pack.template get<Position>();
 
@@ -276,7 +276,7 @@ namespace php_git2
             }
 
             obj.ret(return_value);
-            php_set_resource_dependency(std::forward<local_pack<Ts...> >(pack),ResourceDeps());
+            php_set_resource_dependency(pack,ResourceDeps());
             return true;
         }
     };

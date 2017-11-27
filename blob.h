@@ -20,11 +20,9 @@ namespace php_git2
     // Provide a rethandler for git_blob_rawcontent().
     class php_git_blob_rawcontent_rethandler
     {
+        using PackType = local_pack<php_resource<php_git_blob> >;
     public:
-        bool ret(
-            const void* retval,
-            zval* return_value,
-            local_pack<php_resource<php_git_blob> >&& pack)
+        bool ret(const void* retval,zval* return_value,PackType& pack)
         {
             if (retval != nullptr) {
                 // Make a binary string for the return value. The length is
