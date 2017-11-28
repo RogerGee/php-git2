@@ -365,7 +365,7 @@ namespace php_git2
 #ifdef ZTS
     public:
         php_zts_member(void*** zts):
-            php_zts_base(std::forward<void***>(zts))
+            php_zts_base(zts)
         {
         }
 #endif

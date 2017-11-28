@@ -28,8 +28,7 @@ namespace php_git2
         {
             if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
                 array_wrapper arr(value);
-                memset(&opts,0,sizeof(git_diff_options));
-                opts.version = GIT_DIFF_OPTIONS_VERSION;
+                git_diff_init_options(&opts,GIT_DIFF_OPTIONS_VERSION);
 
                 GIT2_ARRAY_LOOKUP_LONG(arr,version,opts);
                 GIT2_ARRAY_LOOKUP_LONG(arr,flags,opts);
@@ -248,17 +247,39 @@ namespace php_git2
 
     // Enumerate connector types for the git_diff callback specializations.
 
-    using diff_line_callback_info = php_git_diff_callback<php_git_diff_callback_payload,diff_line_callback_handler>;
+    using diff_line_callback_info = php_git_diff_callback<
+        php_git_diff_callback_payload,
+        diff_line_callback_handler
+        >;
     using diff_line_callback_connector = connector_wrapper<diff_line_callback_info>;
 
-    using diff_hunk_callback_info = php_git_diff_callback<diff_line_callback_info,diff_hunk_callback_handler>;
+    using diff_hunk_callback_info = php_git_diff_callback<
+        diff_line_callback_info,
+        diff_hunk_callback_handler
+        >;
     using diff_hunk_callback_connector = connector_wrapper_ex<diff_hunk_callback_info>;
 
-    using diff_binary_callback_info = php_git_diff_callback<diff_hunk_callback_info,diff_binary_callback_handler>;
+    using diff_binary_callback_info = php_git_diff_callback<
+        diff_hunk_callback_info,
+        diff_binary_callback_handler
+        >;
     using diff_binary_callback_connector = connector_wrapper_ex<diff_binary_callback_info>;
 
-    using diff_file_callback_info = php_git_diff_callback<diff_binary_callback_info,diff_file_callback_handler>;
+    using diff_file_callback_info = php_git_diff_callback<
+        diff_binary_callback_info,
+        diff_file_callback_handler
+        >;
     using diff_file_callback_connector = connector_wrapper_ex<diff_file_callback_info>;
+
+    // Misc. helper types
+
+    using diff_nullable_buffer_length_connector = php_git2::connector_wrapper<
+        php_git2::php_string_length_connector<size_t,php_git2::php_nullable_string>
+        >;
+
+    using diff_buffer_length_connector = php_git2::connector_wrapper<
+        php_git2::php_string_length_connector<size_t,php_git2::php_string>
+        >;
 
 } // namespace php_git2
 
@@ -287,9 +308,7 @@ static constexpr auto ZIF_GIT_DIFF_BLOB_TO_BUFFER = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_resource_null<php_git2::php_git_blob>,
         php_git2::php_nullable_string,
-        php_git2::connector_wrapper<
-            php_git2::php_string_length_connector<size_t,php_git2::php_nullable_string>
-            >,
+        php_git2::diff_nullable_buffer_length_connector,
         php_git2::php_nullable_string,
         php_git2::php_nullable_string,
         php_git2::php_git_diff_options,
@@ -312,14 +331,146 @@ static constexpr auto ZIF_GIT_DIFF_BLOB_TO_BUFFER = zif_php_git2_function<
     -1,
     php_git2::sequence<0,1,3,4,5,10,11,12,13,14>,
     php_git2::sequence<0,1,3,2,4,5,6,7,8,9,14>,
-    php_git2::sequence<0,1,2,0,3,4,0,0,0,0,5>
+    php_git2::sequence<0,1,2,0,3,4,5,6,7,8,9>
+    >;
+
+static constexpr auto ZIF_GIT_DIFF_BLOBS = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        const git_blob*,
+        const char*,
+        const git_blob*,
+        const char*,
+        const git_diff_options*,
+        git_diff_file_cb,
+        git_diff_binary_cb,
+        git_diff_hunk_cb,
+        git_diff_line_cb,
+        void*>::func<git_diff_blobs>,
+    php_git2::local_pack<
+        php_git2::php_resource_null<php_git2::php_git_blob>,
+        php_git2::php_nullable_string,
+        php_git2::php_resource_null<php_git2::php_git_blob>,
+        php_git2::php_nullable_string,
+        php_git2::php_git_diff_options,
+
+        // Callback handlers
+        php_git2::diff_file_callback_handler,
+        php_git2::diff_binary_callback_handler,
+        php_git2::diff_hunk_callback_handler,
+        php_git2::diff_line_callback_handler,
+
+        // Callback info
+        php_git2::diff_file_callback_connector,
+        php_git2::diff_binary_callback_connector,
+        php_git2::diff_hunk_callback_connector,
+        php_git2::diff_line_callback_connector,
+
+        // Base callback info
+        php_git2::php_git_diff_callback_payload
+        >,
+    -1,
+    php_git2::sequence<0,1,2,3,4,9,10,11,12,13>,
+    php_git2::sequence<0,1,2,3,4,5,6,7,8,13>,
+    php_git2::sequence<0,1,2,3,4,5,6,7,8,9>
+    >;
+
+static constexpr auto ZIF_GIT_DIFF_BUFFERS = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        const void*,
+        size_t,
+        const char*,
+        const void*,
+        size_t,
+        const char*,
+        const git_diff_options*,
+        git_diff_file_cb,
+        git_diff_binary_cb,
+        git_diff_hunk_cb,
+        git_diff_line_cb,
+        void*>::func<git_diff_buffers>,
+    php_git2::local_pack<
+        php_git2::diff_nullable_buffer_length_connector,
+        php_git2::php_nullable_string,
+        php_git2::php_nullable_string,
+        php_git2::diff_nullable_buffer_length_connector,
+        php_git2::php_nullable_string,
+        php_git2::php_nullable_string,
+        php_git2::php_git_diff_options,
+
+        // Callback handlers
+        php_git2::diff_file_callback_handler,
+        php_git2::diff_binary_callback_handler,
+        php_git2::diff_hunk_callback_handler,
+        php_git2::diff_line_callback_handler,
+
+        // Callback info
+        php_git2::diff_file_callback_connector,
+        php_git2::diff_binary_callback_connector,
+        php_git2::diff_hunk_callback_connector,
+        php_git2::diff_line_callback_connector,
+
+        // Base callback info
+        php_git2::php_git_diff_callback_payload
+        >,
+    -1,
+    php_git2::sequence<1,2,4,5,6,11,12,13,14,15>,
+    php_git2::sequence<1,0,2,4,3,5,6,7,8,9,10,15>,
+    php_git2::sequence<0,0,1,0,2,3,4,5,6,7,8,9>
+    >;
+
+static constexpr auto ZIF_GIT_DIFF_COMMIT_AS_EMAIL = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_buf*,
+        git_repository*,
+        git_commit*,
+        size_t,
+        size_t,
+        git_diff_format_email_flags_t,
+        const git_diff_options*>::func<git_diff_commit_as_email>,
+    php_git2::local_pack<
+        php_git2::php_git_buf,
+        php_git2::php_resource<php_git2::php_git_repository>,
+        php_git2::php_resource<php_git2::php_git_commit>,
+        php_git2::php_long_cast<size_t>,
+        php_git2::php_long_cast<size_t>,
+        php_git2::php_long_cast<git_diff_format_email_flags_t>,
+        php_git2::php_git_diff_options
+        >,
+    1,
+    php_git2::sequence<1,2,3,4,5,6>,
+    php_git2::sequence<0,1,2,3,4,5,6>,
+    php_git2::sequence<0,0,1,2,3,4,5>
+    >;
+
+static constexpr auto ZIF_GIT_DIFF_FROM_BUFFER = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_diff**,
+        const char*,
+        size_t>::func<git_diff_from_buffer>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_diff>,
+        php_git2::diff_buffer_length_connector,
+        php_git2::php_string
+        >,
+    1,
+    php_git2::sequence<2>,
+    php_git2::sequence<0,2,1>,
+    php_git2::sequence<0,0,0>
     >;
 
 // Function Entries:
 
 #define GIT_DIFF_FE                                                     \
     PHP_GIT2_FE(git_diff_free,ZIF_GIT_DIFF_FREE,NULL)                   \
-    PHP_GIT2_FE(git_diff_blob_to_buffer,ZIF_GIT_DIFF_BLOB_TO_BUFFER,NULL)
+    PHP_GIT2_FE(git_diff_blob_to_buffer,ZIF_GIT_DIFF_BLOB_TO_BUFFER,NULL) \
+    PHP_GIT2_FE(git_diff_blobs,ZIF_GIT_DIFF_BLOBS,NULL)                 \
+    PHP_GIT2_FE(git_diff_buffers,ZIF_GIT_DIFF_BUFFERS,NULL)             \
+    PHP_GIT2_FE(git_diff_commit_as_email,ZIF_GIT_DIFF_COMMIT_AS_EMAIL,NULL) \
+    PHP_GIT2_FE(git_diff_buffer,ZIF_GIT_DIFF_FROM_BUFFER,NULL)
 
 #endif
 

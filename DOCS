@@ -1455,8 +1455,20 @@ git_tag_foreach(resource,callable,mixed)
 
 git_diff_free(resource)
 
-git_diff_blob_to_buffer(resource,string,string,string,array|null,callable,
-    callable,callable,callable,mixed)
+git_diff_blob_to_buffer(resource|null,string|null,string|null,string|null,
+    array|null,callable,callable,callable,callable,mixed)
+
+git_diff_blobs(resource|null,string|null,resource|null,string|null,array|null,
+    callable,callable,callable,callable,mixed)
+
+git_diff_buffers(string|null,string|null,string|null,string|null,array|null,
+    callable,callable,callable,callable,mixed)
+
+git_diff_commit_as_email(resource,resource,int,int,int,array|null)
+
+git_diff_from_buffer(string)
+
+    Returns git_diff resource
 
 --------------------------------------------------------------------------------
 Class API Reference
