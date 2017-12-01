@@ -1470,6 +1470,20 @@ git_diff_from_buffer(string)
 
     Returns git_diff resource
 
+git_diff_print(resource,int,callable,mixed)
+
+git_diff_get_delta(resource,int)
+
+    Returns array
+
+git_diff_get_perfdata(resource)
+
+    Returns array
+
+git_diff_is_sorted_icase(resource)
+
+    Returns bool
+
 --------------------------------------------------------------------------------
 Class API Reference
 

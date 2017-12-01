@@ -405,6 +405,13 @@ void php_git2::convert_diff_line(zval* zv,const git_diff_line* line)
     add_assoc_stringl_ex(zv,"content",sizeof("content"),const_cast<char*>(line->content),line->content_len,1);
 }
 
+void php_git2::convert_diff_perfdata(zval* zv,const git_diff_perfdata* perfdata)
+{
+    array_init(zv);
+    add_assoc_long_ex(zv,"stat_calls",sizeof("stat_calls"),perfdata->stat_calls);
+    add_assoc_long_ex(zv,"oid_calculations",sizeof("oid_calculations"),perfdata->oid_calculations);
+}
+
 /*
  * Local Variables:
  * indent-tabs-mode:nil

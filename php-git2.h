@@ -31,6 +31,7 @@ extern "C" {
 // Include the libgit2 headers. They should be installed on the system already.
 extern "C" {
 #include <git2.h>
+#include <git2/sys/diff.h>
 }
 
 // Include any C/C++ standard libraries.
@@ -154,6 +155,7 @@ namespace php_git2
     void convert_diff_binary_file(zval* zv,const git_diff_binary_file* file);
     void convert_diff_hunk(zval* zv,const git_diff_hunk* hunk);
     void convert_diff_line(zval* zv,const git_diff_line* line);
+    void convert_diff_perfdata(zval* zv,const git_diff_perfdata* perfdata);
 
 } // namespace php_git2
 

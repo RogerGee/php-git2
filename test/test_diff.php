@@ -111,4 +111,34 @@ function test_blob_to_buffer() {
         $ctx);
 }
 
+function test_from_buffer() {
+    $buf = base64_decode('ZGlmZiAtLWdpdCBhL2JpbmRpbmdzIGIvYmluZGluZ3MKaW5kZXggMT'
+                         .'VjZTcyNi4uNmNhZjc2NyAxMDA2NDQKLS0tIGEvYmluZGluZ3MKKys'
+                         .'rIGIvYmluZGluZ3MKQEAgLTE5NSw3ICsxOTUsNyBAQCBMZWdlbmQ6'
+                         .'CiAuIGdpdF9kaWZmX21lcmdlCiAuIGdpdF9kaWZmX251bV9kZWx0Y'
+                         .'XMKIC4gZ2l0X2RpZmZfbnVtX2RlbHRhc19vZl90eXBlCi0uIGdpdF'
+                         .'9kaWZmX3ByaW50CisrIGdpdF9kaWZmX3ByaW50CiAuIGdpdF9kaWZ'
+                         .'mX3ByaW50X2NhbGxiYWNrX190b19idWYKIC4gZ2l0X2RpZmZfcHJp'
+                         .'bnRfY2FsbGJhY2tfX3RvX2ZpbGVfaGFuZGxlCiAuIGdpdF9kaWZmX'
+                         .'3N0YXRzX2RlbGV0aW9ucwo=');
+
+    $diff = git_diff_from_buffer($buf);
+
+    $printer = 'Git2Test\Diff\accumulate_diff_by_line';
+    $ctx = new \stdClass;
+    $ctx->lastHunkKey = null;
+    $ctx->lastHunk = array();
+
+    // There is a bug in 0.25.1 that makes this fail. See issue at
+    // https://github.com/libgit2/libgit2/issues/4158. This was fixed for
+    // 0.26.0.
+
+    //git_diff_print($diff,GIT_DIFF_FORMAT_PATCH,$printer,$ctx);
+
+    var_dump(git_diff_get_delta($diff,0));
+    //var_dump(git_diff_get_perfdata($diff)); // This fails due to same bug.
+    var_dump(git_diff_is_sorted_icase($diff));
+}
+
 testbed_test('Diff/blob-to-buffer','Git2Test\Diff\test_blob_to_buffer');
+testbed_test('Diff/from-buffer','Git2Test\Diff\test_from_buffer');

@@ -19,7 +19,7 @@ php_callback_base::php_callback_base():
 
 bool php_callback_base::is_callable() const
 {
-    if (Z_TYPE_P(func) != IS_NULL) {
+    if (func != nullptr && Z_TYPE_P(func) != IS_NULL) {
         char* error = nullptr;
         zend_bool retval;
         retval = zend_is_callable_ex(func,NULL,0,NULL,NULL,NULL,&error TSRMLS_CC);

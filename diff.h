@@ -281,6 +281,39 @@ namespace php_git2
         php_git2::php_string_length_connector<size_t,php_git2::php_string>
         >;
 
+    template<typename... Ts>
+    class php_git_diff_delta_rethandler
+    {
+    public:
+        bool ret(const git_diff_delta* delta,zval* return_value,local_pack<Ts...>& pack)
+        {
+            if (delta == nullptr) {
+                RETVAL_NULL();
+            }
+            else {
+                convert_diff_delta(return_value,delta);
+            }
+
+            return true;
+        }
+    };
+
+    class php_git_diff_perfdata
+    {
+    public:
+        git_diff_perfdata* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            return &perfdata;
+        }
+
+        void ret(zval* return_value) const
+        {
+            convert_diff_perfdata(return_value,&perfdata);
+        }
+    private:
+        git_diff_perfdata perfdata;
+    };
+
 } // namespace php_git2
 
 // Functions:
@@ -462,6 +495,69 @@ static constexpr auto ZIF_GIT_DIFF_FROM_BUFFER = zif_php_git2_function<
     php_git2::sequence<0,0,0>
     >;
 
+static constexpr auto ZIF_GIT_DIFF_PRINT = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_diff*,
+        git_diff_format_t,
+        git_diff_line_cb,
+        void*>::func<git_diff_print>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_diff>,
+        php_git2::php_long_cast<git_diff_format_t>,
+        php_git2::diff_line_callback_handler,
+        php_git2::diff_line_callback_connector,
+        php_git2::php_git_diff_callback_payload
+        >,
+    -1,
+    php_git2::sequence<0,1,3,4>,
+    php_git2::sequence<0,1,2,4>,
+    php_git2::sequence<0,1,0,3>
+    >;
+
+static constexpr auto ZIF_GIT_DIFF_GET_DELTA = zif_php_git2_function_rethandler<
+    php_git2::func_wrapper<
+        const git_diff_delta*,
+        const git_diff*,
+        size_t>::func<git_diff_get_delta>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_diff>,
+        php_git2::php_long_cast<size_t>
+        >,
+    php_git2::php_git_diff_delta_rethandler<
+        php_git2::php_resource<php_git2::php_git_diff>,
+        php_git2::php_long_cast<size_t>
+        >,
+    php_git2::sequence<0,1>,
+    php_git2::sequence<0,1>,
+    php_git2::sequence<0,1>
+    >;
+
+static constexpr auto ZIF_GIT_DIFF_GET_PERFDATA = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_diff_perfdata*,
+        const git_diff*>::func<git_diff_get_perfdata>,
+    php_git2::local_pack<
+        php_git2::php_git_diff_perfdata,
+        php_git2::php_resource<php_git2::php_git_diff>
+        >,
+    1,
+    php_git2::sequence<1>,
+    php_git2::sequence<0,1>,
+    php_git2::sequence<0,0>
+    >;
+
+static constexpr auto ZIF_GIT_DIFF_IS_SORTED_ICASE = zif_php_git2_function_rethandler<
+    php_git2::func_wrapper<
+        int,
+        const git_diff*>::func<git_diff_is_sorted_icase>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_diff>
+        >,
+    php_git2::php_boolean_rethandler<int>
+    >;
+
 // Function Entries:
 
 #define GIT_DIFF_FE                                                     \
@@ -470,7 +566,11 @@ static constexpr auto ZIF_GIT_DIFF_FROM_BUFFER = zif_php_git2_function<
     PHP_GIT2_FE(git_diff_blobs,ZIF_GIT_DIFF_BLOBS,NULL)                 \
     PHP_GIT2_FE(git_diff_buffers,ZIF_GIT_DIFF_BUFFERS,NULL)             \
     PHP_GIT2_FE(git_diff_commit_as_email,ZIF_GIT_DIFF_COMMIT_AS_EMAIL,NULL) \
-    PHP_GIT2_FE(git_diff_buffer,ZIF_GIT_DIFF_FROM_BUFFER,NULL)
+    PHP_GIT2_FE(git_diff_from_buffer,ZIF_GIT_DIFF_FROM_BUFFER,NULL)     \
+    PHP_GIT2_FE(git_diff_print,ZIF_GIT_DIFF_PRINT,NULL)                 \
+    PHP_GIT2_FE(git_diff_get_delta,ZIF_GIT_DIFF_GET_DELTA,NULL)         \
+    PHP_GIT2_FE(git_diff_get_perfdata,ZIF_GIT_DIFF_GET_PERFDATA,NULL)   \
+    PHP_GIT2_FE(git_diff_is_sorted_icase,ZIF_GIT_DIFF_IS_SORTED_ICASE,NULL)
 
 #endif
 
