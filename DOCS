@@ -76,6 +76,11 @@ API. Instead a scalar, array or object type is used:
 
 For objects, see the later section regarding Classes.
 
+Enumeration types are treated as integers in PHP userspace. A global constant is
+generally defined for enumerator. If an enumerator is missing, then it is
+acceptable to define it yourself using "define(...)" or by just using the
+correct constant value from the git2 headers.
+
 --------------------------------------------------------------------------------
 Function API Reference
 
@@ -1483,6 +1488,38 @@ git_diff_get_perfdata(resource)
 git_diff_is_sorted_icase(resource)
 
     Returns bool
+
+git_diff_foreach(resource,callable,callable,callable,callable,mixed)
+
+git_diff_merge(resource,resource)
+
+git_diff_to_buf(resource,int)
+
+    Returns string
+
+git_diff_tree_to_tree(resource,resource|null,resource|null,array|null)
+
+    Returns git_diff resource
+
+git_diff_tree_to_workdir(resource,resource|null,array|null)
+
+    Returns git_diff resource
+
+git_diff_tree_to_workdir_with_index(resource,resource|null,array|null)
+
+    Returns git_diff resource
+
+git_diff_status_char(int)
+
+    Returns string
+
+git_diff_num_deltas(resource)
+
+    Returns int
+
+git_diff_num_deltas_of_type(resource)
+
+    Returns int
 
 --------------------------------------------------------------------------------
 Class API Reference

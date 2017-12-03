@@ -512,7 +512,7 @@ static constexpr auto ZIF_GIT_DIFF_PRINT = zif_php_git2_function<
     -1,
     php_git2::sequence<0,1,3,4>,
     php_git2::sequence<0,1,2,4>,
-    php_git2::sequence<0,1,0,3>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_DIFF_GET_DELTA = zif_php_git2_function_rethandler<
@@ -558,6 +558,159 @@ static constexpr auto ZIF_GIT_DIFF_IS_SORTED_ICASE = zif_php_git2_function_retha
     php_git2::php_boolean_rethandler<int>
     >;
 
+static constexpr auto ZIF_GIT_DIFF_FOREACH = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_diff*,
+        git_diff_file_cb,
+        git_diff_binary_cb,
+        git_diff_hunk_cb,
+        git_diff_line_cb,
+        void*>::func<git_diff_foreach>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_diff>,
+
+        // Callback handlers
+        php_git2::diff_file_callback_handler,
+        php_git2::diff_binary_callback_handler,
+        php_git2::diff_hunk_callback_handler,
+        php_git2::diff_line_callback_handler,
+
+        // Callback info
+        php_git2::diff_file_callback_connector,
+        php_git2::diff_binary_callback_connector,
+        php_git2::diff_hunk_callback_connector,
+        php_git2::diff_line_callback_connector,
+
+        // Base callback info
+        php_git2::php_git_diff_callback_payload
+        >,
+    -1,
+    php_git2::sequence<0,5,6,7,8,9>,
+    php_git2::sequence<0,1,2,3,4,9>,
+    php_git2::sequence<0,1,2,3,4,5>
+    >;
+
+static constexpr auto ZIF_GIT_DIFF_MERGE = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_diff*,
+        const git_diff*>::func<git_diff_merge>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_diff>,
+        php_git2::php_resource<php_git2::php_git_diff>
+        >,
+    -1
+    >;
+
+static constexpr auto ZIF_GIT_DIFF_TO_BUF = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_buf*,
+        git_diff*,
+        git_diff_format_t>::func<git_diff_to_buf>,
+    php_git2::local_pack<
+        php_git2::php_git_buf,
+        php_git2::php_resource<php_git2::php_git_diff>,
+        php_git2::php_long_cast<git_diff_format_t>
+        >,
+    1,
+    php_git2::sequence<1,2>,
+    php_git2::sequence<0,1,2>,
+    php_git2::sequence<0,0,1>
+    >;
+
+static constexpr auto ZIF_GIT_DIFF_TREE_TO_TREE = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_diff**,
+        git_repository*,
+        git_tree*,
+        git_tree*,
+        const git_diff_options*>::func<git_diff_tree_to_tree>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_diff>,
+        php_git2::php_resource<php_git2::php_git_repository>,
+        php_git2::php_resource_null<php_git2::php_git_tree>,
+        php_git2::php_resource_null<php_git2::php_git_tree>,
+        php_git2::php_git_diff_options
+        >,
+    1,
+    php_git2::sequence<1,2,3,4>,
+    php_git2::sequence<0,1,2,3,4>,
+    php_git2::sequence<0,0,1,2,3>
+    >;
+
+static constexpr auto ZIF_GIT_DIFF_TREE_TO_WORKDIR = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_diff**,
+        git_repository*,
+        git_tree*,
+        const git_diff_options*>::func<git_diff_tree_to_workdir>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_diff>,
+        php_git2::php_resource<php_git2::php_git_repository>,
+        php_git2::php_resource_null<php_git2::php_git_tree>,
+        php_git2::php_git_diff_options
+        >,
+    1,
+    php_git2::sequence<1,2,3>,
+    php_git2::sequence<0,1,2,3>,
+    php_git2::sequence<0,0,1,2>
+    >;
+
+static constexpr auto ZIF_GIT_DIFF_TREE_TO_WORKDIR_WITH_INDEX = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_diff**,
+        git_repository*,
+        git_tree*,
+        const git_diff_options*>::func<git_diff_tree_to_workdir_with_index>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_diff>,
+        php_git2::php_resource<php_git2::php_git_repository>,
+        php_git2::php_resource_null<php_git2::php_git_tree>,
+        php_git2::php_git_diff_options
+        >,
+    1,
+    php_git2::sequence<1,2,3>,
+    php_git2::sequence<0,1,2,3>,
+    php_git2::sequence<0,0,1,2>
+    >;
+
+static constexpr auto ZIF_GIT_DIFF_STATUS_CHAR = zif_php_git2_function<
+    php_git2::func_wrapper<
+        char,
+        git_delta_t>::func<git_diff_status_char>,
+    php_git2::local_pack<
+        php_git2::php_long_cast<git_delta_t>
+        >,
+    0
+    >;
+
+static constexpr auto ZIF_GIT_DIFF_NUM_DELTAS = zif_php_git2_function<
+    php_git2::func_wrapper<
+        size_t,
+        const git_diff*>::func<git_diff_num_deltas>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_diff>
+        >,
+    0
+    >;
+
+static constexpr auto ZIF_GIT_DIFF_NUM_DELTAS_OF_TYPE = zif_php_git2_function<
+    php_git2::func_wrapper<
+        size_t,
+        const git_diff*,
+        git_delta_t>::func<git_diff_num_deltas_of_type>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_diff>,
+        php_git2::php_long_cast<git_delta_t>
+        >,
+    0
+    >;
+
 // Function Entries:
 
 #define GIT_DIFF_FE                                                     \
@@ -570,7 +723,16 @@ static constexpr auto ZIF_GIT_DIFF_IS_SORTED_ICASE = zif_php_git2_function_retha
     PHP_GIT2_FE(git_diff_print,ZIF_GIT_DIFF_PRINT,NULL)                 \
     PHP_GIT2_FE(git_diff_get_delta,ZIF_GIT_DIFF_GET_DELTA,NULL)         \
     PHP_GIT2_FE(git_diff_get_perfdata,ZIF_GIT_DIFF_GET_PERFDATA,NULL)   \
-    PHP_GIT2_FE(git_diff_is_sorted_icase,ZIF_GIT_DIFF_IS_SORTED_ICASE,NULL)
+    PHP_GIT2_FE(git_diff_is_sorted_icase,ZIF_GIT_DIFF_IS_SORTED_ICASE,NULL) \
+    PHP_GIT2_FE(git_diff_foreach,ZIF_GIT_DIFF_FOREACH,NULL)             \
+    PHP_GIT2_FE(git_diff_merge,ZIF_GIT_DIFF_MERGE,NULL)                 \
+    PHP_GIT2_FE(git_diff_to_buf,ZIF_GIT_DIFF_TO_BUF,NULL)               \
+    PHP_GIT2_FE(git_diff_tree_to_tree,ZIF_GIT_DIFF_TREE_TO_TREE,NULL)   \
+    PHP_GIT2_FE(git_diff_tree_to_workdir,ZIF_GIT_DIFF_TREE_TO_WORKDIR,NULL) \
+    PHP_GIT2_FE(git_diff_tree_to_workdir_with_index,ZIF_GIT_DIFF_TREE_TO_WORKDIR_WITH_INDEX,NULL) \
+    PHP_GIT2_FE(git_diff_status_char,ZIF_GIT_DIFF_STATUS_CHAR,NULL)     \
+    PHP_GIT2_FE(git_diff_num_deltas,ZIF_GIT_DIFF_NUM_DELTAS,NULL)       \
+    PHP_GIT2_FE(git_diff_num_deltas_of_type,ZIF_GIT_DIFF_NUM_DELTAS_OF_TYPE,NULL)
 
 #endif
 

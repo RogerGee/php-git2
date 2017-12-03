@@ -401,6 +401,14 @@ namespace php_git2
 
     template<int ReturnPos,typename... Ts>
     inline typename std::enable_if<ReturnPos == 0,void>::type
+    php_return(char retval,local_pack<Ts...>&,zval* return_value)
+    {
+        char str[2] = {retval,0};
+        RETVAL_STRING(str,1);
+    }
+
+    template<int ReturnPos,typename... Ts>
+    inline typename std::enable_if<ReturnPos == 0,void>::type
     php_return(long retval,local_pack<Ts...>&,zval* return_value)
     {
         RETVAL_LONG(retval);
