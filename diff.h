@@ -620,7 +620,7 @@ static constexpr auto ZIF_GIT_DIFF_TO_BUF = zif_php_git2_function<
     php_git2::sequence<0,0,1>
     >;
 
-static constexpr auto ZIF_GIT_DIFF_TREE_TO_TREE = zif_php_git2_function<
+static constexpr auto ZIF_GIT_DIFF_TREE_TO_TREE = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_diff**,
@@ -635,13 +635,14 @@ static constexpr auto ZIF_GIT_DIFF_TREE_TO_TREE = zif_php_git2_function<
         php_git2::php_resource_null<php_git2::php_git_tree>,
         php_git2::php_git_diff_options
         >,
+    php_git2::sequence<0,1>, // Make the git_diff dependent on the git_repository
     1,
     php_git2::sequence<1,2,3,4>,
     php_git2::sequence<0,1,2,3,4>,
     php_git2::sequence<0,0,1,2,3>
     >;
 
-static constexpr auto ZIF_GIT_DIFF_TREE_TO_WORKDIR = zif_php_git2_function<
+static constexpr auto ZIF_GIT_DIFF_TREE_TO_WORKDIR = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_diff**,
@@ -654,13 +655,14 @@ static constexpr auto ZIF_GIT_DIFF_TREE_TO_WORKDIR = zif_php_git2_function<
         php_git2::php_resource_null<php_git2::php_git_tree>,
         php_git2::php_git_diff_options
         >,
+    php_git2::sequence<0,1>, // Make the git_diff dependent on the git_repository
     1,
     php_git2::sequence<1,2,3>,
     php_git2::sequence<0,1,2,3>,
     php_git2::sequence<0,0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_DIFF_TREE_TO_WORKDIR_WITH_INDEX = zif_php_git2_function<
+static constexpr auto ZIF_GIT_DIFF_TREE_TO_WORKDIR_WITH_INDEX = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_diff**,
@@ -673,6 +675,7 @@ static constexpr auto ZIF_GIT_DIFF_TREE_TO_WORKDIR_WITH_INDEX = zif_php_git2_fun
         php_git2::php_resource_null<php_git2::php_git_tree>,
         php_git2::php_git_diff_options
         >,
+    php_git2::sequence<0,1>, // Make the git_diff dependent on the git_repository
     1,
     php_git2::sequence<1,2,3>,
     php_git2::sequence<0,1,2,3>,

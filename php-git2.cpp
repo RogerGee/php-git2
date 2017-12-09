@@ -273,6 +273,11 @@ void php_git2::convert_oid_fromstr(git_oid* dest,const char* src,int srclen)
 
 void php_git2::convert_transfer_progress(zval* zv,const git_transfer_progress* stats)
 {
+    if (stats == nullptr) {
+        ZVAL_NULL(zv);
+        return;
+    }
+
     array_init(zv);
     add_assoc_long_ex(zv,"total_objects",sizeof("total_objects"),stats->total_objects);
     add_assoc_long_ex(zv,"indexed_objects",sizeof("indexed_objects"),stats->indexed_objects);
@@ -286,6 +291,11 @@ void php_git2::convert_transfer_progress(zval* zv,const git_transfer_progress* s
 void php_git2::convert_blame_hunk(zval* zv,const git_blame_hunk* hunk)
 {
     char buf[GIT_OID_HEXSZ + 1];
+
+    if (hunk == nullptr) {
+        ZVAL_NULL(zv);
+        return;
+    }
 
     // Convert the git_blame_hunk into a single-dimensional PHP array
     // that contains only primative types (i.e. no objects, resources or
@@ -319,6 +329,11 @@ void php_git2::convert_diff_delta(zval* zv,const git_diff_delta* delta)
 {
     zval* zfile;
 
+    if (delta == nullptr) {
+        ZVAL_NULL(zv);
+        return;
+    }
+
     array_init(zv);
     add_assoc_long_ex(zv,"status",sizeof("status"),delta->status);
     add_assoc_long_ex(zv,"flags",sizeof("flags"),delta->flags);
@@ -336,6 +351,11 @@ void php_git2::convert_diff_delta(zval* zv,const git_diff_delta* delta)
 
 void php_git2::convert_diff_file(zval* zv,const git_diff_file* file)
 {
+    if (file == nullptr) {
+        ZVAL_NULL(zv);
+        return;
+    }
+
     uint16_t idlen = file->id_abbrev;
     char buf[GIT_OID_HEXSZ + 1];
 
@@ -358,6 +378,11 @@ void php_git2::convert_diff_binary(zval* zv,const git_diff_binary* binary)
     zval* zold;
     zval* znew;
 
+    if (binary == nullptr) {
+        ZVAL_NULL(zv);
+        return;
+    }
+
     array_init(zv);
     add_assoc_bool_ex(zv,"contains_data",sizeof("contains_data"),binary->contains_data);
 
@@ -371,6 +396,11 @@ void php_git2::convert_diff_binary(zval* zv,const git_diff_binary* binary)
 
 void php_git2::convert_diff_binary_file(zval* zv,const git_diff_binary_file* file)
 {
+    if (file == nullptr) {
+        ZVAL_NULL(zv);
+        return;
+    }
+
     array_init(zv);
     add_assoc_long_ex(zv,"type",sizeof("type"),file->type);
     if (file->data == nullptr || file->datalen == 0) {
@@ -384,6 +414,11 @@ void php_git2::convert_diff_binary_file(zval* zv,const git_diff_binary_file* fil
 
 void php_git2::convert_diff_hunk(zval* zv,const git_diff_hunk* hunk)
 {
+    if (hunk == nullptr) {
+        ZVAL_NULL(zv);
+        return;
+    }
+
     array_init(zv);
     add_assoc_long_ex(zv,"old_start",sizeof("old_start"),hunk->old_start);
     add_assoc_long_ex(zv,"old_lines",sizeof("old_lines"),hunk->old_lines);
@@ -396,6 +431,11 @@ void php_git2::convert_diff_hunk(zval* zv,const git_diff_hunk* hunk)
 
 void php_git2::convert_diff_line(zval* zv,const git_diff_line* line)
 {
+    if (line == nullptr) {
+        ZVAL_NULL(zv);
+        return;
+    }
+
     array_init(zv);
     add_assoc_long_ex(zv,"origin",sizeof("origin"),line->origin);
     add_assoc_long_ex(zv,"old_lineno",sizeof("old_lineno"),line->old_lineno);
