@@ -1521,6 +1521,10 @@ git_diff_num_deltas_of_type(resource)
 
     Returns int
 
+git_diff_find_similar(resource,array)
+
+    ** The options array has the same property names as the libgit2 type. **
+
 --------------------------------------------------------------------------------
 Class API Reference
 

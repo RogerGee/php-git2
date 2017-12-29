@@ -82,6 +82,41 @@ namespace php_git2
         php_strarray_array strarray;
     };
 
+    // Define type to wrap git_diff_find_options.
+
+    class php_git_diff_find_options:
+        public php_value_base
+    {
+    public:
+        ZTS_CONSTRUCTOR(php_git_diff_find_options)
+
+        const git_diff_find_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
+                array_wrapper arr(value);
+                git_diff_find_init_options(&opts,GIT_DIFF_FIND_OPTIONS_VERSION);
+
+                GIT2_ARRAY_LOOKUP_LONG(arr,version,opts);
+                GIT2_ARRAY_LOOKUP_LONG(arr,flags,opts);
+                GIT2_ARRAY_LOOKUP_LONG(arr,rename_threshold,opts);
+                GIT2_ARRAY_LOOKUP_LONG(arr,rename_from_rewrite_threshold,opts);
+                GIT2_ARRAY_LOOKUP_LONG(arr,copy_threshold,opts);
+                GIT2_ARRAY_LOOKUP_LONG(arr,break_rewrite_threshold,opts);
+                GIT2_ARRAY_LOOKUP_LONG(arr,rename_limit,opts);
+
+                // TODO Handle 'metric' member. For now we'll just leave this
+                // NULL in the options struct.
+
+                return &opts;
+            }
+
+            return nullptr;
+        }
+
+    private:
+        git_diff_find_options opts;
+    };
+
     // Enumerate the callback handlers needed for generating git_diff functions.
 
     using diff_file_callback_handler = php_callback_handler<diff_file_callback>;
@@ -714,6 +749,17 @@ static constexpr auto ZIF_GIT_DIFF_NUM_DELTAS_OF_TYPE = zif_php_git2_function<
     0
     >;
 
+static constexpr auto ZIF_GIT_DIFF_FIND_SIMILAR = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_diff*,
+        const git_diff_find_options*>::func<git_diff_find_similar>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_diff>,
+        php_git2::php_git_diff_find_options
+        >
+    >;
+
 // Function Entries:
 
 #define GIT_DIFF_FE                                                     \
@@ -735,7 +781,8 @@ static constexpr auto ZIF_GIT_DIFF_NUM_DELTAS_OF_TYPE = zif_php_git2_function<
     PHP_GIT2_FE(git_diff_tree_to_workdir_with_index,ZIF_GIT_DIFF_TREE_TO_WORKDIR_WITH_INDEX,NULL) \
     PHP_GIT2_FE(git_diff_status_char,ZIF_GIT_DIFF_STATUS_CHAR,NULL)     \
     PHP_GIT2_FE(git_diff_num_deltas,ZIF_GIT_DIFF_NUM_DELTAS,NULL)       \
-    PHP_GIT2_FE(git_diff_num_deltas_of_type,ZIF_GIT_DIFF_NUM_DELTAS_OF_TYPE,NULL)
+    PHP_GIT2_FE(git_diff_num_deltas_of_type,ZIF_GIT_DIFF_NUM_DELTAS_OF_TYPE,NULL) \
+    PHP_GIT2_FE(git_diff_find_options,ZIF_GIT_DIFF_FIND_SIMILAR,NULL)
 
 #endif
 

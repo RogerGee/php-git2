@@ -178,7 +178,7 @@ Legend:
 + git_diff_buffers
 + git_diff_commit_as_email
 - git_diff_find_init_options
-. git_diff_find_similar
++ git_diff_find_similar
 + git_diff_foreach
 . git_diff_format_email
 - git_diff_format_email_init_options
