@@ -698,7 +698,7 @@ static constexpr auto ZIF_GIT_ODB_FOREACH = zif_php_git2_function<
     -1,
     php_git2::sequence<0,2,2>, // pass callback in for both callable and payload
     php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,1,2>
+    php_git2::sequence<0,0,1>
     >;
 
 static constexpr auto ZIF_GIT_ODB_REFRESH = zif_php_git2_function<

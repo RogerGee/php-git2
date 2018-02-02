@@ -88,15 +88,10 @@ void php_git2::php_git2_make_odb_backend(zval* zp,git_odb_backend* backend,php_g
     object_init_ex(zp,ce);
     obj = reinterpret_cast<php_odb_backend_object*>(zend_objects_get_address(zp TSRMLS_CC));
 
-    // Assign the git2 odb_backend object.
+    // Assign the git2 odb_backend object and owner. We assume the owner manages
+    // the lifetime of the backend.
     obj->backend = backend;
     obj->owner = owner;
-
-    // Increment owner refcount if set. This will prevent the ODB from freeing
-    // while the backend is in use.
-    if (obj->owner != nullptr) {
-        obj->owner->up_ref();
-    }
 }
 
 // Implementation of php_odb_backend_object
@@ -112,17 +107,11 @@ php_odb_backend_object::php_odb_backend_object(zend_class_entry* ce TSRMLS_DC):
 php_odb_backend_object::~php_odb_backend_object()
 {
     // AFAIK we never call the free() function on git_odb_backend objects that
-    // we returned from a call that referenced a git_odb. This is the case if
+    // were returned from a call that referenced a git_odb. This is the case if
     // 'owner' is set.
 
     if (owner == nullptr && backend != nullptr) {
         backend->free(backend);
-    }
-
-    // Attempt to free the owner resource. This only really frees the owner if
-    // its refcount reaches zero.
-    if (owner != nullptr) {
-        git2_resource_base::free_recursive(owner);
     }
 
     zend_object_std_dtor(this ZTS_MEMBER_CC(this->zts));
@@ -131,25 +120,23 @@ php_odb_backend_object::~php_odb_backend_object()
 void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOwner)
 {
     // NOTE: the zval should be any zval that points to an object with 'this' as
-    // its backing (i.e. result of zend_objects_get_address()). This is really
-    // only used by the implementation to obtain class entry info for the class
-    // that was used to create the object.
+    // its backing (i.e. result of zend_objects_get_address()). This is used by
+    // the implementation to obtain class entry info for the class that was used
+    // to create the object AND to keep the PHP object alive while it is being
+    // used by git2.
 
     // Make sure object doesn't already have a backing. This would imply it is
     // in use already in an ODB.
     if (backend != nullptr) {
-        php_error(E_ERROR,"cannot create custom ODB backend - object already in use");
+        php_error(E_ERROR,"Cannot create custom ODB backend: object already in use");
     }
 
     // Create custom backend. Custom backends are always passed off to git2, so
     // we are not responsible for calling its free function.
     backend = new (emalloc(sizeof(git_odb_backend_php))) git_odb_backend_php(zobj);
 
-    // Assume new owner, increment refcount if set.
+    // Assume new owner. It should be a non-null ODB resource pointer.
     owner = newOwner;
-    if (owner != nullptr) {
-        owner->up_ref();
-    }
 }
 
 /*static*/ void php_odb_backend_object::init(zend_class_entry* ce)
@@ -431,7 +418,10 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
         if (Z_TYPE(retval) != IS_OBJECT
             || !is_subclass_of(Z_OBJCE(retval),class_entry[php_git2_odb_stream_obj]))
         {
-            php_error(E_ERROR,"Value returned from writestream() must be an object derived from GitODBStream");
+            php_error(
+                E_ERROR,
+                "GitODBBackend::writestream(): return value must be an object "
+                "derived from GitODBStream");
             return GIT_ERROR;
         }
 
@@ -499,7 +489,10 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
         if (Z_TYPE(retval) != IS_OBJECT
             || !is_subclass_of(Z_OBJCE(retval),class_entry[php_git2_odb_stream_obj]))
         {
-            php_error(E_ERROR,"Value returned from readstream() must be an object derived from GitODBStream");
+            php_error(
+                E_ERROR,
+                "GitODBBackend::readstream(): return value must be an object "
+                "derived from GitODBStream");
             return GIT_ERROR;
         }
 
@@ -692,9 +685,28 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     php_odb_backend_object* obj;
 
     // Make sure object buckets still exist to lookup object (in case the
-    // destructor was already called).
+    // destructor was already called). This happens when free() is called after
+    // PHP has finished cleaning up all objects (but before all variables, which
+    // may have references to git2 objects that reference this PHP object).
     if (EG(objects_store).object_buckets != nullptr) {
+        // Call userspace free() method on the object. It may not necessarily be
+        // implemented since we didn't check for it when the git_odb_backend_php
+        // object was created. If not, we just let the callback fail.
+
+        zval fname;
+        zval retval;
+
         obj = LOOKUP_OBJECT(php_odb_backend_object,wrapper->thisobj);
+
+        INIT_ZVAL(fname);
+        INIT_ZVAL(retval);
+        ZVAL_STRING(&fname,"free",1);
+        call_user_function(NULL,&wrapper->thisobj,&fname,&retval,0,NULL
+            ZTS_MEMBER_CC(obj->zts));
+        zval_dtor(&fname);
+        zval_dtor(&retval);
+
+        // Unassign backend from the object since it is about to get destroyed.
         obj->backend = nullptr;
     }
 
@@ -815,8 +827,8 @@ zval* odb_backend_read_property(zval* obj,zval* prop,int type,const zend_literal
                     rsrc->set_handle(backend->odb);
                 }
                 else {
-                    // Use owner resource, increment refcount. We assume the
-                    // owner is backend->odb.
+                    // Use owner resource. We must increment the refcount so the
+                    // resource remains valid for the user.
                     rsrc = backendWrapper->owner;
                     rsrc->up_ref();
                 }
@@ -863,7 +875,7 @@ void odb_backend_write_property(zval* obj,zval* prop,zval* value,const zend_lite
 
     str = Z_STRVAL_P(prop);
     if (strcmp(str,"version") == 0 || strcmp(str,"odb") == 0) {
-        php_error(E_ERROR,"GitODBBackend: the %s property is read-only",str);
+        php_error(E_ERROR,"GitODBBackend::__set: the '%s' property is read-only",str);
     }
     else {
         (*std_object_handlers.write_property)(obj,prop,value,key);

@@ -21,13 +21,14 @@ class PHPSerializedODB extends GitODBBackend {
         }
     }
 
-    public function __destruct() {
+    public function free() {
         file_put_contents($this->getFilePath(),serialize($this->vars));
+        unset($this->vars);
     }
 
     public function read(&$type,$oid) {
         $type = $this->vars[$oid]['t'];
-        return gzdeflate($this->vars[$oid]['d']);
+        return gzuncompress($this->vars[$oid]['d']);
     }
 
     public function write($oid,$data,$type) {

@@ -136,7 +136,7 @@ function test_read_object() {
     git_repository_set_odb($repo,$odb);
 
     $blob = git_blob_lookup($repo,$HASH);
-    var_dump(git_blob_rawcontent());
+    var_dump(git_blob_rawcontent($blob));
 }
 
 testbed_test('Custom ODB/Copy (Default Stream)','\Git2Test\ODBCustom\test_session_backend');
