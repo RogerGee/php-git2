@@ -64,6 +64,15 @@ function testbed_get_localrepo_path() {
     return $path;
 }
 
+function testbed_do_once($context,callable $lambda) {
+    static $once;
+
+    if (!isset($once[$context])) {
+        $lambda();
+        $once[$context] = true;
+    }
+}
+
 define('COLOR_RED',31);
 define('COLOR_GREEN',32);
 define('COLOR_YELLOW',33);
