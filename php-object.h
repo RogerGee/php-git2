@@ -39,6 +39,7 @@ namespace php_git2
 
         git_odb_backend* backend;
         php_git_odb* owner;
+        bool derivedCall;
         php_zts_member zts;
 
         void create_custom_backend(zval* zobj,php_git_odb* newOwner);
@@ -106,6 +107,7 @@ namespace php_git2
         git_odb_stream* stream;
         php_git_odb* owner;
         zval* zbackend;
+        bool derivedCall;
         php_zts_member zts;
 
         void create_custom_stream(zval* zobj,unsigned int mode,zval* zodbBackend = nullptr);
@@ -200,6 +202,29 @@ namespace php_git2
     // Useful helpers
 
     bool is_method_overridden(zend_class_entry* ce,const char* method,int len);
+
+    template<typename T>
+    class derived_context
+    {
+    public:
+        derived_context(T* object):
+            obj(object)
+        {
+            obj->derivedCall = true;
+        }
+
+        ~derived_context()
+        {
+            obj->derivedCall = false;
+        }
+
+        T* object()
+        {
+            return obj;
+        }
+    private:
+        T* obj;
+    };
 
     // Extern variables in this namespace.
     extern zend_class_entry* class_entry[];

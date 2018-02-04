@@ -98,7 +98,7 @@ void php_git2::php_git2_make_odb_backend(zval* zp,git_odb_backend* backend,php_g
 
 /*static*/ zend_object_handlers php_odb_backend_object::handlers;
 php_odb_backend_object::php_odb_backend_object(zend_class_entry* ce TSRMLS_DC):
-    backend(nullptr), owner(nullptr), zts(TSRMLS_C)
+    backend(nullptr), owner(nullptr), derivedCall(false), zts(TSRMLS_C)
 {
     zend_object_std_init(this,ce TSRMLS_CC);
     object_properties_init(this,ce);
@@ -160,12 +160,6 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     int result = GIT_OK;
     void* data;
 
-    // We only need to lookup the object backing to get at the ZTS globals.
-#ifdef ZTS
-    php_odb_backend_object* object;
-    object = LOOKUP_OBJECT(php_odb_backend_object,thisobj);
-#endif
-
     // Initialize zvals to default.
     INIT_ZVAL(fname);
     ALLOC_INIT_ZVAL(ztype);
@@ -181,21 +175,25 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 
     // Call userspace method implementation of odb operation. The user hopefully
     // has overridden the method in a derived class.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,2,params
-            ZTS_MEMBER_CC(object->zts)) == FAILURE)
     {
-        result = GIT_ERROR;
-    }
-    else {
-        // Return values to caller. We have to copy the data to use a persistent
-        // memory buffer that git2 can free.
-        convert_to_string(&retval);
-        data = pemalloc(Z_STRLEN(retval),1);
-        memcpy(data,Z_STRVAL(retval),Z_STRLEN(retval));
-        *datap = data;
-        *sizep = Z_STRLEN(retval);
-        convert_to_long(ztype);
-        *typep = (git_otype)Z_LVAL_P(ztype);
+        derived_context<php_odb_backend_object> ctx(LOOKUP_OBJECT(php_odb_backend_object,thisobj));
+
+        if (call_user_function(NULL,&thisobj,&fname,&retval,2,params
+                ZTS_MEMBER_CC(ctx.object()->zts)) == FAILURE)
+        {
+            result = GIT_ERROR;
+        }
+        else {
+            // Return values to caller. We have to copy the data to use a persistent
+            // memory buffer that git2 can free.
+            convert_to_string(&retval);
+            data = pemalloc(Z_STRLEN(retval),1);
+            memcpy(data,Z_STRVAL(retval),Z_STRLEN(retval));
+            *datap = data;
+            *sizep = Z_STRLEN(retval);
+            convert_to_long(ztype);
+            *typep = (git_otype)Z_LVAL_P(ztype);
+        }
     }
 
     // Cleanup zvals.
@@ -220,12 +218,6 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     int result = GIT_OK;
     void* data;
 
-    // We only need to lookup the object backing to get at the ZTS globals.
-#ifdef ZTS
-    php_odb_backend_object* object;
-    object = LOOKUP_OBJECT(php_odb_backend_object,thisobj);
-#endif
-
     // Allocate/initialize zvals.
     INIT_ZVAL(fname);
     INIT_ZVAL(retval);
@@ -242,23 +234,27 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 
     // Call userspace method implementation of odb operation. The user hopefully
     // has overridden the method in a derived class.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,3,params
-            ZTS_MEMBER_CC(object->zts)) == FAILURE)
     {
-        result = GIT_ERROR;
-    }
-    else {
-        // Return values to caller. We have to copy the data to use a persistent
-        // memory buffer that git2 can free.
-        convert_to_string(&retval);
-        data = pemalloc(Z_STRLEN(retval),1);
-        memcpy(data,Z_STRVAL(retval),Z_STRLEN(retval));
-        *datap = data;
-        *sizep = Z_STRLEN(retval);
-        convert_to_long(ztype);
-        *typep = (git_otype)Z_LVAL_P(ztype);
-        convert_to_string(zfull);
-        convert_oid_fromstr(oidp,Z_STRVAL_P(zfull),Z_STRLEN_P(zfull));
+        derived_context<php_odb_backend_object> ctx(LOOKUP_OBJECT(php_odb_backend_object,thisobj));
+
+        if (call_user_function(NULL,&thisobj,&fname,&retval,3,params
+                ZTS_MEMBER_CC(ctx.object()->zts)) == FAILURE)
+        {
+            result = GIT_ERROR;
+        }
+        else {
+            // Return values to caller. We have to copy the data to use a persistent
+            // memory buffer that git2 can free.
+            convert_to_string(&retval);
+            data = pemalloc(Z_STRLEN(retval),1);
+            memcpy(data,Z_STRVAL(retval),Z_STRLEN(retval));
+            *datap = data;
+            *sizep = Z_STRLEN(retval);
+            convert_to_long(ztype);
+            *typep = (git_otype)Z_LVAL_P(ztype);
+            convert_to_string(zfull);
+            convert_oid_fromstr(oidp,Z_STRVAL_P(zfull),Z_STRLEN_P(zfull));
+        }
     }
 
     // Cleanup zvals.
@@ -304,17 +300,21 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 
     // Call userspace method implementation of odb operation. The user hopefully
     // has overridden the method in a derived class.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,3,params
-            ZTS_MEMBER_CC(object->zts)) == FAILURE)
     {
-        result = GIT_ERROR;
-    }
-    else {
-        // Return values to caller.
-        convert_to_long(zsize);
-        convert_to_long(ztype);
-        *sizep = Z_LVAL_P(zsize);
-        *typep = (git_otype)Z_LVAL_P(ztype);
+        derived_context<php_odb_backend_object> ctx(LOOKUP_OBJECT(php_odb_backend_object,thisobj));
+
+        if (call_user_function(NULL,&thisobj,&fname,&retval,3,params
+                ZTS_MEMBER_CC(ctx.object()->zts)) == FAILURE)
+        {
+            result = GIT_ERROR;
+        }
+        else {
+            // Return values to caller.
+            convert_to_long(zsize);
+            convert_to_long(ztype);
+            *sizep = Z_LVAL_P(zsize);
+            *typep = (git_otype)Z_LVAL_P(ztype);
+        }
     }
 
     // Cleanup zvals.
@@ -362,10 +362,14 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 
     // Call userspace method implementation of odb operation. The user hopefully
     // has overridden the method in a derived class.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,3,params
-            ZTS_MEMBER_CC(object->zts)) == FAILURE)
     {
-        result = GIT_ERROR;
+        derived_context<php_odb_backend_object> ctx(LOOKUP_OBJECT(php_odb_backend_object,thisobj));
+
+        if (call_user_function(NULL,&thisobj,&fname,&retval,3,params
+                ZTS_MEMBER_CC(ctx.object()->zts)) == FAILURE)
+        {
+            result = GIT_ERROR;
+        }
     }
 
     // Cleanup zvals.
@@ -408,37 +412,41 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 
     // Call userspace method implementation of odb operation. The user hopefully
     // has overridden the method in a derived class.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,2,params
-            ZTS_MEMBER_CC(object->zts)) == FAILURE)
     {
-        result = GIT_ERROR;
-    }
-    else {
-        // Make sure returned zval is an object derived from GitODBStream.
-        if (Z_TYPE(retval) != IS_OBJECT
-            || !is_subclass_of(Z_OBJCE(retval),class_entry[php_git2_odb_stream_obj]))
+        derived_context<php_odb_backend_object> ctx(LOOKUP_OBJECT(php_odb_backend_object,thisobj));
+
+        if (call_user_function(NULL,&thisobj,&fname,&retval,2,params
+                ZTS_MEMBER_CC(ctx.object()->zts)) == FAILURE)
         {
-            php_error(
-                E_ERROR,
-                "GitODBBackend::writestream(): return value must be an object "
-                "derived from GitODBStream");
-            return GIT_ERROR;
+            result = GIT_ERROR;
         }
+        else {
+            // Make sure returned zval is an object derived from GitODBStream.
+            if (Z_TYPE(retval) != IS_OBJECT
+                || !is_subclass_of(Z_OBJCE(retval),class_entry[php_git2_odb_stream_obj]))
+            {
+                php_error(
+                    E_ERROR,
+                    "GitODBBackend::writestream(): return value must be an object "
+                    "derived from GitODBStream");
+                return GIT_ERROR;
+            }
 
-        // Now create the custom stream backing. The stream tracks this object
-        // to keep it alive and provide access to the GitODBBackend derivation.
-        php_odb_stream_object* sobj = LOOKUP_OBJECT(php_odb_stream_object,&retval);
-        sobj->create_custom_stream(&retval,GIT_STREAM_WRONLY,thisobj);
+            // Now create the custom stream backing. The stream tracks this object
+            // to keep it alive and provide access to the GitODBBackend derivation.
+            php_odb_stream_object* sobj = LOOKUP_OBJECT(php_odb_stream_object,&retval);
+            sobj->create_custom_stream(&retval,GIT_STREAM_WRONLY,thisobj);
 
-        // The libgit2 implementation expects the custom backing to provide a
-        // reference to the ODB backend.
-        sobj->stream->backend = backend;
+            // The libgit2 implementation expects the custom backing to provide a
+            // reference to the ODB backend.
+            sobj->stream->backend = backend;
 
-        // Assign the git_odb_stream to the out parameter. This is safe since
-        // the instance holds its own zval that references the object backing,
-        // meaning the git_odb_stream will survive until its free() function is
-        // called.
-        *streamp = sobj->stream;
+            // Assign the git_odb_stream to the out parameter. This is safe since
+            // the instance holds its own zval that references the object backing,
+            // meaning the git_odb_stream will survive until its free() function is
+            // called.
+            *streamp = sobj->stream;
+        }
     }
 
     // Cleanup zvals.
@@ -479,36 +487,40 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 
     // Call userspace method implementation of odb operation. The user hopefully
     // has overridden the method in a derived class.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,1,params
-            ZTS_MEMBER_CC(object->zts)) == FAILURE)
     {
-        result = GIT_ERROR;
-    }
-    else {
-        // Make sure returned zval is an object derived from GitODBStream.
-        if (Z_TYPE(retval) != IS_OBJECT
-            || !is_subclass_of(Z_OBJCE(retval),class_entry[php_git2_odb_stream_obj]))
+        derived_context<php_odb_backend_object> ctx(LOOKUP_OBJECT(php_odb_backend_object,thisobj));
+
+        if (call_user_function(NULL,&thisobj,&fname,&retval,1,params
+                ZTS_MEMBER_CC(ctx.object()->zts)) == FAILURE)
         {
-            php_error(
-                E_ERROR,
-                "GitODBBackend::readstream(): return value must be an object "
-                "derived from GitODBStream");
-            return GIT_ERROR;
+            result = GIT_ERROR;
         }
+        else {
+            // Make sure returned zval is an object derived from GitODBStream.
+            if (Z_TYPE(retval) != IS_OBJECT
+                || !is_subclass_of(Z_OBJCE(retval),class_entry[php_git2_odb_stream_obj]))
+            {
+                php_error(
+                    E_ERROR,
+                    "GitODBBackend::readstream(): return value must be an object "
+                    "derived from GitODBStream");
+                return GIT_ERROR;
+            }
 
-        // Now create the custom stream backing.
-        php_odb_stream_object* sobj = LOOKUP_OBJECT(php_odb_stream_object,&retval);
-        sobj->create_custom_stream(&retval,GIT_STREAM_RDONLY,thisobj);
+            // Now create the custom stream backing.
+            php_odb_stream_object* sobj = LOOKUP_OBJECT(php_odb_stream_object,&retval);
+            sobj->create_custom_stream(&retval,GIT_STREAM_RDONLY,thisobj);
 
-        // Help out the implementation by providing a reference to the ODB
-        // backend.
-        sobj->stream->backend = backend;
+            // Help out the implementation by providing a reference to the ODB
+            // backend.
+            sobj->stream->backend = backend;
 
-        // Assign the git_odb_stream to the out parameter. This is safe since
-        // the instance holds its own zval that references the object backing,
-        // meaning the git_odb_stream will survive until its free() function is
-        // called.
-        *streamp = sobj->stream;
+            // Assign the git_odb_stream to the out parameter. This is safe
+            // since the instance holds its own zval that references the object
+            // backing, meaning the git_odb_stream will survive until its free()
+            // function is called.
+            *streamp = sobj->stream;
+        }
     }
 
     // Cleanup zvals.
@@ -548,14 +560,18 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 
     // Call userspace method implementation of odb operation. The user hopefully
     // has overridden the method in a derived class.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,1,params
-            ZTS_MEMBER_CC(object->zts)) == FAILURE)
     {
-        result = GIT_ERROR;
-    }
-    else {
-        // Exists() must return a traditional Boolean value.
-        result = Z_BVAL(retval) ? 1 : 0;
+        derived_context<php_odb_backend_object> ctx(LOOKUP_OBJECT(php_odb_backend_object,thisobj));
+
+        if (call_user_function(NULL,&thisobj,&fname,&retval,1,params
+                ZTS_MEMBER_CC(ctx.object()->zts)) == FAILURE)
+        {
+            result = GIT_ERROR;
+        }
+        else {
+            // Exists() must return a traditional Boolean value.
+            result = Z_BVAL(retval) ? 1 : 0;
+        }
     }
 
     // Cleanup zvals.
@@ -597,22 +613,26 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 
     // Call userspace method implementation of odb operation. The user hopefully
     // has overridden the method in a derived class.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,2,params
-            ZTS_MEMBER_CC(object->zts)) == FAILURE)
     {
-        result = GIT_ERROR;
-    }
-    else {
-        // Return values to caller.
-        convert_to_string(zfull);
-        convert_oid_fromstr(oidp,Z_STRVAL_P(zfull),Z_STRLEN_P(zfull));
-        convert_to_boolean(&retval);
-        if (Z_BVAL(retval)) {
-            // Function needs to return zero when the element is found.
-            result = 0;
+        derived_context<php_odb_backend_object> ctx(LOOKUP_OBJECT(php_odb_backend_object,thisobj));
+
+        if (call_user_function(NULL,&thisobj,&fname,&retval,2,params
+                ZTS_MEMBER_CC(ctx.object()->zts)) == FAILURE)
+        {
+            result = GIT_ERROR;
         }
         else {
-            result = GIT_ENOTFOUND;
+            // Return values to caller.
+            convert_to_string(zfull);
+            convert_oid_fromstr(oidp,Z_STRVAL_P(zfull),Z_STRLEN_P(zfull));
+            convert_to_boolean(&retval);
+            if (Z_BVAL(retval)) {
+                // Function needs to return zero when the element is found.
+                result = 0;
+            }
+            else {
+                result = GIT_ENOTFOUND;
+            }
         }
     }
 
@@ -646,10 +666,14 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 
     // Call userspace method implementation of odb operation. The user hopefully
     // has overridden the method in a derived class.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,0,NULL
-            ZTS_MEMBER_CC(object->zts)) == FAILURE)
     {
-        result = GIT_ERROR;
+        derived_context<php_odb_backend_object> ctx(LOOKUP_OBJECT(php_odb_backend_object,thisobj));
+
+        if (call_user_function(NULL,&thisobj,&fname,&retval,0,NULL
+                ZTS_MEMBER_CC(ctx.object()->zts)) == FAILURE)
+        {
+            result = GIT_ERROR;
+        }
     }
 
     // Cleanup zvals.
@@ -701,8 +725,12 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
         INIT_ZVAL(fname);
         INIT_ZVAL(retval);
         ZVAL_STRING(&fname,"free",1);
-        call_user_function(NULL,&wrapper->thisobj,&fname,&retval,0,NULL
-            ZTS_MEMBER_CC(obj->zts));
+        {
+            derived_context<php_odb_backend_object> ctx(obj);
+
+            call_user_function(NULL,&wrapper->thisobj,&fname,&retval,0,NULL
+                ZTS_MEMBER_CC(obj->zts));
+        }
         zval_dtor(&fname);
         zval_dtor(&retval);
 
@@ -948,6 +976,13 @@ PHP_METHOD(GitODBBackend,read)
         return;
     }
 
+    // Disallow calling this method from a derived context as this would create
+    // an infinite loop.
+    if (object->derivedCall) {
+        php_error(E_ERROR,"GitODBBackend::read(): do not call parent method from derived context");
+        return;
+    }
+
     // Grab parameters. The first parameter is passed by reference so we have to
     // extract its zval.
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"zs",&ztype,&strOid,
@@ -993,6 +1028,13 @@ PHP_METHOD(GitODBBackend,read_prefix)
     object = LOOKUP_OBJECT(php_odb_backend_object,getThis());
     if (object->backend == nullptr || object->backend->read_prefix == nullptr) {
         php_error(E_ERROR,"GitODBBackend::read_prefix(): method is not available");
+        return;
+    }
+
+    // Disallow calling this method from a derived context as this would create
+    // an infinite loop.
+    if (object->derivedCall) {
+        php_error(E_ERROR,"GitODBBackend::read_prefix(): do not call parent method from derived context");
         return;
     }
 
@@ -1055,6 +1097,13 @@ PHP_METHOD(GitODBBackend,read_header)
         return;
     }
 
+    // Disallow calling this method from a derived context as this would create
+    // an infinite loop.
+    if (object->derivedCall) {
+        php_error(E_ERROR,"GitODBBackend::read_header(): do not call parent method from derived context");
+        return;
+    }
+
     // Grab parameters. The first two parameters are passed by reference so we
     // have to extract their zvals.
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"zzs",&zsize,&ztype,&strOid,
@@ -1103,6 +1152,13 @@ PHP_METHOD(GitODBBackend,write)
         return;
     }
 
+    // Disallow calling this method from a derived context as this would create
+    // an infinite loop.
+    if (object->derivedCall) {
+        php_error(E_ERROR,"GitODBBackend::write(): do not call parent method from derived context");
+        return;
+    }
+
     // Grab parameters.
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"ssl",&uoid,&uoidSize,
             &data,&dataSize,&type) == FAILURE)
@@ -1138,6 +1194,13 @@ PHP_METHOD(GitODBBackend,writestream)
     // Backend must be created and write function must be available.
     if (object->backend == nullptr || object->backend->writestream == nullptr) {
         php_error(E_ERROR,"GitODBBackend::writestream(): method is not available");
+        return;
+    }
+
+    // Disallow calling this method from a derived context as this would create
+    // an infinite loop.
+    if (object->derivedCall) {
+        php_error(E_ERROR,"GitODBBackend::writestream(): do not call parent method from derived context");
         return;
     }
 
@@ -1181,6 +1244,13 @@ PHP_METHOD(GitODBBackend,readstream)
         return;
     }
 
+    // Disallow calling this method from a derived context as this would create
+    // an infinite loop.
+    if (object->derivedCall) {
+        php_error(E_ERROR,"GitODBBackend::readstream(): do not call parent method from derived context");
+        return;
+    }
+
     // Grab parameters.
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&oidstr,&oidstr_len) == FAILURE) {
         return;
@@ -1221,6 +1291,13 @@ PHP_METHOD(GitODBBackend,exists)
         return;
     }
 
+    // Disallow calling this method from a derived context as this would create
+    // an infinite loop.
+    if (object->derivedCall) {
+        php_error(E_ERROR,"GitODBBackend::exists(): do not call parent method from derived context");
+        return;
+    }
+
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&uoid,&uoidSize) == FAILURE) {
         return;
     }
@@ -1249,6 +1326,13 @@ PHP_METHOD(GitODBBackend,exists_prefix)
     // Backend must be created.
     if (object->backend == nullptr || object->backend->exists_prefix == nullptr) {
         php_error(E_ERROR,"GitODBBackend::exists_prefix(): method is not available");
+        return;
+    }
+
+    // Disallow calling this method from a derived context as this would create
+    // an infinite loop.
+    if (object->derivedCall) {
+        php_error(E_ERROR,"GitODBBackend::exists_prefix(): do not call parent method from derived context");
         return;
     }
 
@@ -1286,6 +1370,13 @@ PHP_METHOD(GitODBBackend,refresh)
         return;
     }
 
+    // Disallow calling this method from a derived context as this would create
+    // an infinite loop.
+    if (object->derivedCall) {
+        php_error(E_ERROR,"GitODBBackend::refresh(): do not call parent method from derived context");
+        return;
+    }
+
     // Perform function call.
     try {
         int retval;
@@ -1308,6 +1399,13 @@ PHP_METHOD(GitODBBackend,for_each)
     // Backend must be created and the function must be implemented.
     if (object->backend == nullptr || object->backend->foreach == nullptr) {
         php_error(E_ERROR,"GitODBBackend::for_each(): method is not available");
+        return;
+    }
+
+    // Disallow calling this method from a derived context as this would create
+    // an infinite loop.
+    if (object->derivedCall) {
+        php_error(E_ERROR,"GitODBBackend::for_each(): do not call parent method from derived context");
         return;
     }
 
@@ -1339,6 +1437,13 @@ PHP_METHOD(GitODBBackend,writepack)
     // Backend must be created and the function must be implemented.
     if (object->backend == nullptr || object->backend->writepack == nullptr) {
         php_error(E_ERROR,"GitODBBackend::writepack(): method is not available");
+        return;
+    }
+
+    // Disallow calling this method from a derived context as this would create
+    // an infinite loop.
+    if (object->derivedCall) {
+        php_error(E_ERROR,"GitODBBackend::writepack(): do not call parent method from derived context");
         return;
     }
 
@@ -1383,6 +1488,13 @@ PHP_METHOD(GitODBBackend,free)
     // Backend must be created and the function must be implemented.
     if (object->backend == nullptr || object->backend->free == nullptr) {
         php_error(E_ERROR,"GitODBBackend::free(): method is not available");
+        return;
+    }
+
+    // Disallow calling this method from a derived context as this would create
+    // an infinite loop.
+    if (object->derivedCall) {
+        php_error(E_ERROR,"GitODBBackend::free(): do not call parent method from derived context");
         return;
     }
 

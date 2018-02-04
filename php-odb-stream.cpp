@@ -61,7 +61,7 @@ void php_git2::php_git2_make_odb_stream(zval* zp,git_odb_stream* stream,php_git_
 
 /*static*/ zend_object_handlers php_odb_stream_object::handlers;
 php_odb_stream_object::php_odb_stream_object(zend_class_entry* ce TSRMLS_DC):
-    stream(nullptr), owner(nullptr), zbackend(nullptr), zts(TSRMLS_C)
+    stream(nullptr), owner(nullptr), zbackend(nullptr), derivedCall(false), zts(TSRMLS_C)
 {
     zend_object_std_init(this,ce TSRMLS_CC);
     object_properties_init(this,ce);
@@ -141,12 +141,6 @@ void php_odb_stream_object::create_custom_stream(zval* zobj,unsigned int mode,zv
     zval* thisobj = EXTRACT_THISOBJ(stream);
     int result = GIT_OK;
 
-    // We only need to lookup the object backing to get at the ZTS globals.
-#ifdef ZTS
-    php_odb_stream_object* object;
-    object = LOOKUP_OBJECT(php_odb_backend_object,thisobj);
-#endif
-
     // Initialize zvals.
     INIT_ZVAL(fname);
     INIT_ZVAL(retval);
@@ -161,21 +155,25 @@ void php_odb_stream_object::create_custom_stream(zval* zobj,unsigned int mode,zv
 
     // Call userspace method implementation of stream operation. The user
     // should have overridden the method in a derived class.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,1,params
-            ZTS_MEMBER_CC(object->zts)) == FAILURE)
     {
-        result = GIT_ERROR;
-    }
-    else {
-        // Return values to caller. We copy the data into the git2-provided
-        // buffer, making sure not to overflow.
-        size_t n;
-        convert_to_string(&retval);
-        n = Z_STRLEN(retval);
-        if (n > len) {
-            n = len;
+        derived_context<php_odb_stream_object> ctx(LOOKUP_OBJECT(php_odb_stream_object,thisobj));
+
+        if (call_user_function(NULL,&thisobj,&fname,&retval,1,params
+                ZTS_MEMBER_CC(ctx.object()->zts)) == FAILURE)
+        {
+            result = GIT_ERROR;
         }
-        memcpy(buffer,Z_STRVAL(retval),n);
+        else {
+            // Return values to caller. We copy the data into the git2-provided
+            // buffer, making sure not to overflow.
+            size_t n;
+            convert_to_string(&retval);
+            n = Z_STRLEN(retval);
+            if (n > len) {
+                n = len;
+            }
+            memcpy(buffer,Z_STRVAL(retval),n);
+        }
     }
 
     // Cleanup zvals.
@@ -194,12 +192,6 @@ void php_odb_stream_object::create_custom_stream(zval* zobj,unsigned int mode,zv
     zval* thisobj = EXTRACT_THISOBJ(stream);
     int result = GIT_OK;
 
-    // We only need to lookup the object backing to get at the ZTS globals.
-#ifdef ZTS
-    php_odb_stream_object* object;
-    object = LOOKUP_OBJECT(php_odb_backend_object,thisobj);
-#endif
-
     // Initialize zvals.
     INIT_ZVAL(fname);
     INIT_ZVAL(retval);
@@ -214,10 +206,14 @@ void php_odb_stream_object::create_custom_stream(zval* zobj,unsigned int mode,zv
 
     // Call userspace method implementation of stream operation. The user
     // should have overridden the method in a derived class.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,1,params
-            ZTS_MEMBER_CC(object->zts)) == FAILURE)
     {
-        result = GIT_ERROR;
+        derived_context<php_odb_stream_object> ctx(LOOKUP_OBJECT(php_odb_stream_object,thisobj));
+
+        if (call_user_function(NULL,&thisobj,&fname,&retval,1,params
+                ZTS_MEMBER_CC(ctx.object()->zts)) == FAILURE)
+        {
+            result = GIT_ERROR;
+        }
     }
 
     // Cleanup zvals.
@@ -237,12 +233,6 @@ void php_odb_stream_object::create_custom_stream(zval* zobj,unsigned int mode,zv
     int result = GIT_OK;
     char buffer[GIT_OID_HEXSZ+1];
 
-    // We only need to lookup the object backing to get at the ZTS globals.
-#ifdef ZTS
-    php_odb_stream_object* object;
-    object = LOOKUP_OBJECT(php_odb_backend_object,thisobj);
-#endif
-
     // Initialize zvals.
     INIT_ZVAL(fname);
     INIT_ZVAL(retval);
@@ -258,10 +248,14 @@ void php_odb_stream_object::create_custom_stream(zval* zobj,unsigned int mode,zv
 
     // Call userspace method implementation of stream operation. The user
     // should have overridden the method in a derived class.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,1,params
-            ZTS_MEMBER_CC(object->zts)) == FAILURE)
     {
-        result = GIT_ERROR;
+        derived_context<php_odb_stream_object> ctx(LOOKUP_OBJECT(php_odb_stream_object,thisobj));
+
+        if (call_user_function(NULL,&thisobj,&fname,&retval,1,params
+                ZTS_MEMBER_CC(ctx.object()->zts)) == FAILURE)
+        {
+            result = GIT_ERROR;
+        }
     }
 
     // Cleanup zvals.
@@ -514,6 +508,13 @@ PHP_METHOD(GitODBStream,read)
         return;
     }
 
+    // Disallow calling this method from a derived context as this would create
+    // an infinite loop.
+    if (object->derivedCall) {
+        php_error(E_ERROR,"GitODBStream::read(): do not call parent method from derived context");
+        return;
+    }
+
     // Parse parameters.
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l",&bufsz) == FAILURE) {
         return;
@@ -552,6 +553,13 @@ PHP_METHOD(GitODBStream,write)
         return;
     }
 
+    // Disallow calling this method from a derived context as this would create
+    // an infinite loop.
+    if (object->derivedCall) {
+        php_error(E_ERROR,"GitODBStream::write(): do not call parent method from derived context");
+        return;
+    }
+
     // Parse parameters.
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&buffer,&bufsz) == FAILURE) {
         return;
@@ -585,6 +593,13 @@ PHP_METHOD(GitODBStream,finalize_write)
         return;
     }
 
+    // Disallow calling this method from a derived context as this would create
+    // an infinite loop.
+    if (object->derivedCall) {
+        php_error(E_ERROR,"GitODBStream::finalize_write(): do not call parent method from derived context");
+        return;
+    }
+
     // Read OID parameter from function arguments.
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&input,&input_len) == FAILURE) {
         return;
@@ -609,6 +624,15 @@ PHP_METHOD(GitODBStream,finalize_write)
 
 PHP_METHOD(GitODBStream,free)
 {
+    php_odb_stream_object* object = LOOKUP_OBJECT(php_odb_stream_object,getThis());
+
+    // Disallow calling this method from a derived context as this would create
+    // an infinite loop.
+    if (object->derivedCall) {
+        php_error(E_ERROR,"GitODBStream::free(): do not call parent method from derived context");
+        return;
+    }
+
     // Do nothing: do not allow the user to free in this way. The git_odb_stream
     // will be freed later on when PHP destroys the GitODBStream object.
 }
