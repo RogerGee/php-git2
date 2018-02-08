@@ -25,6 +25,7 @@ namespace php_git2
         php_git2_odb_stream_obj,
         php_git2_writestream_obj,
         php_git2_config_backend_obj,
+        php_git2_closure_obj,
         _php_git2_obj_top_
     };
 
@@ -184,6 +185,20 @@ namespace php_git2
         static void free(git_config_backend* cfg);
     };
 
+    struct php_closure_object : zend_object
+    {
+        php_closure_object(zend_class_entry* ce TSRMLS_DC);
+        ~php_closure_object();
+
+        zend_function func;
+        void* payload;
+        bool hasPayload;
+        php_zts_member zts;
+
+        static zend_object_handlers handlers;
+        static void init(zend_class_entry* ce);
+    };
+
     // Provide a routine to call during MINIT for registering the custom
     // classes.
 
@@ -235,6 +250,7 @@ namespace php_git2
     extern zend_function_entry odb_stream_methods[];
     extern zend_function_entry writestream_methods[];
     extern zend_function_entry config_backend_methods[];
+    extern zend_function_entry closure_methods[];
 }
 
 // Helper macros

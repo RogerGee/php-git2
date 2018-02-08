@@ -97,6 +97,15 @@ void php_git2::php_git2_register_classes(TSRMLS_D)
     memcpy(&php_config_backend_object::handlers,stdhandlers,sizeof(zend_object_handlers));
     pce->create_object = php_create_object_handler<php_config_backend_object>;
     php_config_backend_object::init(pce);
+
+    // final class GitClosure
+    INIT_CLASS_ENTRY(ce,"GitClosure",closure_methods);
+    pce = zend_register_internal_class(&ce TSRMLS_CC);
+    php_git2::class_entry[php_git2_closure_obj] = pce;
+    pce->ce_flags |= ZEND_ACC_FINAL_CLASS;
+    memcpy(&php_closure_object::handlers,stdhandlers,sizeof(zend_object_handlers));
+    pce->create_object = php_create_object_handler<php_closure_object>;
+    php_closure_object::init(pce);
 }
 
 // Provide implementations for generic make function.
