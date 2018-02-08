@@ -144,6 +144,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     handlers.read_property = odb_backend_read_property;
     handlers.write_property = odb_backend_write_property;
     handlers.has_property = odb_backend_has_property;
+    handlers.get_constructor = php_git2::disallow_base_get_constructor;
     (void)ce;
 }
 
@@ -278,12 +279,6 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     char buffer[GIT_OID_HEXSZ+1];
     int result = GIT_OK;
 
-    // We only need to lookup the object backing to get at the ZTS globals.
-#ifdef ZTS
-    php_odb_backend_object* object;
-    object = LOOKUP_OBJECT(php_odb_backend_object,thisobj);
-#endif
-
     // Allocate/initialize zvals.
     INIT_ZVAL(fname);
     INIT_ZVAL(retval);
@@ -338,12 +333,6 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     char buffer[GIT_OID_HEXSZ+1];
     int result = GIT_OK;
 
-    // We only need to lookup the object backing to get at the ZTS globals.
-#ifdef ZTS
-    php_odb_backend_object* object;
-    object = LOOKUP_OBJECT(php_odb_backend_object,thisobj);
-#endif
-
     // Allocate/initialize zvals.
     INIT_ZVAL(fname);
     INIT_ZVAL(retval);
@@ -390,12 +379,6 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     zval* ztype;
     zval* thisobj = EXTRACT_THISOBJ(backend);
     int result = GIT_OK;
-
-    // We only need to lookup the object backing to get at the ZTS globals.
-#ifdef ZTS
-    php_odb_backend_object* object;
-    object = LOOKUP_OBJECT(php_odb_backend_object,thisobj);
-#endif
 
     // Allocate/initialize zvals.
     INIT_ZVAL(fname);
@@ -467,12 +450,6 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     char buffer[GIT_OID_HEXSZ+1];
     int result = GIT_OK;
 
-    // We only need to lookup the object backing to get at the ZTS globals.
-#ifdef ZTS
-    php_odb_backend_object* object;
-    object = LOOKUP_OBJECT(php_odb_backend_object,thisobj);
-#endif
-
     // Allocate/initialize zvals.
     INIT_ZVAL(fname);
     INIT_ZVAL(retval);
@@ -540,12 +517,6 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     char buffer[GIT_OID_HEXSZ+1];
     int result = GIT_OK;
 
-    // We only need to lookup the object backing to get at the ZTS globals.
-#ifdef ZTS
-    php_odb_backend_object* object;
-    object = LOOKUP_OBJECT(php_odb_backend_object,thisobj);
-#endif
-
     // Allocate/initialize zvals.
     INIT_ZVAL(fname);
     INIT_ZVAL(retval);
@@ -591,12 +562,6 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     zval* thisobj = EXTRACT_THISOBJ(backend);
     char buffer[GIT_OID_HEXSZ+1];
     int result = GIT_OK;
-
-    // We only need to lookup the object backing to get at the ZTS globals.
-#ifdef ZTS
-    php_odb_backend_object* object;
-    object = LOOKUP_OBJECT(php_odb_backend_object,thisobj);
-#endif
 
     // Allocate/initialize zvals.
     INIT_ZVAL(fname);
@@ -650,12 +615,6 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     zval retval;
     zval* thisobj = EXTRACT_THISOBJ(backend);
     int result = GIT_OK;
-
-    // We only need to lookup the object backing to get at the ZTS globals.
-#ifdef ZTS
-    php_odb_backend_object* object;
-    object = LOOKUP_OBJECT(php_odb_backend_object,thisobj);
-#endif
 
     // Allocate/initialize zvals.
     INIT_ZVAL(fname);
@@ -1409,6 +1368,7 @@ PHP_METHOD(GitODBBackend,for_each)
         return;
     }
 
+    int retval;
     php_callback_sync callback;
     php_callback_handler<odb_foreach_callback> handler;
 
@@ -1419,7 +1379,7 @@ PHP_METHOD(GitODBBackend,for_each)
 
     // Call the underlying function.
     try {
-        object->backend->foreach(object->backend,
+        retval = object->backend->foreach(object->backend,
             handler.byval_git2(),callback.byval_git2());
     } catch (php_git2::php_git2_exception_base& ex) {
         if (ex.what() != nullptr) {
@@ -1427,6 +1387,8 @@ PHP_METHOD(GitODBBackend,for_each)
         }
         return;
     }
+
+    RETURN_LONG(static_cast<long>(retval));
 }
 
 PHP_METHOD(GitODBBackend,writepack)

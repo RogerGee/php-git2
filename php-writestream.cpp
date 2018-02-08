@@ -53,7 +53,7 @@ php_writestream_object::~php_writestream_object()
 
 /*static*/ void php_writestream_object::init(zend_class_entry* ce)
 {
-    // Nothing to do...
+    handlers.get_constructor = php_git2::not_allowed_get_constructor;
 }
 
 // Userspace method implementations

@@ -129,6 +129,7 @@ void php_odb_stream_object::create_custom_stream(zval* zobj,unsigned int mode,zv
     handlers.read_property = odb_stream_read_property;
     handlers.write_property = odb_stream_write_property;
     handlers.has_property = odb_stream_has_property;
+    handlers.get_constructor = php_git2::disallow_base_get_constructor;
     (void)ce;
 }
 

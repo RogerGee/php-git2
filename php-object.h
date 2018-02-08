@@ -202,6 +202,8 @@ namespace php_git2
     // Useful helpers
 
     bool is_method_overridden(zend_class_entry* ce,const char* method,int len);
+    zend_function* not_allowed_get_constructor(zval* object TSRMLS_DC);
+    zend_function* disallow_base_get_constructor(zval* object TSRMLS_DC);
 
     template<typename T>
     class derived_context

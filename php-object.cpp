@@ -121,6 +121,22 @@ bool php_git2::is_method_overridden(zend_class_entry* ce,const char* method,int 
     return (func->common.prototype != NULL);
 }
 
+zend_function* php_git2::not_allowed_get_constructor(zval* object TSRMLS_DC)
+{
+    zend_class_entry* ce = Z_OBJCE_P(object);
+    php_error(E_RECOVERABLE_ERROR, "Instantiation of '%s' is not allowed",ce->name);
+    return nullptr;
+}
+
+zend_function* php_git2::disallow_base_get_constructor(zval* object TSRMLS_DC)
+{
+    zend_class_entry* ce = Z_OBJCE_P(object);
+    if (!ce->parent) {
+        return not_allowed_get_constructor(object);
+    }
+    return ce->constructor;
+}
+
 /*
  * Local Variables:
  * indent-tabs-mode:nil
