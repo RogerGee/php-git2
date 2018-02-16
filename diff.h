@@ -170,8 +170,8 @@ namespace php_git2
     {
     public:
         using my_base = php_git_diff_callback_base<ConnectType>;
-        using my_base::connect_t;
-        using my_base::target_t;
+        using typename my_base::connect_t;
+        using typename my_base::target_t;
 
         php_git_diff_callback(git_diff_callback_info& obj TSRMLS_DC):
             my_base(obj)
@@ -190,8 +190,8 @@ namespace php_git2
     {
     public:
         using my_base = php_git_diff_callback_base<ConnectType>;
-        using my_base::connect_t;
-        using my_base::target_t;
+        using typename my_base::connect_t;
+        using typename my_base::target_t;
 
         php_git_diff_callback(git_diff_callback_info& obj TSRMLS_DC):
             my_base(obj)
@@ -210,8 +210,8 @@ namespace php_git2
     {
     public:
         using my_base = php_git_diff_callback_base<ConnectType>;
-        using my_base::connect_t;
-        using my_base::target_t;
+        using typename my_base::connect_t;
+        using typename my_base::target_t;
 
         php_git_diff_callback(git_diff_callback_info& obj TSRMLS_DC):
             my_base(obj)
@@ -230,8 +230,8 @@ namespace php_git2
     {
     public:
         using my_base = php_git_diff_callback_base<ConnectType>;
-        using my_base::connect_t;
-        using my_base::target_t;
+        using typename my_base::connect_t;
+        using typename my_base::target_t;
 
         php_git_diff_callback(git_diff_callback_info& obj TSRMLS_DC):
             my_base(obj)

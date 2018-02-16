@@ -360,7 +360,7 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR(php_callback_handler)
 
-        constexpr typename CallbackFunc::type byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        constexpr typename CallbackFunc::type byval_git2(unsigned argno = std::numeric_limits<unsigned>::max()) const
         {
             // Return the static address of the wrapped callback function.
             return &CallbackFunc::callback;
