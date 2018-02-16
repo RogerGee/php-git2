@@ -157,6 +157,22 @@ function test_tree() {
     var_dump(git_diff_num_deltas_of_type($diff,GIT_DELTA_MODIFIED));
 }
 
+function test_stats() {
+    $repo = git_repository_open_bare(testbed_get_repo_path());
+    $commitNew = git_commit_lookup($repo,'9f20494a73fba9122db1ab1e48ef57fa69c9c071');
+    $commitOld = git_commit_lookup($repo,'dd34fc05733652126a0f3d4494c328f215890248');
+
+    $treeNew = git_commit_tree($commitNew);
+    $treeOld = git_commit_tree($commitOld);
+
+    $diff = git_diff_tree_to_tree($repo,$treeOld,$treeNew,null);
+    $stats = git_diff_get_stats($diff);
+    var_dump(git_diff_stats_insertions($stats));
+    var_dump(git_diff_stats_deletions($stats));
+    var_dump(git_diff_stats_files_changed($stats));
+    echo git_diff_stats_to_buf($stats,GIT_DIFF_STATS_FULL,80);
+}
+
 function test_misc() {
     var_dump(git_diff_status_char(GIT_DELTA_ADDED));
     var_dump(git_diff_status_char(GIT_DELTA_IGNORED));
@@ -165,4 +181,5 @@ function test_misc() {
 testbed_test('Diff/blob-to-buffer','Git2Test\Diff\test_blob_to_buffer');
 testbed_test('Diff/from-buffer','Git2Test\Diff\test_from_buffer');
 testbed_test('Diff/tree','Git2Test\Diff\test_tree');
+testbed_test('Diff/stats','Git2Test\Diff\test_stats');
 testbed_test('Diff/misc','Git2Test\Diff\test_misc');

@@ -16,6 +16,11 @@ namespace php_git2
         git_diff_free(handle);
     }
 
+    template<> inline php_git_diff_stats::~git2_resource()
+    {
+        git_diff_stats_free(handle);
+    }
+
     // Define type to wrap git_diff_options.
 
     class php_git_diff_options:
@@ -760,6 +765,76 @@ static constexpr auto ZIF_GIT_DIFF_FIND_SIMILAR = zif_php_git2_function<
         >
     >;
 
+static constexpr auto ZIF_GIT_DIFF_GET_STATS = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_diff_stats**,
+        git_diff*>::func<git_diff_get_stats>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_diff_stats>,
+        php_git2::php_resource<php_git2::php_git_diff>
+        >,
+    1,
+    php_git2::sequence<1>,
+    php_git2::sequence<0,1>,
+    php_git2::sequence<0,0>
+    >;
+
+static constexpr auto ZIF_GIT_DIFF_STATS_FREE = zif_php_git2_function_free<
+    php_git2::local_pack<
+        php_git2::php_resource_cleanup<php_git2::php_git_diff_stats>
+        >
+    >;
+
+static constexpr auto ZIF_GIT_DIFF_STATS_DELETIONS = zif_php_git2_function<
+    php_git2::func_wrapper<
+        size_t,
+        const git_diff_stats*>::func<git_diff_stats_deletions>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_diff_stats>
+        >,
+    0
+    >;
+
+static constexpr auto ZIF_GIT_DIFF_STATS_FILES_CHANGED = zif_php_git2_function<
+    php_git2::func_wrapper<
+        size_t,
+        const git_diff_stats*>::func<git_diff_stats_files_changed>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_diff_stats>
+        >,
+    0
+    >;
+
+static constexpr auto ZIF_GIT_DIFF_STATS_INSERTIONS = zif_php_git2_function<
+    php_git2::func_wrapper<
+        size_t,
+        const git_diff_stats*>::func<git_diff_stats_insertions>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_diff_stats>
+        >,
+    0
+    >;
+
+static constexpr auto ZIF_GIT_DIFF_STATS_TO_BUF = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_buf*,
+        const git_diff_stats*,
+        git_diff_stats_format_t,
+        size_t>::func<git_diff_stats_to_buf>,
+    php_git2::local_pack<
+        php_git2::php_git_buf,
+        php_git2::php_resource<php_git2::php_git_diff_stats>,
+        php_git2::php_long_cast<git_diff_stats_format_t>,
+        php_git2::php_long_cast<size_t>
+        >,
+    1,
+    php_git2::sequence<1,2,3>,
+    php_git2::sequence<0,1,2,3>,
+    php_git2::sequence<0,0,1,2>
+    >;
+
 // Function Entries:
 
 #define GIT_DIFF_FE                                                     \
@@ -782,7 +857,13 @@ static constexpr auto ZIF_GIT_DIFF_FIND_SIMILAR = zif_php_git2_function<
     PHP_GIT2_FE(git_diff_status_char,ZIF_GIT_DIFF_STATUS_CHAR,NULL)     \
     PHP_GIT2_FE(git_diff_num_deltas,ZIF_GIT_DIFF_NUM_DELTAS,NULL)       \
     PHP_GIT2_FE(git_diff_num_deltas_of_type,ZIF_GIT_DIFF_NUM_DELTAS_OF_TYPE,NULL) \
-    PHP_GIT2_FE(git_diff_find_options,ZIF_GIT_DIFF_FIND_SIMILAR,NULL)
+    PHP_GIT2_FE(git_diff_find_options,ZIF_GIT_DIFF_FIND_SIMILAR,NULL)   \
+    PHP_GIT2_FE(git_diff_get_stats,ZIF_GIT_DIFF_GET_STATS,NULL)         \
+    PHP_GIT2_FE(git_diff_stats_free,ZIF_GIT_DIFF_STATS_FREE,NULL)       \
+    PHP_GIT2_FE(git_diff_stats_deletions,ZIF_GIT_DIFF_STATS_DELETIONS,NULL) \
+    PHP_GIT2_FE(git_diff_stats_files_changed,ZIF_GIT_DIFF_STATS_FILES_CHANGED,NULL) \
+    PHP_GIT2_FE(git_diff_stats_insertions,ZIF_GIT_DIFF_STATS_INSERTIONS,NULL) \
+    PHP_GIT2_FE(git_diff_stats_to_buf,ZIF_GIT_DIFF_STATS_TO_BUF,NULL)
 
 #endif
 

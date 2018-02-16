@@ -49,6 +49,7 @@ purpose) are determined by the C++ compiler via 'typeid'.
     git_config_iterator
     git_tag
     git_diff
+    git_diff_stats
 
 The following structures are not represented as resources in the PHP
 API. Instead a scalar, array or object type is used:
@@ -85,10 +86,10 @@ correct constant value from the git2 headers.
 Function API Reference
 
 Core API routines operate on opaque, resource values. They try to conform to the
-original, C library calls they wrap. These most if not all of the time have the
-form 'git_*'.
+original, C library calls they wrap. Most if not all of these functions have the
+prefix "git_".
 
-Functions provided by the extension that are not git2 wrappers have the form
+Functions provided by the extension that are not git2 wrappers have the prefix
 'git2_*'. These are provided as supplements or additions where appropriate.
 
 ----------------------------------------
@@ -97,9 +98,21 @@ Functions provided by the extension that are not git2 wrappers have the form
 
 git2_version()
 
-    Gets a string representing the libgit2 version
+    Gets a string representing the php-git2 and libgit2 version.
 
     Returns string
+
+git_libgit2_version()
+
+    Gets the libgit2 version string. The version string has the form "%1.%2.%3"
+    where %1, %2 and %3 are the respective major, minor and revision numbers
+    returned from the underlying call to git_libgit2_version().
+
+    Returns string
+
+git_libgit2_features()
+
+    Returns int
 
 ----------------------------------------
 [git_repository]
@@ -390,6 +403,10 @@ git_object_lookup(resource,string,int)
     Returns resource
 
 git_object_free(resource)
+
+git_object_peel(resource,int)
+
+    Returns git_object resource
 
 ----------------------------------------
 [git_revwalk]
@@ -1121,7 +1138,7 @@ git_branch_iterator_free(resource)
 
 git_branch_next(&int,resource)
 
-    Returns git_reference resource
+    Returns git_reference resource or false at iter over
 
 git_branch_lookup(resource,string,int)
 
@@ -1525,6 +1542,24 @@ git_diff_find_similar(resource,array)
 
     ** The options array has the same property names as the libgit2 type. **
 
+git_diff_get_stats(resource)
+
+    Returns git_diff_stats resource
+
+git_diff_stats_free(resource)
+
+git_diff_stats_deletions(resource)
+
+    Returns int
+
+git_diff_stats_insertions(resource)
+
+    Returns int
+
+git_diff_stats_to_buf(resource,int,int)
+
+    Returns string
+
 --------------------------------------------------------------------------------
 Class API Reference
 
@@ -1540,8 +1575,8 @@ class GitODBBackend:
        structure. **
 
     properties:
-        version: int
-        odb: resource
+        int $version
+        resource $odb
 
     methods:
         ** All methods should throw on failure. **
@@ -1552,48 +1587,70 @@ class GitODBBackend:
            know what is available; however they are designed to be defined in
            userspace and called by git2. **
 
-        read(int& type,string oid)
+        read(int &$type,string $oid)
 
             ** Will return size and type as out parameters respectively. **
 
             Returns string
 
-        read_prefix(string& fullOid,int& type,string abbrevOid)
+        read_prefix(string &$fullOid,int &$type,string $abbrevOid)
 
             ** Will return oid, size and type as out parameters respectively. **
 
             Returns string
 
-        read_header(int& size,int& type,string oid)
+        read_header(int &$size,int &$type,string $oid)
 
             ** Will return size and type as out parameters respectively. **
 
             Returns true
 
-        write(string oid,string data,int type)
+        write(string $oid,string $data,int $type)
 
             Returns true
 
-        writestream(int offset,int objectType)
+        writestream(int $offset,int $objectType)
 
             Returns object instance of type GitODBStream
 
-        readstream(string oid)
+        readstream(string $oid)
 
             Returns object instance of type GitODBStream
 
-        exists(string oid)
+        exists(string $oid)
 
             Returns bool
 
         refresh()
 
-        for_each(callable func,mixed payload)
+        for_each(callable $func,mixed $payload)
 
             ** Note: this function is not named canonically with git2 since
                "foreach" is a reserved word in PHP. **
 
-        writepack(callable func,mixed payload)
+            Notes on overridding:
+
+            The callback has the same signature as the method. However some
+            important distinctions apply due to implementation constraints. When
+            the git2 library internally is routed to this method by the
+            extension, the payload will be null even if some underlying value is
+            assigned. In this case the extension takes care of forwarding the
+            payload behind-the-scenes since the payload value cannot be
+            converted to a PHP value (plus, that operation would be wasteful
+            anyway). The payload value only really matters in userspace if
+            userspace initiated the method call itself.
+
+            An implementation overriding this method should always pass in the
+            payload as the second parameter to the callback so that a userspace
+            payload is routed correctly.
+
+            If the callback returns a non-zero value, the implementation should
+            stop looping. The method should return 0 or the non-zero callback
+            value upon return.
+
+            Returns int
+
+        writepack(callable $func,mixed $payload)
 
             Returns object instance of type GitODBWritepack
 
@@ -1631,16 +1688,16 @@ final class GitODBStream:
     methods:
         ** All methods should throw on failure. **
 
-        read(int bufsz)
+        read(int $bufsz)
 
             ** Creates a buffer of the specified size and calls the read()
                function for the stream. **
 
             Returns string
 
-        write(string buffer)
+        write(string $buffer)
 
-        finalize_write(string oid)
+        finalize_write(string $oid)
 
 final class GitWritestream:
 
@@ -1648,7 +1705,7 @@ final class GitWritestream:
        structure. **
 
     methods:
-        write(string buffer)
+        write(string $buffer)
 
         close()
 
@@ -1663,13 +1720,13 @@ abstract class GitConfigBackend:
        structure. **
 
     methods:
-        mixed open(int level)
+        mixed open(int $level)
 
             ** Method may return false to indicate failure. If the method has no
                return value (i.e. returns null), or a truthy value is returned,
                then the implementation assumes success. **
 
-        array get(string key)
+        array get(string $key)
 
             ** Method returns array with properties 'name', 'value' and 'level'
                corresponding to git_config_entry. If the method fails lookup, it
@@ -1678,25 +1735,25 @@ abstract class GitConfigBackend:
             ** If 'level' is not specified in the return array, then level
                defaults to GIT_CONFIG_LEVEL_APP. **
 
-        mixed set(string key,string value)
+        mixed set(string $key,string $value)
 
             ** Method may return false to indicate failure. If the method has no
                return value (i.e. returns null), or a truthy value is returned,
                then the implementation assumes success. **
 
-        mixed set_multivar(string name,string regexp,string value)
+        mixed set_multivar(string $name,string $regexp,string $value)
 
             ** Method may return false to indicate failure. If the method has no
                return value (i.e. returns null), or a truthy value is returned,
                then the implementation assumes success. **
 
-        mixed del(string name)
+        mixed del(string $name)
 
             ** Method may return false to indicate failure. If the method has no
                return value (i.e. returns null), or a truthy value is returned,
                then the implementation assumes success. **
 
-        mixed del_multivar(string name,string regexp)
+        mixed del_multivar(string $name,string $regexp)
 
             ** Method may return false to indicate failure. If the method has no
                return value (i.e. returns null), or a truthy value is returned,
