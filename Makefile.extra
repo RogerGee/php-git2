@@ -1,0 +1,35 @@
+# Makefile.extra - php-git2
+#
+# This file provides some custom recipes for the build system. They are optional
+# and not required to perform a successful build. They are very useful for
+# development so that units build properly when their dependencies are modified.
+#
+# To use this file, add "-include Makefile.extra" at the bottom of the Makefile
+# produced by autoconf.
+
+php-callback.lo: php-callback.cpp php-callback.h php-type.h php-git2.h \
+ git2-resource.h
+php-git2.lo: php-git2.cpp php-git2.h php-git2-fe.h
+php-object.lo: php-object.cpp php-object.h php-callback.h php-type.h \
+ php-git2.h git2-resource.h
+php-odb-writepack.lo: php-odb-writepack.cpp php-object.h php-callback.h \
+ php-type.h php-git2.h git2-resource.h
+php-odb-backend.lo: php-odb-backend.cpp php-object.h php-callback.h \
+ php-type.h php-git2.h git2-resource.h
+php-odb-stream.lo: php-odb-stream.cpp php-object.h php-type.h php-git2.h \
+ git2-resource.h
+php-writestream.lo: php-odb-stream.cpp php-object.h php-type.h php-git2.h \
+ git2-resource.h
+php-constants.lo: php-git2.h
+
+php-git2-fe.h: php-git2-fe.h repository.h reference.h object.h revwalk.h \
+	packbuilder.h indexer.h odb.h commit.h blob.h \
+	tree.h signature.h treebuilder.h blame.h \
+	revparse.h annotated.h branch.h config-git2.h \
+	clone.h checkout.h tag.h diff.h
+
+#
+# Local Variables:
+# mode:makefile-gmake-mode
+# End:
+#

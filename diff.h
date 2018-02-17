@@ -9,7 +9,6 @@
 
 namespace php_git2
 {
-
     // Specialize resource destructor for git_diff
     template<> inline php_git_diff::~git2_resource()
     {

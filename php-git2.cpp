@@ -5,31 +5,7 @@
  */
 
 #include "php-git2.h"
-#include "php-function.h"
-#include "php-callback.h"
-#include "php-object.h"
-#include "php-rethandler.h"
-#include "repository.h"
-#include "reference.h"
-#include "object.h"
-#include "revwalk.h"
-#include "packbuilder.h"
-#include "indexer.h"
-#include "odb.h"
-#include "commit.h"
-#include "blob.h"
-#include "tree.h"
-#include "signature.h"
-#include "treebuilder.h"
-#include "blame.h"
-#include "revparse.h"
-#include "annotated.h"
-#include "branch.h"
-#include "config-git2.h"
-#include "clone.h"
-#include "checkout.h"
-#include "tag.h"
-#include "diff.h"
+#include "php-git2-fe.h"
 #include <cstdio>
 #include <cstdarg>
 using namespace std;

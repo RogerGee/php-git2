@@ -6,8 +6,7 @@
 
 #ifndef PHPGIT2_REFERENCE_H
 #define PHPGIT2_REFERENCE_H
-#include "php-type.h"
-#include "php-function.h"
+
 extern "C" {
 #include <git2/sys/refs.h>
 }

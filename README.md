@@ -121,7 +121,10 @@ calls down. For a development environment, we recommend something like
 
     ./configure CXXFLAGS='-g -O0 -Wfatal-errors -Wall -Wno-deprecated-register'
 
-This configuration will produce a huge binary, but it will be easier to trace.
+This configuration will produce a huge binary, but it will be easier to
+trace. If you are developing, we also recommend including the
+[Makefile.extra](Makefile.extra) at the bottom of the generated `Makefile`. This
+will give the build system some dependency information that makes life easier.
 
 Windows
 -------
