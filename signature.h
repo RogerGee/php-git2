@@ -127,11 +127,7 @@ static PHP_FUNCTION(git2_signature_convert)
         return;
     }
 
-    array_init(return_value);
-    add_assoc_string(return_value,"name",handle->name,1);
-    add_assoc_string(return_value,"email",handle->email,1);
-    add_assoc_long(return_value,"when.time",handle->when.time);
-    add_assoc_long(return_value,"when.offset",handle->when.offset);
+    php_git2::convert_signature(return_value,handle);
 }
 
 // Function Entries:

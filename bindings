@@ -180,13 +180,13 @@ Legend:
 - git_diff_find_init_options
 + git_diff_find_similar
 + git_diff_foreach
-. git_diff_format_email
++ git_diff_format_email
 - git_diff_format_email_init_options
 + git_diff_free
 + git_diff_from_buffer
 + git_diff_get_delta
 + git_diff_get_perfdata
-. git_diff_get_stats
++ git_diff_get_stats
 . git_diff_index_to_index
 . git_diff_index_to_workdir
 - git_diff_init_options

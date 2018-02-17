@@ -341,6 +341,8 @@ namespace php_git2
     class php_git_diff_perfdata
     {
     public:
+        ZTS_CONSTRUCTOR(php_git_diff_perfdata)
+
         git_diff_perfdata* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
             return &perfdata;
@@ -352,6 +354,75 @@ namespace php_git2
         }
     private:
         git_diff_perfdata perfdata;
+    };
+
+    // Define type to wrap git_diff_format_email_options.
+
+    class php_git_diff_format_email_options:
+        public php_value_base,
+        private php_zts_base
+    {
+    public:
+        php_git_diff_format_email_options(TSRMLS_D):
+            php_zts_base(TSRMLS_C), sig(nullptr)
+        {
+            git_diff_format_email_init_options(&opts,GIT_DIFF_FORMAT_EMAIL_OPTIONS_VERSION);
+        }
+
+        ~php_git_diff_format_email_options()
+        {
+            if (sig != nullptr) {
+                git_signature_free(sig);
+            }
+        }
+
+        const git_diff_format_email_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            if (Z_TYPE_P(value) != IS_ARRAY) {
+                error("array",argno);
+            }
+
+            array_wrapper arr(value);
+
+            GIT2_ARRAY_LOOKUP_LONG(arr,version,opts);
+            GIT2_ARRAY_LOOKUP_LONG(arr,flags,opts);
+            GIT2_ARRAY_LOOKUP_LONG(arr,patch_no,opts);
+            GIT2_ARRAY_LOOKUP_LONG(arr,total_patches,opts);
+            GIT2_ARRAY_LOOKUP_SUBOBJECT(arr,oid,id,opts);
+            GIT2_ARRAY_LOOKUP_STRING(arr,summary,opts);
+            GIT2_ARRAY_LOOKUP_STRING(arr,body,opts);
+
+            if (arr.query("author",sizeof("author"))) {
+                zval* zv = arr.get_zval();
+                git_signature* author;
+
+                if (Z_TYPE_P(zv) == IS_ARRAY) {
+                    sig = convert_signature(arr.get_zval());
+                    if (sig == nullptr) {
+                        error_custom("'author' must be git_signature array",argno);
+                    }
+                    author = sig;
+                }
+                else if (Z_TYPE_P(zv) == IS_RESOURCE) {
+                    php_resource<php_git_signature> sigres ZTS_CTOR;
+
+                    sigres.set_zval(zv);
+                    author = sigres.get_object()->get_handle();
+                }
+                else {
+                    error_custom("expected resource or array for 'author' option",argno);
+                }
+
+                opts.author = author;
+            }
+
+            return &opts;
+        }
+
+    private:
+        git_diff_format_email_options opts;
+        php_git_oid_fromstr oid;
+        git_signature* sig;
     };
 
 } // namespace php_git2
@@ -835,6 +906,23 @@ static constexpr auto ZIF_GIT_DIFF_STATS_TO_BUF = zif_php_git2_function<
     php_git2::sequence<0,0,1,2>
     >;
 
+static constexpr auto ZIF_GIT_DIFF_FORMAT_EMAIL = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_buf*,
+        git_diff*,
+        const git_diff_format_email_options*>::func<git_diff_format_email>,
+    php_git2::local_pack<
+        php_git2::php_git_buf,
+        php_git2::php_resource<php_git2::php_git_diff>,
+        php_git2::php_git_diff_format_email_options
+        >,
+    1,
+    php_git2::sequence<1,2>,
+    php_git2::sequence<0,1,2>,
+    php_git2::sequence<0,0,1>
+    >;
+
 // Function Entries:
 
 #define GIT_DIFF_FE                                                     \
@@ -863,7 +951,8 @@ static constexpr auto ZIF_GIT_DIFF_STATS_TO_BUF = zif_php_git2_function<
     PHP_GIT2_FE(git_diff_stats_deletions,ZIF_GIT_DIFF_STATS_DELETIONS,NULL) \
     PHP_GIT2_FE(git_diff_stats_files_changed,ZIF_GIT_DIFF_STATS_FILES_CHANGED,NULL) \
     PHP_GIT2_FE(git_diff_stats_insertions,ZIF_GIT_DIFF_STATS_INSERTIONS,NULL) \
-    PHP_GIT2_FE(git_diff_stats_to_buf,ZIF_GIT_DIFF_STATS_TO_BUF,NULL)
+    PHP_GIT2_FE(git_diff_stats_to_buf,ZIF_GIT_DIFF_STATS_TO_BUF,NULL)   \
+    PHP_GIT2_FE(git_diff_format_email,ZIF_GIT_DIFF_FORMAT_EMAIL,NULL)
 
 #endif
 

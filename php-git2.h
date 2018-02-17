@@ -156,6 +156,11 @@ namespace php_git2
     void convert_diff_hunk(zval* zv,const git_diff_hunk* hunk);
     void convert_diff_line(zval* zv,const git_diff_line* line);
     void convert_diff_perfdata(zval* zv,const git_diff_perfdata* perfdata);
+    void convert_signature(zval* zv,const git_signature* sig);
+
+    // Helper functions for converting PHP values to git2 values.
+
+    git_signature* convert_signature(zval* zv);
 
 } // namespace php_git2
 

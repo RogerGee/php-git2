@@ -74,6 +74,7 @@ API. Instead a scalar, array or object type is used:
     git_diff_binary_file                           array
     git_diff_hunk                                  array
     git_diff_line                                  array
+    git_diff_format_email_options                  array
 
 For objects, see the later section regarding Classes.
 
@@ -1557,6 +1558,13 @@ git_diff_stats_insertions(resource)
     Returns int
 
 git_diff_stats_to_buf(resource,int,int)
+
+    Returns string
+
+git_diff_format_email(resource,array)
+
+    ** NOTE: The $opts['author'] option can be either an array like those
+       returned from git2_signature_convert() OR a git_signature resource. **
 
     Returns string
 

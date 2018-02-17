@@ -173,6 +173,50 @@ function test_stats() {
     echo git_diff_stats_to_buf($stats,GIT_DIFF_STATS_FULL,80);
 }
 
+function test_format_email() {
+    $repo = git_repository_open_bare(testbed_get_repo_path());
+    $commitNew = git_commit_lookup($repo,'ee5dcbece3fa22760dbe5aca1f0df3a5c1226406');
+    $commitOld = git_commit_lookup($repo,'1a51b105507e293050d6967b4d9ec1ba49ed4e83');
+
+    $treeNew = git_commit_tree($commitNew);
+    $treeOld = git_commit_tree($commitOld);
+    $diff = git_diff_tree_to_tree($repo,$treeOld,$treeNew,null);
+
+    // Test with array signature.
+    $opts = array(
+        'flags' => GIT_DIFF_FORMAT_EMAIL_NONE,
+        'patch_no' => 1,
+        'total_patches' => 1,
+        'id' => str_repeat('a',40),
+        'summary' => 'I did some stuff...',
+        'body' => 'I must be vague about the stuff that I did...',
+        'author' => array(
+            'name' => 'Roger Gee',
+            'email' => 'roger@example.com',
+            'when.time' => time(),
+            'when.offset' => -60 * 6,
+        ),
+    );
+
+    $buf = git_diff_format_email($diff,$opts);
+    var_dump($buf);
+
+    // Test with resource signature.
+    $opts = array(
+        'flags' => GIT_DIFF_FORMAT_EMAIL_NONE,
+        'patch_no' => 2,
+        'total_patches' => 2,
+        'id' => str_repeat('b',40),
+        'summary' => 'I did some more stuff...',
+        'body' => 'I must be vague about the additional stuff that I did...',
+        'author' => git_signature_new(
+            'Buddy Bookworm','buddy@tulsalibrary.org',time(),-123),
+    );
+
+    $buf = git_diff_format_email($diff,$opts);
+    var_dump($buf);
+}
+
 function test_misc() {
     var_dump(git_diff_status_char(GIT_DELTA_ADDED));
     var_dump(git_diff_status_char(GIT_DELTA_IGNORED));
@@ -182,4 +226,5 @@ testbed_test('Diff/blob-to-buffer','Git2Test\Diff\test_blob_to_buffer');
 testbed_test('Diff/from-buffer','Git2Test\Diff\test_from_buffer');
 testbed_test('Diff/tree','Git2Test\Diff\test_tree');
 testbed_test('Diff/stats','Git2Test\Diff\test_stats');
+testbed_test('Diff/format-email','Git2Test\Diff\test_format_email');
 testbed_test('Diff/misc','Git2Test\Diff\test_misc');

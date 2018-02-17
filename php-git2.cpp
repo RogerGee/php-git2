@@ -453,6 +453,56 @@ void php_git2::convert_diff_perfdata(zval* zv,const git_diff_perfdata* perfdata)
     add_assoc_long_ex(zv,"oid_calculations",sizeof("oid_calculations"),perfdata->oid_calculations);
 }
 
+void php_git2::convert_signature(zval* zv,const git_signature* sig)
+{
+    array_init(zv);
+    add_assoc_string(zv,"name",sig->name,1);
+    add_assoc_string(zv,"email",sig->email,1);
+    add_assoc_long(zv,"when.time",sig->when.time);
+    add_assoc_long(zv,"when.offset",sig->when.offset);
+}
+
+git_signature* php_git2::convert_signature(zval* zv)
+{
+    // NOTE: This functions returns nullptr if the PHP array was not formatted
+    // correctly.
+
+    const char* name;
+    const char* email;
+    git_time_t time;
+    int offset;
+    git_signature* sig;
+
+    if (Z_TYPE_P(zv) != IS_ARRAY) {
+        return nullptr;
+    }
+
+    array_wrapper arr(zv);
+
+    if (!arr.query("name",sizeof("name"))) {
+        return nullptr;
+    }
+    name = arr.get_string();
+    if (!arr.query("email",sizeof("email"))) {
+        return nullptr;
+    }
+    email = arr.get_string();
+    if (!arr.query("when.time",sizeof("when.time"))) {
+        return nullptr;
+    }
+    time = arr.get_long();
+    if (!arr.query("when.offset",sizeof("when.offset"))) {
+        return nullptr;
+    }
+    offset = arr.get_long();
+
+    if (git_signature_new(&sig,name,email,time,offset) == -1) {
+        return nullptr;
+    }
+
+    return sig;
+}
+
 /*
  * Local Variables:
  * indent-tabs-mode:nil
