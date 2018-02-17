@@ -63,6 +63,7 @@ static zend_function_entry php_git2_functions[] = {
     GIT_CHECKOUT_FE
     GIT_TAG_FE
     GIT_DIFF_FE
+    GIT_INDEX_FE
     PHP_FE_END
 };
 
@@ -133,7 +134,8 @@ PHP_MINIT_FUNCTION(git2)
         git_config_iterator,
         git_tag,
         git_diff,
-        git_diff_stats >(module_number);
+        git_diff_stats,
+        git_index >(module_number);
 
     // Register all classes provided by this extension.
     php_git2_register_classes(TSRMLS_C);

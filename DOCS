@@ -50,6 +50,7 @@ purpose) are determined by the C++ compiler via 'typeid'.
     git_tag
     git_diff
     git_diff_stats
+    git_index
 
 The following structures are not represented as resources in the PHP
 API. Instead a scalar, array or object type is used:
@@ -1565,6 +1566,88 @@ git_diff_format_email(resource,array)
 
     ** NOTE: The $opts['author'] option can be either an array like those
        returned from git2_signature_convert() OR a git_signature resource. **
+
+    Returns string
+
+----------------------------------------
+[git_index]
+----------------------------------------
+
+git_index_add_bypath(resource,string)
+
+git_index_caps(resource)
+
+    Returns int
+
+git_index_checksum(resource)
+
+    Returns string
+
+git_index_clear(resource)
+
+git_index_conflict_cleanup(resource)
+
+git_index_conflict_remove(resource,string)
+
+git_index_entrycount(resource)
+
+    Returns int
+
+git_index_find(resource,string)
+
+    Returns int
+
+git_index_find_prefix(resource,string)
+
+    Returns int
+
+git_index_free(resource)
+
+git_index_has_conflicts(resource)
+
+    Returns boolean
+
+git_index_new()
+
+    Returns git_index resource
+
+git_index_open(string)
+
+    Returns git_index resource
+
+git_index_owner(resource)
+
+    Returns git_repository resource
+
+git_index_path(resource)
+
+    Returns string
+
+git_index_read(resource,boolean)
+
+git_index_read_tree(resource,resource)
+
+git_index_remove(resource,string,int)
+
+git_index_remove_bypath(resource,string)
+
+git_index_remove_directory(resource,string,int)
+
+git_index_set_caps(resource,int)
+
+git_index_set_version(resource,int)
+
+git_index_version(resource)
+
+    Returns int
+
+git_index_write(resource)
+
+git_index_write_tree(resource)
+
+    Returns string
+
+git_index_write_tree_to(resource,resource)
 
     Returns string
 

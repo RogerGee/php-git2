@@ -521,6 +521,8 @@ namespace php_git2
 #define PHP_GIT2_FE(name,func,arginfo) \
     ZEND_FENTRY(name,(func),arginfo,0)
 
+#define PHP_GIT2_UNIMPLEMENTED(name,func,arginfo)
+
 // Define the base function template for php_git2. It's name has the typical
 // prefix (though this may be unimportant). We cannot use the normal macros
 // since when we instantiate the templates the comma delimiters are interpreted

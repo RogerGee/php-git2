@@ -1078,6 +1078,7 @@ namespace php_git2
     using php_git_tag = git2_resource<git_tag>;
     using php_git_diff = git2_resource<git_diff>;
     using php_git_diff_stats = git2_resource<git_diff_stats>;
+    using php_git_index = git2_resource<git_index>;
 
     // Enumerate nofree versions of certain resource types.
 
