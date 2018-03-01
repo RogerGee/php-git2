@@ -693,6 +693,39 @@ int diff_line_callback::callback(const git_diff_delta* delta,
     return GIT_EUSER;
 }
 
+// index_matched_path_callback
+
+int index_matched_path_callback::callback(const char* path,
+    const char* matched_pathspec,
+    void* payload)
+{
+    php_callback_sync* cb = reinterpret_cast<php_callback_sync*>(payload);
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
+    if (cb != nullptr) {
+        if (Z_TYPE_P(cb->func) == IS_NULL) {
+            // Normal behavior is to add the item.
+            return 0;
+        }
+
+        long r;
+        zval retval;
+        zval_array<3> params ZTS_CTOR;
+
+        params.assign<0>(path,matched_pathspec,cb->data);
+        params.call(cb->func,&retval);
+        convert_to_long(&retval);
+        r = Z_LVAL(retval);
+        zval_dtor(&retval);
+
+        return static_cast<int>(r);
+    }
+
+    return GIT_EUSER;
+}
+
 /*
  * Local Variables:
  * indent-tabs-mode:nil

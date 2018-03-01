@@ -1033,7 +1033,7 @@ namespace php_git2
             }
         }
 
-        git_strarray byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_strarray* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
             const char** lines = php_string_array::byval_git2(argno);
 
@@ -1044,13 +1044,23 @@ namespace php_git2
                 arr.strings[i] = estrdup(lines[i]);
             }
 
-            // Return structure by value. This is still a shallow copy of the
-            // data.
-            return arr;
+            return &arr;
         }
 
     private:
         git_strarray arr;
+    };
+
+    class php_strarray_byval_array:
+        public php_strarray_array
+    {
+    public:
+        git_strarray byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            // Return structure by value. This is still a shallow copy of the
+            // data.
+            return *php_strarray_array::byval_git2(argno);
+        }
     };
 
     // Enumerate all resource types that we'll care about.
@@ -1079,8 +1089,9 @@ namespace php_git2
     using php_git_diff = git2_resource<git_diff>;
     using php_git_diff_stats = git2_resource<git_diff_stats>;
     using php_git_index = git2_resource<git_index>;
+    using php_git_index_entry = git2_resource_nofree<git_index_entry>;
 
-    // Enumerate nofree versions of certain resource types.
+    // Enumerate nofree alternatives of certain resource types.
 
     using php_git_repository_nofree = git2_resource_nofree<git_repository>;
     using php_git_tree_entry_nofree = git2_resource_nofree<git_tree_entry>;

@@ -10,7 +10,6 @@
 
 namespace php_git2
 {
-
     // Provide a type that contains an array of zvals converted from primative
     // values.
 
@@ -513,6 +512,15 @@ namespace php_git2
             const git_diff_delta* delta,
             const git_diff_hunk* hunk,
             const git_diff_line* line,
+            void* payload);
+    };
+
+    struct index_matched_path_callback
+    {
+        typedef git_index_matched_path_cb type;
+        static int callback(
+            const char* path,
+            const char* matched_pathspec,
             void* payload);
     };
 

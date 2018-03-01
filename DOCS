@@ -51,6 +51,7 @@ purpose) are determined by the C++ compiler via 'typeid'.
     git_diff
     git_diff_stats
     git_index
+    git_index_entry
 
 The following structures are not represented as resources in the PHP
 API. Instead a scalar, array or object type is used:
@@ -1573,7 +1574,17 @@ git_diff_format_email(resource,array)
 [git_index]
 ----------------------------------------
 
+git_index_add(resource,resource)
+
+git_index_add_all(resource,array,int,callable,mixed)
+
+    callable(string $path,string $matched_pathspec,mixed $payload)
+
+        Returns int
+
 git_index_add_bypath(resource,string)
+
+git_index_add_frombuffer(resource,resource,string)
 
 git_index_caps(resource)
 
@@ -1585,11 +1596,26 @@ git_index_checksum(resource)
 
 git_index_clear(resource)
 
+git_index_conflict_add(resource,resource,resource,resource)
+
 git_index_conflict_cleanup(resource)
+
+git_index_conflict_get(&resource,&resource,&resource,resource,path)
+
+    ** NOTE: For clarity, this function signature is just like that in the C
+       API. **
 
 git_index_conflict_remove(resource,string)
 
 git_index_entrycount(resource)
+
+    Returns int
+
+git_index_is_conflict(resource)
+
+    Returns boolean
+
+git_index_stage(resource)
 
     Returns int
 
@@ -1602,6 +1628,14 @@ git_index_find_prefix(resource,string)
     Returns int
 
 git_index_free(resource)
+
+git_index_get_byindex(resource,int)
+
+    Returns git_index_entry resource
+
+git_index_get_bypath(resource,string,int)
+
+    Returns git_index_entry resource
 
 git_index_has_conflicts(resource)
 
@@ -1629,6 +1663,10 @@ git_index_read_tree(resource,resource)
 
 git_index_remove(resource,string,int)
 
+git_index_remove_all(resource,array,callable,mixed)
+
+    ** See git_index_add_all() for callback description. **
+
 git_index_remove_bypath(resource,string)
 
 git_index_remove_directory(resource,string,int)
@@ -1636,6 +1674,10 @@ git_index_remove_directory(resource,string,int)
 git_index_set_caps(resource,int)
 
 git_index_set_version(resource,int)
+
+git_index_update_all(resource,array,callable,mixed)
+
+    ** See git_index_add_all() for callback description. **
 
 git_index_version(resource)
 
