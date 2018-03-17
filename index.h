@@ -15,13 +15,19 @@ namespace php_git2
         git_index_free(handle);
     }
 
-    // Specialize resource destructor for git_index_entrt for completeness'
+    // Specialize resource destructor for git_index_entry for completeness'
     // sake. It should never be called by our implementation since a
     // git_index_entry is never freed by our code.
     template<> inline git2_resource<git_index_entry>::~git2_resource()
     {
         throw php_git2_exception(
             "git_index_entry cannot be freed in this implementation");
+    }
+
+    // Specialize resource destructor for git_index_conflict_iterator.
+    template<> inline php_git_index_conflict_iterator::~git2_resource()
+    {
+        git_index_conflict_iterator_free(handle);
     }
 
     // Make an alias for a rethandler that processes git_index_entry.
@@ -156,57 +162,63 @@ static constexpr auto ZIF_GIT_INDEX_CONFLICT_GET = zif_php_git2_function<
         git_index*,
         const char*>::func<git_index_conflict_get>,
     php_git2::local_pack<
-        const php_git2::php_resource_ref<php_git2::php_git_index_entry>,
-        const php_git2::php_resource_ref<php_git2::php_git_index_entry>,
-        const php_git2::php_resource_ref<php_git2::php_git_index_entry>,
+        const php_git2::php_resource_ref_out<php_git2::php_git_index_entry>,
+        const php_git2::php_resource_ref_out<php_git2::php_git_index_entry>,
+        const php_git2::php_resource_ref_out<php_git2::php_git_index_entry>,
         php_git2::php_resource<php_git2::php_git_index>,
         php_git2::php_string
         >,
-    -1,
-    php_git2::sequence<3,4>,
-    php_git2::sequence<0,1,2,3,4>,
-    php_git2::sequence<0,0,0,0,1>
+    -1
     >;
+ZEND_BEGIN_ARG_INFO_EX(git_index_conflict_get_arginfo,0,0,5)
+    ZEND_ARG_PASS_INFO(1)
+    ZEND_ARG_PASS_INFO(1)
+    ZEND_ARG_PASS_INFO(1)
+ZEND_END_ARG_INFO()
 
-/*static constexpr auto ZIF_GIT_INDEX_CONFLICT_ITERATOR_FREE = zif_php_git2_function<
-    php_git2::func_wrapper<
-
-        >::func<git_index_conflict_iterator_free>,
+static constexpr auto ZIF_GIT_INDEX_CONFLICT_ITERATOR_FREE = zif_php_git2_function_free<
     php_git2::local_pack<
-
-        >,
-    -1,
-    php_git2::sequence<>,
-    php_git2::sequence<>,
-    php_git2::sequence<>
+        php_git2::php_resource_cleanup<php_git2::php_git_index_conflict_iterator>
+        >
     >;
 
-static constexpr auto ZIF_GIT_INDEX_CONFLICT_ITERATOR_NEW = zif_php_git2_function<
+static constexpr auto ZIF_GIT_INDEX_CONFLICT_ITERATOR_NEW = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
-
-        >::func<git_index_conflict_iterator_new>,
+        int,
+        git_index_conflict_iterator**,
+        git_index*>::func<git_index_conflict_iterator_new>,
     php_git2::local_pack<
-
+        php_git2::php_resource_ref<php_git2::php_git_index_conflict_iterator>,
+        php_git2::php_resource<php_git2::php_git_index>
         >,
-    -1,
-    php_git2::sequence<>,
-    php_git2::sequence<>,
-    php_git2::sequence<>
+    php_git2::sequence<0,1>, // Make the iterator depend on the index.
+    1,
+    php_git2::sequence<1>,
+    php_git2::sequence<0,1>,
+    php_git2::sequence<0,0>
     >;
 
-static constexpr auto ZIF_GIT_INDEX_CONFLICT_NEXT = zif_php_git2_function<
+static constexpr auto ZIF_GIT_INDEX_CONFLICT_NEXT = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
-
-        >::func<git_index_conflict_next>,
+        int,
+        const git_index_entry**,
+        const git_index_entry**,
+        const git_index_entry**,
+        git_index_conflict_iterator*>::func<git_index_conflict_next>,
     php_git2::local_pack<
-
+        const php_git2::php_resource_ref_out<php_git2::php_git_index_entry>,
+        const php_git2::php_resource_ref_out<php_git2::php_git_index_entry>,
+        const php_git2::php_resource_ref_out<php_git2::php_git_index_entry>,
+        php_git2::php_resource<php_git2::php_git_index_conflict_iterator>
         >,
-    -1,
-    php_git2::sequence<>,
-    php_git2::sequence<>,
-    php_git2::sequence<>
+    php_git2::php_boolean_iterover_rethandler
     >;
-*/
+ZEND_BEGIN_ARG_INFO_EX(git_index_conflict_next_arginfo,0,0,4)
+    ZEND_ARG_PASS_INFO(1)
+    ZEND_ARG_PASS_INFO(1)
+    ZEND_ARG_PASS_INFO(1)
+ZEND_END_ARG_INFO()
+
 static constexpr auto ZIF_GIT_INDEX_CONFLICT_REMOVE = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
@@ -557,10 +569,10 @@ static constexpr auto ZIF_GIT_INDEX_WRITE_TREE_TO = zif_php_git2_function<
     PHP_GIT2_FE(git_index_clear,ZIF_GIT_INDEX_CLEAR,NULL)               \
     PHP_GIT2_FE(git_index_conflict_add,ZIF_GIT_INDEX_CONFLICT_ADD,NULL) \
     PHP_GIT2_FE(git_index_conflict_cleanup,ZIF_GIT_INDEX_CONFLICT_CLEANUP,NULL) \
-    PHP_GIT2_FE(git_index_conflict_get,ZIF_GIT_INDEX_CONFLICT_GET,NULL) \
-    PHP_GIT2_UNIMPLEMENTED(git_index_conflict_iterator_free,ZIF_GIT_INDEX_CONFLICT_ITERATOR_FREE,NULL) \
-    PHP_GIT2_UNIMPLEMENTED(git_index_conflict_iterator_new,ZIF_GIT_INDEX_CONFLICT_ITERATOR_NEW,NULL) \
-    PHP_GIT2_UNIMPLEMENTED(git_index_conflict_next,ZIF_GIT_INDEX_CONFLICT_NEXT,NULL) \
+    PHP_GIT2_FE(git_index_conflict_get,ZIF_GIT_INDEX_CONFLICT_GET,git_index_conflict_get_arginfo) \
+    PHP_GIT2_FE(git_index_conflict_iterator_free,ZIF_GIT_INDEX_CONFLICT_ITERATOR_FREE,NULL) \
+    PHP_GIT2_FE(git_index_conflict_iterator_new,ZIF_GIT_INDEX_CONFLICT_ITERATOR_NEW,NULL) \
+    PHP_GIT2_FE(git_index_conflict_next,ZIF_GIT_INDEX_CONFLICT_NEXT,git_index_conflict_next_arginfo) \
     PHP_GIT2_FE(git_index_conflict_remove,ZIF_GIT_INDEX_CONFLICT_REMOVE,NULL) \
     PHP_GIT2_FE(git_index_entrycount,ZIF_GIT_INDEX_ENTRYCOUNT,NULL)     \
     PHP_GIT2_FE(git_index_entry_is_conflict,ZIF_GIT_INDEX_ENTRY_IS_CONFLICT,NULL) \

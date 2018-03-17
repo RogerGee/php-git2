@@ -81,7 +81,7 @@ namespace php_git2
             resource.get_object()->set_parent(obj.get_object());
 
             return true;
-        }   
+        }
     };
 
     // Provide a rethandler for returning a resource.
@@ -229,10 +229,13 @@ namespace php_git2
     };
 
     // Provide a rethandler that returns false when GIT_ITEROVER is
-    // reached. Provides a variant for returning a value at 'Position' within
-    // the local pack having no dependencies and another variant that returns a
-    // resource at 'Position' within the local pack having dependencies
-    // 'ResourceDeps'.
+    // reached. The following variants are also provided:
+    //  - variant for returning a value at 'Position' within the local pack
+    //    having no dependencies
+    //  - variant that returns a resource at 'Position' within the local pack
+    //    having dependencies 'ResourceDeps'.
+    //  - variant for returning boolean TRUE or FALSE depending on the iter
+    //  - condition.
 
     template<unsigned Position>
     class php_iterover_rethandler
@@ -277,6 +280,26 @@ namespace php_git2
 
             obj.ret(return_value);
             php_set_resource_dependency(pack,ResourceDeps());
+            return true;
+        }
+    };
+
+    class php_boolean_iterover_rethandler
+    {
+    public:
+        template<typename... Ts>
+        bool ret(int retval,zval* return_value,local_pack<Ts...>&)
+        {
+            if (retval != 0) {
+                if (retval != GIT_ITEROVER) {
+                    return false;
+                }
+
+                RETVAL_FALSE;
+                return true;
+            }
+
+            RETVAL_TRUE;
             return true;
         }
     };

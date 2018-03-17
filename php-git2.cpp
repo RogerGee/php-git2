@@ -136,7 +136,8 @@ PHP_MINIT_FUNCTION(git2)
         git_diff,
         git_diff_stats,
         git_index,
-        git_index_entry >(module_number);
+        git_index_entry,
+        git_index_conflict_iterator >(module_number);
 
     // Register all classes provided by this extension.
     php_git2_register_classes(TSRMLS_C);

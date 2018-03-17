@@ -52,6 +52,7 @@ purpose) are determined by the C++ compiler via 'typeid'.
     git_diff_stats
     git_index
     git_index_entry
+    git_index_conflict_iterator
 
 The following structures are not represented as resources in the PHP
 API. Instead a scalar, array or object type is used:
@@ -255,6 +256,10 @@ git_repository_config_snapshot(resource)
     Returns git_config resource
 
 git_repository_set_config(resource,resource)
+
+git_repository_index(resource)
+
+    Returns git_index resource
 
 ----------------------------------------
 [git_reference]
@@ -1602,8 +1607,22 @@ git_index_conflict_cleanup(resource)
 
 git_index_conflict_get(&resource,&resource,&resource,resource,path)
 
-    ** NOTE: For clarity, this function signature is just like that in the C
-       API. **
+    ** NOTE: This function signature is the same as the C API. It doesn't have a
+       return value that we care about. **
+
+git_index_conflict_iterator_free(resource)
+
+git_index_conflict_iterator_new(resource)
+
+    Returns git_index_conflict_iterator resource
+
+git_index_conflict_next(&resource,&resource,&resource,resource)
+
+    ** NOTE: This function signature is the same as the C API. **
+
+    ** The function returns false when iteration is over. **
+
+    Returns bool
 
 git_index_conflict_remove(resource,string)
 

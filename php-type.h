@@ -580,6 +580,11 @@ namespace php_git2
         {
             php_resource_ref<GitResource>::ret(value);
         }
+
+        zval** byref_php(unsigned argno = std::numeric_limits<unsigned>::max()) const
+        {
+            return const_cast<zval**>(&value);
+        }
     };
 
     template<typename GitResource>
@@ -1090,6 +1095,7 @@ namespace php_git2
     using php_git_diff_stats = git2_resource<git_diff_stats>;
     using php_git_index = git2_resource<git_index>;
     using php_git_index_entry = git2_resource_nofree<git_index_entry>;
+    using php_git_index_conflict_iterator = git2_resource<git_index_conflict_iterator>;
 
     // Enumerate nofree alternatives of certain resource types.
 

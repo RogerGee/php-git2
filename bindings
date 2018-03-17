@@ -249,9 +249,9 @@ Legend:
 + git_index_conflict_add
 + git_index_conflict_cleanup
 + git_index_conflict_get
-. git_index_conflict_iterator_free
-. git_index_conflict_iterator_new
-. git_index_conflict_next
++ git_index_conflict_iterator_free
++ git_index_conflict_iterator_new
++ git_index_conflict_next
 + git_index_conflict_remove
 + git_index_entrycount
 + git_index_entry_is_conflict
@@ -583,7 +583,7 @@ Legend:
 + git_repository_head_detached
 + git_repository_head_unborn
 + git_repository_ident
-. git_repository_index
++ git_repository_index
 + git_repository_init
 + git_repository_init_ext
 - git_repository_init_init_options
