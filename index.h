@@ -15,26 +15,122 @@ namespace php_git2
         git_index_free(handle);
     }
 
-    // Specialize resource destructor for git_index_entry for completeness'
-    // sake. It should never be called by our implementation since a
-    // git_index_entry is never freed by our code.
-    template<> inline git2_resource<git_index_entry>::~git2_resource()
-    {
-        throw php_git2_exception(
-            "git_index_entry cannot be freed in this implementation");
-    }
-
     // Specialize resource destructor for git_index_conflict_iterator.
     template<> inline php_git_index_conflict_iterator::~git2_resource()
     {
         git_index_conflict_iterator_free(handle);
     }
 
-    // Make an alias for a rethandler that processes git_index_entry.
-    using php_git_index_entry_rethandler = php_resource_rethandler<
-        php_git_index_entry,
-        const git_index_entry
-        >;
+    // Provide a type for converting user-supplied PHP array into
+    // git_index_entry.
+
+    class php_git_index_entry:
+        public php_value_base
+    {
+    public:
+        php_git_index_entry(TSRMLS_D)
+        {
+            memset(&ent,0,sizeof(git_index_entry));
+        }
+
+        const git_index_entry* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            if (!Z_TYPE_P(value)) {
+                error("array",argno);
+            }
+
+            array_wrapper arr(value);
+            php_git_index_time tm;
+
+            GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(arr,tm,ctime,ent);
+            GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(arr,tm,mtime,ent);
+            GIT2_ARRAY_LOOKUP_LONG(arr,dev,ent);
+            GIT2_ARRAY_LOOKUP_LONG(arr,ino,ent);
+            GIT2_ARRAY_LOOKUP_LONG(arr,mode,ent);
+            GIT2_ARRAY_LOOKUP_LONG(arr,uid,ent);
+            GIT2_ARRAY_LOOKUP_LONG(arr,gid,ent);
+            GIT2_ARRAY_LOOKUP_LONG(arr,file_size,ent);
+            GIT2_ARRAY_LOOKUP_OID(arr,id,ent);
+            GIT2_ARRAY_LOOKUP_LONG(arr,flags,ent);
+            GIT2_ARRAY_LOOKUP_LONG(arr,flags_extended,ent);
+            GIT2_ARRAY_LOOKUP_STRING(arr,path,ent);
+
+            return &ent;
+        }
+    private:
+        git_index_entry ent;
+
+        class php_git_index_time:
+            public php_value_base
+        {
+        public:
+            php_git_index_time(TSRMLS_D)
+            {
+                memset(&tv,0,sizeof(git_index_time));
+            }
+
+            const git_index_time* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+            {
+                assert(Z_TYPE_P(value) == IS_ARRAY);
+
+                array_wrapper arr(value);
+
+                GIT2_ARRAY_LOOKUP_LONG(arr,seconds,tv);
+                GIT2_ARRAY_LOOKUP_LONG(arr,nanoseconds,tv);
+
+                return &tv;
+            }
+
+        private:
+            git_index_time tv;
+        };
+    };
+
+    // Provide a type for converting git_index_entry to PHP array.
+
+    class php_git_index_entry_ref
+    {
+    public:
+        ZTS_CONSTRUCTOR(php_git_index_entry_ref)
+
+        const git_index_entry** byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            return &ent;
+        }
+
+        void ret(zval* return_value)
+        {
+            php_git2::convert_index_entry(return_value,ent);
+        }
+    private:
+        const git_index_entry* ent;
+    };
+
+    class php_git_index_entry_out:
+        public php_value_base,
+        public php_git_index_entry_ref
+    {
+    public:
+        ZTS_CONSTRUCTOR_WITH_BASE(php_git_index_entry_out,php_git_index_entry_ref)
+
+        ~php_git_index_entry_out()
+        {
+            ret(value);
+        }
+    };
+
+    // Provide a rethandler for php_git_index_entry.
+
+    class php_git_index_entry_rethandler
+    {
+    public:
+        template<typename... Ts>
+        bool ret(const git_index_entry* entry,zval* return_value,local_pack<Ts...>& pack)
+        {
+            php_git2::convert_index_entry(return_value,entry);
+            return true;
+        }
+    };
 
 } // namespace php_git2
 
@@ -45,7 +141,7 @@ static constexpr auto ZIF_GIT_INDEX_ADD = zif_php_git2_function<
         const git_index_entry*>::func<git_index_add>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_index>,
-        php_git2::php_resource<php_git2::php_git_index_entry>
+        php_git2::php_git_index_entry
         >
     >;
 
@@ -90,7 +186,7 @@ static constexpr auto ZIF_GIT_INDEX_ADD_FROMBUFFER = zif_php_git2_function<
         size_t>::func<git_index_add_frombuffer>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_index>,
-        php_git2::php_resource<php_git2::php_git_index_entry>,
+        php_git2::php_git_index_entry,
         php_git2::connector_wrapper<php_git2::php_string_length_connector<size_t> >,
         php_git2::php_string
         >,
@@ -138,9 +234,9 @@ static constexpr auto ZIF_GIT_INDEX_CONFLICT_ADD = zif_php_git2_function<
         const git_index_entry*>::func<git_index_conflict_add>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_index>,
-        php_git2::php_resource<php_git2::php_git_index_entry>,
-        php_git2::php_resource<php_git2::php_git_index_entry>,
-        php_git2::php_resource<php_git2::php_git_index_entry>
+        php_git2::php_git_index_entry,
+        php_git2::php_git_index_entry,
+        php_git2::php_git_index_entry
         >
     >;
 
@@ -162,9 +258,9 @@ static constexpr auto ZIF_GIT_INDEX_CONFLICT_GET = zif_php_git2_function<
         git_index*,
         const char*>::func<git_index_conflict_get>,
     php_git2::local_pack<
-        const php_git2::php_resource_ref_out<php_git2::php_git_index_entry>,
-        const php_git2::php_resource_ref_out<php_git2::php_git_index_entry>,
-        const php_git2::php_resource_ref_out<php_git2::php_git_index_entry>,
+        php_git2::php_git_index_entry_out,
+        php_git2::php_git_index_entry_out,
+        php_git2::php_git_index_entry_out,
         php_git2::php_resource<php_git2::php_git_index>,
         php_git2::php_string
         >,
@@ -206,9 +302,9 @@ static constexpr auto ZIF_GIT_INDEX_CONFLICT_NEXT = zif_php_git2_function_rethan
         const git_index_entry**,
         git_index_conflict_iterator*>::func<git_index_conflict_next>,
     php_git2::local_pack<
-        const php_git2::php_resource_ref_out<php_git2::php_git_index_entry>,
-        const php_git2::php_resource_ref_out<php_git2::php_git_index_entry>,
-        const php_git2::php_resource_ref_out<php_git2::php_git_index_entry>,
+        php_git2::php_git_index_entry_out,
+        php_git2::php_git_index_entry_out,
+        php_git2::php_git_index_entry_out,
         php_git2::php_resource<php_git2::php_git_index_conflict_iterator>
         >,
     php_git2::php_boolean_iterover_rethandler
@@ -245,7 +341,7 @@ static constexpr auto ZIF_GIT_INDEX_ENTRY_IS_CONFLICT = zif_php_git2_function_re
         int,
         const git_index_entry*>::func<git_index_entry_is_conflict>,
     php_git2::local_pack<
-        php_git2::php_resource<php_git2::php_git_index_entry>
+        php_git2::php_git_index_entry
         >,
     php_git2::php_boolean_rethandler<int>
     >;
@@ -255,7 +351,7 @@ static constexpr auto ZIF_GIT_INDEX_ENTRY_STAGE = zif_php_git2_function<
         int,
         const git_index_entry*>::func<git_index_entry_stage>,
     php_git2::local_pack<
-        php_git2::php_resource<php_git2::php_git_index_entry>
+        php_git2::php_git_index_entry
         >,
     0
     >;

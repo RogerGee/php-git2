@@ -136,7 +136,6 @@ PHP_MINIT_FUNCTION(git2)
         git_diff,
         git_diff_stats,
         git_index,
-        git_index_entry,
         git_index_conflict_iterator >(module_number);
 
     // Register all classes provided by this extension.
@@ -440,6 +439,43 @@ void php_git2::convert_signature(zval* zv,const git_signature* sig)
     add_assoc_string(zv,"email",sig->email,1);
     add_assoc_long(zv,"when.time",sig->when.time);
     add_assoc_long(zv,"when.offset",sig->when.offset);
+}
+
+void php_git2::convert_index_entry(zval* zv,const git_index_entry* ent)
+{
+    zval* zctime;
+    zval* zmtime;
+    char buf[GIT_OID_HEXSZ + 1];
+
+    MAKE_STD_ZVAL(zctime);
+    MAKE_STD_ZVAL(zmtime);
+
+    array_init(zv);
+    convert_index_time(zctime,&ent->ctime);
+    convert_index_time(zmtime,&ent->mtime);
+    add_assoc_long_ex(zv,"dev",sizeof("dev"),ent->dev);
+    add_assoc_long_ex(zv,"ino",sizeof("ino"),ent->ino);
+    add_assoc_long_ex(zv,"mode",sizeof("mode"),ent->mode);
+    add_assoc_long_ex(zv,"uid",sizeof("uid"),ent->uid);
+    add_assoc_long_ex(zv,"gid",sizeof("gid"),ent->gid);
+    add_assoc_long_ex(zv,"file_size",sizeof("file_size"),ent->file_size);
+    git_oid_tostr(buf,sizeof(buf),&ent->id);
+    add_assoc_string_ex(zv,"id",sizeof("id"),buf,1);
+    add_assoc_long_ex(zv,"flags",sizeof("flags"),ent->flags);
+    add_assoc_long_ex(zv,"flags_extended",sizeof("flags_extended"),ent->flags_extended);
+    if (ent->path != nullptr) {
+        add_assoc_string_ex(zv,"path",sizeof("path"),const_cast<char*>(ent->path),1);
+    }
+    else {
+        add_assoc_null_ex(zv,"path",sizeof("path"));
+    }
+}
+
+void php_git2::convert_index_time(zval* zv,const git_index_time* tv)
+{
+    array_init(zv);
+    add_assoc_long(zv,"seconds",tv->seconds);
+    add_assoc_long(zv,"nanoseconds",tv->nanoseconds);
 }
 
 git_signature* php_git2::convert_signature(zval* zv)

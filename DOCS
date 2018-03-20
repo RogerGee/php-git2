@@ -51,7 +51,6 @@ purpose) are determined by the C++ compiler via 'typeid'.
     git_diff
     git_diff_stats
     git_index
-    git_index_entry
     git_index_conflict_iterator
 
 The following structures are not represented as resources in the PHP
@@ -78,6 +77,7 @@ API. Instead a scalar, array or object type is used:
     git_diff_hunk                                  array
     git_diff_line                                  array
     git_diff_format_email_options                  array
+    git_index_entry                                array
 
 For objects, see the later section regarding Classes.
 
@@ -1579,7 +1579,7 @@ git_diff_format_email(resource,array)
 [git_index]
 ----------------------------------------
 
-git_index_add(resource,resource)
+git_index_add(resource,array)
 
 git_index_add_all(resource,array,int,callable,mixed)
 
@@ -1589,7 +1589,7 @@ git_index_add_all(resource,array,int,callable,mixed)
 
 git_index_add_bypath(resource,string)
 
-git_index_add_frombuffer(resource,resource,string)
+git_index_add_frombuffer(resource,array,string)
 
 git_index_caps(resource)
 
@@ -1601,11 +1601,11 @@ git_index_checksum(resource)
 
 git_index_clear(resource)
 
-git_index_conflict_add(resource,resource,resource,resource)
+git_index_conflict_add(resource,array,array,array)
 
 git_index_conflict_cleanup(resource)
 
-git_index_conflict_get(&resource,&resource,&resource,resource,path)
+git_index_conflict_get(&array,&array,&array,resource,path)
 
     ** NOTE: This function signature is the same as the C API. It doesn't have a
        return value that we care about. **
@@ -1616,7 +1616,7 @@ git_index_conflict_iterator_new(resource)
 
     Returns git_index_conflict_iterator resource
 
-git_index_conflict_next(&resource,&resource,&resource,resource)
+git_index_conflict_next(&array,&array,&array,resource)
 
     ** NOTE: This function signature is the same as the C API. **
 
@@ -1630,11 +1630,11 @@ git_index_entrycount(resource)
 
     Returns int
 
-git_index_is_conflict(resource)
+git_index_is_conflict(array)
 
     Returns boolean
 
-git_index_stage(resource)
+git_index_stage(array)
 
     Returns int
 
@@ -1650,7 +1650,7 @@ git_index_free(resource)
 
 git_index_get_byindex(resource,int)
 
-    Returns git_index_entry resource
+    Returns array (git_index_entry)
 
 git_index_get_bypath(resource,string,int)
 

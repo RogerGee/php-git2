@@ -897,10 +897,10 @@ namespace php_git2
     };
 
     // Provide a type that converts PHP arrays into arrays of git2 objects. The
-    // git2 array is allocated using the PHP allocator and should only be used
-    // in read-only contexts. The memory is designed to persist for the duration
-    // of a function call. The SourceType should be some php_value_base
-    // derivation.
+    // implementation supports arrays of a single type. The git2 array is
+    // allocated using the PHP allocator and should only be used in read-only
+    // contexts. The memory is designed to persist for the duration of a
+    // function call. The SourceType should be some php_value_base derivation.
 
     template<typename SourceType,typename ConvertType>
     class php_array:
@@ -1094,7 +1094,6 @@ namespace php_git2
     using php_git_diff = git2_resource<git_diff>;
     using php_git_diff_stats = git2_resource<git_diff_stats>;
     using php_git_index = git2_resource<git_index>;
-    using php_git_index_entry = git2_resource_nofree<git_index_entry>;
     using php_git_index_conflict_iterator = git2_resource<git_index_conflict_iterator>;
 
     // Enumerate nofree alternatives of certain resource types.

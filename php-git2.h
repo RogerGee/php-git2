@@ -38,6 +38,7 @@ extern "C" {
 #include <string>
 #include <exception>
 #include <cstring>
+#include <cassert>
 
 // Module globals
 ZEND_BEGIN_MODULE_GLOBALS(git2)
@@ -157,6 +158,8 @@ namespace php_git2
     void convert_diff_line(zval* zv,const git_diff_line* line);
     void convert_diff_perfdata(zval* zv,const git_diff_perfdata* perfdata);
     void convert_signature(zval* zv,const git_signature* sig);
+    void convert_index_entry(zval* zv,const git_index_entry* ent);
+    void convert_index_time(zval* zv,const git_index_time* tv);
 
     // Helper functions for converting PHP values to git2 values.
 
