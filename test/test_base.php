@@ -97,6 +97,17 @@ function color_echo($message,$color = COLOR_BLUE) {
     }
 }
 
+function testbed_unit($section,$mixed) {
+    echo '  ';
+    color_echo($section,COLOR_GREEN);
+    if (!is_resource($mixed)) {
+        echo ' => ' . var_export($mixed,true) . PHP_EOL;
+    }
+    else {
+        echo ' => ' . 'Resource of type "' . get_resource_type($mixed) . '"' . PHP_EOL;
+    }
+}
+
 function testbed_test($title,callable $lambda) {
     color_echo("task '$title': started");
 

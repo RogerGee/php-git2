@@ -20,3 +20,4 @@ require_once 'test_packbuilder.php';
 require_once 'test_tag.php';
 require_once 'test_config-backend.php';
 require_once 'test_diff.php';
+require_once 'test_index.php';
