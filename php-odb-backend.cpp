@@ -27,6 +27,16 @@ static zval* odb_backend_read_property(zval* obj,zval* prop,int type,const zend_
 static void odb_backend_write_property(zval* obj,zval* prop,zval* value,const zend_literal* key TSRMLS_DC);
 static int odb_backend_has_property(zval* obj,zval* prop,int chk_type,const zend_literal* key TSRMLS_DC);
 
+// Closure callbacks
+
+struct foreach_callback_info
+{
+    git_odb_foreach_cb callback;
+    void* payload;
+};
+
+static ZEND_FUNCTION(backend_foreach_callback);
+
 // Class method entries
 
 // string GitODBBackend::read(&$type,$oid);
@@ -645,6 +655,57 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     git_odb_foreach_cb cb,void* payload)
 {
     int result = GIT_OK;
+    zval* thisobj = EXTRACT_THISOBJ(backend);
+    zval fname;
+    zval retval;
+    zval* zclosure;
+    zval* zpayload;
+
+    // Create zvals for method call. The payload argument is always a NULL zval
+    // from this context. However this fact should be mostly transparent to the
+    // user since they will just pass it along in their implementation none the
+    // wiser. NOTE: the only time the payload zval is directly useful is if the
+    // PHP engine calls the "for_each()" method, not this function.
+
+    INIT_ZVAL(fname);
+    INIT_ZVAL(retval);
+    ZVAL_STRING(&fname,"for_each",1);
+    MAKE_STD_ZVAL(zclosure);
+    ALLOC_INIT_ZVAL(zpayload);
+
+    {
+        php_closure_object* closureInfo;
+        zval* params[] = { zclosure, zpayload };
+        foreach_callback_info callbackInfo = { cb, payload };
+        derived_context<php_odb_backend_object> ctx(LOOKUP_OBJECT(php_odb_backend_object,thisobj));
+#ifdef ZTS
+        TSRMLS_D = ZTS_MEMBER_CC(ctx.object()->zts); // Make in-scope for call to object_init_ex().
+#endif
+
+        // Set up the closure to call an internal function that will handle
+        // calling the function and passing the payload.
+        object_init_ex(zclosure,php_git2::class_entry[php_git2_closure_obj]);
+        closureInfo = reinterpret_cast<php_closure_object*>
+            (zend_objects_get_address(zclosure TSRMLS_CC));
+        closureInfo->func.type = ZEND_INTERNAL_FUNCTION;
+        closureInfo->func.common.function_name = "php-git2 foreach internal callback";
+        closureInfo->func.common.fn_flags |= ZEND_ACC_CLOSURE;
+        closureInfo->func.common.num_args = 2;
+        closureInfo->func.common.required_num_args = 2;
+        closureInfo->func.internal_function.handler = ZEND_FN(backend_foreach_callback);
+        closureInfo->hasPayload = true;
+        closureInfo->payload = &callbackInfo;
+
+        // Call PHP object instance method.
+        if (call_user_function(NULL,&thisobj,&fname,&retval,2,params TSRMLS_CC) == FAILURE) {
+            result = GIT_ERROR;
+        }
+    }
+
+    zval_dtor(&fname);
+    zval_dtor(&retval);
+    zval_ptr_dtor(&zclosure);
+    zval_ptr_dtor(&zpayload);
 
     return result;
 }
@@ -1472,6 +1533,28 @@ PHP_METHOD(GitODBBackend,free)
         // Avoid double free's later on.
         object->backend = nullptr;
     }
+}
+
+ZEND_FUNCTION(backend_foreach_callback)
+{
+    int retval;
+    char* strOID;
+    int strOIDSize;
+    git_oid oid;
+    php_closure_object* object = LOOKUP_OBJECT(php_closure_object,getThis());
+    const foreach_callback_info* info = reinterpret_cast<const foreach_callback_info*>(object->payload);
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&strOID,&strOIDSize) == FAILURE) {
+        return;
+    }
+
+    // Convert string representation to git2 OID struct.
+    convert_oid_fromstr(&oid,strOID,strOIDSize);
+
+    // Invoke callback. The return value is important so we'll pass it along.
+    retval = (*info->callback)(&oid,info->payload);
+
+    RETVAL_LONG(static_cast<long>(retval));
 }
 
 /*

@@ -1780,17 +1780,19 @@ class GitODBBackend:
             ** Note: this function is not named canonically with git2 since
                "foreach" is a reserved word in PHP. **
 
-            Notes on overridding:
+            Callback signature: int callback(string $id,mixed $payload)
 
-            The callback has the same signature as the method. However some
-            important distinctions apply due to implementation constraints. When
-            the git2 library internally is routed to this method by the
-            extension, the payload will be null even if some underlying value is
-            assigned. In this case the extension takes care of forwarding the
-            payload behind-the-scenes since the payload value cannot be
-            converted to a PHP value (plus, that operation would be wasteful
-            anyway). The payload value only really matters in userspace if
-            userspace initiated the method call itself.
+            Notes on overriding:
+
+            Some important distinctions apply when overriding due to
+            implementation constraints. When the git2 library internally is
+            routed to this method by the extension, the payload will be null
+            even if some underlying value is assigned. In this case the
+            extension takes care of forwarding the payload behind-the-scenes
+            since the payload value cannot be converted to a PHP value (plus,
+            that operation would be wasteful anyway). The payload value only
+            really matters in userspace if userspace initiated the method call
+            itself.
 
             An implementation overriding this method should always pass in the
             payload as the second parameter to the callback so that a userspace

@@ -187,12 +187,15 @@ namespace php_git2
 
     struct php_closure_object : zend_object
     {
+        typedef void (*closure_dstor)(void*);
+
         php_closure_object(zend_class_entry* ce TSRMLS_DC);
         ~php_closure_object();
 
         zend_function func;
         void* payload;
         bool hasPayload;
+        closure_dstor payloadDestructor;
         php_zts_member zts;
 
         static zend_object_handlers handlers;
