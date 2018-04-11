@@ -11,7 +11,8 @@ require_once 'PHPSerializedODB.php';
 
 function test_session_backend() {
     // Create custom backend. NOTE: This backend does not implement its own
-    // writestream() method so we get a fake wstream with for_each().
+    // writestream() method so we get a fake wstream when calling
+    // git_odb_open_wstream().
     $backend = new PHPSerializedODB('odbcustom.test_session_backend');
     $repo = git_repository_new();
     $odb = git_odb_new();
@@ -139,7 +140,36 @@ function test_read_object() {
     var_dump(git_blob_rawcontent($blob));
 }
 
+function test_foreach() {
+    $backend = new PHPSerializedODB('odbcustom.test_session_backend');
+
+    $n = 0;
+    $MAX = 32;
+    $lambda = function($oid,$payload) use(&$n,$MAX) {
+        if ($n < $MAX) {
+            echo "foreach: $oid: $payload" . PHP_EOL;
+        }
+        else if ($n == $MAX) {
+            echo "..." . PHP_EOL;
+        }
+
+        $n += 1;
+    };
+
+    // Call for_each() directly; this doesn't call into git2.
+    $backend->for_each($lambda,33);
+
+    $n = 0;
+
+    // Call for_each() indirectly via odb. This simulates what happens when git2
+    // internally calls into our PHP-based for_each() method.
+    $odb = git_odb_new();
+    git_odb_add_backend($odb,$backend,1);
+    git_odb_foreach($odb,$lambda,-33);
+}
+
 testbed_test('Custom ODB/Copy (Default Stream)','\Git2Test\ODBCustom\test_session_backend');
 testbed_test('Custom ODB/Copy (Custom Stream)','\Git2Test\ODBCustom\test_session_backend_with_stream');
 testbed_test('Custom ODB/Default Writepack','\Git2Test\ODBCustom\test_default_writepack');
 testbed_test('Custom ODB/Read Object','\Git2Test\ODBCustom\test_read_object');
+testbed_test('Custom ODB/Foreach','\Git2Test\ODBCustom\test_foreach');

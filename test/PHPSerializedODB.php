@@ -46,6 +46,12 @@ class PHPSerializedODB extends GitODBBackend {
         return count($this->vars);
     }
 
+    public function for_each($callback,$payload) {
+        foreach (array_keys($this->vars) as $oid) {
+            $callback($oid,$payload);
+        }
+    }
+
     private function getFilePath() {
         return $base = testbed_path('PHPSerializedODB',true) . "/{$this->name}";
     }

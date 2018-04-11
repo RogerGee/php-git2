@@ -59,7 +59,7 @@ int closure_get_closure(zval* obj,zend_class_entry** ce_ptr,zend_function** fptr
     *fptr_ptr = &closure->func;
     *ce_ptr = Z_OBJCE_P(obj); // i.e. php_git2::class_entry[php_git2_closure_obj]
     if (zobj_ptr) {
-        *zobj_ptr = nullptr;
+        *zobj_ptr = obj;
     }
 
     return SUCCESS;

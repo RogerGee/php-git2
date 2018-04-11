@@ -1541,10 +1541,11 @@ ZEND_FUNCTION(backend_foreach_callback)
     char* strOID;
     int strOIDSize;
     git_oid oid;
+    zval* zdummyPayload = nullptr;
     php_closure_object* object = LOOKUP_OBJECT(php_closure_object,getThis());
     const foreach_callback_info* info = reinterpret_cast<const foreach_callback_info*>(object->payload);
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&strOID,&strOIDSize) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s|z",&strOID,&strOIDSize,&zdummyPayload) == FAILURE) {
         return;
     }
 
