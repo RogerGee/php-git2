@@ -76,7 +76,8 @@ static constexpr auto ZIF_GIT_PACKBUILDER_HASH = zif_php_git2_function<
         const git_oid*,
         git_packbuilder*>::func<git_packbuilder_hash>,
     php_git2::local_pack<
-        php_git2::php_resource<php_git2::php_git_packbuilder_with_callback> >,
+        php_git2::php_resource<php_git2::php_git_packbuilder_with_callback>
+        >,
     0
     >;
 
@@ -87,7 +88,8 @@ static constexpr auto ZIF_GIT_PACKBUILDER_INSERT_COMMIT = zif_php_git2_function<
         const git_oid*>::func<git_packbuilder_insert_commit>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_packbuilder_with_callback>,
-        php_git2::php_git_oid_fromstr>
+        php_git2::php_git_oid_fromstr
+        >
     >;
 
 static constexpr auto ZIF_GIT_PACKBUILDER_INSERT_WALK = zif_php_git2_function<
@@ -136,7 +138,9 @@ static constexpr auto ZIF_GIT_PACKBUILDER_INSERT = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_packbuilder_with_callback>,
         php_git2::php_git_oid_fromstr,
-        php_git2::php_nullable_string> >;
+        php_git2::php_nullable_string
+        >
+    >;
 
 static constexpr auto ZIF_GIT_PACKBUILDER_FOREACH = zif_php_git2_function<
     php_git2::func_wrapper<
@@ -147,11 +151,13 @@ static constexpr auto ZIF_GIT_PACKBUILDER_FOREACH = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_packbuilder_with_callback>,
         php_git2::php_callback_handler<php_git2::packbuilder_foreach_callback>,
-        php_git2::php_callback_sync>,
+        php_git2::php_callback_sync
+        >,
     -1,
     php_git2::sequence<0,2,2>, // pass callback in twice for function and payload
     php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,1,2> >;
+    php_git2::sequence<0,1,2>
+    >;
 
 static constexpr auto ZIF_GIT_PACKBUILDER_SET_THREADS = zif_php_git2_function<
     php_git2::func_wrapper<
@@ -179,7 +185,7 @@ static constexpr auto ZIF_GIT_PACKBUILDER_SET_CALLBACKS = zif_php_git2_function<
     -1,
     php_git2::sequence<1,0,0>, // pass callback twice
     php_git2::sequence<1,2,0>,
-    php_git2::sequence<0,1,2>
+    php_git2::sequence<0,0,1>
     >;
 
 static constexpr auto ZIF_GIT_PACKBUILDER_OBJECT_COUNT = zif_php_git2_function<

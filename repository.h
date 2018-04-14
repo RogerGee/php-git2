@@ -564,6 +564,18 @@ static constexpr auto ZIF_GIT_REPOSITORY_INDEX = zif_php_git2_function<
     php_git2::sequence<0,0>
     >;
 
+static constexpr auto ZIF_GIT_REPOSITORY_SET_INDEX = zif_php_git2_function_setdeps_void<
+    php_git2::func_wrapper<
+        void,
+        git_repository*,
+        git_index*>::func<git_repository_set_index>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_repository>,
+        php_git2::php_resource<php_git2::php_git_index>
+        >,
+    php_git2::sequence<1,0> // Make the index dependent on the repository.
+    >;
+
 // Function Entries:
 
 #define GIT_REPOSITORY_FE                                               \
@@ -606,7 +618,8 @@ static constexpr auto ZIF_GIT_REPOSITORY_INDEX = zif_php_git2_function<
     PHP_GIT2_FE(git_repository_config,ZIF_GIT_REPOSITORY_CONFIG,NULL)   \
     PHP_GIT2_FE(git_repository_config_snapshot,ZIF_GIT_REPOSITORY_CONFIG_SNAPSHOT,NULL) \
     PHP_GIT2_FE(git_repository_set_config,ZIF_GIT_REPOSITORY_SET_CONFIG,NULL) \
-    PHP_GIT2_FE(git_repository_index,ZIF_GIT_REPOSITORY_INDEX,NULL)
+    PHP_GIT2_FE(git_repository_index,ZIF_GIT_REPOSITORY_INDEX,NULL)     \
+    PHP_GIT2_FE(git_repository_set_index,ZIF_GIT_REPOSITORY_SET_INDEX,NULL)
 
 #endif
 

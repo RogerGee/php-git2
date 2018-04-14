@@ -922,6 +922,70 @@ static constexpr auto ZIF_GIT_DIFF_FORMAT_EMAIL = zif_php_git2_function<
     php_git2::sequence<0,0,1>
     >;
 
+static constexpr auto ZIF_GIT_DIFF_INDEX_TO_INDEX = zif_php_git2_function_setdeps<
+    php_git2::func_wrapper<
+        int,
+        git_diff**,
+        git_repository*,
+        git_index*,
+        git_index*,
+        const git_diff_options*>::func<git_diff_index_to_index>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_diff>,
+        php_git2::php_resource<php_git2::php_git_repository>,
+        php_git2::php_resource_null<php_git2::php_git_index>,
+        php_git2::php_resource_null<php_git2::php_git_index>,
+        php_git2::php_git_diff_options
+        >,
+    php_git2::sequence<0,1>, // Make the git_diff dependent on the git_repository
+    1,
+    php_git2::sequence<1,2,3,4>,
+    php_git2::sequence<0,1,2,3,4>,
+    php_git2::sequence<0,0,1,2,3>
+    >;
+
+static constexpr auto ZIF_GIT_DIFF_TREE_TO_INDEX = zif_php_git2_function_setdeps<
+    php_git2::func_wrapper<
+        int,
+        git_diff**,
+        git_repository*,
+        git_tree*,
+        git_index*,
+        const git_diff_options*>::func<git_diff_tree_to_index>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_diff>,
+        php_git2::php_resource<php_git2::php_git_repository>,
+        php_git2::php_resource_null<php_git2::php_git_tree>,
+        php_git2::php_resource_null<php_git2::php_git_index>,
+        php_git2::php_git_diff_options
+        >,
+    php_git2::sequence<0,1>, // Make the git_diff dependent on the git_repository
+    1,
+    php_git2::sequence<1,2,3,4>,
+    php_git2::sequence<0,1,2,3,4>,
+    php_git2::sequence<0,0,1,2,3>
+    >;
+
+static constexpr auto ZIF_GIT_DIFF_INDEX_TO_WORKDIR = zif_php_git2_function_setdeps<
+    php_git2::func_wrapper<
+        int,
+        git_diff**,
+        git_repository*,
+        git_index*,
+        const git_diff_options*>::func<git_diff_index_to_workdir>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_diff>,
+        php_git2::php_resource<php_git2::php_git_repository>,
+        php_git2::php_resource_null<php_git2::php_git_index>,
+        php_git2::php_git_diff_options
+        >,
+    php_git2::sequence<0,1>, // Make the git_diff dependent on the git_repository
+    1,
+    php_git2::sequence<1,2,3>,
+    php_git2::sequence<0,1,2,3>,
+    php_git2::sequence<0,0,1,2>
+    >;
+
 // Function Entries:
 
 #define GIT_DIFF_FE                                                     \
@@ -951,7 +1015,10 @@ static constexpr auto ZIF_GIT_DIFF_FORMAT_EMAIL = zif_php_git2_function<
     PHP_GIT2_FE(git_diff_stats_files_changed,ZIF_GIT_DIFF_STATS_FILES_CHANGED,NULL) \
     PHP_GIT2_FE(git_diff_stats_insertions,ZIF_GIT_DIFF_STATS_INSERTIONS,NULL) \
     PHP_GIT2_FE(git_diff_stats_to_buf,ZIF_GIT_DIFF_STATS_TO_BUF,NULL)   \
-    PHP_GIT2_FE(git_diff_format_email,ZIF_GIT_DIFF_FORMAT_EMAIL,NULL)
+    PHP_GIT2_FE(git_diff_format_email,ZIF_GIT_DIFF_FORMAT_EMAIL,NULL)   \
+    PHP_GIT2_FE(git_diff_index_to_index,ZIF_GIT_DIFF_INDEX_TO_INDEX,NULL) \
+    PHP_GIT2_FE(git_diff_tree_to_index,ZIF_GIT_DIFF_TREE_TO_INDEX,NULL) \
+    PHP_GIT2_FE(git_diff_index_to_workdir,ZIF_GIT_DIFF_INDEX_TO_WORKDIR,NULL)
 
 #endif
 

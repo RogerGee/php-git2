@@ -261,6 +261,8 @@ git_repository_index(resource)
 
     Returns git_index resource
 
+git_repository_set_index(resource,resource)
+
 ----------------------------------------
 [git_reference]
 ----------------------------------------
@@ -399,6 +401,22 @@ git_reference_foreach_name(resource,callable,mixed)
 
 git_reference_foreach_glob(resource,string,callable,mixed)
 
+git_reference_symbolic_create(resource,string,string,bool,string)
+
+    Returns git_reference resource
+
+git_reference_symbolic_create_matching(resource,string,string,bool,string,string)
+
+    Returns git_reference resource
+
+git_reference_symbolic_set_target(resource,string,string)
+
+    Returns git_reference resource
+
+git_reference_symbolic_target(resource)
+
+    Returns string
+
 ----------------------------------------
 [git_object]
 ----------------------------------------
@@ -415,6 +433,42 @@ git_object_free(resource)
 git_object_peel(resource,int)
 
     Returns git_object resource
+
+git_object_dup(resource)
+
+    Returns git_object resource
+
+git_object_lookup_bypath(resource,string,int)
+
+    Returns git_object resource
+
+git_object_lookup_prefix(resource,string,int)
+
+    Returns git_object resource
+
+git_object_owner(resource)
+
+    Returns git_repository resource
+
+git_object_short_id(resource)
+
+    Returns string
+
+git_object_string2type(string)
+
+    Returns int
+
+git_object_type(resource)
+
+    Returns int
+
+git_object_type2string(int)
+
+    Returns string
+
+git_object_typeisloose(int)
+
+    Returns bool
 
 ----------------------------------------
 [git_revwalk]
@@ -434,6 +488,28 @@ git_revwalk_sorting(resource,int)
 git_revwalk_reset(resource)
 
 git_revwalk_free(resource)
+
+git_revwalk_add_hide_cb(resource,callable,mixed)
+
+    callback(string $commitId,mixed $payload)
+
+git_revwalk_hide_glob(resource,string)
+
+git_revwalk_hide_head(resource)
+
+git_revwalk_hide_ref(resource,string)
+
+git_revwalk_push_glob(resource,string)
+
+git_revwalk_push_head(resource)
+
+git_revwalk_push_range(resource,string)
+
+git_revwalk_push_ref(resource,string)
+
+git_revwalk_repository(resource)
+
+git_revwalk_simplify_first_parent(resource)
 
 ----------------------------------------
 [git_packbuilder]
@@ -1574,6 +1650,22 @@ git_diff_format_email(resource,array)
        returned from git2_signature_convert() OR a git_signature resource. **
 
     Returns string
+
+git_diff_tree_to_tree(resource,resource|null,resource|null,array|null)
+
+    Returns git_diff resource
+
+git_diff_index_to_index(resource,resource|null,resource|null,array|null)
+
+    Returns git_diff resource
+
+git_diff_tree_to_index(resource,resource|null,resource|null,array|null)
+
+    Returns git_diff resource
+
+git_diff_index_to_workdir(resource,resource|null,array|null)
+
+    Returns git_diff resource
 
 ----------------------------------------
 [git_index]

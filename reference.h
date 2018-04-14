@@ -576,6 +576,86 @@ static constexpr auto ZIF_GIT_REFERENCE_FOREACH_GLOB = zif_php_git2_function<
     php_git2::sequence<0,1,2,3>
     >;
 
+static constexpr auto ZIF_GIT_REFERENCE_SYMBOLIC_CREATE = zif_php_git2_function_setdeps<
+    php_git2::func_wrapper<
+        int,
+        git_reference**,
+        git_repository*,
+        const char*,
+        const char*,
+        int,
+        const char*>::func<git_reference_symbolic_create>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_reference>,
+        php_git2::php_resource<php_git2::php_git_repository>,
+        php_git2::php_string,
+        php_git2::php_string,
+        php_git2::php_bool,
+        php_git2::php_string
+        >,
+    php_git2::sequence<0,1>,
+    1,
+    php_git2::sequence<1,2,3,4,5>,
+    php_git2::sequence<0,1,2,3,4,5>,
+    php_git2::sequence<0,0,1,2,3,4>
+    >;
+
+static constexpr auto ZIF_GIT_REFERENCE_SYMBOLIC_CREATE_MATCHING = zif_php_git2_function_setdeps<
+    php_git2::func_wrapper<
+        int,
+        git_reference**,
+        git_repository*,
+        const char*,
+        const char*,
+        int,
+        const char*,
+        const char*>::func<git_reference_symbolic_create_matching>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_reference>,
+        php_git2::php_resource<php_git2::php_git_repository>,
+        php_git2::php_string,
+        php_git2::php_string,
+        php_git2::php_bool,
+        php_git2::php_string,
+        php_git2::php_string
+        >,
+    php_git2::sequence<0,1>,
+    1,
+    php_git2::sequence<1,2,3,4,5,6>,
+    php_git2::sequence<0,1,2,3,4,5,6>,
+    php_git2::sequence<0,0,1,2,3,4,5>
+    >;
+
+static constexpr auto ZIF_GIT_REFERENCE_SYMBOLIC_SET_TARGET = zif_php_git2_function_setdeps<
+    php_git2::func_wrapper<
+        int,
+        git_reference**,
+        git_reference*,
+        const char*,
+        const char*>::func<git_reference_symbolic_set_target>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_reference>,
+        php_git2::php_resource<php_git2::php_git_reference>,
+        php_git2::php_string,
+        php_git2::php_string
+        >,
+    php_git2::sequence<0,1>,
+    1,
+    php_git2::sequence<1,2,3>,
+    php_git2::sequence<0,1,2,3>,
+    php_git2::sequence<0,0,1,2>
+    >;
+
+static constexpr auto ZIF_GIT_REFERENCE_SYMBOLIC_TARGET = zif_php_git2_function<
+    php_git2::func_wrapper<
+        const char*,
+        const git_reference*>::func<git_reference_symbolic_target>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_reference>
+        >,
+    0
+    >;
+
 // Function Entries:
 
 #define GIT_REFERENCE_FE                                                \
@@ -616,7 +696,11 @@ static constexpr auto ZIF_GIT_REFERENCE_FOREACH_GLOB = zif_php_git2_function<
     PHP_GIT2_FE(git_reference_type,ZIF_GIT_REFERENCE_TYPE,NULL)         \
     PHP_GIT2_FE(git_reference_foreach,ZIF_GIT_REFERENCE_FOREACH,NULL)   \
     PHP_GIT2_FE(git_reference_foreach_name,ZIF_GIT_REFERENCE_FOREACH_NAME,NULL) \
-    PHP_GIT2_FE(git_reference_foreach_glob,ZIF_GIT_REFERENCE_FOREACH_GLOB,NULL)
+    PHP_GIT2_FE(git_reference_foreach_glob,ZIF_GIT_REFERENCE_FOREACH_GLOB,NULL) \
+    PHP_GIT2_FE(git_reference_symbolic_create,ZIF_GIT_REFERENCE_SYMBOLIC_CREATE,NULL) \
+    PHP_GIT2_FE(git_reference_symbolic_create_matching,ZIF_GIT_REFERENCE_SYMBOLIC_CREATE_MATCHING,NULL) \
+    PHP_GIT2_FE(git_reference_symbolic_set_target,ZIF_GIT_REFERENCE_SYMBOLIC_SET_TARGET,NULL) \
+    PHP_GIT2_FE(git_reference_symbolic_target,ZIF_GIT_REFERENCE_SYMBOLIC_TARGET,NULL)
 
 #endif
 

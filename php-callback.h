@@ -304,14 +304,13 @@ namespace php_git2
 
     // This alternate form of php_callback_async writes the callback to the
     // resource object at the end of its lifetime. This allows assignment to an
-    // exiting resource which may not yet exist.
+    // existing resource.
 
     template<typename GitResource>
     class php_callback_async_existing
     {
     public:
-        // Connect to an arbitrary resource type. It must be a newly created
-        // resource (i.e. resource ref).
+        // Connect to an arbitrary resource type.
         using connect_t = php_resource<GitResource>;
         typedef void* target_t;
 
@@ -327,7 +326,7 @@ namespace php_git2
             // Assign php_callback_sync object to resource object. It must have
             // a member called 'cb' to which we have access. This is run here in
             // the destructor to allow the resource wrapper's zval to get
-            // assigned.
+            // assigned properly so we can access the GitResource.
 
             GitResource* rsrc = stor.get_object(
                 std::numeric_limits<unsigned>::max());
@@ -521,6 +520,14 @@ namespace php_git2
         static int callback(
             const char* path,
             const char* matched_pathspec,
+            void* payload);
+    };
+
+    struct revwalk_hide_callback
+    {
+        typedef git_revwalk_hide_cb type;
+        static int callback(
+            const git_oid* commit_id,
             void* payload);
     };
 

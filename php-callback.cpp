@@ -273,7 +273,7 @@ int reference_foreach_callback::callback(git_reference* ref,void* payload)
         r = Z_LVAL(retval);
         zval_dtor(&retval);
 
-        return r;
+        return static_cast<int>(r);
     }
 
     return GIT_EUSER;
@@ -715,6 +715,39 @@ int index_matched_path_callback::callback(const char* path,
         zval_array<3> params ZTS_CTOR;
 
         params.assign<0>(path,matched_pathspec,cb->data);
+        params.call(cb->func,&retval);
+        convert_to_long(&retval);
+        r = Z_LVAL(retval);
+        zval_dtor(&retval);
+
+        return static_cast<int>(r);
+    }
+
+    return GIT_EUSER;
+}
+
+// revwalk_hide_callback
+
+int revwalk_hide_callback::callback(const git_oid* commit_id,void* payload)
+{
+    php_callback_sync* cb = reinterpret_cast<php_callback_sync*>(payload);
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
+    if (cb != nullptr) {
+        if (Z_TYPE_P(cb->func) == IS_NULL) {
+            return 0; // not hidden
+        }
+
+        long r;
+        zval retval;
+        zval_array<2> params ZTS_CTOR;
+        char buf[GIT_OID_HEXSZ + 1];
+
+        git_oid_tostr(buf,sizeof(buf),commit_id);
+        params.assign<0>(buf,cb->data);
+
         params.call(cb->func,&retval);
         convert_to_long(&retval);
         r = Z_LVAL(retval);
