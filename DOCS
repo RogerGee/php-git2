@@ -1455,6 +1455,10 @@ git_checkout_tree(resource,resource,array|null)
 
     ** See notes for git_checkout_head(). **
 
+git_checkout_index(resource,resource,array|null)
+
+    ** See notes for git_checkout_head(). **
+
 ----------------------------------------
 [git_tag]
 ----------------------------------------
@@ -1803,6 +1807,27 @@ git_index_write_tree(resource)
 git_index_write_tree_to(resource,resource)
 
     Returns string
+
+----------------------------------------
+[git_trace]
+----------------------------------------
+
+git_trace_set(int)
+
+    ** NOTE: this function uses the standard PHP error log to write traces. This
+       only works if your libgit2 was built with tracing enabled. **
+
+----------------------------------------
+[git_ignore]
+----------------------------------------
+
+git_ignore_add_rule(resource,string)
+
+git_ignore_clear_internal_rules(resource)
+
+git_ignore_path_is_ignored(resource,string)
+
+    Returns bool
 
 --------------------------------------------------------------------------------
 Class API Reference

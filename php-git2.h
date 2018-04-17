@@ -31,6 +31,7 @@ extern "C" {
 // Include the libgit2 headers. They should be installed on the system already.
 extern "C" {
 #include <git2.h>
+#include <git2/trace.h>
 #include <git2/sys/diff.h>
 }
 

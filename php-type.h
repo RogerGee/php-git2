@@ -316,8 +316,28 @@ namespace php_git2
         {
             RETVAL_LONG((long)n);
         }
+    protected:
+        IntType get_value() const
+        {
+            return n;
+        }
     private:
         IntType n;
+    };
+
+    // Provide a type like php_long_ref that returns bool.
+
+    template<typename IntType>
+    class php_bool_ref:
+        public php_long_ref<IntType>
+    {
+    public:
+        void ret(zval* return_value)
+        {
+            RETVAL_BOOL(get_value());
+        }
+    protected:
+        using php_long_ref<IntType>::get_value;
     };
 
     // Provide a type for returning a numeric value using an out parameter.

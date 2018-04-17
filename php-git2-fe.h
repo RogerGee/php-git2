@@ -33,6 +33,8 @@
 #include "tag.h"
 #include "diff.h"
 #include "index.h"
+#include "trace.h"
+#include "ignore.h"
 
 #endif
 

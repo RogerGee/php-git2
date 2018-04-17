@@ -759,6 +759,25 @@ int revwalk_hide_callback::callback(const git_oid* commit_id,void* payload)
     return GIT_EUSER;
 }
 
+// trace_callback
+
+void trace_callback::callback(git_trace_level_t level,const char* msg)
+{
+    // Just print the trace messages.
+
+	static const char* TRACE_LEVELS[] = {
+        "GIT_TRACE_NONE",
+        "GIT_TRACE_FATAL",
+        "GIT_TRACE_ERROR",
+        "GIT_TRACE_WARN",
+        "GIT_TRACE_INFO",
+        "GIT_TRACE_DEBUG",
+        "GIT_TRACE_TRACE"
+    };
+
+    php_error(E_WARNING,"git2 trace: %s: %s",TRACE_LEVELS[level],msg);
+}
+
 /*
  * Local Variables:
  * indent-tabs-mode:nil

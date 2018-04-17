@@ -64,6 +64,8 @@ static zend_function_entry php_git2_functions[] = {
     GIT_TAG_FE
     GIT_DIFF_FE
     GIT_INDEX_FE
+    GIT_TRACE_FE
+    GIT_IGNORE_FE
     PHP_FE_END
 };
 

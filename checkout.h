@@ -76,11 +76,25 @@ static constexpr auto ZIF_GIT_CHECKOUT_TREE = zif_php_git2_function<
         >
     >;
 
+static constexpr auto ZIF_GIT_CHECKOUT_INDEX = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_repository*,
+        git_index*,
+        const git_checkout_options*>::func<git_checkout_index>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_repository>,
+        php_git2::php_resource<php_git2::php_git_index>,
+        php_git2::php_git_checkout_options
+        >
+    >;
+
 // Function Entries:
 
 #define GIT_CHECKOUT_FE                                         \
     PHP_GIT2_FE(git_checkout_head,ZIF_GIT_CHECKOUT_HEAD,NULL)   \
-    PHP_GIT2_FE(git_checkout_tree,ZIF_GIT_CHECKOUT_TREE,NULL)
+    PHP_GIT2_FE(git_checkout_tree,ZIF_GIT_CHECKOUT_TREE,NULL)   \
+    PHP_GIT2_FE(git_checkout_index,ZIF_GIT_CHECKOUT_INDEX,NULL)
 
 #endif
 

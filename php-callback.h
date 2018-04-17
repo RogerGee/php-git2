@@ -531,6 +531,14 @@ namespace php_git2
             void* payload);
     };
 
+    struct trace_callback
+    {
+        typedef git_trace_callback type;
+        static void callback(
+            git_trace_level_t level,
+            const char* msg);
+    };
+
 } // namespace php_git2
 
 #endif

@@ -22,3 +22,4 @@ require_once 'test_config-backend.php';
 require_once 'test_diff.php';
 require_once 'test_index.php';
 require_once 'test_revwalk.php';
+require_once 'test_ignore.php';
