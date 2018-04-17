@@ -366,18 +366,20 @@ zval* odb_stream_read_property(zval* obj,zval* prop,int type,const zend_literal*
     if (strcmp(str,"mode") == 0 && stream != nullptr) {
         ALLOC_INIT_ZVAL(ret);
         ZVAL_LONG(ret,stream->mode);
+        Z_DELREF_P(ret);
     }
     else if (strcmp(str,"declared_size") == 0 && stream != nullptr) {
         ALLOC_INIT_ZVAL(ret);
         ZVAL_LONG(ret,stream->declared_size);
+        Z_DELREF_P(ret);
     }
     else if (strcmp(str,"received_bytes") == 0 && stream != nullptr) {
         ALLOC_INIT_ZVAL(ret);
         ZVAL_LONG(ret,stream->received_bytes);
+        Z_DELREF_P(ret);
     }
     else if (strcmp(str,"backend") == 0 && stream != nullptr) {
         if (streamWrapper->zbackend != NULL) {
-            Z_ADDREF_P(streamWrapper->zbackend);
             ret = streamWrapper->zbackend;
         }
         else {
@@ -394,9 +396,13 @@ zval* odb_stream_read_property(zval* obj,zval* prop,int type,const zend_literal*
                 php_git2_make_odb_backend(ret,stream->backend,streamWrapper->owner);
 
                 // Assign the object zval to internal storage for possible
-                // lookup later on. We'll need to increase refcount to 2.
-                Z_ADDREF_P(ret);
+                // lookup later on. Leave the refcount at 1 so we can hold a
+                // reference in our 'streamWrapper'. PHP will grab its own
+                // reference later on.
                 streamWrapper->zbackend = ret;
+            }
+            else {
+                Z_DELREF_P(ret);
             }
         }
     }

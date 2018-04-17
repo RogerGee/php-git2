@@ -854,6 +854,7 @@ zval* odb_backend_read_property(zval* obj,zval* prop,int type,const zend_literal
     if (strcmp(str,"version") == 0 && backend != nullptr) {
         ALLOC_INIT_ZVAL(ret);
         ZVAL_LONG(ret,backend->version);
+        Z_DELREF_P(ret);
     }
     else if (strcmp(str,"odb") == 0 && backend != nullptr) {
         if (key != nullptr) {
@@ -890,6 +891,7 @@ zval* odb_backend_read_property(zval* obj,zval* prop,int type,const zend_literal
                     zend_hash_add(Z_OBJPROP_P(obj),"odb",sizeof("odb"),&ret,sizeof(zval*),NULL);
                 }
             }
+            Z_DELREF_P(ret);
         }
     }
     else {

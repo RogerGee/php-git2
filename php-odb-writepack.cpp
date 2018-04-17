@@ -136,6 +136,7 @@ zval* odb_writepack_read_property(zval* obj,zval* prop,int type,const zend_liter
 
         if (ret == nullptr) {
             ALLOC_INIT_ZVAL(ret);
+
             if (writepack->backend != nullptr) {
                 // Create GitODBBackend object instance to represent the
                 // git_odb_backend attached to the writepack. The object does not
@@ -149,6 +150,9 @@ zval* odb_writepack_read_property(zval* obj,zval* prop,int type,const zend_liter
                 else {
                     zend_hash_add(Z_OBJPROP_P(obj),"backend",sizeof("backend"),&ret,sizeof(zval*),NULL);
                 }
+            }
+            else {
+                Z_DELREF_P(ret);
             }
         }
     }
