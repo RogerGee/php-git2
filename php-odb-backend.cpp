@@ -692,6 +692,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
         closureInfo->func.common.fn_flags |= ZEND_ACC_CLOSURE;
         closureInfo->func.common.num_args = 2;
         closureInfo->func.common.required_num_args = 2;
+        closureInfo->func.common.scope = php_git2::class_entry[php_git2_closure_obj];
         closureInfo->func.internal_function.handler = ZEND_FN(backend_foreach_callback);
         closureInfo->hasPayload = true;
         closureInfo->payload = &callbackInfo;
