@@ -771,7 +771,7 @@ php_config_backend_object::
 git_config_backend_php::git_config_backend_php(zval* zv)
 {
     // Blank out the base object to initialize.
-    memset(this,0,sizeof(struct git_odb_backend));
+    memset(this,0,sizeof(struct git_config_backend));
 
     // Assign zval to keep object alive while backend is in use in the library.
     Z_ADDREF_P(zv);
