@@ -539,6 +539,15 @@ namespace php_git2
             const char* msg);
     };
 
+    struct attr_foreach_callback
+    {
+        typedef git_attr_foreach_cb type;
+        static int callback(
+            const char* name,
+            const char* value,
+            void* payload);
+    };
+
 } // namespace php_git2
 
 #endif

@@ -35,6 +35,7 @@
 #include "index.h"
 #include "trace.h"
 #include "ignore.h"
+#include "attr.h"
 
 #endif
 

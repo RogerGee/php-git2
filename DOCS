@@ -1829,6 +1829,24 @@ git_ignore_path_is_ignored(resource,string)
 
     Returns bool
 
+----------------------------------------
+[git_attr]
+----------------------------------------
+
+git_attr_add_macro(resource,string,string)
+
+git_attr_cache_flush(resource)
+
+git_attr_foreach(resource,int,string,callable,mixed)
+
+git_attr_get(resource,int,string,string)
+
+    Returns string
+
+git_attr_value(string)
+
+    Returns int
+
 --------------------------------------------------------------------------------
 Class API Reference
 

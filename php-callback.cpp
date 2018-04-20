@@ -778,6 +778,40 @@ void trace_callback::callback(git_trace_level_t level,const char* msg)
     php_error(E_WARNING,"git2 trace: %s: %s",TRACE_LEVELS[level],msg);
 }
 
+// attr_foreach_callback
+
+int attr_foreach_callback::callback(const char* name,const char* value,void* payload)
+{
+    php_callback_sync* cb = reinterpret_cast<php_callback_sync*>(payload);
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
+    if (cb != nullptr) {
+        if (Z_TYPE_P(cb->func) == IS_NULL) {
+            // Return a non-zero value to stop looping.
+            return 1;
+        }
+
+        long r;
+        zval retval;
+        zval_array<3> params ZTS_CTOR;
+
+        // NOTE: 'value' may be nullptr. The zval_array will handle this
+        // accordingly.
+        params.assign<0>(name,value,cb->data);
+
+        params.call(cb->func,&retval);
+        convert_to_long(&retval);
+        r = Z_LVAL(retval);
+        zval_dtor(&retval);
+
+        return static_cast<int>(r);
+    }
+
+    return GIT_ERROR;
+}
+
 /*
  * Local Variables:
  * indent-tabs-mode:nil
