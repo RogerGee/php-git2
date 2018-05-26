@@ -36,6 +36,7 @@
 #include "trace.h"
 #include "ignore.h"
 #include "attr.h"
+#include "status.h"
 
 #endif
 

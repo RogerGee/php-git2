@@ -67,6 +67,7 @@ static zend_function_entry php_git2_functions[] = {
     GIT_TRACE_FE
     GIT_IGNORE_FE
     GIT_ATTR_FE
+    GIT_STATUS_FE
     PHP_FE_END
 };
 
@@ -139,7 +140,8 @@ PHP_MINIT_FUNCTION(git2)
         git_diff,
         git_diff_stats,
         git_index,
-        git_index_conflict_iterator >(module_number);
+        git_index_conflict_iterator,
+        git_status_list >(module_number);
 
     // Register all classes provided by this extension.
     php_git2_register_classes(TSRMLS_C);
@@ -479,6 +481,29 @@ void php_git2::convert_index_time(zval* zv,const git_index_time* tv)
     array_init(zv);
     add_assoc_long(zv,"seconds",tv->seconds);
     add_assoc_long(zv,"nanoseconds",tv->nanoseconds);
+}
+
+void php_git2::convert_status_entry(zval* zv,const git_status_entry* ent)
+{
+    array_init(zv);
+    add_assoc_long(zv,"status",ent->status);
+
+    if (ent->head_to_index) {
+        zval* zheadToIndex;
+
+        MAKE_STD_ZVAL(zheadToIndex);
+        convert_diff_delta(zheadToIndex,ent->head_to_index);
+
+        add_assoc_zval_ex(zv,"head_to_index",sizeof("head_to_index"),zheadToIndex);
+    }
+    if (ent->index_to_workdir) {
+        zval* zindexToWorkdir;
+
+        MAKE_STD_ZVAL(zindexToWorkdir);
+        convert_diff_delta(zindexToWorkdir,ent->index_to_workdir);
+
+        add_assoc_zval_ex(zv,"index_to_workdir",sizeof("index_to_workdir"),zindexToWorkdir);
+    }
 }
 
 git_signature* php_git2::convert_signature(zval* zv)

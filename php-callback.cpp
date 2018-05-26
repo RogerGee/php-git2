@@ -812,6 +812,38 @@ int attr_foreach_callback::callback(const char* name,const char* value,void* pay
     return GIT_ERROR;
 }
 
+// status_callback
+
+int status_callback::callback(const char* path,unsigned int status_flags,void* payload)
+{
+    php_callback_sync* cb = reinterpret_cast<php_callback_sync*>(payload);
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
+    if (cb != nullptr) {
+        if (Z_TYPE_P(cb->func) == IS_NULL) {
+            // Return a non-zero value to stop looping.
+            return 1;
+        }
+
+        long r;
+        zval retval;
+        zval_array<3> params ZTS_CTOR;
+
+        params.assign<0>(path,status_flags,cb->data);
+        params.call(cb->func,&retval);
+
+        convert_to_long(&retval);
+        r = Z_LVAL(retval);
+        zval_dtor(&retval);
+
+        return static_cast<int>(r);
+    }
+
+    return GIT_ERROR;
+}
+
 /*
  * Local Variables:
  * indent-tabs-mode:nil

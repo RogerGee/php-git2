@@ -314,7 +314,7 @@ namespace php_git2
 
         void ret(zval* return_value)
         {
-            RETVAL_LONG((long)n);
+            RETVAL_LONG(static_cast<long>(n));
         }
     protected:
         IntType get_value() const
@@ -1115,6 +1115,7 @@ namespace php_git2
     using php_git_diff_stats = git2_resource<git_diff_stats>;
     using php_git_index = git2_resource<git_index>;
     using php_git_index_conflict_iterator = git2_resource<git_index_conflict_iterator>;
+    using php_git_status_list = git2_resource<git_status_list>;
 
     // Enumerate nofree alternatives of certain resource types.
 

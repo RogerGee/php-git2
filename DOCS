@@ -52,6 +52,7 @@ purpose) are determined by the C++ compiler via 'typeid'.
     git_diff_stats
     git_index
     git_index_conflict_iterator
+    git_status_list
 
 The following structures are not represented as resources in the PHP
 API. Instead a scalar, array or object type is used:
@@ -78,6 +79,8 @@ API. Instead a scalar, array or object type is used:
     git_diff_line                                  array
     git_diff_format_email_options                  array
     git_index_entry                                array
+    git_status_options                             array
+    git_status_entry                               array
 
 For objects, see the later section regarding Classes.
 
@@ -1846,6 +1849,59 @@ git_attr_get(resource,int,string,string)
 git_attr_value(string)
 
     Returns int
+
+----------------------------------------
+[git_status]
+----------------------------------------
+
+git_status_byindex(resource,int)
+
+    ** The return array has the following structure: **
+
+        array(3) {
+          ["status"]
+          ["head_to_index"]
+            // git_diff_delta array
+          ["index_to_workdir"]
+            // git_diff_delta array
+        }
+
+    Returns array
+
+git_status_file(resource,string)
+
+    The function returns:
+
+        - int: if the path was successfully found, the return value is an
+               integer bitmask containing the status flags
+        - null: the path was ambiguous
+        - false: the path was not found
+
+    Returns mixed
+
+git_status_foreach(resource,callable,mixed)
+
+git_status_foreach_ext(resource,array,callable,mixed)
+
+git_status_list_entrycount(resource)
+
+    Returns int
+
+git_status_list_free(resource)
+
+git_status_list_get_perfdata(resource)
+
+    Returns array
+
+git_status_list_new(resource,array|null)
+
+    ** Note: The options array is optional. **
+
+    Returns resource
+
+git_status_should_ignore(resource,string)
+
+    Returns bool
 
 --------------------------------------------------------------------------------
 Class API Reference

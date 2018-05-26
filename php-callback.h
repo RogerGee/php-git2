@@ -52,6 +52,13 @@ namespace php_git2
         }
 
         template<unsigned I,typename... Ts>
+        void assign(unsigned int h,Ts&&... ts)
+        {
+            ZVAL_LONG(params[I],static_cast<long>(h));
+            assign<I+1>(std::forward<Ts>(ts)...);
+        }
+
+        template<unsigned I,typename... Ts>
         void assign(size_t sz,Ts&&... ts)
         {
             ZVAL_LONG(params[I],sz);
@@ -545,6 +552,15 @@ namespace php_git2
         static int callback(
             const char* name,
             const char* value,
+            void* payload);
+    };
+
+    struct status_callback
+    {
+        typedef git_status_cb type;
+        static int callback(
+            const char* path,
+            unsigned int status_flags,
             void* payload);
     };
 
