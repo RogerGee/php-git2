@@ -29,6 +29,7 @@ namespace php_git2
                 GIT2_ARRAY_LOOKUP_LONG(arr,dir_mode,opts);
                 GIT2_ARRAY_LOOKUP_LONG(arr,file_mode,opts);
                 GIT2_ARRAY_LOOKUP_LONG(arr,file_open_flags,opts);
+                GIT2_ARRAY_LOOKUP_SUBOBJECT(arr,strarray,paths,opts);
                 // TODO Handle git_checkout_notify_cb and payload properties.
                 // TODO Handle git_checkout_progress_cb and payload properties.
                 GIT2_ARRAY_LOOKUP_RESOURCE(arr,php_git_tree,baseline,opts);
@@ -46,6 +47,7 @@ namespace php_git2
         }
     private:
         git_checkout_options opts;
+        php_strarray_byval_array strarray;
     };
 
 } // namespace php_git2
@@ -71,7 +73,7 @@ static constexpr auto ZIF_GIT_CHECKOUT_TREE = zif_php_git2_function<
         const git_checkout_options*>::func<git_checkout_tree>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_resource<php_git2::php_git_object>,
+        php_git2::php_resource_null<php_git2::php_git_object>,
         php_git2::php_git_checkout_options
         >
     >;
@@ -84,7 +86,7 @@ static constexpr auto ZIF_GIT_CHECKOUT_INDEX = zif_php_git2_function<
         const git_checkout_options*>::func<git_checkout_index>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_resource<php_git2::php_git_index>,
+        php_git2::php_resource_null<php_git2::php_git_index>,
         php_git2::php_git_checkout_options
         >
     >;

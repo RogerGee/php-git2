@@ -108,6 +108,16 @@ function testbed_unit($section,$mixed) {
     }
 }
 
+function testbed_modify_file($repo,$path) {
+    if (git_repository_is_bare($repo)) {
+        throw new Exception('testbed_modify_file: Repository must have working tree');
+    }
+
+    $repoPath = realpath(git_repository_path($repo) . DIRECTORY_SEPARATOR . '..');
+    $path = $repoPath . DIRECTORY_SEPARATOR . $path;
+    file_put_contents($path,'modification' . PHP_EOL,FILE_APPEND);
+}
+
 function testbed_test($title,callable $lambda) {
     color_echo("task '$title': started");
 
