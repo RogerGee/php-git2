@@ -77,7 +77,7 @@ define('COLOR_RED',31);
 define('COLOR_GREEN',32);
 define('COLOR_YELLOW',33);
 define('COLOR_BLUE',34);
-function color_echo($message,$color = COLOR_BLUE) {
+function color_echo($message,$color = COLOR_BLUE,$prefix = 'git2: test: ') {
     static $hasTerminal = null;
 
     if (is_null($hasTerminal)) {
@@ -91,20 +91,33 @@ function color_echo($message,$color = COLOR_BLUE) {
     if ($hasTerminal) {
         echo "\033[1m\033[{$color}m";
     }
-    echo "\ngit2: test: $message\n\n";
+    echo "\n$prefix$message\n\n";
     if ($hasTerminal) {
         echo "\033[0m";
     }
 }
 
 function testbed_unit($section,$mixed) {
-    echo '  ';
-    color_echo($section,COLOR_GREEN);
+    $tab = '  ';
+    color_echo("$section",COLOR_GREEN,"{$tab}unit: ");
+    $tab = "$tab$tab";
     if (!is_resource($mixed)) {
-        echo ' => ' . var_export($mixed,true) . PHP_EOL;
+        $text = var_export($mixed,true);
     }
     else {
-        echo ' => ' . 'Resource of type "' . get_resource_type($mixed) . '"' . PHP_EOL;
+        $text = 'Resource of type "' . get_resource_type($mixed) . '"' . PHP_EOL;
+    }
+
+    echo "$tab => ";
+    $lines = explode("\n",$text);
+    if (count($lines) == 1) {
+        echo $lines[0] . PHP_EOL;
+    }
+    else {
+        echo PHP_EOL;
+        for ($i = 0;$i < count($lines);++$i) {
+            echo "$tab$tab" . $lines[$i] . PHP_EOL;
+        }
     }
 }
 
