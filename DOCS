@@ -1903,6 +1903,70 @@ git_status_should_ignore(resource,string)
 
     Returns bool
 
+----------------------------------------
+[git_cherrypick]
+----------------------------------------
+
+git_cherrypick(resource,resource,array|null)
+
+git_cherrypick_commit(resource,resource,resource,int,array|null)
+
+    Returns git_index resource
+
+----------------------------------------
+[git_merge]
+----------------------------------------
+
+git_merge(resource,array,array|null,array|null)
+
+git_merge_analysis(int&,resource,array)
+
+    The git_merge_preference_t value is returned throught the first parameter.
+
+    Returns int (the git_merge_analysis_t value)
+
+git_merge_base()
+
+git_merge_base_many()
+
+git_merge_base_octopus()
+
+git_merge_bases()
+
+git_merge_bases_many()
+
+git_merge_commits()
+
+git_merge_driver_lookup()
+
+git_merge_driver_register()
+
+git_merge_driver_source_ancestor()
+
+git_merge_driver_source_file_options()
+
+git_merge_driver_source_ours()
+
+git_merge_driver_source_repo()
+
+git_merge_driver_source_theirs()
+
+git_merge_driver_unregister()
+
+git_merge_file()
+
+git_merge_file_from_index()
+
+git_merge_file_init_input()
+
+git_merge_file_init_options()
+
+git_merge_file_result_free()
+
+git_merge_init_options()
+
+git_merge_trees()
+
 --------------------------------------------------------------------------------
 Class API Reference
 

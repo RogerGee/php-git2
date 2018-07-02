@@ -37,6 +37,8 @@
 #include "ignore.h"
 #include "attr.h"
 #include "status.h"
+#include "cherrypick.h"
+#include "merge.h"
 
 #endif
 

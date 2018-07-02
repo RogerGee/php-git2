@@ -68,6 +68,8 @@ static zend_function_entry php_git2_functions[] = {
     GIT_IGNORE_FE
     GIT_ATTR_FE
     GIT_STATUS_FE
+    GIT_CHERRYPICK_FE
+    GIT_MERGE_FE
     PHP_FE_END
 };
 

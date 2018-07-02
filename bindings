@@ -75,9 +75,9 @@ Legend:
 + git_checkout_index
 - git_checkout_init_options
 + git_checkout_tree
-. git_cherrypick
-. git_cherrypick_commit
-. git_cherrypick_init_options
++ git_cherrypick
++ git_cherrypick_commit
+- git_cherrypick_init_options
 + git_clone
 - git_clone_init_options
 + git_commit_amend
@@ -292,8 +292,8 @@ Legend:
 - git_mempack_dump
 - git_mempack_new
 - git_mempack_reset
-. git_merge
-. git_merge_analysis
++ git_merge
++ git_merge_analysis
 . git_merge_base
 . git_merge_base_many
 . git_merge_base_octopus
