@@ -34,6 +34,7 @@ namespace php_git2
 
         const char* get_string() const;
         const char* get_string_nullable() const;
+        int get_string_length() const;
         long get_long() const;
         zval* get_zval() const;
         void get_oid(git_oid* out) const;
@@ -41,6 +42,7 @@ namespace php_git2
         HashTable* ht;
         zval** zvp;
         mutable zval tmp;
+        mutable bool usesTmp;
 
         zval* copy_if_not_type(int type) const;
     };
@@ -67,6 +69,12 @@ namespace php_git2
 #define GIT2_ARRAY_INDEX_STRING_NULLABLE(wrapper,index,name,var)    \
     if (wrapper.query(index)) {                                     \
         var.name = wrapper.get_string_nullable();                   \
+    }
+
+#define GIT2_ARRAY_LOOKUP_STRING_WITH_LENGTH(wrapper,name,len,var)  \
+    if (wrapper.query(#name,sizeof(#name))) {                       \
+        var.name = wrapper.get_string();                            \
+        var.len = wrapper.get_string_length();                      \
     }
 
 #define GIT2_ARRAY_LOOKUP_LONG(wrapper,name,var)                        \

@@ -508,6 +508,20 @@ void php_git2::convert_status_entry(zval* zv,const git_status_entry* ent)
     }
 }
 
+void php_git2::convert_merge_file_result(zval* zv,const git_merge_file_result* res)
+{
+    array_init(zv);
+    add_assoc_bool(zv,"automergeable",res->automergeable);
+    if (res->path == nullptr) {
+        add_assoc_null(zv,"path");
+    }
+    else {
+        add_assoc_string(zv,"path",const_cast<char*>(res->path),1);
+    }
+    add_assoc_long(zv,"mode",res->mode);
+    add_assoc_stringl(zv,"ptr",const_cast<char*>(res->ptr),res->len,1);
+}
+
 git_signature* php_git2::convert_signature(zval* zv)
 {
     // NOTE: This functions returns nullptr if the PHP array was not formatted

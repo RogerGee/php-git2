@@ -81,6 +81,11 @@ API. Instead a scalar, array or object type is used:
     git_index_entry                                array
     git_status_options                             array
     git_status_entry                               array
+    git_cherrypick_options                         array
+    git_merge_options                              array
+    git_merge_file_options                         array
+    git_merge_file_input                           array
+    git_merge_file_result                          array
 
 For objects, see the later section regarding Classes.
 
@@ -1925,17 +1930,35 @@ git_merge_analysis(int&,resource,array)
 
     Returns int (the git_merge_analysis_t value)
 
-git_merge_base()
+git_merge_base(resource,string,string)
 
-git_merge_base_many()
+    Returns string
 
-git_merge_base_octopus()
+git_merge_base_many(resource,array)
 
-git_merge_bases()
+    ** NOTE: the 2nd argument is an array of strings **
 
-git_merge_bases_many()
+    Returns string
 
-git_merge_commits()
+git_merge_base_octopus(resource,array)
+
+    ** NOTE: the 2nd argument is an array of strings **
+
+    Returns string
+
+git_merge_bases(resource,string,string)
+
+    Returns array
+
+git_merge_bases_many(resource,array)
+
+    ** NOTE: the 2nd argument is an array of strings **
+
+    Returns array
+
+git_merge_commits(resource,resource,resource,array|null)
+
+    Returns git_index resource
 
 git_merge_driver_lookup()
 
@@ -1953,19 +1976,20 @@ git_merge_driver_source_theirs()
 
 git_merge_driver_unregister()
 
-git_merge_file()
+git_merge_file(array,array,array,array|null)
 
-git_merge_file_from_index()
+    ** NOTE: the git_merge_file_input contains a member "ptr" that encapsulates
+       both "ptr" and "size" from the C structure. **
 
-git_merge_file_init_input()
+    Returns array (git_merge_file_result)
 
-git_merge_file_init_options()
+git_merge_file_from_index(resource,array,array,array,array|null)
 
-git_merge_file_result_free()
+    Returns array (git_merge_file_result)
 
-git_merge_init_options()
+git_merge_trees(resource,resource|null,resource,resource,array|null)
 
-git_merge_trees()
+    Returns git_index resource
 
 --------------------------------------------------------------------------------
 Class API Reference

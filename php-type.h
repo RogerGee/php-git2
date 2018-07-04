@@ -778,6 +778,16 @@ namespace php_git2
         git_oid oid;
     };
 
+    class php_git_oid_byval_fromstr:
+        public php_git_oid_fromstr
+    {
+    public:
+        git_oid byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            return *php_git_oid_fromstr::byval_git2(argno);
+        }
+    };
+
     class php_git_oid_fromstr_nullable:
         public php_git_oid_fromstr
     {
@@ -839,6 +849,37 @@ namespace php_git2
         }
     private:
         git_strarray arr;
+    };
+
+    // Wrap 'git_oidarray' and provide conversions to PHP userspace array. Note
+    // that we never accept this type from userspace.
+
+    class php_oidarray
+    {
+    public:
+        ZTS_CONSTRUCTOR(php_oidarray)
+
+        ~php_oidarray()
+        {
+            git_oidarray_free(&arr);
+        }
+
+        git_oidarray* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            return &arr;
+        }
+
+        void ret(zval* return_value) const
+        {
+            array_init(return_value);
+            for (size_t i = 0;i < arr.count;++i) {
+                char buf[GIT_OID_HEXSZ + 1];
+                git_oid_tostr(buf,sizeof(buf),arr.ids + i);
+                add_next_index_string(return_value,buf,1);
+            }
+        }
+    private:
+        git_oidarray arr;
     };
 
     // Wrap 'git_buf' and make it to convert to a PHP string.
@@ -1029,15 +1070,23 @@ namespace php_git2
     template<typename WrapperType>
     using php_resource_array = php_array<
         php_resource<WrapperType>,
-        typename WrapperType::const_git2_type>;
+        typename WrapperType::const_git2_type
+        >;
 
     using php_oid_array = php_array<
         php_git_oid_fromstr,
-        const git_oid*>;
+        const git_oid*
+        >;
+
+    using php_oid_byval_array = php_array<
+        php_git_oid_byval_fromstr,
+        git_oid
+        >;
 
     using php_string_array = php_array<
         php_string,
-        const char*>;
+        const char*
+        >;
 
     class php_strarray_array:
         public php_string_array

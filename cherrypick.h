@@ -19,7 +19,7 @@ namespace php_git2
         public php_value_base
     {
     public:
-        php_git_cherrypick_options()
+        php_git_cherrypick_options(TSRMLS_D)
         {
             git_cherrypick_init_options(&opts,GIT_CHERRYPICK_OPTIONS_VERSION);
         }
