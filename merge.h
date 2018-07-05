@@ -192,6 +192,9 @@ static constexpr auto ZIF_GIT_MERGE_ANALYSIS = zif_php_git2_function<
     php_git2::sequence<0,1,2,4,3>,
     php_git2::sequence<0,0,1,2,0>
     >;
+ZEND_BEGIN_ARG_INFO_EX(git_merge_analysis_arginfo,0,0,3)
+    ZEND_ARG_PASS_INFO(1)
+ZEND_END_ARG_INFO()
 
 static constexpr auto ZIF_GIT_MERGE_BASE = zif_php_git2_function<
     php_git2::func_wrapper<
@@ -497,7 +500,7 @@ static constexpr auto ZIF_GIT_MERGE_TREES = zif_php_git2_function<
 
 #define GIT_MERGE_FE                                                    \
     PHP_GIT2_FE(git_merge,ZIF_GIT_MERGE,NULL)                           \
-    PHP_GIT2_FE(git_merge_analysis,ZIF_GIT_MERGE_ANALYSIS,NULL)         \
+    PHP_GIT2_FE(git_merge_analysis,ZIF_GIT_MERGE_ANALYSIS,git_merge_analysis_arginfo) \
     PHP_GIT2_FE(git_merge_base,ZIF_GIT_MERGE_BASE,NULL)                 \
     PHP_GIT2_FE(git_merge_base_many,ZIF_GIT_MERGE_BASE_MANY,NULL)       \
     PHP_GIT2_FE(git_merge_base_octopus,ZIF_GIT_MERGE_BASE_OCTOPUS,NULL) \
