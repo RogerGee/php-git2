@@ -70,6 +70,7 @@ static zend_function_entry php_git2_functions[] = {
     GIT_STATUS_FE
     GIT_CHERRYPICK_FE
     GIT_MERGE_FE
+    GIT_NOTE_FE
     PHP_FE_END
 };
 
@@ -143,7 +144,9 @@ PHP_MINIT_FUNCTION(git2)
         git_diff_stats,
         git_index,
         git_index_conflict_iterator,
-        git_status_list >(module_number);
+        git_status_list,
+        git_note,
+        git_note_iterator >(module_number);
 
     // Register all classes provided by this extension.
     php_git2_register_classes(TSRMLS_C);

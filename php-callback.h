@@ -564,6 +564,15 @@ namespace php_git2
             void* payload);
     };
 
+    struct note_foreach_callback
+    {
+        typedef git_note_foreach_cb type;
+        static int callback(
+            const git_oid* blob_id,
+            const git_oid* annotated_object_id,
+            void* payload);
+    };
+
 } // namespace php_git2
 
 #endif

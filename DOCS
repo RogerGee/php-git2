@@ -1924,7 +1924,7 @@ git_cherrypick_commit(resource,resource,resource,int,array|null)
 
 git_merge(resource,array,array|null,array|null)
 
-git_merge_analysis(int&,resource,array)
+git_merge_analysis(&int,resource,array)
 
     The git_merge_preference_t value is returned throught the first parameter.
 
@@ -1960,22 +1960,6 @@ git_merge_commits(resource,resource,resource,array|null)
 
     Returns git_index resource
 
-git_merge_driver_lookup()
-
-git_merge_driver_register()
-
-git_merge_driver_source_ancestor()
-
-git_merge_driver_source_file_options()
-
-git_merge_driver_source_ours()
-
-git_merge_driver_source_repo()
-
-git_merge_driver_source_theirs()
-
-git_merge_driver_unregister()
-
 git_merge_file(array,array,array,array|null)
 
     ** NOTE: the git_merge_file_input contains a member "ptr" that encapsulates
@@ -1990,6 +1974,53 @@ git_merge_file_from_index(resource,array,array,array,array|null)
 git_merge_trees(resource,resource|null,resource,resource,array|null)
 
     Returns git_index resource
+
+----------------------------------------
+[git_note]
+----------------------------------------
+
+git_note_author(resource)
+
+    Returns git_signature resource
+
+git_note_committer(resource)
+
+    Returns git_signature resource
+
+git_note_create(resource,string|null,resource,resource,string,string,bool)
+
+    Returns string
+
+git_note_foreach(resource,string|null,callable,mixed)
+
+git_note_free(resource)
+
+git_note_id(resource)
+
+    Returns string
+
+git_note_iterator_free(resource)
+
+git_note_iterator_new(resource,string|null)
+
+    Returns git_note_iterator resource
+
+git_note_message(resource)
+
+    Returns string
+
+git_note_next(&string,resource)
+
+    ** NOTE: This function returns the note_id directly and assigns the
+       annotated_id to the first argument. **
+
+    Returns string
+
+git_note_read(resource,string|null,string)
+
+    Returns git_note resource
+
+git_note_remove(resource,string|null,resource,resource,string)
 
 --------------------------------------------------------------------------------
 Class API Reference

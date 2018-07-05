@@ -39,6 +39,7 @@
 #include "status.h"
 #include "cherrypick.h"
 #include "merge.h"
+#include "note.h"
 
 #endif
 

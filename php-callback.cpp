@@ -844,6 +844,43 @@ int status_callback::callback(const char* path,unsigned int status_flags,void* p
     return GIT_ERROR;
 }
 
+// note_foreach_callback
+
+int note_foreach_callback::callback(const git_oid* blob_id,
+    const git_oid* annotated_object_id,void* payload)
+{
+    php_callback_sync* cb = reinterpret_cast<php_callback_sync*>(payload);
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
+    if (cb != nullptr) {
+        if (Z_TYPE_P(cb->func) == IS_NULL) {
+            return GIT_OK;
+        }
+
+        long r;
+        zval retval;
+        zval_array<2> params ZTS_CTOR;
+        char buf[GIT_OID_HEXSZ + 1];
+
+        git_oid_tostr(buf,sizeof(buf),blob_id);
+        ZVAL_STRING(params[0],buf,1);
+        git_oid_tostr(buf,sizeof(buf),annotated_object_id);
+        ZVAL_STRING(params[1],buf,1);
+        params.assign<2>(cb->data);
+        params.call(cb->func,&retval);
+
+        convert_to_long(&retval);
+        r = Z_LVAL(retval);
+        zval_dtor(&retval);
+
+        return static_cast<int>(r);
+    }
+
+    return GIT_ERROR;
+}
+
 /*
  * Local Variables:
  * indent-tabs-mode:nil
