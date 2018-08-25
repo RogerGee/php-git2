@@ -68,6 +68,7 @@ void php_git2::php_git2_register_classes(TSRMLS_D)
     INIT_CLASS_ENTRY(ce,"GitODBBackend",odb_backend_methods);
     pce = zend_register_internal_class(&ce TSRMLS_CC);
     php_git2::class_entry[php_git2_odb_backend_obj] = pce;
+    //pce->ce_flags |= ZEND_ACC_IMPLICIT_ABSTRACT_CLASS;
     memcpy(&php_odb_backend_object::handlers,stdhandlers,sizeof(zend_object_handlers));
     pce->create_object = php_create_object_handler<php_odb_backend_object>;
     php_odb_backend_object::init(pce);
@@ -97,6 +98,24 @@ void php_git2::php_git2_register_classes(TSRMLS_D)
     memcpy(&php_config_backend_object::handlers,stdhandlers,sizeof(zend_object_handlers));
     pce->create_object = php_create_object_handler<php_config_backend_object>;
     php_config_backend_object::init(pce);
+
+    // abstract class GitRefDBBackend
+    INIT_CLASS_ENTRY(ce,"GitRefDBBackend",refdb_backend_methods);
+    pce = zend_register_internal_class(&ce TSRMLS_CC);
+    php_git2::class_entry[php_git2_refdb_backend_obj] = pce;
+    pce->ce_flags |= ZEND_ACC_IMPLICIT_ABSTRACT_CLASS;
+    memcpy(&php_refdb_backend_object::handlers,stdhandlers,sizeof(zend_object_handlers));
+    pce->create_object = php_create_object_handler<php_refdb_backend_object>;
+    php_refdb_backend_object::init(pce);
+
+    // final class GitRefDBBackend_Internal extends GitRefDBBackend
+    INIT_CLASS_ENTRY(ce,"GitRefDBBackend_Internal",refdb_backend_internal_methods);
+    pce = zend_register_internal_class_ex(
+        &ce,
+        php_git2::class_entry[php_git2_refdb_backend_obj],
+        nullptr TSRMLS_CC);
+    php_git2::class_entry[php_git2_refdb_backend_internal_obj] = pce;
+    pce->ce_flags |= ZEND_ACC_FINAL_CLASS;
 
     // final class GitClosure
     INIT_CLASS_ENTRY(ce,"GitClosure",closure_methods);

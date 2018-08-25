@@ -26,6 +26,10 @@ php-odb-stream.lo: php-odb-stream.cpp php-object.h php-type.h php-git2.h \
 php-writestream.lo: php-odb-stream.cpp php-object.h php-type.h php-git2.h \
  git2-resource.h
 php-constants.lo: php-git2.h
+php-refdb-backend.lo: php-refdb-backend.cpp php-object.h php-type.h php-git2.h \
+	git2-resource.h
+php-refdb-backend-internal.lo: php-refdb-backend-internal.cpp php-object.h \
+	php-type.h php-git2.h git2-resource.h
 
 #
 # Local Variables:
