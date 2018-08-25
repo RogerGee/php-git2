@@ -3,11 +3,14 @@
 namespace Git2Test\ODBCustom;
 
 use DateTime;
+use Exception;
+use PHPEmptyODB;
 use PHPSerializedODB;
 use PHPSerializedODB_WithStream;
 
 require_once 'test_base.php';
 require_once 'PHPSerializedODB.php';
+require_once 'PHPEmptyODB.php';
 
 function test_session_backend() {
     // Create custom backend. NOTE: This backend does not implement its own
@@ -19,6 +22,9 @@ function test_session_backend() {
 
     git_odb_add_backend($odb,$backend,1);
     git_repository_set_odb($repo,$odb);
+
+    testbed_unit('backend->version',$backend->version);
+    testbed_unit('backend->odb',$backend->odb);
 
     // Create a blob in the repository.
     $data =<<<EOF
@@ -168,8 +174,30 @@ function test_foreach() {
     git_odb_foreach($odb,$lambda,-33);
 }
 
+function test_empty() {
+    global $HASH;
+    $backend = new PHPEmptyODB;
+    $repo = git_repository_new();
+    $odb = git_odb_new();
+
+    git_odb_add_backend($odb,$backend,1);
+    git_repository_set_odb($repo,$odb);
+
+    testbed_unit('backend->version',$backend->version);
+    testbed_unit('backend->odb',$backend->odb);
+
+    try {
+        // This should fail because the custom ODB does not implement anything.
+        $data = "Hello!";
+        $oid = git_blob_create_frombuffer($repo,$data);
+    } catch (Exception $ex) {
+        echo $ex->getMessage() . PHP_EOL;
+    }
+}
+
 testbed_test('Custom ODB/Copy (Default Stream)','\Git2Test\ODBCustom\test_session_backend');
 testbed_test('Custom ODB/Copy (Custom Stream)','\Git2Test\ODBCustom\test_session_backend_with_stream');
 testbed_test('Custom ODB/Default Writepack','\Git2Test\ODBCustom\test_default_writepack');
 testbed_test('Custom ODB/Read Object','\Git2Test\ODBCustom\test_read_object');
 testbed_test('Custom ODB/Foreach','\Git2Test\ODBCustom\test_foreach');
+testbed_test('Custom ODB/Empty','\Git2Test\ODBCustom\test_empty');

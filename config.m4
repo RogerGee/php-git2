@@ -22,9 +22,9 @@ if test $PHP_GIT2 != "no"; then
     PHP_SUBST([GIT2_SHARED_LIBADD])
 
     PHP_NEW_EXTENSION(git2,php-git2.cpp php-constants.cpp php-callback.cpp \
-        php-object.cpp php-odb-writepack.cpp php-odb-backend.cpp php-odb-stream.cpp \
-        php-writestream.cpp php-config-backend.cpp php-array.cpp php-closure.cpp \
-        php-refdb-backend.cpp php-refdb-backend-internal.cpp,$ext_shared)
+        php-object.cpp php-odb-writepack.cpp php-odb-backend.cpp php-odb-backend-internal.cpp \
+        php-odb-stream.cpp php-writestream.cpp php-config-backend.cpp php-array.cpp \
+        php-closure.cpp php-refdb-backend.cpp php-refdb-backend-internal.cpp,$ext_shared)
 fi
 
 #

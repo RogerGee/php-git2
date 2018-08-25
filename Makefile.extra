@@ -21,6 +21,8 @@ php-odb-writepack.lo: php-odb-writepack.cpp php-object.h php-callback.h \
  php-type.h php-git2.h git2-resource.h
 php-odb-backend.lo: php-odb-backend.cpp php-object.h php-callback.h \
  php-type.h php-git2.h git2-resource.h
+php-odb-backend-internal.lo: php-odb-backend-internal.cpp php-object.h php-callback.h \
+ php-type.h php-git2.h git2-resource.h
 php-odb-stream.lo: php-odb-stream.cpp php-object.h php-type.h php-git2.h \
  git2-resource.h
 php-writestream.lo: php-odb-stream.cpp php-object.h php-type.h php-git2.h \

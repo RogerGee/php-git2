@@ -13,6 +13,17 @@ extern "C" {
 #include <git2/sys/config.h>
 }
 
+// Helper macros
+
+#define LOOKUP_OBJECT(type,val)                         \
+    ((type*)zend_object_store_get_object(val TSRMLS_CC))
+
+#define is_subclass_of(a,b)                     \
+    (a == b || instanceof_function(a,b))
+
+#define PHP_EMPTY_METHOD(C,M)                   \
+    PHP_METHOD(C,M) { }
+
 namespace php_git2
 {
     // Define the custom object types provided by php-git2. The order of the
@@ -23,6 +34,7 @@ namespace php_git2
     {
         php_git2_odb_writepack_obj,
         php_git2_odb_backend_obj,
+        php_git2_odb_backend_internal_obj,
         php_git2_odb_stream_obj,
         php_git2_writestream_obj,
         php_git2_config_backend_obj,
@@ -43,7 +55,6 @@ namespace php_git2
 
         git_odb_backend* backend;
         php_git_odb* owner;
-        bool derivedCall;
         php_zts_member zts;
 
         void create_custom_backend(zval* zobj,php_git_odb* newOwner);
@@ -86,6 +97,14 @@ namespace php_git2
         static int writepack(git_odb_writepack** writepackp,git_odb_backend* backend,
             git_odb* odb,git_transfer_progress_cb progress_cb,void* progress_payload);
         static void free(git_odb_backend* backend);
+    };
+
+    struct php_odb_backend_internal_object : php_odb_backend_object
+    {
+        php_odb_backend_internal_object(zend_class_entry* ce TSRMLS_DC);
+
+        static zend_object_handlers handlers;
+        static void init(zend_class_entry* ce);
     };
 
     struct php_odb_writepack_object : zend_object
@@ -307,10 +326,28 @@ namespace php_git2
         T* obj;
     };
 
+    template<typename T>
+    class object_wrapper
+    {
+    public:
+        object_wrapper(zval* zobj):
+            obj(LOOKUP_OBJECT(T,zobj))
+        {
+        }
+
+        T* object()
+        {
+            return obj;
+        }
+    private:
+        T* obj;
+    };
+
     // Extern variables in this namespace.
     extern zend_class_entry* class_entry[];
     extern zend_function_entry odb_writepack_methods[];
     extern zend_function_entry odb_backend_methods[];
+    extern zend_function_entry odb_backend_internal_methods[];
     extern zend_function_entry odb_stream_methods[];
     extern zend_function_entry writestream_methods[];
     extern zend_function_entry config_backend_methods[];
@@ -318,14 +355,6 @@ namespace php_git2
     extern zend_function_entry refdb_backend_internal_methods[];
     extern zend_function_entry closure_methods[];
 }
-
-// Helper macros
-
-#define LOOKUP_OBJECT(type,val)                         \
-    ((type*)zend_object_store_get_object(val TSRMLS_CC))
-
-#define is_subclass_of(a,b)                     \
-    (a == b || instanceof_function(a,b))
 
 #endif
 
