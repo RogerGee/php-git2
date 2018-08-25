@@ -370,7 +370,9 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
         }
 
         // Now create the custom stream backing. The stream tracks this object
-        // to keep it alive and provide access to the GitODBBackend derivation.
+        // to keep it alive and provide access to the GitODBBackend
+        // derivation. NOTE: it is safe to use 'retval' in
+        // create_custom_stream() since the implementation will copy the zval.
         php_odb_stream_object* sobj = LOOKUP_OBJECT(php_odb_stream_object,&retval);
         sobj->create_custom_stream(&retval,GIT_STREAM_WRONLY,thisobj);
 
@@ -380,8 +382,8 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 
         // Assign the git_odb_stream to the out parameter. This is safe since
         // the instance holds its own zval that references the object backing,
-        // meaning the git_odb_stream will survive until its free() function is
-        // called.
+        // meaning the returned object will survive until the free() function is
+        // called on the git_odb_stream.
         *streamp = sobj->stream;
     }
 
@@ -434,7 +436,9 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
             return GIT_ERROR;
         }
 
-        // Now create the custom stream backing.
+        // Now create the custom stream backing. NOTE: it is safe to use
+        // 'retval' in create_custom_stream() since the implementation will copy
+        // the zval.
         php_odb_stream_object* sobj = LOOKUP_OBJECT(php_odb_stream_object,&retval);
         sobj->create_custom_stream(&retval,GIT_STREAM_RDONLY,thisobj);
 
@@ -442,10 +446,10 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
         // backend.
         sobj->stream->backend = backend;
 
-        // Assign the git_odb_stream to the out parameter. This is safe
-        // since the instance holds its own zval that references the object
-        // backing, meaning the git_odb_stream will survive until its free()
-        // function is called.
+        // Assign the git_odb_stream to the out parameter. This is safe since
+        // the instance holds its own zval that references the object backing,
+        // meaning the returned object will survive until the free() function is
+        // called on the git_odb_stream.
         *streamp = sobj->stream;
     }
 

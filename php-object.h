@@ -36,6 +36,7 @@ namespace php_git2
         php_git2_odb_backend_obj,
         php_git2_odb_backend_internal_obj,
         php_git2_odb_stream_obj,
+        php_git2_odb_stream_internal_obj,
         php_git2_writestream_obj,
         php_git2_config_backend_obj,
         php_git2_refdb_backend_obj,
@@ -130,7 +131,6 @@ namespace php_git2
         git_odb_stream* stream;
         php_git_odb* owner;
         zval* zbackend;
-        bool derivedCall;
         php_zts_member zts;
 
         void create_custom_stream(zval* zobj,unsigned int mode,zval* zodbBackend = nullptr);
@@ -152,6 +152,14 @@ namespace php_git2
         static int write(git_odb_stream *stream,const char *buffer,size_t len);
         static int finalize_write(git_odb_stream *stream,const git_oid *oid);
         static void free(git_odb_stream *stream);
+    };
+
+    struct php_odb_stream_internal_object : php_odb_stream_object
+    {
+        php_odb_stream_internal_object(zend_class_entry* ce TSRMLS_DC);
+
+        static zend_object_handlers handlers;
+        static void init(zend_class_entry* ce);
     };
 
     struct php_writestream_object : zend_object
@@ -288,7 +296,9 @@ namespace php_git2
     void php_git2_register_classes(TSRMLS_D);
 
     // Provide functions for creating objects easily from the extension. These
-    // *should* be used when instantiating an object from the extension.
+    // *should* be used when instantiating an object from the extension. In the
+    // case of abstract backend classes, these functions create an object of a
+    // derived, internal type.
 
     void php_git2_make_object(zval* zp,php_git2_object_t type TSRMLS_DC);
     void php_git2_make_odb_backend(zval* zp,git_odb_backend* backend,php_git_odb* owner TSRMLS_DC);
@@ -302,29 +312,6 @@ namespace php_git2
     bool is_method_overridden(zend_class_entry* ce,const char* method,int len);
     zend_function* not_allowed_get_constructor(zval* object TSRMLS_DC);
     zend_function* disallow_base_get_constructor(zval* object TSRMLS_DC);
-
-    template<typename T>
-    class derived_context
-    {
-    public:
-        derived_context(T* object):
-            obj(object)
-        {
-            obj->derivedCall = true;
-        }
-
-        ~derived_context()
-        {
-            obj->derivedCall = false;
-        }
-
-        T* object()
-        {
-            return obj;
-        }
-    private:
-        T* obj;
-    };
 
     template<typename T>
     class object_wrapper
@@ -349,6 +336,7 @@ namespace php_git2
     extern zend_function_entry odb_backend_methods[];
     extern zend_function_entry odb_backend_internal_methods[];
     extern zend_function_entry odb_stream_methods[];
+    extern zend_function_entry odb_stream_internal_methods[];
     extern zend_function_entry writestream_methods[];
     extern zend_function_entry config_backend_methods[];
     extern zend_function_entry refdb_backend_methods[];

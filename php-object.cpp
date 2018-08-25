@@ -93,6 +93,18 @@ void php_git2::php_git2_register_classes(TSRMLS_D)
     pce->create_object = php_create_object_handler<php_odb_stream_object>;
     php_odb_stream_object::init(pce);
 
+    // final class GitODBStream_Internal extends GitODBStream
+    INIT_CLASS_ENTRY(ce,"GitODBStream_Internal",odb_stream_internal_methods);
+    pce = zend_register_internal_class_ex(
+        &ce,
+        php_git2::class_entry[php_git2_odb_stream_obj],
+        nullptr TSRMLS_CC);
+    php_git2::class_entry[php_git2_odb_stream_internal_obj] = pce;
+    pce->ce_flags |= ZEND_ACC_FINAL_CLASS;
+    memcpy(&php_odb_stream_internal_object::handlers,stdhandlers,sizeof(zend_object_handlers));
+    pce->create_object = php_create_object_handler<php_odb_stream_internal_object>;
+    php_odb_stream_internal_object::init(pce);
+
     // final class GitWritestream
     INIT_CLASS_ENTRY(ce,"GitWritestream",writestream_methods);
     pce = zend_register_internal_class(&ce TSRMLS_CC);

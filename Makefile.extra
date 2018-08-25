@@ -25,6 +25,8 @@ php-odb-backend-internal.lo: php-odb-backend-internal.cpp php-object.h php-callb
  php-type.h php-git2.h git2-resource.h
 php-odb-stream.lo: php-odb-stream.cpp php-object.h php-type.h php-git2.h \
  git2-resource.h
+php-odb-stream-internal.lo: php-odb-stream-internal.cpp php-object.h php-type.h \
+ php-git2.h git2-resource.h
 php-writestream.lo: php-odb-stream.cpp php-object.h php-type.h php-git2.h \
  git2-resource.h
 php-constants.lo: php-git2.h
