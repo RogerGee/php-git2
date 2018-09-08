@@ -3,103 +3,10 @@
 namespace Git2Test\ConfigBackend;
 
 use Exception;
-use GitConfigBackend;
+use PHPGitConfig;
 
 require_once 'test_base.php';
-
-class PHPGitConfig extends GitConfigBackend {
-    private $readOnly;
-    private $path;
-    private $backing;
-    private $level;
-
-    public function __construct($path,$readOnly = false) {
-        $this->readOnly = $readOnly;
-        $this->path = $path;
-        $this->backing = [];
-    }
-
-    public function __destruct() {
-        $this->commit();
-    }
-
-    public function open($level) {
-        $this->level = $level;
-        if (file_exists($this->path)) {
-            $this->backing = unserialize(file_get_contents($this->path));
-        }
-    }
-
-    public function get($name) {
-        if (!isset($this->backing[$name])) {
-            return false;
-        }
-
-        return ['value' => $this->backing[$name], 'name' => $name];
-    }
-
-    public function set($key,$value) {
-        $this->backing[$key] = $value;
-    }
-
-    public function set_multivar($name,$regexp,$value) {
-
-    }
-
-    public function del($name) {
-        $this->checkReadOnly();
-        unset($this->backing[$name]);
-    }
-
-    public function del_multivar($name,$regexp) {
-        $this->checkReadOnly();
-
-    }
-
-    public function iterator_new() {
-        reset($this->backing);
-    }
-
-    public function iterator_next() {
-        if (is_null(key($this->backing))) {
-            return false;
-        }
-
-        $ent = array(
-            'name' => key($this->backing),
-            'value' => current($this->backing),
-        );
-
-        next($this->backing);
-
-        return $ent;
-    }
-
-    public function snapshot() {
-        $this->commit();
-        $snapshot = new self($this->path,true);
-        $snapshot->open($this->level);
-        return $snapshot;
-    }
-
-    public function lock() {
-
-    }
-
-    public function unlock($success) {
-
-    }
-
-    private function commit() {
-        file_put_contents($this->path,serialize($this->backing));
-    }
-
-    private function checkReadOnly() {
-        if ($this->readOnly) {
-            throw new Exception("PHPGitConfig is a snapshot");
-        }
-    }
-}
+require_once 'PHPGitConfig.php';
 
 function test_custom_backend() {
     $path = testbed_get_root() . '/config-backend-test.config';
@@ -140,4 +47,42 @@ function test_custom_backend() {
     }
 }
 
+function test_custom_backend_lifetime() {
+    $inner = function($backend) {
+        $config = git_config_new();
+        git_config_add_backend($config,$backend,GIT_CONFIG_LEVEL_APP,true);
+
+        $val = git_config_get_string_buf($config,"user.name");
+        testbed_unit('get user.name',$val);
+    };
+
+    $path = testbed_get_root() . '/config-backend-test.config';
+    $backend = new PHPGitConfig($path);
+
+    // NOTE: each call to $inner creates a new git2 backend that references the
+    // same object.
+
+    $inner($backend);
+    $inner($backend);
+}
+
+function test_custom_backend_lifetime2() {
+    $inner = function() {
+        $path = testbed_get_root() . '/config-backend-test.config';
+        $backend = new PHPGitConfig($path);
+
+        $config = git_config_new();
+        git_config_add_backend($config,$backend,GIT_CONFIG_LEVEL_APP,true);
+
+        return $config;
+    };
+
+    $config = $inner();
+
+    $val = git_config_get_string_buf($config,'user.name');
+    testbed_unit('get user.name',$val);
+}
+
 testbed_test('Config Backend','Git2Test\ConfigBackend\test_custom_backend');
+testbed_test('Config Backend Lifetime','Git2Test\ConfigBackend\test_custom_backend_lifetime');
+testbed_test('Config Backend Lifetime2','Git2Test\ConfigBackend\test_custom_backend_lifetime2');
