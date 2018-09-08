@@ -163,7 +163,7 @@ static int custom_backend_iterator_next(git_config_entry** out,custom_backend_it
             memset(entry,0,sizeof(git_config_entry));
             if (set_custom_backend_entry(&retval,entry,&err) == FAILURE) {
                 custom_backend_entry_free(entry);
-                php_error(E_ERROR,"GitConfigBackend: iterator_next(): bad return value: %s",err);
+                php_error(E_ERROR,"GitConfigBackend::iterator_next(): bad return value: %s",err);
                 return GIT_ERROR;
             }
             *out = entry;
@@ -231,7 +231,7 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
     // Make sure this config backend object is not in use anywhere else
     // (i.e. does not yet have a backing).
     if (backend != nullptr) {
-        php_error(E_ERROR,"cannot create custom config backend - object already in use");
+        php_error(E_ERROR,"Cannot create custom config backend: object already in use");
     }
 
     // Create custom backend. Custom backends are always passed off to git2, so
@@ -324,7 +324,7 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
             memset(entry,0,sizeof(git_config_entry));
             if (set_custom_backend_entry(&retval,entry,&err) == FAILURE) {
                 custom_backend_entry_free(entry);
-                php_error(E_ERROR,"GitConfigBackend: get(): bad return value: %s",err);
+                php_error(E_ERROR,"GitConfigBackend::get(): bad return value: %s",err);
                 return GIT_ERROR;
             }
             *out = entry;
@@ -335,7 +335,7 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
                 result = GIT_ENOTFOUND;
             }
             else {
-                php_error(E_ERROR,"GitConfigBackend: get(): return value must be an array");
+                php_error(E_ERROR,"GitConfigBackend::get(): return value must be an array");
                 return GIT_ERROR;
             }
         }
@@ -637,21 +637,26 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
                 giterr_set_str(GITERR_CONFIG,"php-config-backend: fail snapshot()");
                 result = GIT_ERROR;
             }
+            else {
+                php_error(E_ERROR,"GitConfigBackend::snapshot(): return value must be object");
+                return GIT_ERROR;
+            }
         }
         else if (!is_subclass_of(Z_OBJCE(retval),class_entry[php_git2_config_backend_obj])) {
-            php_error(E_ERROR,"GitConfigBackend: snapshot(): return value must extend GitConfigBackend");
+            php_error(E_ERROR,"GitConfigBackend::snapshot(): return value must extend GitConfigBackend");
             return GIT_ERROR;
         }
-
-        // Create git_config_backend that wraps the object. It will point to the
-        // same set of functions. It is up to userspace to enforce any readonly
-        // behavior as desired.
-        ALLOC_ZVAL(zobj);
-        ZVAL_COPY_VALUE(zobj,&retval);
-        zval_copy_ctor(zobj);
-        internal = LOOKUP_OBJECT(php_config_backend_object,zobj);
-        internal->create_custom_backend(zobj,object->owner);
-        *out = internal->backend;
+        else {
+            // Create git_config_backend that wraps the object. It will point to
+            // the same set of functions. It is up to userspace to enforce any
+            // readonly behavior as desired.
+            ALLOC_ZVAL(zobj);
+            ZVAL_COPY_VALUE(zobj,&retval);
+            zval_copy_ctor(zobj);
+            internal = LOOKUP_OBJECT(php_config_backend_object,zobj);
+            internal->create_custom_backend(zobj,object->owner);
+            *out = internal->backend;
+        }
     }
 
     zval_dtor(&fname);
