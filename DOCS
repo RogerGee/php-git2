@@ -67,6 +67,7 @@ API. Instead a scalar, array or object type is used:
     git_odb_stream                                 object
     git_writestream                                object
     git_config_backend                             object
+    git_refdb_backend                              object
     git_blame_hunk                                 array
     git_revspec                                    array
     git_config_entry                               array
@@ -2031,7 +2032,7 @@ when the C API employs struct with pointer-to-function members.
 
 The following classes are provided by the extension:
 
-class GitODBBackend:
+abstract class GitODBBackend:
 
     ** This class has properties/methods that align with the git_odb_backend
        structure. **
@@ -2049,43 +2050,31 @@ class GitODBBackend:
            know what is available; however they are designed to be defined in
            userspace and called by git2. **
 
-        read(int &$type,string $oid)
+        string read(int &$type,string $oid)
 
             ** Will return size and type as out parameters respectively. **
 
-            Returns string
-
-        read_prefix(string &$fullOid,int &$type,string $abbrevOid)
+        string read_prefix(string &$fullOid,int &$type,string $abbrevOid)
 
             ** Will return oid, size and type as out parameters respectively. **
 
-            Returns string
-
-        read_header(int &$size,int &$type,string $oid)
+        bool read_header(int &$size,int &$type,string $oid)
 
             ** Will return size and type as out parameters respectively. **
 
             Returns true
 
-        write(string $oid,string $data,int $type)
+        bool write(string $oid,string $data,int $type)
 
-            Returns true
+        GitODBStream writestream(int $offset,int $objectType)
 
-        writestream(int $offset,int $objectType)
+        GitODBStream readstream(string $oid)
 
-            Returns object instance of type GitODBStream
+        bool exists(string $oid)
 
-        readstream(string $oid)
+        void refresh()
 
-            Returns object instance of type GitODBStream
-
-        exists(string $oid)
-
-            Returns bool
-
-        refresh()
-
-        for_each(callable $func,mixed $payload)
+        int for_each(callable $func,mixed $payload)
 
             ** Note: this function is not named canonically with git2 since
                "foreach" is a reserved word in PHP. **
@@ -2112,13 +2101,14 @@ class GitODBBackend:
             stop looping. The method should return 0 or the non-zero callback
             value upon return.
 
-            Returns int
+        GitODBWritepack writepack(callable $func,mixed $payload)
 
-        writepack(callable $func,mixed $payload)
+        void free()
 
-            Returns object instance of type GitODBWritepack
+final class GitODBBackend_Internal extends GitODBBackend
 
-        free()
+    ** This class is used to represent internal ODB backends. It cannot be
+       instantiated directly. **
 
 final class GitODBWritepack:
 
@@ -2129,17 +2119,13 @@ final class GitODBWritepack:
         backend: object instance of type GitODBBackend
 
     methods:
-        append(string)
+        int append(string)
 
-            Returns long
+        int commit()
 
-        commit()
+        void free()
 
-            Returns long
-
-        free()
-
-final class GitODBStream:
+abstract class GitODBStream:
 
     ** This class has properties/methods that align with the git_odb_stream
        structure. **
@@ -2152,16 +2138,19 @@ final class GitODBStream:
     methods:
         ** All methods should throw on failure. **
 
-        read(int $bufsz)
+        string read(int $bufsz)
 
             ** Creates a buffer of the specified size and calls the read()
                function for the stream. **
 
-            Returns string
+        void write(string $buffer)
 
-        write(string $buffer)
+        void finalize_write(string $oid)
 
-        finalize_write(string $oid)
+final class GitODBStream_Internal extends GitODBStream:
+
+    ** This class is used to represent internal ODB stream objects. It cannot be
+       instantiated directly. **
 
 final class GitWritestream:
 
@@ -2169,11 +2158,11 @@ final class GitWritestream:
        structure. **
 
     methods:
-        write(string $buffer)
+        void write(string $buffer)
 
-        close()
+        void close()
 
-        free()
+        void free()
 
             ** This method is included for completeness but doesn't actually
                need to be called. It is a noop. **
@@ -2244,3 +2233,30 @@ abstract class GitConfigBackend:
         void lock()
 
         void unlock(int success)
+
+abstract class GitRefDBBackend:
+
+    ** This class has methods and properties that align with the
+       git_refdb_backend structure. **
+
+    methods:
+
+        bool exists(string $ref_name)
+
+        string lookup(string $ref_name)
+
+            ** Method should return string OID or symbolic name. **
+
+        void iterator(string $glob)
+
+            ** $glob may be NULL **
+
+        string iterator_next(&$name)
+
+            ** Method should return string OID or symbolic name and assign
+               reference name to $name. **
+
+final class GitRefDBBackend_Internal extends GitRefDBBackend:
+
+    ** This class represents internal refdb backends. It cannot be instantiated
+       directly. **

@@ -11,7 +11,11 @@ using namespace php_git2;
 
 static PHP_METHOD(GitRefDBBackend_Internal,exists);
 static PHP_METHOD(GitRefDBBackend_Internal,lookup);
-static PHP_METHOD(GitRefDBBackend_Internal,iterator);
+static PHP_METHOD(GitRefDBBackend_Internal,iterator_new);
+static PHP_METHOD(GitRefDBBackend_Internal,iterator_next);
+ZEND_BEGIN_ARG_INFO_EX(GitRefDBBackend_Internal_iterator_next_arginfo,0,0,1)
+    ZEND_ARG_PASS_INFO(1)
+ZEND_END_ARG_INFO()
 static PHP_METHOD(GitRefDBBackend_Internal,write);
 static PHP_METHOD(GitRefDBBackend_Internal,rename);
 static PHP_METHOD(GitRefDBBackend_Internal,del);
@@ -29,7 +33,10 @@ static PHP_METHOD(GitRefDBBackend_Internal,free);
 zend_function_entry php_git2::refdb_backend_internal_methods[] = {
     PHP_ME(GitRefDBBackend_Internal,exists,NULL,ZEND_ACC_PUBLIC)
     PHP_ME(GitRefDBBackend_Internal,lookup,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitRefDBBackend_Internal,iterator,NULL,ZEND_ACC_PUBLIC)
+    PHP_ME(GitRefDBBackend_Internal,iterator_new,NULL,ZEND_ACC_PUBLIC)
+    PHP_ME(GitRefDBBackend_Internal,iterator_next,
+        GitRefDBBackend_Internal_iterator_next_arginfo,
+        ZEND_ACC_PUBLIC)
     PHP_ME(GitRefDBBackend_Internal,write,NULL,ZEND_ACC_PUBLIC)
     PHP_ME(GitRefDBBackend_Internal,rename,NULL,ZEND_ACC_PUBLIC)
     PHP_ME(GitRefDBBackend_Internal,del,NULL,ZEND_ACC_PUBLIC)
@@ -56,7 +63,11 @@ PHP_METHOD(GitRefDBBackend_Internal,lookup)
 {
 }
 
-PHP_METHOD(GitRefDBBackend_Internal,iterator)
+PHP_METHOD(GitRefDBBackend_Internal,iterator_new)
+{
+}
+
+PHP_METHOD(GitRefDBBackend_Internal,iterator_next)
 {
 }
 
