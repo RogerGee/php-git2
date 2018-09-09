@@ -81,14 +81,17 @@ void php_git2::php_git2_register_classes(TSRMLS_D)
         nullptr TSRMLS_CC);
     php_git2::class_entry[php_git2_odb_backend_internal_obj] = pce;
     pce->ce_flags |= ZEND_ACC_FINAL_CLASS;
-    memcpy(&php_odb_backend_internal_object::handlers,stdhandlers,sizeof(zend_object_handlers));
+    memcpy(&php_odb_backend_internal_object::handlers,
+        &php_odb_backend_object::handlers,
+        sizeof(zend_object_handlers));
     pce->create_object = php_create_object_handler<php_odb_backend_internal_object>;
     php_odb_backend_internal_object::init(pce);
 
-    // class GitODBStream
+    // abstract class GitODBStream
     INIT_CLASS_ENTRY(ce,"GitODBStream",odb_stream_methods);
     pce = zend_register_internal_class(&ce TSRMLS_CC);
     php_git2::class_entry[php_git2_odb_stream_obj] = pce;
+    pce->ce_flags |= ZEND_ACC_EXPLICIT_ABSTRACT_CLASS;
     memcpy(&php_odb_stream_object::handlers,stdhandlers,sizeof(zend_object_handlers));
     pce->create_object = php_create_object_handler<php_odb_stream_object>;
     php_odb_stream_object::init(pce);
@@ -101,7 +104,9 @@ void php_git2::php_git2_register_classes(TSRMLS_D)
         nullptr TSRMLS_CC);
     php_git2::class_entry[php_git2_odb_stream_internal_obj] = pce;
     pce->ce_flags |= ZEND_ACC_FINAL_CLASS;
-    memcpy(&php_odb_stream_internal_object::handlers,stdhandlers,sizeof(zend_object_handlers));
+    memcpy(&php_odb_stream_internal_object::handlers,
+        &php_odb_stream_object::handlers,
+        sizeof(zend_object_handlers));
     pce->create_object = php_create_object_handler<php_odb_stream_internal_object>;
     php_odb_stream_internal_object::init(pce);
 
