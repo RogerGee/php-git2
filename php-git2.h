@@ -148,7 +148,9 @@ namespace php_git2
 
     // Helper functions for converting git2 values to PHP values.
 
-    void convert_oid_fromstr(git_oid* dest,const char* src,int srclen);
+    int convert_oid_fromstr(git_oid* dest,const char* src,int srclen);
+    void convert_oid(zval* zv,const git_oid* oid);
+    void convert_oid_prefix(zval* zv,const git_oid* prefix,size_t len);
     void convert_transfer_progress(zval* zv,const git_transfer_progress* stats);
     void convert_blame_hunk(zval* zv,const git_blame_hunk* hunk);
     void convert_diff_delta(zval* zv,const git_diff_delta* delta);

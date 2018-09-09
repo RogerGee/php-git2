@@ -245,10 +245,12 @@ void php_git2::git_error(int code)
 
 // Helpers
 
-void php_git2::convert_oid_fromstr(git_oid* dest,const char* src,int srclen)
+int php_git2::convert_oid_fromstr(git_oid* dest,const char* src,int srclen)
 {
-    // Use a temporary buffer to hold the OID hex string. We make sure it
-    // contains a string with an exact length of 40 characters.
+    // Use a temporary buffer to hold the OID hex string. We make sure it can at
+    // most contain a 40 character string. A prefix OID string may have less
+    // than 40 characters.
+
     char buf[GIT_OID_HEXSZ + 1];
 
     if (srclen > GIT_OID_HEXSZ) {
@@ -258,7 +260,28 @@ void php_git2::convert_oid_fromstr(git_oid* dest,const char* src,int srclen)
     memset(buf,'0',GIT_OID_HEXSZ);
     buf[GIT_OID_HEXSZ] = 0;
     strncpy(buf,src,srclen);
-    git_oid_fromstr(dest,buf);
+
+    return git_oid_fromstr(dest,buf);
+}
+
+void php_git2::convert_oid(zval* zv,const git_oid* oid)
+{
+    char buf[GIT_OID_HEXSZ + 1];
+
+    git_oid_tostr(buf,sizeof(buf),oid);
+    ZVAL_STRINGL(zv,buf,GIT_OID_HEXSZ,1);
+}
+
+void php_git2::convert_oid_prefix(zval* zv,const git_oid* prefix,size_t len)
+{
+    char buf[GIT_OID_HEXSZ + 1];
+
+    if (len > GIT_OID_HEXSZ) {
+        len = GIT_OID_HEXSZ;
+    }
+
+    git_oid_tostr(buf,len,prefix);
+    ZVAL_STRING(zv,buf,1);
 }
 
 void php_git2::convert_transfer_progress(zval* zv,const git_transfer_progress* stats)
@@ -356,7 +379,7 @@ void php_git2::convert_diff_file(zval* zv,const git_diff_file* file)
     array_init(zv);
     git_oid_tostr(buf,sizeof(buf),&file->id);
     buf[idlen] = 0;
-    add_assoc_const_string(zv,"id",buf);
+    add_assoc_stringl(zv,"id",buf,GIT_OID_HEXSZ,1);
     add_assoc_const_string(zv,"path",file->path);
     add_assoc_long_ex(zv,"size",sizeof("size"),file->size);
     add_assoc_long_ex(zv,"flags",sizeof("flags"),file->flags);

@@ -170,7 +170,6 @@ PHP_METHOD(GitODBBackend_Internal,read_prefix)
     git_otype type = GIT_OBJ_ANY;
     git_oid prefix;
     git_oid full;
-    char buf[GIT_OID_HEXSZ + 1];
 
     // Interpret the string parameter as a human-readable OID. Convert it and
     // then call read_prefix().
@@ -191,8 +190,7 @@ PHP_METHOD(GitODBBackend_Internal,read_prefix)
     // Copy the result into the return zval. Then set the out parameters.
     // Finally we have to free the buffer allocated by the call to read().
     RETVAL_STRINGL((const char*)data,size,1);
-    git_oid_tostr(buf,sizeof(buf),&full);
-    ZVAL_STRING(zoid,buf,1);
+    convert_oid(zoid,&full);
     ZVAL_LONG(ztype,type);
     free(data);
 }
@@ -423,11 +421,8 @@ PHP_METHOD(GitODBBackend_Internal,exists_prefix)
 
     // Confusingly, the exists_prefix() function returns 0 if found.
     if (retval == 0) {
-        char buf[GIT_OID_HEXSZ + 1];
-
         // Set the out variable to the full OID string.
-        git_oid_tostr(buf,sizeof(buf),&fullOid);
-        ZVAL_STRING(zoid,buf,1);
+        convert_oid(zoid,&fullOid);
 
         RETURN_TRUE;
     }

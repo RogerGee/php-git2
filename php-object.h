@@ -80,7 +80,7 @@ namespace php_git2
             git_odb_backend* backend,const git_oid* oid);
         static int read_prefix(git_oid* oidp,void** datap,size_t* sizep,
             git_otype* typep,git_odb_backend* backend,const git_oid* prefix,
-            size_t nbits);
+            size_t len);
         static int read_header(size_t* sizep,git_otype* typep,
             git_odb_backend* backend,const git_oid* oid);
         static int write(git_odb_backend* backend,const git_oid* oid,
@@ -91,7 +91,7 @@ namespace php_git2
             const git_oid* oid);
         static int exists(git_odb_backend* backend,const git_oid* oid);
         static int exists_prefix(git_oid* oidp,git_odb_backend* backend,
-            const git_oid* prefix,size_t nbits);
+            const git_oid* prefix,size_t len);
         static int refresh(git_odb_backend* backend);
         static int foreach(git_odb_backend* backend,git_odb_foreach_cb cb,
             void* payload);
@@ -223,6 +223,8 @@ namespace php_git2
         git_refdb_backend* backend;
         php_zts_member zts;
 
+        void create_custom_backend(zval* zobj);
+
         static zend_object_handlers handlers;
         static void init(zend_class_entry* ce);
     private:
@@ -263,14 +265,14 @@ namespace php_git2
         static int compress(git_refdb_backend *backend);
         static int has_log(git_refdb_backend *backend, const char *refname);
         static int ensure_log(git_refdb_backend *backend, const char *refname);
-        static void free(git_refdb_backend *backend);
         static int reflog_read(git_reflog **out, git_refdb_backend *backend, const char *name);
         static int reflog_write(git_refdb_backend *backend, git_reflog *reflog);
-        static int reflog_rename(git_refdb_backend *_backend, const char *old_name, const char *new_name);
+        static int reflog_rename(git_refdb_backend *backend, const char *old_name, const char *new_name);
         static int reflog_delete(git_refdb_backend *backend, const char *name);
         static int lock(void **payload_out, git_refdb_backend *backend, const char *refname);
         static int unlock(git_refdb_backend *backend, void *payload, int success, int update_reflog,
             const git_reference *ref, const git_signature *sig, const char *message);
+        static void free(git_refdb_backend *backend);
     };
 
     struct php_closure_object : zend_object

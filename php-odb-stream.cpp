@@ -203,7 +203,6 @@ void php_odb_stream_object::create_custom_stream(zval* zobj,unsigned int mode,zv
     zval* params[1];
     zval* thisobj = EXTRACT_THISOBJ(stream);
     int result = GIT_OK;
-    char buffer[GIT_OID_HEXSZ+1];
     object_wrapper<php_odb_stream_object> obj(thisobj);
 
     // Initialize zvals.
@@ -212,8 +211,7 @@ void php_odb_stream_object::create_custom_stream(zval* zobj,unsigned int mode,zv
     MAKE_STD_ZVAL(zbuf);
 
     // Assign OID to parameter zval.
-    git_oid_tostr(buffer,sizeof(buffer),oid);
-    ZVAL_STRINGL(zbuf,buffer,GIT_OID_HEXSZ,1);
+    convert_oid(zbuf,oid);
     params[0] = zbuf;
 
     // Assign method name.

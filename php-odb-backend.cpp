@@ -130,7 +130,6 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     zval* ztype;
     zval* params[2];
     zval* thisobj = EXTRACT_THISOBJ(backend);
-    char buffer[GIT_OID_HEXSZ+1];
     int result = GIT_OK;
     void* data;
     object_wrapper<php_odb_backend_object> wrapper(thisobj);
@@ -145,8 +144,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 
     // Assign method call name and search OID string to respective zvals.
     ZVAL_STRING(&fname,"read",1);
-    git_oid_tostr(buffer,sizeof(buffer),oid);
-    ZVAL_STRINGL(zoid,buffer,GIT_OID_HEXSZ,1);
+    convert_oid(zoid,oid);
 
     // Call userspace method implementation corresponding to odb operation.
     if (call_user_function(NULL,&thisobj,&fname,&retval,2,params
@@ -176,7 +174,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 
 /*static*/ int php_odb_backend_object::read_prefix(git_oid* oidp,void** datap,
     size_t* sizep,git_otype* typep,git_odb_backend* backend,const git_oid* prefix,
-    size_t nbits)
+    size_t len)
 {
     zval fname;
     zval retval;
@@ -184,7 +182,6 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     zval* ztype;
     zval* zprefix;
     zval* thisobj = EXTRACT_THISOBJ(backend);
-    char buffer[GIT_OID_HEXSZ+1];
     int result = GIT_OK;
     void* data;
     object_wrapper<php_odb_backend_object> wrapper(thisobj);
@@ -198,8 +195,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 
     // Assign values to function name and by-value arguments.
     ZVAL_STRING(&fname,"read_prefix",1);
-    git_oid_tostr(buffer,sizeof(buffer),prefix);
-    ZVAL_STRING(zprefix,buffer,1);
+    convert_oid_prefix(zprefix,prefix,len);
 
     zval* params[] = { zfull, ztype, zprefix };
 
@@ -241,7 +237,6 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     zval* ztype;
     zval* zoid;
     zval* thisobj = EXTRACT_THISOBJ(backend);
-    char buffer[GIT_OID_HEXSZ+1];
     int result = GIT_OK;
     object_wrapper<php_odb_backend_object> wrapper(thisobj);
 
@@ -254,8 +249,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 
     // Assign value to function name.
     ZVAL_STRING(&fname,"read_header",1);
-    git_oid_tostr(buffer,sizeof(buffer),oid);
-    ZVAL_STRING(zoid,buffer,1);
+    convert_oid(zoid,oid);
 
     zval* params[] = { zsize, ztype, zoid };
 
@@ -291,7 +285,6 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     zval* zpayload;
     zval* ztype;
     zval* thisobj = EXTRACT_THISOBJ(backend);
-    char buffer[GIT_OID_HEXSZ+1];
     int result = GIT_OK;
     object_wrapper<php_odb_backend_object> wrapper(thisobj);
 
@@ -304,8 +297,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 
     // Assign values to function name and by-value arguments.
     ZVAL_STRING(&fname,"write",1);
-    git_oid_tostr(buffer,sizeof(buffer),oid);
-    ZVAL_STRING(zoid,buffer,1);
+    convert_oid(zoid,oid);
     ZVAL_STRINGL(zpayload,(const char*)data,size,1);
     ZVAL_LONG(ztype,type);
 
@@ -402,7 +394,6 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     zval retval;
     zval* zbuf;
     zval* thisobj = EXTRACT_THISOBJ(backend);
-    char buffer[GIT_OID_HEXSZ+1];
     int result = GIT_OK;
     object_wrapper<php_odb_backend_object> wrapper(thisobj);
 
@@ -413,8 +404,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 
     // Assign values to function name and by-value arguments.
     ZVAL_STRING(&fname,"readstream",1);
-    git_oid_tostr(buffer,sizeof(buffer),oid);
-    ZVAL_STRINGL(zbuf,buffer,GIT_OID_HEXSZ,1);
+    convert_oid(zbuf,oid);
 
     zval* params[] = { zbuf };
 
@@ -467,7 +457,6 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     zval retval;
     zval* zoid;
     zval* thisobj = EXTRACT_THISOBJ(backend);
-    char buffer[GIT_OID_HEXSZ+1];
     int result = GIT_OK;
     object_wrapper<php_odb_backend_object> wrapper(thisobj);
 
@@ -478,8 +467,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 
     // Assign values to function name and by-value arguments.
     ZVAL_STRING(&fname,"exists",1);
-    git_oid_tostr(buffer,sizeof(buffer),oid);
-    ZVAL_STRING(zoid,buffer,1);
+    convert_oid(zoid,oid);
 
     zval* params[] = { zoid };
 
@@ -502,14 +490,13 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 }
 
 /*static*/ int php_odb_backend_object::exists_prefix(git_oid* oidp,
-    git_odb_backend* backend,const git_oid* prefix,size_t nbits)
+    git_odb_backend* backend,const git_oid* prefix,size_t len)
 {
     zval fname;
     zval retval;
     zval* zfull;
     zval* zoid;
     zval* thisobj = EXTRACT_THISOBJ(backend);
-    char buffer[GIT_OID_HEXSZ+1];
     int result = GIT_OK;
     object_wrapper<php_odb_backend_object> wrapper(thisobj);
 
@@ -521,8 +508,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 
     // Assign values to function name and by-value arguments.
     ZVAL_STRING(&fname,"exists",1);
-    git_oid_tostr(buffer,sizeof(buffer),prefix);
-    ZVAL_STRING(zoid,buffer,1);
+    convert_oid_prefix(zoid,prefix,len);
 
     zval* params[] = { zfull, zoid };
 
