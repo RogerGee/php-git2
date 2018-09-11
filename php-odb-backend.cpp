@@ -793,6 +793,7 @@ zval* odb_backend_read_property(zval* obj,zval* prop,int type,const zend_literal
                 }
                 zend_register_resource(ret,rsrc,php_git_odb::resource_le() TSRMLS_CC);
 
+                Z_ADDREF_P(ret);
                 if (key != nullptr) {
                     zend_hash_quick_add(Z_OBJPROP_P(obj),"odb",sizeof("odb"),key->hash_value,
                         &ret,sizeof(zval*),NULL);
@@ -835,7 +836,7 @@ void odb_backend_write_property(zval* obj,zval* prop,zval* value,const zend_lite
 
     str = Z_STRVAL_P(prop);
     if (strcmp(str,"version") == 0 || strcmp(str,"odb") == 0) {
-        php_error(E_ERROR,"GitODBBackend::__set: the '%s' property is read-only",str);
+        php_error(E_ERROR,"Property '%s' of GitODBBackend cannot be updated",str);
     }
     else {
         (*std_object_handlers.write_property)(obj,prop,value,key);

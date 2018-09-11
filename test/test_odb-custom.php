@@ -92,6 +92,7 @@ EOF;
         $stream = git_odb_open_wstream($dst,strlen($data),$type);
         testbed_do_once('Git2Test.ODBCustom.transfer_object2',function() use($stream) {
                 var_dump($stream);
+                var_dump($stream->backend);
             });
         $stream->write($data);
         $stream->finalize_write($oid);

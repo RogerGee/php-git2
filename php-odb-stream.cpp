@@ -412,10 +412,12 @@ void odb_stream_write_property(zval* obj,zval* prop,zval* value,const zend_liter
     }
 
     str = Z_STRVAL_P(prop);
-    if (strcmp(str,"mode") == 0 || strcmp(str,"declared_size") == 0
-        || strcmp(str,"received_bytes") == 0 || strcmp(str,"backend") == 0)
+    if (strcmp(str,"mode") == 0
+        || strcmp(str,"declared_size") == 0
+        || strcmp(str,"received_bytes") == 0
+        || strcmp(str,"backend") == 0)
     {
-        php_error(E_ERROR,"GitODBBackend: the %s property is read-only",str);
+        php_error(E_ERROR,"Property '%s' of GitODBStream cannot be updated",str);
     }
     else {
         (*std_object_handlers.write_property)(obj,prop,value,key);

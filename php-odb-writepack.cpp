@@ -143,6 +143,7 @@ zval* odb_writepack_read_property(zval* obj,zval* prop,int type,const zend_liter
                 // own the underlying backend object.
                 php_git2_make_odb_backend(ret,writepack->backend,wrapper->owner);
 
+                Z_ADDREF_P(ret);
                 if (key != nullptr) {
                     zend_hash_quick_add(Z_OBJPROP_P(obj),"backend",sizeof("backend"),key->hash_value,
                         &ret,sizeof(zval*),NULL);
@@ -187,7 +188,7 @@ void odb_writepack_write_property(zval* obj,zval* prop,zval* value,const zend_li
 
     str = Z_STRVAL_P(prop);
     if (strcmp(str,"backend") == 0) {
-        php_error(E_ERROR,"GitODBWritepack: the %s property is read-only",str);
+        php_error(E_ERROR,"Property '%s' of GitODBWritepack cannot be updated",str);
     }
     else {
         (*std_object_handlers.write_property)(obj,prop,value,key);

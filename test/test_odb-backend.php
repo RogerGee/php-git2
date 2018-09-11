@@ -9,6 +9,7 @@ function test_read() {
     $repoPath = testbed_get_repo_path();
     $backend = git_odb_backend_pack("$repoPath/objects");
     var_dump($backend);
+    var_dump($backend->version);
     echo "\n";
 
     $oid = 'af5626b4a114abcb82d63db7c8082c3c4756e51b';
