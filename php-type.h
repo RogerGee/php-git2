@@ -1167,6 +1167,7 @@ namespace php_git2
     using php_git_status_list = git2_resource<git_status_list>;
     using php_git_note = git2_resource<git_note>;
     using php_git_note_iterator = git2_resource<git_note_iterator>;
+    using php_git_reflog = git2_resource<git_reflog>;
 
     // Enumerate nofree alternatives of certain resource types.
 

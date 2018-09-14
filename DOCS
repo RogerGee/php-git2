@@ -53,6 +53,9 @@ purpose) are determined by the C++ compiler via 'typeid'.
     git_index
     git_index_conflict_iterator
     git_status_list
+    git_note
+    git_note_iterator
+    git_reflog
 
 The following structures are not represented as resources in the PHP
 API. Instead a scalar, array or object type is used:
@@ -87,6 +90,7 @@ API. Instead a scalar, array or object type is used:
     git_merge_file_options                         array
     git_merge_file_input                           array
     git_merge_file_result                          array
+    git_reflog_entry                               array
 
 For objects, see the later section regarding Classes.
 
@@ -2022,6 +2026,28 @@ git_note_read(resource,string|null,string)
     Returns git_note resource
 
 git_note_remove(resource,string|null,resource,resource,string)
+
+----------------------------------------
+[git_reflog]
+----------------------------------------
+
+git_reflog_append()
+
+git_reflog_delete()
+
+git_reflog_drop()
+
+git_reflog_entry_byindex()
+
+git_reflog_entrycount()
+
+git_reflog_free()
+
+git_reflog_read()
+
+git_reflog_rename()
+
+git_reflog_write()
 
 --------------------------------------------------------------------------------
 Class API Reference

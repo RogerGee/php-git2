@@ -40,6 +40,7 @@
 #include "cherrypick.h"
 #include "merge.h"
 #include "note.h"
+#include "reflog.h"
 
 #endif
 
