@@ -2031,23 +2031,36 @@ git_note_remove(resource,string|null,resource,resource,string)
 [git_reflog]
 ----------------------------------------
 
-git_reflog_append()
+git_reflog_append(resource,string,resource,string|null)
 
-git_reflog_delete()
+git_reflog_delete(resource,string)
 
-git_reflog_drop()
+git_reflog_drop(resource,int,bool)
 
-git_reflog_entry_byindex()
+    Returns bool
 
-git_reflog_entrycount()
+git_reflog_entry_byindex(resource,int)
 
-git_reflog_free()
+    Return structure:
 
-git_reflog_read()
+        - committer
+        - id_new
+        - id_old
+        - message
 
-git_reflog_rename()
+    Returns array
 
-git_reflog_write()
+git_reflog_entrycount(resource)
+
+git_reflog_free(resource)
+
+git_reflog_read(resource,string)
+
+    Returns git_reflog resource
+
+git_reflog_rename(resource,string,string)
+
+git_reflog_write(resource)
 
 --------------------------------------------------------------------------------
 Class API Reference

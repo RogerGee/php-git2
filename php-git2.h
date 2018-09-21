@@ -165,6 +165,7 @@ namespace php_git2
     void convert_index_time(zval* zv,const git_index_time* tv);
     void convert_status_entry(zval* zv,const git_status_entry *ent);
     void convert_merge_file_result(zval* zv,const git_merge_file_result* res);
+    void convert_reflog_entry(zval* zv,const git_reflog_entry* ent);
 
     // Helper functions for converting PHP values to git2 values.
 

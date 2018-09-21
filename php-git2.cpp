@@ -550,6 +550,36 @@ void php_git2::convert_merge_file_result(zval* zv,const git_merge_file_result* r
     add_assoc_stringl(zv,"ptr",const_cast<char*>(res->ptr),res->len,1);
 }
 
+void php_git2::convert_reflog_entry(zval* zv,const git_reflog_entry* ent)
+{
+    const char* msg;
+    zval* znewid;
+    zval* zoldid;
+    zval* zsig;
+
+    array_init(zv);
+    MAKE_STD_ZVAL(znewid);
+    MAKE_STD_ZVAL(zoldid);
+    MAKE_STD_ZVAL(zsig);
+
+    convert_signature(zsig,git_reflog_entry_committer(ent));
+    add_assoc_zval_ex(zv,"committer",sizeof("committer"),zsig);
+
+    convert_oid(znewid,git_reflog_entry_id_new(ent));
+    add_assoc_zval_ex(zv,"id_new",sizeof("id_new"),znewid);
+
+    convert_oid(zoldid,git_reflog_entry_id_old(ent));
+    add_assoc_zval_ex(zv,"id_old",sizeof("id_old"),zoldid);
+
+    msg = git_reflog_entry_message(ent);
+    if (msg == nullptr) {
+        add_assoc_null(zv,"message");
+    }
+    else {
+        add_assoc_string(zv,"message",const_cast<char*>(msg),1);
+    }
+}
+
 git_signature* php_git2::convert_signature(zval* zv)
 {
     // NOTE: This functions returns nullptr if the PHP array was not formatted
