@@ -28,7 +28,6 @@ static PHP_METHOD(GitRefDBBackend_Internal,reflog_rename);
 static PHP_METHOD(GitRefDBBackend_Internal,reflog_delete);
 static PHP_METHOD(GitRefDBBackend_Internal,lock);
 static PHP_METHOD(GitRefDBBackend_Internal,unlock);
-static PHP_METHOD(GitRefDBBackend_Internal,free);
 
 zend_function_entry php_git2::refdb_backend_internal_methods[] = {
     PHP_ME(GitRefDBBackend_Internal,exists,NULL,ZEND_ACC_PUBLIC)
@@ -49,7 +48,6 @@ zend_function_entry php_git2::refdb_backend_internal_methods[] = {
     PHP_ME(GitRefDBBackend_Internal,reflog_delete,NULL,ZEND_ACC_PUBLIC)
     PHP_ME(GitRefDBBackend_Internal,lock,NULL,ZEND_ACC_PUBLIC)
     PHP_ME(GitRefDBBackend_Internal,unlock,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitRefDBBackend_Internal,free,NULL,ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
@@ -116,10 +114,6 @@ PHP_METHOD(GitRefDBBackend_Internal,lock)
 }
 
 PHP_METHOD(GitRefDBBackend_Internal,unlock)
-{
-}
-
-PHP_METHOD(GitRefDBBackend_Internal,free)
 {
 }
 
