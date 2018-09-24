@@ -153,16 +153,16 @@ namespace php_git2
 
 #define GIT2_ARRAY_LOOKUP_CALLBACK(wrapper,callbackWrapper,callbackObject,funcName,payloadName,var) \
     if (wrapper.query(#funcName,sizeof(#funcName))) {                   \
-        callbackObject.func = wrapper.get_zval();                       \
+        zval* zfunc, *zdata;                                            \
+        zfunc = wrapper.get_zval();                                     \
         if (wrapper.query(#payloadName,sizeof(#payloadName))) {         \
-            callbackObject.data = wrapper.get_zval();                   \
+            zdata = wrapper.get_zval();                                 \
         }                                                               \
         else {                                                          \
-            zval* zvalNull;                                             \
-            ALLOC_INIT_ZVAL(zvalNull);                                  \
-            Z_DELREF_P(zvalNull);                                       \
-            callbackObject.data = zvalNull;                             \
+            ALLOC_INIT_ZVAL(zdata);                                     \
+            Z_DELREF_P(zdata);                                          \
         }                                                               \
+        callbackObject.set_members(zfunc,zdata);                        \
         var.funcName = callbackWrapper::callback;                       \
         var.payloadName = (void*)&callbackObject;                       \
     }

@@ -10,7 +10,7 @@
 php-callback.lo: php-callback.cpp php-callback.h php-type.h php-git2.h \
  git2-resource.h
 php-git2.lo: php-git2.cpp php-git2.h php-git2-fe.h php-function.h php-type.h \
- git2-resource.h php-callback.h php-object.h repository.h reference.h \
+ git2-resource.h php-callback.h php-array.h php-object.h repository.h reference.h \
  object.h revwalk.h packbuilder.h indexer.h odb.h commit.h blob.h tree.h \
  signature.h treebuilder.h blame.h revparse.h annotated.h branch.h config-git2.h \
  clone.h checkout.h tag.h diff.h index.h trace.h ignore.h status.h cherrypick.h \
@@ -31,7 +31,7 @@ php-writestream.lo: php-odb-stream.cpp php-object.h php-type.h php-git2.h \
  git2-resource.h
 php-constants.lo: php-git2.h
 php-refdb-backend.lo: php-refdb-backend.cpp php-object.h php-type.h php-git2.h \
-	git2-resource.h
+	git2-resource.h php-array.h
 php-refdb-backend-internal.lo: php-refdb-backend-internal.cpp php-object.h \
 	php-type.h php-git2.h git2-resource.h
 

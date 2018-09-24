@@ -149,6 +149,18 @@ namespace php_git2
         zval* data;
 
         bool is_callable() const;
+
+        void set_members(zval* zfunc,zval* zdata)
+        {
+            // Up reference count. This is really only needed for when this
+            // class is wrapped by php_callback_async so that the PHP values
+            // will exist between function calls.
+            Z_ADDREF_P(zfunc);
+            Z_ADDREF_P(zdata);
+
+            func = zfunc;
+            data = zdata;
+        }
     };
 
     /**
@@ -204,11 +216,16 @@ namespace php_git2
 
         void* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
+            zval* first = func;
+            zval* second = data;
+
             // Figure out which parameters are which and swap as needed. Only
             // consider a swap if both were set (assume 'func' is always set).
-            if (!p && data != nullptr) {
-                std::swap(func,data);
+            if (!p && second != nullptr) {
+                std::swap(first,second);
             }
+
+            set_members(first,second);
 
             // Make sure the function zval is a callable. We always allow the
             // user to omit a callable if the zval is null.
@@ -216,11 +233,6 @@ namespace php_git2
                 php_value_base::error("callable",argno);
             }
 
-            // Up reference count. This is really only needed for when this
-            // class is wrapped by php_callback_async so that the PHP values
-            // will exist between function calls.
-            Z_ADDREF_P(func);
-            Z_ADDREF_P(data);
             return this;
         }
     private:
