@@ -33,14 +33,14 @@ static int reference_from_string(git_reference** out,zval* zstr,const char* ref_
     else if (strlen(target) == GIT_OID_HEXSZ) {
         git_oid oid;
         if (convert_oid_fromstr(&oid,target,GIT_OID_HEXSZ) != 0) {
-            php_error(E_ERROR,"GitRefDBBackend::lookup(): invalid OID return value");
+            giterr_set_str(GIT_EINVALID,"Invalid OID reference target value");
             return GIT_ERROR;
         }
 
         *out = git_reference__alloc(ref_name,&oid,NULL);
     }
     else {
-        php_error(E_ERROR,"GitRefDBBackend::lookup(): invalid return value");
+        giterr_set_str(GIT_EINVALID,"Invalid reference target value");
         return GIT_ERROR;
     }
 
@@ -554,7 +554,9 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj)
     ZVAL_STRING(znewname,new_name,1);
     ZVAL_BOOL(zforce,1);
     convert_signature(zwho,who);
-    ZVAL_STRING(zmessage,message,1);
+    if (message != nullptr) {
+        ZVAL_STRING(zmessage,message,1);
+    }
 
     params[0] = zoldname;
     params[1] = znewname;
@@ -625,13 +627,8 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj)
         result = GIT_ERROR;
     }
     else {
-        // Interpret boolean return value. Assume reference not found on
-        // failure.
-        convert_to_boolean(&retval);
-        if (!Z_BVAL(retval)) {
-            giterr_set_str(GIT_ENOTFOUND,"php-refdb-backend: del: no such reference");
-            result = GIT_ERROR;
-        }
+        // TODO Check for exception.
+
     }
 
     // Cleanup zvals.
@@ -859,12 +856,8 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj)
         result = GIT_ERROR;
     }
     else {
-        // Handle the return value.
-        convert_to_boolean(&retval);
-        if (!Z_BVAL(retval)) {
-            giterr_set_str(GIT_EINVALID,"php-refdb-backend: fail reflog_write()");
-            result = GIT_ERROR;
-        }
+        // TODO Check for exception.
+
     }
 
     // Cleanup zvals.
@@ -907,6 +900,7 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj)
     }
     else {
         // TODO Check for exception.
+
     }
 
     // Cleanup zvals.

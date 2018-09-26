@@ -2286,16 +2286,64 @@ abstract class GitRefDBBackend:
 
             ** Method should return string OID or symbolic name. **
 
-        void iterator(string $glob)
+        void iterator_new(string $glob)
 
             ** $glob may be NULL **
 
-        string iterator_next(&$name)
+        string iterator_next(string &$name)
 
             ** Method should return string OID or symbolic name and assign
                reference name to $name. **
+
+        void write(resource $ref,bool $force,array $who,string $message,string $old,string $old_target)
+
+        resource rename(string $old_name,string $new_name,bool $force,array $who,string $message)
+
+            Returns git_reference resource
+
+        void del(string $ref_name,string $old_id,string $old_target);
+
+        void compress()
+
+        bool has_log(string $refname)
+
+        void ensure_log(string $refname)
+
+        array reflog_read(string $name)
+
+            ** NOTE: This method is unimplementable by custom backends until
+               libgit2 exposes proper support for creating/manipulating
+               reflogs. **
+
+            ** Method returns array of reflog entries. **
+
+        void reflog_write(resource $reflog)
+
+            ** Method is passed a git_reflog resource. **
+
+        void reflog_rename(string $old_name,string $new_name)
+
+        void reflog_delete(string $name)
+
+        mixed lock(string $refname)
+
+            ** NOTE: Whatever value is returned from this method is the value
+               subsequently passed as the first argument to the unlock()
+               method. **
+
+        void unlock(mixed $payload,bool $success,bool $update_reflog,resource $ref,array $sig,string $message)
 
 final class GitRefDBBackend_Internal extends GitRefDBBackend:
 
     ** This class represents internal refdb backends. It cannot be instantiated
        directly. **
+
+    ** NOTE: The GitRefDBBackend_Internal does not implement the lock() and
+       unlock() methods. They will generate a fatal error if called. **
+
+    ** NOTE: The following method signatures represent overloads in this derived
+       class. **
+
+    resource lookup(string $refname)
+
+        Returns git_reference resource

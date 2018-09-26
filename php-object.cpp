@@ -145,6 +145,11 @@ void php_git2::php_git2_register_classes(TSRMLS_D)
         nullptr TSRMLS_CC);
     php_git2::class_entry[php_git2_refdb_backend_internal_obj] = pce;
     pce->ce_flags |= ZEND_ACC_FINAL_CLASS;
+    memcpy(&php_refdb_backend_internal_object::handlers,
+        &php_refdb_backend_object::handlers,
+        sizeof(zend_object_handlers));
+    pce->create_object = php_create_object_handler<php_refdb_backend_internal_object>;
+    php_refdb_backend_internal_object::init(pce);
 
     // final class GitClosure
     INIT_CLASS_ENTRY(ce,"GitClosure",closure_methods);

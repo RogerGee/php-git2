@@ -275,6 +275,17 @@ namespace php_git2
         static void free(git_refdb_backend *backend);
     };
 
+    struct php_refdb_backend_internal_object : php_refdb_backend_object
+    {
+        php_refdb_backend_internal_object(zend_class_entry* ce TSRMLS_DC);
+        ~php_refdb_backend_internal_object();
+
+        git_reference_iterator* iter;
+
+        static zend_object_handlers handlers;
+        static void init(zend_class_entry* ce);
+    };
+
     struct php_closure_object : zend_object
     {
         typedef void (*closure_dstor)(void*);
