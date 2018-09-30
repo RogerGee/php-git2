@@ -579,6 +579,27 @@ void php_git2::convert_reflog_entry(zval* zv,const git_reflog_entry* ent)
         add_assoc_string(zv,"message",const_cast<char*>(msg),1);
     }
 }
+void php_git2::convert_reflog(zval* zv,const git_reflog* log)
+{
+    size_t count;
+
+    array_init(zv);
+
+    // NOTE: For some reason, libgit2 has git_reflog_entrycount take a non-const
+    // reflog pointer. According to the source code, the function is read-only,
+    // so a const-cast is acceptable here to get around the inconvenience of the
+    // function's signature.
+    count = git_reflog_entrycount(const_cast<git_reflog*>(log));
+    for (size_t i = 0;i < count;++i) {
+        zval* zentry;
+        const git_reflog_entry* ent = git_reflog_entry_byindex(log,i);
+
+        MAKE_STD_ZVAL(zentry);
+        convert_reflog_entry(zentry,ent);
+
+        add_next_index_zval(zv,zentry);
+    }
+}
 
 git_signature* php_git2::convert_signature(zval* zv)
 {

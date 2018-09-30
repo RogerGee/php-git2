@@ -148,14 +148,21 @@ static int custom_backend_iterator_next(git_reference** ref,custom_backend_itera
         result = GIT_ERROR;
     }
     else {
-        zval_dtor(&iter->zlast);
-        ZVAL_COPY_VALUE(&iter->zlast,zname);
-        zval_copy_ctor(&iter->zlast);
-        convert_to_string(&iter->zlast);
+        // If userspace returned false, then iteration is over.
+        if (Z_TYPE(retval) == IS_BOOL && !Z_BVAL(retval)) {
+            result = GIT_ITEROVER;
+        }
+        else {
+            // Deep copy the name into a zval that is kept alive by the iterator.
+            zval_dtor(&iter->zlast);
+            ZVAL_COPY_VALUE(&iter->zlast,zname);
+            zval_copy_ctor(&iter->zlast);
+            convert_to_string(&iter->zlast);
 
-        // Return values.
-        convert_to_string(&retval);
-        result = reference_from_string(ref,&retval,Z_STRVAL(iter->zlast));
+            // Return values.
+            convert_to_string(&retval);
+            result = reference_from_string(ref,&retval,Z_STRVAL(iter->zlast));
+        }
     }
 
     // Cleanup zvals.
@@ -191,11 +198,20 @@ static int custom_backend_iterator_next_name(const char** ref_name,custom_backen
         result = GIT_ERROR;
     }
     else {
-        zval_dtor(&iter->zlast);
-        ZVAL_COPY_VALUE(&iter->zlast,zname);
-        zval_copy_ctor(&iter->zlast);
-        convert_to_string(&iter->zlast);
-        *ref_name = Z_STRVAL(iter->zlast);
+        // If userspace returned false, then iteration is over.
+        if (Z_TYPE(retval) == IS_BOOL && !Z_BVAL(retval)) {
+            result = GIT_ITEROVER;
+        }
+        else {
+            // Deep copy the name into a zval that is kept alive by the
+            // iterator.
+            zval_dtor(&iter->zlast);
+            ZVAL_COPY_VALUE(&iter->zlast,zname);
+            zval_copy_ctor(&iter->zlast);
+            convert_to_string(&iter->zlast);
+
+            *ref_name = Z_STRVAL(iter->zlast);
+        }
     }
 
     // Cleanup zvals.

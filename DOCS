@@ -2295,9 +2295,15 @@ abstract class GitRefDBBackend:
             ** Method should return string OID or symbolic name and assign
                reference name to $name. **
 
+            ** Method should return false when iteration is over. **
+
         void write(resource $ref,bool $force,array $who,string $message,string $old,string $old_target)
 
+            ** NOTE: $message may be NULL. **
+
         resource rename(string $old_name,string $new_name,bool $force,array $who,string $message)
+
+            ** NOTE: $message may be NULL. **
 
             Returns git_reference resource
 
@@ -2315,7 +2321,7 @@ abstract class GitRefDBBackend:
                libgit2 exposes proper support for creating/manipulating
                reflogs. **
 
-            ** Method returns array of reflog entries. **
+            ** Method returns indexed array of reflog entries. **
 
         void reflog_write(resource $reflog)
 
@@ -2338,8 +2344,8 @@ final class GitRefDBBackend_Internal extends GitRefDBBackend:
     ** This class represents internal refdb backends. It cannot be instantiated
        directly. **
 
-    ** NOTE: The GitRefDBBackend_Internal does not implement the lock() and
-       unlock() methods. They will generate a fatal error if called. **
+    ** NOTE: The GitRefDBBackend_Internal does not provide access to the lock()
+       and unlock() methods. They will generate a fatal error if called. **
 
     ** NOTE: The following method signatures represent overloads in this derived
        class. **
