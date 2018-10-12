@@ -142,23 +142,33 @@ static constexpr auto ZIF_GIT_INDEXER_FREE = zif_php_git2_function_free<
 // git_transfer_progress members.
 static PHP_FUNCTION(git2_indexer_stats)
 {
-    git_transfer_progress* stats;
-    php_git2::php_resource<php_git2::php_git_indexer_with_stats> indexer;
+    php_git2::php_bailer bailer;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS(),"z",indexer.byref_php()) == FAILURE) {
-        return;
-    }
+    {
+        git_transfer_progress* stats;
+        php_git2::php_resource<php_git2::php_git_indexer_with_stats> indexer;
+        php_git2::php_bailout_context ctx(bailer);
 
-    try {
-        stats = indexer.get_object(1)->get_stats();
-    } catch (php_git2::php_git2_exception_base& ex) {
-        if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
+        if (BAILOUT_ENTER_REGION(ctx)) {
+            if (zend_parse_parameters(ZEND_NUM_ARGS(),"z",indexer.byref_php()) == FAILURE) {
+                return;
+            }
+
+            try {
+                stats = indexer.get_object(1)->get_stats();
+            } catch (php_git2::php_git2_exception_base& ex) {
+                php_git2::php_bailout_context ctx2(bailer);
+
+                if (BAILOUT_ENTER_REGION(ctx2)) {
+                    ex.handle(TSRMLS_C);
+                }
+
+                return;
+            }
+
+            php_git2::convert_transfer_progress(return_value,stats);
         }
-        return;
     }
-
-    php_git2::convert_transfer_progress(return_value,stats);
 }
 
 // Function Entries:

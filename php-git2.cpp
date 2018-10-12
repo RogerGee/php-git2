@@ -6,8 +6,6 @@
 
 #include "php-git2.h"
 #include "php-git2-fe.h"
-#include <cstdio>
-#include <cstdarg>
 using namespace std;
 using namespace php_git2;
 
@@ -219,15 +217,97 @@ PHP_FUNCTION(git2_version)
     RETURN_STRING(buf,1);
 }
 
+// php_git2_exception__with_message
+
+php_git2_exception__with_message::php_git2_exception__with_message()
+{
+    buf = new (emalloc(sizeof(buffer))) buffer;
+}
+
+php_git2_exception__with_message::
+php_git2_exception__with_message(const php_git2_exception__with_message& inst):
+    php_git2_exception_base(inst)
+{
+    buf = inst.buf;
+    buf->ref += 1;
+}
+
+php_git2_exception__with_message::~php_git2_exception__with_message()
+{
+    if (--buf->ref <= 0) {
+        buf->~buffer();
+        efree(buf);
+    }
+}
+
+php_git2_exception__with_message&
+php_git2_exception__with_message::operator =(const php_git2_exception__with_message& inst)
+{
+    if (this != &inst) {
+        buf = inst.buf;
+        buf->ref += 1;
+    }
+
+    return *this;
+}
+
 // php_git2_exception
 
 php_git2_exception::php_git2_exception(const char* format, ...)
-    : message(4096,0)
 {
     va_list args;
     va_start(args,format);
-    vsnprintf(&message[0],message.size(),format,args);
+    set_message(format,args);
     va_end(args);
+}
+
+// php_git2_fatal_exception
+
+php_git2_fatal_exception::php_git2_fatal_exception(const char* format, ...)
+{
+    va_list args;
+    va_start(args,format);
+    set_message(format,args);
+    va_end(args);
+}
+
+// php_exception_wrapper
+
+php_exception_wrapper::php_exception_wrapper()
+{
+    zval* zegexception = EG(exception);
+    if (zegexception != nullptr) {
+        zex = zegexception;
+    }
+}
+
+void php_exception_wrapper::set_giterr(TSRMLS_D) const
+{
+    zval* zmessage;
+
+    assert(zex != nullptr);
+
+    zmessage = zend_read_property(Z_OBJCE_P(zex),zex,"message",sizeof("message")-1,1 TSRMLS_CC);
+    if (zmessage != nullptr) {
+        php_git2_giterr_set(GITERR_INVALID,"%s",Z_STRVAL_P(zmessage));
+    }
+    else {
+        php_git2_giterr_set(GITERR_INVALID,"An exception occurred during the operation");
+    }
+}
+
+void php_exception_wrapper::throw_php_git2_exception() const
+{
+    zval* zmessage;
+
+    assert(zex != nullptr);
+
+    zmessage = zend_read_property(Z_OBJCE_P(zex),zex,"message",sizeof("message")-1,1 TSRMLS_CC);
+    if (zmessage != nullptr) {
+        throw php_git2_fatal_exception("%s",Z_STRVAL_P(zmessage));
+    }
+
+    throw php_git2_fatal_exception("%s","An exception occurred during the operation");
 }
 
 // php_git2::git_error<int>()
@@ -235,14 +315,86 @@ php_git2_exception::php_git2_exception(const char* format, ...)
 template<>
 void php_git2::git_error(int code)
 {
+    // Pull libgit2 exception.
     const ::git_error* err = giterr_last();
     if (err == nullptr) {
         throw php_git2_exception("libgit2 no error?");
     }
 
+    // User errors are passed off as normal exceptions. These generate PHP
+    // exceptions.
+    if (code == GIT_EUSER) {
+        php_git2_exception ex("%s",err->message);
+        ex.code = code;
+        giterr_clear();
+        throw ex;
+    }
+
+    // Fatal errors are passed off as fatal exceptions. These generate PHP fatal
+    // errors.
+    if (code == GIT_EPHPFATAL) {
+        php_git2_fatal_exception ex(err->message);
+        ex.code = code;
+        giterr_clear();
+        throw ex;
+    }
+
+    if (code == GIT_EPHPEXPROP) {
+        php_git2_propagated_exception ex;
+        ex.code = code;
+        giterr_clear();
+        throw ex;
+    }
+
+    if (code == GIT_EPHPFATALPROP) {
+        php_git2_fatal_propagated ex;
+        ex.code = code;
+        giterr_clear();
+        throw ex;
+    }
+
+    // Library errors are passed off as normal exceptions that we annotate as
+    // "libgit2 error". These generate PHP exceptions.
     php_git2_exception ex("libgit2 error: (%d): %s",err->klass,err->message);
     ex.code = code;
+    giterr_clear();
     throw ex;
+}
+
+// php_git2::git_warning()
+
+void php_git2::git_warning(int code,const char* prefix)
+{
+    // Pull libgit2 exception.
+    const ::git_error* err = giterr_last();
+    if (err == nullptr) {
+        return;
+    }
+
+    if (code != GIT_EUSER && code != GIT_EPHPFATAL) {
+        php_error(E_WARNING,"libgit2 error: (%d) %s",err->klass,err->message);
+    }
+    else if (prefix != nullptr) {
+        php_error(E_WARNING,"%s: %s",prefix,err->message);
+    }
+    else {
+        php_error(E_WARNING,"%s",err->message);
+    }
+
+    giterr_clear();
+}
+
+// php_git2::php_git2_giterr_set()
+
+void php_git2::php_git2_giterr_set(int errorClass,const char* format, ...)
+{
+    char buf[4096];
+    va_list args;
+    va_start(args,format);
+    vsnprintf(buf,sizeof(buf),format,args);
+    va_end(args);
+
+    giterr_set_str(errorClass,buf);
 }
 
 // Helpers

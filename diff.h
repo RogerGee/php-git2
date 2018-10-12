@@ -63,13 +63,13 @@ namespace php_git2
                 // type.
                 if (opts.notify_cb != nullptr) {
                     if (!callbacks.notifyCallback.is_callable()) {
-                        error_custom("'notify_cb' must be a callable",argno);
+                        error_custom("Element 'notify_cb' must be a callable",argno);
                     }
                     opts.payload = reinterpret_cast<void*>(&callbacks);
                 }
                 if (opts.progress_cb != nullptr) {
                     if (!callbacks.progressCallback.is_callable()) {
-                        error_custom("'progress_cb' must be a callable",argno);
+                        error_custom("Element 'progress_cb' must be a callable",argno);
                     }
                     opts.payload = reinterpret_cast<void*>(&callbacks);
                 }
@@ -257,19 +257,19 @@ namespace php_git2
         {
             // Check types of all callbacks.
             if (!info.fileCallback.is_callable()) {
-                php_value_base::error_custom("expected 'callable' for file callback",
+                php_value_base::error_custom("Expected 'callable' for file callback",
                     std::numeric_limits<unsigned>::max());
             }
             if (!info.binaryCallback.is_callable()) {
-                php_value_base::error_custom("expected 'callable' for binary callback",
+                php_value_base::error_custom("Expected 'callable' for binary callback",
                     std::numeric_limits<unsigned>::max());
             }
             if (!info.hunkCallback.is_callable()) {
-                php_value_base::error_custom("expected 'callable' for hunk callback",
+                php_value_base::error_custom("Expected 'callable' for hunk callback",
                     std::numeric_limits<unsigned>::max());
             }
             if (!info.lineCallback.is_callable()) {
-                php_value_base::error_custom("expected 'callable' for line callback",
+                php_value_base::error_custom("Expected 'callable' for line callback",
                     std::numeric_limits<unsigned>::max());
             }
 
@@ -398,7 +398,7 @@ namespace php_git2
                 if (Z_TYPE_P(zv) == IS_ARRAY) {
                     sig = convert_signature(arr.get_zval());
                     if (sig == nullptr) {
-                        error_custom("'author' must be git_signature array",argno);
+                        error_custom("Element 'author' must be git_signature array",argno);
                     }
                     author = sig;
                 }
@@ -409,7 +409,7 @@ namespace php_git2
                     author = sigres.get_object()->get_handle();
                 }
                 else {
-                    error_custom("expected resource or array for 'author' option",argno);
+                    error_custom("Expected resource or array for 'author' option",argno);
                 }
 
                 opts.author = author;

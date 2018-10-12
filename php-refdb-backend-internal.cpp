@@ -101,10 +101,7 @@ PHP_METHOD(GitRefDBBackend_Internal,exists)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
-        }
-
+        ex.handle(TSRMLS_C);
         return;
     }
 
@@ -138,10 +135,7 @@ PHP_METHOD(GitRefDBBackend_Internal,lookup)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
-        }
-
+        ex.handle(TSRMLS_C);
         return;
     }
 
@@ -176,10 +170,7 @@ PHP_METHOD(GitRefDBBackend_Internal,iterator_new)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
-        }
-
+        ex.handle(TSRMLS_C);
         return;
     }
 
@@ -238,7 +229,7 @@ PHP_METHOD(GitRefDBBackend_Internal,iterator_next)
         if (oid == nullptr) {
             const char* target = git_reference_symbolic_target(ref);
             if (target == nullptr) {
-                throw php_git2_exception("GitRefDBBackend_Internal::iterator_next(): next reference is invalid");
+                throw php_git2_fatal_exception("GitRefDBBackend_Internal::iterator_next(): next reference is invalid");
             }
 
             RETVAL_STRING(target,1);
@@ -251,10 +242,7 @@ PHP_METHOD(GitRefDBBackend_Internal,iterator_next)
             git_reference_free(ref);
         }
 
-        if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
-        }
-
+        ex.handle(TSRMLS_C);
         return;
     }
 
@@ -306,7 +294,7 @@ PHP_METHOD(GitRefDBBackend_Internal,write)
         ref.set_zval(zref);
         sig = convert_signature(zwho);
         if (sig == nullptr) {
-            throw php_git2_exception("GitRefDBBackend_Internal::write(): signature array is incorrect");
+            throw php_git2_fatal_exception("GitRefDBBackend_Internal::write(): signature array is incorrect");
         }
         convert_oid_fromstr(&oid,old,old_len);
 
@@ -325,10 +313,7 @@ PHP_METHOD(GitRefDBBackend_Internal,write)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
-        }
-
+        ex.handle(TSRMLS_C);
         return;
     }
 }
@@ -392,10 +377,7 @@ PHP_METHOD(GitRefDBBackend_Internal,rename)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
-        }
-
+        ex.handle(TSRMLS_C);
         return;
     }
 
@@ -445,10 +427,7 @@ PHP_METHOD(GitRefDBBackend_Internal,del)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
-        }
-
+        ex.handle(TSRMLS_C);
         return;
     }
 }
@@ -472,10 +451,7 @@ PHP_METHOD(GitRefDBBackend_Internal,compress)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
-        }
-
+        ex.handle(TSRMLS_C);
         return;
     }
 }
@@ -509,10 +485,7 @@ PHP_METHOD(GitRefDBBackend_Internal,has_log)
 
         RETVAL_BOOL(retval);
     } catch (php_git2::php_git2_exception_base& ex) {
-        if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
-        }
-
+        ex.handle(TSRMLS_C);
         return;
     }
 }
@@ -544,10 +517,7 @@ PHP_METHOD(GitRefDBBackend_Internal,ensure_log)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
-        }
-
+        ex.handle(TSRMLS_C);
         return;
     }
 }
@@ -585,10 +555,7 @@ PHP_METHOD(GitRefDBBackend_Internal,reflog_read)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
-        }
-
+        ex.handle(TSRMLS_C);
         return;
     }
 
@@ -626,10 +593,7 @@ PHP_METHOD(GitRefDBBackend_Internal,reflog_write)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
-        }
-
+        ex.handle(TSRMLS_C);
         return;
     }
 }
@@ -668,10 +632,7 @@ PHP_METHOD(GitRefDBBackend_Internal,reflog_rename)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
-        }
-
+        ex.handle(TSRMLS_C);
         return;
     }
 }
@@ -703,10 +664,7 @@ PHP_METHOD(GitRefDBBackend_Internal,reflog_delete)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
-        }
-
+        ex.handle(TSRMLS_C);
         return;
     }
 }

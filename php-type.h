@@ -44,19 +44,24 @@ namespace php_git2
         static inline void error(const char* typeName,unsigned argno)
         {
             if (argno != std::numeric_limits<unsigned>::max()) {
-                php_error(E_ERROR,"expected '%s' for argument at position %d",
-                    typeName,argno);
+                throw php_git2_fatal_exception(
+                    "Expected '%s' for argument at position %d",
+                    typeName,
+                    argno);
             }
-            php_error(E_ERROR,"expected '%s' for argument",typeName);
+
+            throw php_git2_fatal_exception("Expected '%s' for argument",typeName);
         }
 
         static inline void error_custom(const char* message,unsigned argno)
         {
             if (argno != std::numeric_limits<unsigned>::max()) {
-                php_error(E_ERROR,"%s for argument at position %d",message,argno);
+                throw php_git2_fatal_exception("%s for argument at position %d",message,argno);
             }
-            php_error(E_ERROR,"%s",message);
+
+            throw php_git2_fatal_exception("%s",message);
         }
+
     protected:
         zval* value;
     };
@@ -437,7 +442,7 @@ namespace php_git2
                 rsrc = (GitResource*)zend_fetch_resource(&value TSRMLS_CC,-1,
                     GitResource::resource_name(),NULL,1,GitResource::resource_le());
                 if (rsrc == nullptr) {
-                    throw php_git2_exception("resource is invalid");
+                    throw php_git2_exception("The fetched resource is invalid");
                 }
             }
         }
@@ -464,7 +469,7 @@ namespace php_git2
             // Ensure that the underlying handle is owned by the resource before
             // returning it.
             if (!res->is_owned()) {
-                throw php_git2_exception("cannot execute git2 call on non-owner resource");
+                throw php_git2_exception("Cannot execute git2 call on non-owner resource");
             }
 
             return res->get_handle();
@@ -655,7 +660,7 @@ namespace php_git2
             rsrc = (GitResource*)zend_fetch_resource(&value TSRMLS_CC,-1,
                 GitResource::resource_name(),NULL,1,GitResource::resource_le());
             if (rsrc == nullptr) {
-                throw php_git2_exception("resource is invalid");
+                throw php_git2_exception("Fetched resource is invalid");
             }
             return rsrc->get_handle();
         }
@@ -693,7 +698,7 @@ namespace php_git2
             rsrc = (GitResource*)zend_fetch_resource(&value TSRMLS_CC,-1,
                 GitResource::resource_name(),NULL,1,GitResource::resource_le());
             if (rsrc == nullptr) {
-                throw php_git2_exception("resource is invalid");
+                throw php_git2_exception("Fetched resource is invalid");
             }
 
             // Delete the PHP resource. This will cause the resource to be

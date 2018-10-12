@@ -90,7 +90,7 @@ namespace php_git2
             // The destructor should be specialized for the git_type used by the
             // particular template class instantiation.
             throw php_git2_exception(
-                "resource type was not implemented correctly: no destructor provided");
+                "Resource type was not implemented correctly: no destructor provided");
         }
 
         git2_type get_handle()

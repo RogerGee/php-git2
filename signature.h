@@ -111,23 +111,33 @@ static constexpr auto ZIF_GIT_SIGNATURE_FROM_BUFFER = zif_php_git2_function<
 
 static PHP_FUNCTION(git2_signature_convert)
 {
-    git_signature* handle;
-    php_git2::php_resource<php_git2::php_git_signature> signature;
+    php_git2::php_bailer bailer;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS(),"z",signature.byref_php()) == FAILURE) {
-        return;
-    }
+    {
+        git_signature* handle;
+        php_git2::php_resource<php_git2::php_git_signature> signature;
+        php_git2::php_bailout_context ctx(bailer);
 
-    try {
-        handle = signature.byval_git2();
-    } catch (php_git2::php_git2_exception_base& ex) {
-        if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
+        if (BAILOUT_ENTER_REGION(ctx)) {
+            if (zend_parse_parameters(ZEND_NUM_ARGS(),"z",signature.byref_php()) == FAILURE) {
+                return;
+            }
+
+            try {
+                handle = signature.byval_git2();
+            } catch (php_git2::php_git2_exception_base& ex) {
+                php_git2::php_bailout_context ctx2(bailer);
+
+                if (BAILOUT_ENTER_REGION(ctx2)) {
+                    ex.handle(TSRMLS_C);
+                }
+
+                return;
+            }
+
+            php_git2::convert_signature(return_value,handle);
         }
-        return;
     }
-
-    php_git2::convert_signature(return_value,handle);
 }
 
 // Function Entries:

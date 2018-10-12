@@ -40,6 +40,8 @@ extern "C" {
 #include <exception>
 #include <cstring>
 #include <cassert>
+#include <cstdio>
+#include <cstdarg>
 
 // Module globals
 ZEND_BEGIN_MODULE_GLOBALS(git2)
@@ -78,11 +80,97 @@ ZEND_EXTERN_MODULE_GLOBALS(git2)
 
 #define UNUSED(var) ((void)var)
 
-#define add_assoc_const_string(zv,key,str)      \
+#define add_assoc_const_string(zv,key,str)                  \
     add_assoc_string_ex(zv,key,sizeof(key),(char*)str,1)
+
+// Create a macro for managing bailout context regions.
+
+#define BAILOUT_ENTER_REGION(ctx)                   \
+    ctx.enterRegion( SETJMP(ctx.jumpbuf()) == 0 )
+
+// Create custom git error values. These values must go outside of the range of
+// errors defined in the libgit2 "errors.h" header.
+
+#define GIT_EPHPFATAL         -30000
+#define GIT_EPHPEXPROP        -30001
+#define GIT_EPHPFATALPROP     -30002
 
 namespace php_git2
 {
+    // Provide types for tracking bailouts and manipulating PHP bailout jump
+    // buffers.
+
+    class php_bailer
+    {
+    public:
+        php_bailer():
+            flag(false)
+        {
+        }
+
+        ~php_bailer()
+        {
+            if (flag) {
+                bailout();
+            }
+        }
+
+        void set()
+        {
+            flag = true;
+        }
+
+        void handled()
+        {
+            flag = false;
+        }
+
+        static void bailout()
+        {
+            _zend_bailout(const_cast<char*>(__FILE__),__LINE__);
+        }
+
+    private:
+        bool flag;
+    };
+
+    class php_bailout_context
+    {
+    public:
+        php_bailout_context(php_bailer& theBailer):
+            original(EG(bailout)), bailer(theBailer)
+        {
+            EG(bailout) = &current;
+        }
+
+        ~php_bailout_context()
+        {
+            EG(bailout) = original;
+        }
+
+        JMP_BUF& jumpbuf()
+        {
+            return current;
+        }
+
+        bool enterRegion(bool result)
+        {
+            if (!result) {
+                bailer.set();
+            }
+
+            return result;
+        }
+
+    private:
+        php_bailout_context(const php_bailout_context&) = delete;
+        php_bailout_context& operator =(const php_bailout_context&) = delete;
+
+        JMP_BUF* original;
+        JMP_BUF current;
+        bool jumpResult;
+        php_bailer& bailer;
+    };
 
     // Provide a base exception type for identifying exceptions we care to
     // handle.
@@ -92,28 +180,79 @@ namespace php_git2
     {
     public:
         php_git2_exception_base():
-            code(0) {}
+            code(0)
+        {
+        }
+
+        // Member function that handles the exception in some well-defined way
+        // according to the exception type.
+        virtual void handle(TSRMLS_D) const noexcept = 0;
 
         // The error code to report to userspace.
         int code;
     };
 
+    class php_git2_exception__with_message:
+        public php_git2_exception_base
+    {
+    public:
+        php_git2_exception__with_message();
+        php_git2_exception__with_message(const php_git2_exception__with_message& inst);
+        ~php_git2_exception__with_message();
+
+        virtual const char* what() const noexcept
+        {
+            return buf->buf;
+        }
+
+        php_git2_exception__with_message& operator =(const php_git2_exception__with_message& inst);
+
+    protected:
+        void set_message(const char* format,va_list args)
+        {
+            vsnprintf(buf->buf,buf->size,format,args);
+        }
+
+    private:
+        struct buffer
+        {
+            buffer():
+                size(1024), ref(1)
+            {
+                buf = reinterpret_cast<char*>(emalloc(size));
+            }
+
+            ~buffer()
+            {
+                efree(buf);
+            }
+
+            char* buf;
+            size_t size;
+            int ref;
+        };
+
+        buffer* buf;
+    };
+
     // Provide an exception type to be thrown by git2 function wrappers when
-    // they fail. This will allow userspace to handle these errors.
+    // they fail. This will allow userspace to handle these errors as PHP
+    // exceptions.
 
     class php_git2_exception:
-        public php_git2_exception_base
+        public php_git2_exception__with_message
     {
     public:
         php_git2_exception(const char* format, ...);
 
-        virtual const char* what() const noexcept
-        { return message.c_str(); }
-    private:
-        std::string message;
+        virtual void handle(TSRMLS_D) const noexcept
+        {
+            // Transform the exception into a PHP exception.
+            zend_throw_exception(nullptr,what(),code TSRMLS_CC);
+        }
     };
 
-    // Provide an exception type to be thrown when a PHP exception is to be
+    // Provide exception types to be thrown when PHP exceptions/errors are to be
     // propagated through.
 
     class php_git2_propagated_exception:
@@ -123,13 +262,80 @@ namespace php_git2
         // Return NULL pointer to indicate that the exception propagates
         // through.
         virtual const char* what() const noexcept
-        { return nullptr; }
+        {
+            return nullptr;
+        }
+
+        virtual void handle(TSRMLS_D) const noexcept
+        {
+        }
+    };
+
+    class php_git2_fatal_propagated:
+        public php_git2_exception_base
+    {
+    public:
+        // Return NULL pointer to indicate that the exception propagates
+        // through.
+        virtual const char* what() const noexcept
+        {
+            return nullptr;
+        }
+
+        virtual void handle(TSRMLS_D) const noexcept
+        {
+            // Bailout since an error is already set and was propagated through.
+            php_bailer::bailout();
+        }
+    };
+
+    // Provide an exception type for generating fatal PHP errors.
+
+    class php_git2_fatal_exception:
+        public php_git2_exception__with_message
+    {
+    public:
+        php_git2_fatal_exception(const char* format, ...);
+
+        virtual void handle(TSRMLS_D) const noexcept
+        {
+            // Generate a fatal PHP error.
+            php_error(E_ERROR,"%s",what());
+        }
+    };
+
+    // Provide a type to facilitate converting PHP exceptions.
+
+    class php_exception_wrapper
+    {
+    public:
+        php_exception_wrapper();
+
+        bool has_exception() const
+        {
+            return zex != nullptr;
+        }
+
+        void handle()
+        {
+            zend_clear_exception();
+        }
+
+        void set_giterr(TSRMLS_D) const;
+        void throw_php_git2_exception(TSRMLS_D) const;
+    private:
+        php_exception_wrapper(const php_exception_wrapper&) = delete;
+        php_exception_wrapper& operator =(const php_exception_wrapper&) = delete;
+
+        zval* zex;
     };
 
     // Provide a function to handle a generic libgit2 error. It is generic for
     // any possible return type. However we specialize it for int to handle all
     // cases. We want to preserve the numeric return code so we can expose it to
     // userspace.
+    //
+    // NOTE: this function throws a php_git2_exception_base object.
 
     template<typename T>
     void git_error(T t)
@@ -141,6 +347,17 @@ namespace php_git2
 
     template<>
     void git_error(int code);
+
+    // Provide a function used for issuing a PHP warning from the latest libgit2
+    // error. The error state is cleared after the error is reported. This
+    // function does NOT throw.
+
+    void git_warning(int code,const char* prefix = nullptr);
+
+    // Provide a wrapper around giterr_set_str that allows printf-style format
+    // strings.
+
+    void php_git2_giterr_set(int errorClass,const char* format, ...);
 
     // Function to register constants defined in php-constants.cpp.
 

@@ -66,7 +66,7 @@ namespace php_git2
             object = reinterpret_cast<php_writestream_object*>(zend_objects_get_address(value TSRMLS_CC));
 
             if (object->ws == nullptr) {
-                throw new php_git2_exception("the writestream has already been closed");
+                throw php_git2_exception("The writestream has already been closed");
             }
 
             return object->ws;
@@ -125,7 +125,7 @@ namespace php_git2
             object = reinterpret_cast<php_writestream_object*>(zend_objects_get_address(value TSRMLS_CC));
 
             if (object->ws == nullptr) {
-                throw new php_git2_exception("the writestream has already been closed");
+                throw php_git2_exception("The writestream has already been closed");
             }
             ws = object->ws;
             object->ws = nullptr;

@@ -128,7 +128,7 @@ namespace php_git2
         zval* zv = wrapper.get_zval();                                  \
         if (Z_TYPE_P(zv) != IS_NULL) {                                  \
             if (Z_TYPE_P(zv) != IS_RESOURCE) {                          \
-                error_custom("expected resource in property " #name,argno); \
+                error_custom("Expected resource in property " #name,argno); \
             }                                                           \
             rr.set_zval(zv);                                            \
             r = rr.get_object(argno);                                   \
@@ -143,7 +143,7 @@ namespace php_git2
         zval* zv = wrapper.get_zval();                                  \
         if (Z_TYPE_P(zv) != IS_NULL) {                                  \
             if (Z_TYPE_P(zv) != IS_RESOURCE) {                          \
-                error_custom("expected resource in property " #name,argno); \
+                error_custom("Expected resource in property " #name,argno); \
             }                                                           \
             rr.set_zval(zv);                                            \
             r = rr.get_object(argno);                                   \

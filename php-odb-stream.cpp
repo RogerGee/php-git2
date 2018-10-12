@@ -78,6 +78,9 @@ php_odb_stream_object::~php_odb_stream_object()
 
 void php_odb_stream_object::create_custom_stream(zval* zobj,unsigned int mode,zval* zodbBackend)
 {
+    // NOTE: this member function should be called under the php-git2 standard
+    // exception handler.
+
     // NOTE: the zval should be any zval that points to an object with 'this' as
     // its backing (i.e. result of zend_objects_get_address()). This is really
     // only used by the implementation to obtain class entry info for the class
@@ -86,7 +89,7 @@ void php_odb_stream_object::create_custom_stream(zval* zobj,unsigned int mode,zv
 
     // Make sure the stream does not already exist.
     if (stream != nullptr) {
-        php_error(E_ERROR,"cannot create custom ODB stream - object already in use");
+        throw php_git2_fatal_exception("cannot create custom ODB stream - object already in use");
     }
 
     // Free existing zbackend (just in case).
@@ -274,8 +277,8 @@ git_odb_stream_php::git_odb_stream_php(zval* zv,unsigned int newMode)
     // Copy the object zval so that we have a new zval we can track that refers
     // to the same specified object. We keep this zval alive as long as the
     // git_odb_stream is alive.
-    MAKE_STD_ZVAL(thisobj);
-    ZVAL_ZVAL(thisobj,zv,1,0);
+    Z_ADDREF_P(zv);
+    thisobj = zv;
 
     // Get the class entry for the (hopefully) derived class type.
     zend_class_entry* ce = Z_OBJCE_P(thisobj);
@@ -284,18 +287,15 @@ git_odb_stream_php::git_odb_stream_php(zval* zv,unsigned int newMode)
     // mode. If not we raise a fatal error.
     if (mode == GIT_STREAM_RDONLY) {
         if (!is_method_overridden(ce,"read",sizeof("read"))) {
-            php_error(E_ERROR,"Custom GitODBStream must override read()");
-            return;
+            throw php_git2_fatal_exception("Custom GitODBStream must override read()");
         }
     }
     else if (mode == GIT_STREAM_WRONLY) {
         if (!is_method_overridden(ce,"write",sizeof("write"))) {
-            php_error(E_ERROR,"Custom GitODBStream must override write()");
-            return;
+            throw php_git2_fatal_exception("Custom GitODBStream must override write()");
         }
         if (!is_method_overridden(ce,"finalize_write",sizeof("finalize_write"))) {
-            php_error(E_ERROR,"Custom GitODBStream must override finalize_write()");
-            return;
+            throw php_git2_fatal_exception("Custom GitODBStream must override finalize_write()");
         }
     }
 

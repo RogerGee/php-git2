@@ -102,7 +102,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     // Make sure object doesn't already have a backing. This would imply it is
     // in use already in an ODB.
     if (backend != nullptr) {
-        php_error(E_ERROR,"Cannot create custom ODB backend: object already in use");
+        throw php_git2_fatal_exception("Cannot create custom ODB backend: object already in use");
     }
 
     // Create custom backend. Custom backends are always passed off to git2, so
@@ -169,6 +169,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     zval_dtor(&retval);
     zval_ptr_dtor(&zoid);
     zval_ptr_dtor(&ztype);
+
     return result;
 }
 
@@ -225,6 +226,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     zval_ptr_dtor(&zfull);
     zval_ptr_dtor(&ztype);
     zval_ptr_dtor(&zprefix);
+
     return result;
 }
 
@@ -273,6 +275,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     zval_ptr_dtor(&zsize);
     zval_ptr_dtor(&ztype);
     zval_ptr_dtor(&zoid);
+
     return result;
 }
 
@@ -316,6 +319,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     zval_ptr_dtor(&zoid);
     zval_ptr_dtor(&zpayload);
     zval_ptr_dtor(&ztype);
+
     return result;
 }
 
@@ -354,29 +358,47 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
         if (Z_TYPE(retval) != IS_OBJECT
             || !is_subclass_of(Z_OBJCE(retval),class_entry[php_git2_odb_stream_obj]))
         {
-            php_error(
-                E_ERROR,
+            php_git2_giterr_set(
+                GITERR_ODB,
                 "GitODBBackend::writestream(): return value must be an object "
                 "derived from GitODBStream");
-            return GIT_ERROR;
+
+            result = GIT_EPHPFATAL;
         }
 
-        // Now create the custom stream backing. The stream tracks this object
-        // to keep it alive and provide access to the GitODBBackend
-        // derivation. NOTE: it is safe to use 'retval' in
-        // create_custom_stream() since the implementation will copy the zval.
-        php_odb_stream_object* sobj = LOOKUP_OBJECT(php_odb_stream_object,&retval);
-        sobj->create_custom_stream(&retval,GIT_STREAM_WRONLY,thisobj);
+        // Copy the return value zval.
+        zval* zobj;
+        MAKE_STD_ZVAL(zobj);
+        ZVAL_ZVAL(zobj,&retval,1,0);
 
-        // The libgit2 implementation expects the custom backing to provide a
-        // reference to the ODB backend.
-        sobj->stream->backend = backend;
+        try {
 
-        // Assign the git_odb_stream to the out parameter. This is safe since
-        // the instance holds its own zval that references the object backing,
-        // meaning the returned object will survive until the free() function is
-        // called on the git_odb_stream.
-        *streamp = sobj->stream;
+            // Now create the custom stream backing. The stream tracks this
+            // object to keep it alive and provide access to the GitODBBackend
+            // derivation.
+            php_odb_stream_object* sobj = LOOKUP_OBJECT(php_odb_stream_object,&retval);
+            sobj->create_custom_stream(zobj,GIT_STREAM_WRONLY,thisobj);
+
+            // The libgit2 implementation expects the custom backing to provide
+            // a reference to the ODB backend.
+            sobj->stream->backend = backend;
+
+            // Assign the git_odb_stream to the out parameter. This is safe
+            // since the instance holds its own zval that references the object
+            // backing, meaning the returned object will survive until the
+            // free() function is called on the git_odb_stream.
+            *streamp = sobj->stream;
+        } catch (php_git2_fatal_exception& ex) {
+            const char* msg = ex.what();
+            if (msg == nullptr) {
+                msg = "GitODBBackend::writestream(): failed to generate the writestream";
+            }
+            php_git2_giterr_set(GITERR_ODB,msg);
+
+            result = GIT_EPHPFATAL;
+        }
+
+        zval_ptr_dtor(&zobj);
     }
 
     // Cleanup zvals.
@@ -384,6 +406,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     zval_dtor(&retval);
     zval_ptr_dtor(&zsize);
     zval_ptr_dtor(&ztype);
+
     return result;
 }
 
@@ -419,11 +442,12 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
         if (Z_TYPE(retval) != IS_OBJECT
             || !is_subclass_of(Z_OBJCE(retval),class_entry[php_git2_odb_stream_obj]))
         {
-            php_error(
-                E_ERROR,
+            php_git2_giterr_set(
+                GITERR_ODB,
                 "GitODBBackend::readstream(): return value must be an object "
                 "derived from GitODBStream");
-            return GIT_ERROR;
+
+            return GIT_EPHPFATAL;
         }
 
         // Now create the custom stream backing. NOTE: it is safe to use
@@ -447,6 +471,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     zval_dtor(&fname);
     zval_dtor(&retval);
     zval_ptr_dtor(&zbuf);
+
     return result;
 }
 
@@ -486,6 +511,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     zval_dtor(&fname);
     zval_dtor(&retval);
     zval_ptr_dtor(&zoid);
+
     return result;
 }
 
@@ -537,6 +563,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     zval_dtor(&retval);
     zval_ptr_dtor(&zfull);
     zval_ptr_dtor(&zoid);
+
     return result;
 }
 
@@ -565,6 +592,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     // Cleanup zvals.
     zval_dtor(&fname);
     zval_dtor(&retval);
+
     return result;
 }
 
@@ -631,6 +659,8 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     void* progress_payload)
 {
     int result = GIT_OK;
+
+    // TODO
 
     return result;
 }

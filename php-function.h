@@ -321,7 +321,7 @@ namespace php_git2
         if (zend_get_parameters(0,int(sizeof...(Ns)),
                 pack.template get<Ns>().byref_php(Ps)...) == FAILURE)
         {
-            php_error(E_ERROR,"incorrect number of arguments passed to function");
+            php_error(E_ERROR,"Incorrect number of arguments passed to function");
         }
     }
 
@@ -573,30 +573,40 @@ template<
     typename AllParams = php_git2::make_seq<FuncWrapper::arg_count()> >
 static void zif_php_git2_function(INTERNAL_FUNCTION_PARAMETERS)
 {
-    // Create a local_pack object that houses all the variables we need for the
-    // call. The constructors take care of any initialization.
-    LocalVars vars ZTS_CTOR;
-    typename FuncWrapper::return_type retval;
+    php_git2::php_bailer bailer;
 
-    try {
-        // Obtain values from PHP userspace.
-        php_git2::php_extract_args(vars,PHPForward());
+    {
+        // Create a local_pack object that houses all the variables we need for
+        // the call. The constructors take care of any initialization.
+        LocalVars vars ZTS_CTOR;
+        typename FuncWrapper::return_type retval;
+        php_git2::php_bailout_context ctx(bailer);
 
-        // Call wrapped function.
-        retval = php_git2::library_call(FuncWrapper(),vars,GitForward(),AllParams());
+        if (BAILOUT_ENTER_REGION(ctx)) {
+            try {
+                // Obtain values from PHP userspace.
+                php_git2::php_extract_args(vars,PHPForward());
 
-        // Check for errors (when return value is less than zero).
-        if (php_git2::check_return(retval)) {
-            // Handle the return value.
-            php_git2::php_return<ReturnPos>(retval,vars,return_value);
-        }
-        else {
-            // Throw error with formatted message from git2.
-            php_git2::git_error(retval);
-        }
-    } catch (php_git2::php_git2_exception_base& ex) {
-        if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
+                // Call wrapped function.
+                retval = php_git2::library_call(FuncWrapper(),vars,GitForward(),AllParams());
+
+                // Check for errors (when return value is less than zero).
+                if (php_git2::check_return(retval)) {
+                    // Handle the return value.
+                    php_git2::php_return<ReturnPos>(retval,vars,return_value);
+                }
+                else {
+                    // Throw error with formatted message from git2.
+                    php_git2::git_error(retval);
+                }
+
+            } catch (php_git2::php_git2_exception_base& ex) {
+                php_git2::php_bailout_context ctx2(bailer);
+
+                if (BAILOUT_ENTER_REGION(ctx2)) {
+                    ex.handle(TSRMLS_C);
+                }
+            }
         }
     }
 }
@@ -617,30 +627,40 @@ template<
     typename ReturnHandler,
     typename PHPForward = php_git2::make_seq<LocalVars::size()>,
     typename GitForward = php_git2::make_seq<LocalVars::size()>,
-    typename AllParams = php_git2::make_seq<FuncWrapper::arg_count()> >
+    typename AllParams = php_git2::make_seq<FuncWrapper::arg_count()>
+    >
 static void zif_php_git2_function_rethandler(INTERNAL_FUNCTION_PARAMETERS)
 {
-    // Create a local_pack object that houses all the variables we need for the
-    // call. The constructors take care of any initialization.
-    LocalVars vars ZTS_CTOR;
-    typename FuncWrapper::return_type retval;
+    php_git2::php_bailer bailer;
 
-    try {
-        // Obtain values from PHP userspace.
-        php_git2::php_extract_args(vars,PHPForward());
+    {
+        // Create a local_pack object that houses all the variables we need for
+        // the call. The constructors take care of any initialization.
+        LocalVars vars ZTS_CTOR;
+        typename FuncWrapper::return_type retval;
+        php_git2::php_bailout_context ctx(bailer);
 
-        // Call wrapped function.
-        retval = php_git2::library_call(FuncWrapper(),vars,GitForward(),AllParams());
+        if (BAILOUT_ENTER_REGION(ctx)) {
+            try {
+                // Obtain values from PHP userspace.
+                php_git2::php_extract_args(vars,PHPForward());
 
-        // Instantiate a return value handler to handle the return value.
-        ReturnHandler rethandler;
-        if (!rethandler.ret(retval,return_value,vars)) {
-            // Throw error with formatted message from git2.
-            php_git2::git_error(retval);
-        }
-    } catch (php_git2::php_git2_exception_base& ex) {
-        if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
+                // Call wrapped function.
+                retval = php_git2::library_call(FuncWrapper(),vars,GitForward(),AllParams());
+
+                // Instantiate a return value handler to handle the return value.
+                ReturnHandler rethandler;
+                if (!rethandler.ret(retval,return_value,vars)) {
+                    // Throw error with formatted message from git2.
+                    php_git2::git_error(retval);
+                }
+            } catch (php_git2::php_git2_exception_base& ex) {
+                php_git2::php_bailout_context ctx2(bailer);
+
+                if (BAILOUT_ENTER_REGION(ctx2)) {
+                    ex.handle(TSRMLS_C);
+                }
+            }
         }
     }
 }
@@ -653,17 +673,29 @@ template<
     typename LocalVars,
     typename PHPForward = php_git2::make_seq<LocalVars::size()>,
     typename GitForward = php_git2::make_seq<LocalVars::size()>,
-    typename AllParams = php_git2::make_seq<FuncWrapper::arg_count()> >
+    typename AllParams = php_git2::make_seq<FuncWrapper::arg_count()>
+    >
 static void zif_php_git2_function_void(INTERNAL_FUNCTION_PARAMETERS)
 {
-    LocalVars vars ZTS_CTOR;
+    php_git2::php_bailer bailer;
 
-    try {
-        php_git2::php_extract_args(vars,PHPForward());
-        php_git2::library_call(FuncWrapper(),vars,GitForward(),AllParams());
-    } catch (php_git2::php_git2_exception_base& ex) {
-        if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
+    {
+        // Create a local_pack object that houses all the variables we need for
+        // the call. The constructors take care of any initialization.
+        LocalVars vars ZTS_CTOR;
+        php_git2::php_bailout_context ctx(bailer);
+
+        if (BAILOUT_ENTER_REGION(ctx)) {
+            try {
+                php_git2::php_extract_args(vars,PHPForward());
+                php_git2::library_call(FuncWrapper(),vars,GitForward(),AllParams());
+            } catch (php_git2::php_git2_exception_base& ex) {
+                php_git2::php_bailout_context ctx2(bailer);
+
+                if (BAILOUT_ENTER_REGION(ctx2)) {
+                    ex.handle(TSRMLS_C);
+                }
+            }
         }
     }
 }
@@ -682,37 +714,47 @@ template<
     int ReturnPos = -1,
     typename PHPForward = php_git2::make_seq<LocalVars::size()>,
     typename GitForward = php_git2::make_seq<LocalVars::size()>,
-    typename AllParams = php_git2::make_seq<FuncWrapper::arg_count()> >
+    typename AllParams = php_git2::make_seq<FuncWrapper::arg_count()>
+    >
 static void zif_php_git2_function_setdeps(INTERNAL_FUNCTION_PARAMETERS)
 {
-    // Create a local_pack object that houses all the variables we need for the
-    // call. The constructors take care of any initialization.
-    LocalVars vars ZTS_CTOR;
-    typename FuncWrapper::return_type retval;
+    php_git2::php_bailer bailer;
 
-    try {
-        // Obtain values from PHP userspace.
-        php_git2::php_extract_args(vars,PHPForward());
+    {
+        // Create a local_pack object that houses all the variables we need for the
+        // call. The constructors take care of any initialization.
+        LocalVars vars ZTS_CTOR;
+        typename FuncWrapper::return_type retval;
+        php_git2::php_bailout_context ctx(bailer);
 
-        // Call wrapped function.
-        retval = php_git2::library_call(FuncWrapper(),vars,GitForward(),AllParams());
+        if (BAILOUT_ENTER_REGION(ctx)) {
+            try {
+                // Obtain values from PHP userspace.
+                php_git2::php_extract_args(vars,PHPForward());
 
-        // Check for errors (when return value is less than zero).
-        if (php_git2::check_return(retval)) {
-            // Handle the return value.
-            php_git2::php_return<ReturnPos>(retval,vars,return_value);
+                // Call wrapped function.
+                retval = php_git2::library_call(FuncWrapper(),vars,GitForward(),AllParams());
 
-            // Call function to set resource dependency. We only do this on
-            // success!
-            php_git2::php_set_resource_dependency(vars,ResourceDeps());
-        }
-        else {
-            // Throw error with formatted message from git2.
-            php_git2::git_error(retval);
-        }
-    } catch (php_git2::php_git2_exception_base& ex) {
-        if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
+                // Check for errors (when return value is less than zero).
+                if (php_git2::check_return(retval)) {
+                    // Handle the return value.
+                    php_git2::php_return<ReturnPos>(retval,vars,return_value);
+
+                    // Call function to set resource dependency. We only do this
+                    // on success!
+                    php_git2::php_set_resource_dependency(vars,ResourceDeps());
+                }
+                else {
+                    // Throw error with formatted message from git2.
+                    php_git2::git_error(retval);
+                }
+            } catch (php_git2::php_git2_exception_base& ex) {
+                php_git2::php_bailout_context ctx2(bailer);
+
+                if (BAILOUT_ENTER_REGION(ctx2)) {
+                    ex.handle(TSRMLS_C);
+                }
+            }
         }
     }
 }
@@ -725,38 +767,48 @@ template<
     int ReturnPos = -1,
     typename PHPForward = php_git2::make_seq<LocalVars::size()>,
     typename GitForward = php_git2::make_seq<LocalVars::size()>,
-    typename AllParams = php_git2::make_seq<FuncWrapper::arg_count()> >
+    typename AllParams = php_git2::make_seq<FuncWrapper::arg_count()>
+    >
 static void zif_php_git2_function_setdeps2(INTERNAL_FUNCTION_PARAMETERS)
 {
-    // Create a local_pack object that houses all the variables we need for the
-    // call. The constructors take care of any initialization.
-    LocalVars vars ZTS_CTOR;
-    typename FuncWrapper::return_type retval;
+    php_git2::php_bailer bailer;
 
-    try {
-        // Obtain values from PHP userspace.
-        php_git2::php_extract_args(vars,PHPForward());
+    {
+        // Create a local_pack object that houses all the variables we need for the
+        // call. The constructors take care of any initialization.
+        LocalVars vars ZTS_CTOR;
+        typename FuncWrapper::return_type retval;
+        php_git2::php_bailout_context ctx(bailer);
 
-        // Call wrapped function.
-        retval = php_git2::library_call(FuncWrapper(),vars,GitForward(),AllParams());
+        if (BAILOUT_ENTER_REGION(ctx)) {
+            try {
+                // Obtain values from PHP userspace.
+                php_git2::php_extract_args(vars,PHPForward());
 
-        // Check for errors (when return value is less than zero).
-        if (php_git2::check_return(retval)) {
-            // Handle the return value.
-            php_git2::php_return<ReturnPos>(retval,vars,return_value);
+                // Call wrapped function.
+                retval = php_git2::library_call(FuncWrapper(),vars,GitForward(),AllParams());
 
-            // Call function to set resource dependencies. We only do this on
-            // success!
-            php_git2::php_set_resource_dependency(vars,ResourceDeps1());
-            php_git2::php_set_resource_dependency(vars,ResourceDeps2());
-        }
-        else {
-            // Throw error with formatted message from git2.
-            php_git2::git_error(retval);
-        }
-    } catch (php_git2::php_git2_exception_base& ex) {
-        if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
+                // Check for errors (when return value is less than zero).
+                if (php_git2::check_return(retval)) {
+                    // Handle the return value.
+                    php_git2::php_return<ReturnPos>(retval,vars,return_value);
+
+                    // Call function to set resource dependencies. We only do
+                    // this on success!
+                    php_git2::php_set_resource_dependency(vars,ResourceDeps1());
+                    php_git2::php_set_resource_dependency(vars,ResourceDeps2());
+                }
+                else {
+                    // Throw error with formatted message from git2.
+                    php_git2::git_error(retval);
+                }
+            } catch (php_git2::php_git2_exception_base& ex) {
+                php_git2::php_bailout_context ctx2(bailer);
+
+                if (BAILOUT_ENTER_REGION(ctx2)) {
+                    ex.handle(TSRMLS_C);
+                }
+            }
         }
     }
 }
@@ -767,25 +819,35 @@ template<
     typename ResourceDeps,
     typename PHPForward = php_git2::make_seq<LocalVars::size()>,
     typename GitForward = php_git2::make_seq<LocalVars::size()>,
-    typename AllParams = php_git2::make_seq<FuncWrapper::arg_count()> >
+    typename AllParams = php_git2::make_seq<FuncWrapper::arg_count()>
+    >
 static void zif_php_git2_function_setdeps_void(INTERNAL_FUNCTION_PARAMETERS)
 {
-    // Create a local_pack object that houses all the variables we need for the
-    // call. The constructors take care of any initialization.
-    LocalVars vars ZTS_CTOR;
+    php_git2::php_bailer bailer;
 
-    try {
-        // Obtain values from PHP userspace.
-        php_git2::php_extract_args(vars,PHPForward());
+    {
+        // Create a local_pack object that houses all the variables we need for the
+        // call. The constructors take care of any initialization.
+        LocalVars vars ZTS_CTOR;
+        php_git2::php_bailout_context ctx(bailer);
 
-        // Make call to underlying git2 function.
-        php_git2::library_call(FuncWrapper(),vars,GitForward(),AllParams());
+        if (BAILOUT_ENTER_REGION(ctx)) {
+            try {
+                // Obtain values from PHP userspace.
+                php_git2::php_extract_args(vars,PHPForward());
 
-        // Call function to set resource dependency.
-        php_git2::php_set_resource_dependency(vars,ResourceDeps());
-    } catch (php_git2::php_git2_exception_base& ex) {
-        if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
+                // Make call to underlying git2 function.
+                php_git2::library_call(FuncWrapper(),vars,GitForward(),AllParams());
+
+                // Call function to set resource dependency.
+                php_git2::php_set_resource_dependency(vars,ResourceDeps());
+            } catch (php_git2::php_git2_exception_base& ex) {
+                php_git2::php_bailout_context ctx2(bailer);
+
+                if (BAILOUT_ENTER_REGION(ctx2)) {
+                    ex.handle(TSRMLS_C);
+                }
+            }
         }
     }
 }
@@ -796,21 +858,32 @@ static void zif_php_git2_function_setdeps_void(INTERNAL_FUNCTION_PARAMETERS)
 
 template<
     typename LocalVars,
-    typename PHPForward = php_git2::make_seq<LocalVars::size()> >
+    typename PHPForward = php_git2::make_seq<LocalVars::size()>
+    >
 static void zif_php_git2_function_free(INTERNAL_FUNCTION_PARAMETERS)
 {
-    LocalVars vars ZTS_CTOR;
-    try {
-        php_git2::php_extract_args(vars,PHPForward());
+    php_git2::php_bailer bailer;
 
-        // Assume the first element is the resource to delete. Call its
-        // byval_git2() member function to cause it to be freed. We never call
-        // the library function directly since the resource handler handles
-        // freeing instead.
-        vars.template get<0>().byval_git2(1);
-    } catch (php_git2::php_git2_exception_base& ex) {
-        if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
+    {
+        LocalVars vars ZTS_CTOR;
+        php_git2::php_bailout_context ctx(bailer);
+
+        if (BAILOUT_ENTER_REGION(ctx)) {
+            try {
+                php_git2::php_extract_args(vars,PHPForward());
+
+                // Assume the first element is the resource to delete. Call its
+                // byval_git2() member function to cause it to be freed. We never call
+                // the library function directly since the resource handler handles
+                // freeing instead.
+                vars.template get<0>().byval_git2(1);
+            } catch (php_git2::php_git2_exception_base& ex) {
+                php_git2::php_bailout_context ctx2(bailer);
+
+                if (BAILOUT_ENTER_REGION(ctx2)) {
+                    ex.handle(TSRMLS_C);
+                }
+            }
         }
     }
 }

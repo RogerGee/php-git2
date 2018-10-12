@@ -111,24 +111,48 @@ namespace php_git2
             assign<I+1>(std::forward<Ts>(ts)...);
         }
 
-        void call(zval* func,zval* ret)
+        int call(zval* func,zval* ret)
         {
-            int r;
+            int result = GIT_OK;
+            php_bailer bailer;
 
-            // We allow null callables, which do nothing.
-            if (Z_TYPE_P(func) == IS_NULL) {
-                return;
-            }
+            {
+                int retval;
+                php_bailout_context ctx(bailer);
 
-            INIT_ZVAL(*ret);
-            r = call_user_function(EG(function_table),NULL,func,ret,Count,params TSRMLS_CC);
-            if (r == FAILURE) {
-                if (EG(exception)) {
-                    throw php_git2_propagated_exception();
+                // We allow null callables, which do nothing.
+                if (Z_TYPE_P(func) == IS_NULL) {
+                    return GIT_OK;
                 }
 
-                php_error(E_ERROR,"failed to invoke userspace callback");
+                INIT_ZVAL(*ret);
+
+                if (BAILOUT_ENTER_REGION(ctx)) {
+                    retval = call_user_function(EG(function_table),NULL,func,ret,Count,params TSRMLS_CC);
+                    if (retval == FAILURE) {
+                        php_exception_wrapper ex;
+
+                        if (ex.has_exception()) {
+                            ex.set_giterr(TSRMLS_C);
+                            result = GIT_EPHPEXPROP;
+                        }
+                        else {
+                            php_git2_giterr_set(GITERR_INVALID,"Failed to invoke userspace callback");
+                            result = GIT_EPHPFATAL;
+                        }
+                    }
+                }
+                else {
+                    // Set a libgit2 error for completeness.
+                    php_git2_giterr_set(GITERR_INVALID,"");
+
+                    // Allow the fatal error to propogate.
+                    result = GIT_EPHPFATALPROP;
+                    bailer.handled();
+                }
             }
+
+            return result;
         }
 
         zval* operator [](unsigned index)

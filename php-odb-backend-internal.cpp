@@ -127,9 +127,7 @@ PHP_METHOD(GitODBBackend_Internal,read)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
-        }
+        ex.handle(TSRMLS_C);
         return;
     }
 
@@ -181,9 +179,7 @@ PHP_METHOD(GitODBBackend_Internal,read_prefix)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
-        }
+        ex.handle(TSRMLS_C);
         return;
     }
 
@@ -232,9 +228,7 @@ PHP_METHOD(GitODBBackend_Internal,read_header)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
-        }
+        ex.handle(TSRMLS_C);
         return;
     }
 
@@ -278,9 +272,7 @@ PHP_METHOD(GitODBBackend_Internal,write)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
-        }
+        ex.handle(TSRMLS_C);
         return;
     }
 
@@ -314,9 +306,7 @@ PHP_METHOD(GitODBBackend_Internal,writestream)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
-        }
+        ex.handle(TSRMLS_C);
         return;
     }
 
@@ -354,9 +344,7 @@ PHP_METHOD(GitODBBackend_Internal,readstream)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
-        }
+        ex.handle(TSRMLS_C);
         return;
     }
 
@@ -450,9 +438,7 @@ PHP_METHOD(GitODBBackend_Internal,refresh)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
-        }
+        ex.handle(TSRMLS_C);
         return;
     }
 }
@@ -481,9 +467,7 @@ PHP_METHOD(GitODBBackend_Internal,for_each)
         retval = object->backend->foreach(object->backend,
             handler.byval_git2(),callback.byval_git2());
     } catch (php_git2::php_git2_exception_base& ex) {
-        if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
-        }
+        ex.handle(TSRMLS_C);
         return;
     }
 
@@ -528,9 +512,7 @@ PHP_METHOD(GitODBBackend_Internal,writepack)
         // will be managed by the GitODBWritepack object.
         php_git2_make_odb_writepack(return_value,wp,callback,thisobj,object->owner TSRMLS_CC);
     } catch (php_git2::php_git2_exception_base& ex) {
-        if (ex.what() != nullptr) {
-            zend_throw_exception(nullptr,ex.what(),ex.code TSRMLS_CC);
-        }
+        ex.handle(TSRMLS_C);
         return;
     }
 }
