@@ -60,6 +60,7 @@ php_writestream_object::~php_writestream_object()
 
 PHP_METHOD(GitWritestream,write)
 {
+    php_bailer bailer;
     int retval;
     char* buffer;
     int bufsz;
@@ -83,13 +84,17 @@ PHP_METHOD(GitWritestream,write)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        ex.handle(TSRMLS_C);
-        return;
+        php_bailout_context ctx(bailer);
+
+        if (BAILOUT_ENTER_REGION(ctx)) {
+            ex.handle();
+        }
     }
 }
 
 PHP_METHOD(GitWritestream,close)
 {
+    php_bailer bailer;
     int retval;
     char* buffer;
     int bufsz;
@@ -113,8 +118,11 @@ PHP_METHOD(GitWritestream,close)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        ex.handle(TSRMLS_C);
-        return;
+        php_bailout_context ctx(bailer);
+
+        if (BAILOUT_ENTER_REGION(ctx)) {
+            ex.handle();
+        }
     }
 }
 

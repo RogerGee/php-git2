@@ -241,52 +241,65 @@ int odb_writepack_has_property(zval* obj,zval* prop,int chk_type,const zend_lite
 
 PHP_METHOD(GitODBWritepack,append)
 {
+    php_bailer bailer;
     int result;
     char* buf;
     int amt;
-    php_odb_writepack_object* object;
+    php_odb_writepack_object* object = LOOKUP_OBJECT(php_odb_writepack_object,getThis());
+
+    assert(object->writepack != nullptr);
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&buf,&amt) != SUCCESS) {
         return;
     }
 
-    object = LOOKUP_OBJECT(php_odb_writepack_object,getThis());
-    if (object->writepack != nullptr) {
+    try {
         result = object->writepack->append(object->writepack,buf,amt,&object->prog);
-        RETVAL_LONG(result);
-        return;
-    }
+        if (result < 0) {
+            php_git2::git_error(result);
+        }
+    } catch (php_git2_exception_base& ex) {
+        php_bailout_context ctx(bailer);
 
-    RETURN_FALSE;
+        if (BAILOUT_ENTER_REGION(ctx)) {
+            ex.handle();
+        }
+    }
 }
 
 PHP_METHOD(GitODBWritepack,commit)
 {
+    php_bailer bailer;
     int result;
-    php_odb_writepack_object* object;
+    php_odb_writepack_object* object = LOOKUP_OBJECT(php_odb_writepack_object,getThis());
 
-    object = LOOKUP_OBJECT(php_odb_writepack_object,getThis());
-    if (object->writepack != nullptr) {
+    assert(object->writepack != nullptr);
+
+    try {
         result = object->writepack->commit(object->writepack,&object->prog);
-        RETVAL_LONG(result);
-        return;
-    }
+        if (result < 0) {
+            php_git2::git_error(result);
+        }
+    } catch (php_git2_exception_base& ex) {
+        php_bailout_context ctx(bailer);
 
-    RETURN_FALSE;
+        if (BAILOUT_ENTER_REGION(ctx)) {
+            ex.handle();
+        }
+    }
 }
 
 PHP_METHOD(GitODBWritepack,free)
 {
-    php_odb_writepack_object* object;
+    php_odb_writepack_object* object = LOOKUP_OBJECT(php_odb_writepack_object,getThis());
+
+    assert(object->writepack != nullptr);
 
     object = LOOKUP_OBJECT(php_odb_writepack_object,getThis());
     if (object->writepack != nullptr) {
         object->writepack->free(object->writepack);
         object->writepack = nullptr;
-        RETURN_TRUE;
     }
-
-    RETURN_FALSE;
 }
 
 /*

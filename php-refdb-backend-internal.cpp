@@ -76,10 +76,11 @@ php_refdb_backend_internal_object::~php_refdb_backend_internal_object()
 
 PHP_METHOD(GitRefDBBackend_Internal,exists)
 {
-    int result;
+    php_bailer bailer;
+    php_refdb_backend_object* object = LOOKUP_OBJECT(php_refdb_backend_object,getThis());
+
     char* refname;
     int refname_len;
-    php_refdb_backend_object* object = LOOKUP_OBJECT(php_refdb_backend_object,getThis());
 
     // Verfiy the backend exists and the function is implemented.
     if (object->backend == nullptr || object->backend->exists == nullptr) {
@@ -95,25 +96,31 @@ PHP_METHOD(GitRefDBBackend_Internal,exists)
     // Call underlying backend function.
     try {
         int retval;
+        int result;
 
         retval = object->backend->exists(&result,object->backend,refname);
         if (retval < 0) {
             php_git2::git_error(retval);
         }
+        else {
+            RETVAL_BOOL(result);
+        }
     } catch (php_git2::php_git2_exception_base& ex) {
-        ex.handle(TSRMLS_C);
-        return;
-    }
+        php_bailout_context ctx(bailer);
 
-    RETVAL_BOOL(result);
+        if (BAILOUT_ENTER_REGION(ctx)) {
+            ex.handle();
+        }
+    }
 }
 
 PHP_METHOD(GitRefDBBackend_Internal,lookup)
 {
+    php_bailer bailer;
+    php_refdb_backend_object* object = LOOKUP_OBJECT(php_refdb_backend_object,getThis());
+
     char* refname;
     int refname_len;
-    php_resource_ref<php_git_reference> res;
-    php_refdb_backend_object* object = LOOKUP_OBJECT(php_refdb_backend_object,getThis());
 
     // Verfiy the backend exists and the function is implemented.
     if (object->backend == nullptr || object->backend->lookup == nullptr) {
@@ -129,26 +136,32 @@ PHP_METHOD(GitRefDBBackend_Internal,lookup)
     // Call underlying backend function.
     try {
         int retval;
+        php_resource_ref<php_git_reference> res;
 
         retval = object->backend->lookup(res.byval_git2(),object->backend,refname);
         if (retval < 0) {
             php_git2::git_error(retval);
         }
+        else {
+            res.ret(return_value);
+        }
     } catch (php_git2::php_git2_exception_base& ex) {
-        ex.handle(TSRMLS_C);
-        return;
-    }
+        php_bailout_context ctx(bailer);
 
-    res.ret(return_value);
+        if (BAILOUT_ENTER_REGION(ctx)) {
+            ex.handle();
+        }
+    }
 }
 
 PHP_METHOD(GitRefDBBackend_Internal,iterator_new)
 {
-    char* glob;
-    int glob_len;
-    git_reference_iterator* iter;
+    php_bailer bailer;
     php_refdb_backend_internal_object* object =
         LOOKUP_OBJECT(php_refdb_backend_internal_object,getThis());
+
+    char* glob;
+    int glob_len;
 
     // Verfiy the backend exists and the function is implemented.
     if (object->backend == nullptr || object->backend->iterator == nullptr) {
@@ -164,29 +177,32 @@ PHP_METHOD(GitRefDBBackend_Internal,iterator_new)
     // Call underlying backend function.
     try {
         int retval;
+        git_reference_iterator* iter;
 
         retval = object->backend->iterator(&iter,object->backend,glob);
         if (retval < 0) {
             php_git2::git_error(retval);
         }
+        else {
+            // Free any existing iterator before applying the new one.
+            if (object->iter != nullptr) {
+                object->iter->free(object->iter);
+            }
+
+            object->iter = iter;
+        }
     } catch (php_git2::php_git2_exception_base& ex) {
-        ex.handle(TSRMLS_C);
-        return;
-    }
+        php_bailout_context ctx(bailer);
 
-    // Free any existing iterator before applying the new one.
-    if (object->iter != nullptr) {
-        object->iter->free(object->iter);
+        if (BAILOUT_ENTER_REGION(ctx)) {
+            ex.handle();
+        }
     }
-
-    object->iter = iter;
 }
 
 PHP_METHOD(GitRefDBBackend_Internal,iterator_next)
 {
-    const git_oid* oid;
-    git_reference* ref = nullptr;
-
+    php_bailer bailer;
     php_refdb_backend_internal_object* object =
         LOOKUP_OBJECT(php_refdb_backend_internal_object,getThis());
 
@@ -209,6 +225,8 @@ PHP_METHOD(GitRefDBBackend_Internal,iterator_next)
 
     try {
         int err;
+        const git_oid* oid;
+        git_reference* ref = nullptr;
 
         err = object->iter->next(&ref,object->iter);
         if (err < 0) {
@@ -229,6 +247,7 @@ PHP_METHOD(GitRefDBBackend_Internal,iterator_next)
         if (oid == nullptr) {
             const char* target = git_reference_symbolic_target(ref);
             if (target == nullptr) {
+                git_reference_free(ref);
                 throw php_git2_fatal_exception("GitRefDBBackend_Internal::iterator_next(): next reference is invalid");
             }
 
@@ -237,20 +256,20 @@ PHP_METHOD(GitRefDBBackend_Internal,iterator_next)
         else {
             convert_oid(return_value,oid);
         }
+
+        git_reference_free(ref);
     } catch (php_git2::php_git2_exception_base& ex) {
-        if (ref != nullptr) {
-            git_reference_free(ref);
+        php_bailout_context ctx(bailer);
+
+        if (BAILOUT_ENTER_REGION(ctx)) {
+            ex.handle();
         }
-
-        ex.handle(TSRMLS_C);
-        return;
     }
-
-    git_reference_free(ref);
 }
 
 PHP_METHOD(GitRefDBBackend_Internal,write)
 {
+    php_bailer bailer;
     php_refdb_backend_object* object = LOOKUP_OBJECT(php_refdb_backend_object,getThis());
 
     zval* zref;
@@ -313,14 +332,17 @@ PHP_METHOD(GitRefDBBackend_Internal,write)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        ex.handle(TSRMLS_C);
-        return;
+        php_bailout_context ctx(bailer);
+
+        if (BAILOUT_ENTER_REGION(ctx)) {
+            ex.handle();
+        }
     }
 }
 
 PHP_METHOD(GitRefDBBackend_Internal,rename)
 {
-    php_resource_ref<php_git_reference> ref;
+    php_bailer bailer;
     php_refdb_backend_object* object = LOOKUP_OBJECT(php_refdb_backend_object,getThis());
 
     char* oldname;
@@ -356,6 +378,7 @@ PHP_METHOD(GitRefDBBackend_Internal,rename)
     try {
         int retval;
         git_signature* sig;
+        php_resource_ref<php_git_reference> ref;
 
         sig = convert_signature(zwho);
         if (sig == nullptr) {
@@ -376,16 +399,21 @@ PHP_METHOD(GitRefDBBackend_Internal,rename)
         if (retval < 0) {
             php_git2::git_error(retval);
         }
+        else {
+            ref.ret(return_value);
+        }
     } catch (php_git2::php_git2_exception_base& ex) {
-        ex.handle(TSRMLS_C);
-        return;
-    }
+        php_bailout_context ctx(bailer);
 
-    ref.ret(return_value);
+        if (BAILOUT_ENTER_REGION(ctx)) {
+            ex.handle();
+        }
+    }
 }
 
 PHP_METHOD(GitRefDBBackend_Internal,del)
 {
+    php_bailer bailer;
     php_refdb_backend_object* object = LOOKUP_OBJECT(php_refdb_backend_object,getThis());
 
     char* refname;
@@ -427,13 +455,17 @@ PHP_METHOD(GitRefDBBackend_Internal,del)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        ex.handle(TSRMLS_C);
-        return;
+        php_bailout_context ctx(bailer);
+
+        if (BAILOUT_ENTER_REGION(ctx)) {
+            ex.handle();
+        }
     }
 }
 
 PHP_METHOD(GitRefDBBackend_Internal,compress)
 {
+    php_bailer bailer;
     php_refdb_backend_object* object = LOOKUP_OBJECT(php_refdb_backend_object,getThis());
 
     // Verfiy the backend exists and the function is implemented.
@@ -451,13 +483,17 @@ PHP_METHOD(GitRefDBBackend_Internal,compress)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        ex.handle(TSRMLS_C);
-        return;
+        php_bailout_context ctx(bailer);
+
+        if (BAILOUT_ENTER_REGION(ctx)) {
+            ex.handle();
+        }
     }
 }
 
 PHP_METHOD(GitRefDBBackend_Internal,has_log)
 {
+    php_bailer bailer;
     php_refdb_backend_object* object = LOOKUP_OBJECT(php_refdb_backend_object,getThis());
 
     // Verfiy the backend exists and the function is implemented.
@@ -482,16 +518,21 @@ PHP_METHOD(GitRefDBBackend_Internal,has_log)
         if (retval < 0) {
             php_git2::git_error(retval);
         }
-
-        RETVAL_BOOL(retval);
+        else {
+            RETVAL_BOOL(retval);
+        }
     } catch (php_git2::php_git2_exception_base& ex) {
-        ex.handle(TSRMLS_C);
-        return;
+        php_bailout_context ctx(bailer);
+
+        if (BAILOUT_ENTER_REGION(ctx)) {
+            ex.handle();
+        }
     }
 }
 
 PHP_METHOD(GitRefDBBackend_Internal,ensure_log)
 {
+    php_bailer bailer;
     php_refdb_backend_object* object = LOOKUP_OBJECT(php_refdb_backend_object,getThis());
 
     // Verfiy the backend exists and the function is implemented.
@@ -517,16 +558,17 @@ PHP_METHOD(GitRefDBBackend_Internal,ensure_log)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        ex.handle(TSRMLS_C);
-        return;
+        php_bailout_context ctx(bailer);
+
+        if (BAILOUT_ENTER_REGION(ctx)) {
+            ex.handle();
+        }
     }
 }
 
 PHP_METHOD(GitRefDBBackend_Internal,reflog_read)
 {
-    php_git_reflog* reflog;
-    php_resource_ref<php_git_reflog> reflogResource;
-
+    php_bailer bailer;
     php_refdb_backend_object* object = LOOKUP_OBJECT(php_refdb_backend_object,getThis());
 
     // Verfiy the backend exists and the function is implemented.
@@ -546,6 +588,8 @@ PHP_METHOD(GitRefDBBackend_Internal,reflog_read)
     // Call underlying backend function.
     try {
         int retval;
+        php_git_reflog* reflog;
+        php_resource_ref<php_git_reflog> reflogResource;
 
         retval = object->backend->reflog_read(
             reflogResource.byval_git2(),
@@ -554,18 +598,23 @@ PHP_METHOD(GitRefDBBackend_Internal,reflog_read)
         if (retval < 0) {
             php_git2::git_error(retval);
         }
+        else {
+            reflog = reflogResource.get_object();
+            convert_reflog(return_value,reflog->get_handle());
+            git2_resource_base::free_recursive(reflog);
+        }
     } catch (php_git2::php_git2_exception_base& ex) {
-        ex.handle(TSRMLS_C);
-        return;
-    }
+        php_bailout_context ctx(bailer);
 
-    reflog = reflogResource.get_object();
-    convert_reflog(return_value,reflog->get_handle());
-    git2_resource_base::free_recursive(reflog);
+        if (BAILOUT_ENTER_REGION(ctx)) {
+            ex.handle();
+        }
+    }
 }
 
 PHP_METHOD(GitRefDBBackend_Internal,reflog_write)
 {
+    php_bailer bailer;
     php_refdb_backend_object* object = LOOKUP_OBJECT(php_refdb_backend_object,getThis());
 
     zval* zreflog;
@@ -593,13 +642,17 @@ PHP_METHOD(GitRefDBBackend_Internal,reflog_write)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        ex.handle(TSRMLS_C);
-        return;
+        php_bailout_context ctx(bailer);
+
+        if (BAILOUT_ENTER_REGION(ctx)) {
+            ex.handle();
+        }
     }
 }
 
 PHP_METHOD(GitRefDBBackend_Internal,reflog_rename)
 {
+    php_bailer bailer;
     php_refdb_backend_object* object = LOOKUP_OBJECT(php_refdb_backend_object,getThis());
 
     char* oldname;
@@ -632,13 +685,17 @@ PHP_METHOD(GitRefDBBackend_Internal,reflog_rename)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        ex.handle(TSRMLS_C);
-        return;
+        php_bailout_context ctx(bailer);
+
+        if (BAILOUT_ENTER_REGION(ctx)) {
+            ex.handle();
+        }
     }
 }
 
 PHP_METHOD(GitRefDBBackend_Internal,reflog_delete)
 {
+    php_bailer bailer;
     php_refdb_backend_object* object = LOOKUP_OBJECT(php_refdb_backend_object,getThis());
 
     char* name;
@@ -664,8 +721,11 @@ PHP_METHOD(GitRefDBBackend_Internal,reflog_delete)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        ex.handle(TSRMLS_C);
-        return;
+        php_bailout_context ctx(bailer);
+
+        if (BAILOUT_ENTER_REGION(ctx)) {
+            ex.handle();
+        }
     }
 }
 
