@@ -10,6 +10,51 @@
 #include "php-callback.h"
 using namespace php_git2;
 
+int php_git2::php_git2_invoke_callback(zval* func,zval* ret,zend_uint paramCount,zval* params[])
+{
+    int result = GIT_OK;
+    php_bailer bailer;
+
+    {
+        int retval;
+        php_bailout_context ctx(bailer);
+
+        // We allow null callables, which do nothing.
+        if (Z_TYPE_P(func) == IS_NULL) {
+            return GIT_OK;
+        }
+
+        INIT_ZVAL(*ret);
+
+        if (BAILOUT_ENTER_REGION(ctx)) {
+            retval = call_user_function(EG(function_table),NULL,func,ret,paramCount,params TSRMLS_CC);
+            if (retval == FAILURE) {
+                php_git2_giterr_set(GITERR_INVALID,"Failed to invoke userspace callback");
+                result = GIT_EPHPFATAL;
+            }
+            else {
+                php_exception_wrapper ex;
+
+                if (ex.has_exception()) {
+                    ex.set_giterr(TSRMLS_C);
+                    result = GIT_EPHPEXPROP;
+                }
+            }
+        }
+        else {
+            // Set a libgit2 error for completeness.
+            php_git2_giterr_set(GITERR_INVALID,"PHP reported a fatal error");
+
+            // Allow the fatal error to propogate.
+            result = GIT_EPHPFATALPROP;
+            bailer.handled();
+        }
+    }
+
+    return result;
+
+}
+
 // php_callback_base
 
 php_callback_base::php_callback_base():
@@ -214,9 +259,15 @@ commit_parent_callback::callback(size_t idx,void* payload)
     result = params.call(cb->func,&retval);
 
     // Handle errors. It is unclear how this callback is to report errors (if at
-    // all), so we just issue a warning and report end of operation.
+    // all), so we just report end of operation.
     if (result < 0) {
-        git_warning(result,"An error occurred in the commit_parent_callback that cannot be handled");
+        // Flag propagated fatal errors globally so they can be issued later on
+        // by a bailout context. We do this since libgit2 will NOT report the
+        // error to the calling PHP context.
+        if (result == GIT_EPHPFATALPROP) {
+            GIT2_G(propagateFatalError) = true;
+        }
+
         return nullptr;
     }
 
@@ -500,9 +551,15 @@ int diff_notify_callback::callback(
     result = params.call(cb->func,&retval);
 
     // Handle errors. It is unclear how this callback is to report errors (if at
-    // all), so we just issue a warning and report end of operation.
+    // all), so we just report end of operation.
     if (result < 0) {
-        git_warning(result,"An error occurred in the diff_notify_callback that cannot be handled");
+        // Flag propagated fatal errors globally so they can be issued later on
+        // by a bailout context. We do this since libgit2 will NOT report the
+        // error to the calling PHP context.
+        if (result == GIT_EPHPFATALPROP) {
+            GIT2_G(propagateFatalError) = true;
+        }
+
         return -1;
     }
 
@@ -540,9 +597,15 @@ int diff_progress_callback::callback(
     result = params.call(cb->func,&retval);
 
     // Handle errors. It is unclear how this callback is to report errors (if at
-    // all), so we just issue a warning and report end of operation.
+    // all), so we just report end of operation.
     if (result < 0) {
-        git_warning(result,"An error occurred in the diff_notify_callback that cannot be handled");
+        // Flag propagated fatal errors globally so they can be issued later on
+        // by a bailout context. We do this since libgit2 will NOT report the
+        // error to the calling PHP context.
+        if (result == GIT_EPHPFATALPROP) {
+            GIT2_G(propagateFatalError) = true;
+        }
+
         result = 1;
     }
     else {

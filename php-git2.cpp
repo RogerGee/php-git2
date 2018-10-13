@@ -111,6 +111,8 @@ PHP_GSHUTDOWN_FUNCTION(git2)
 
 PHP_MINIT_FUNCTION(git2)
 {
+    php_git2_globals_init();
+
     // Initialize git2 library.
     git_libgit2_init();
 
@@ -159,6 +161,8 @@ PHP_MINIT_FUNCTION(git2)
 
 PHP_RINIT_FUNCTION(git2)
 {
+    php_git2_globals_request_init();
+
     return SUCCESS;
 }
 
@@ -181,6 +185,10 @@ PHP_MINFO_FUNCTION(git2)
 
 PHP_MSHUTDOWN_FUNCTION(git2)
 {
+#ifndef ZTS
+    php_git2_globals_dtor(&git2_globals);
+#endif
+
     // Deinitialize libgit2. At this point, all resources should have been
     // freed. This means they would call their destructors and all libgit2
     // memory should be freed.
@@ -273,14 +281,6 @@ php_git2_fatal_exception::php_git2_fatal_exception(const char* format, ...)
 
 // php_exception_wrapper
 
-php_exception_wrapper::php_exception_wrapper()
-{
-    zval* zegexception = EG(exception);
-    if (zegexception != nullptr) {
-        zex = zegexception;
-    }
-}
-
 void php_exception_wrapper::set_giterr(TSRMLS_D) const
 {
     zval* zmessage;
@@ -371,7 +371,7 @@ void php_git2::git_warning(int code,const char* prefix)
         return;
     }
 
-    if (code != GIT_EUSER && code != GIT_EPHPFATAL) {
+    if (code != GIT_EUSER && code > GIT_EPHPRANGE_START) {
         php_error(E_WARNING,"libgit2 error: (%d) %s",err->klass,err->message);
     }
     else if (prefix != nullptr) {
@@ -395,6 +395,35 @@ void php_git2::php_git2_giterr_set(int errorClass,const char* format, ...)
     va_end(args);
 
     giterr_set_str(errorClass,buf);
+}
+
+// Globals functions
+
+void php_git2::php_git2_globals_ctor(zend_git2_globals* gbls TSRMLS_DC)
+{
+    gbls->propagateFatalError = false;
+}
+
+void php_git2::php_git2_globals_dtor(zend_git2_globals* gbls TSRMLS_DC)
+{
+    UNUSED(gbls);
+}
+
+void php_git2::php_git2_globals_init()
+{
+#ifdef ZTS
+    ts_allocate_id(&git2_globals_id,
+        sizeof(zend_git2_globals),
+        (ts_allocate_ctor)php_git2_globals_ctor,
+        (ts_allocate_dtor)php_git2_globals_dtor);
+#else
+    php_git2_globals_ctor(&git2_globals);
+#endif
+}
+
+void php_git2::php_git2_globals_request_init()
+{
+    GIT2_G(propagateFatalError) = false;
 }
 
 // Helpers

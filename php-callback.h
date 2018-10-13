@@ -10,6 +10,8 @@
 
 namespace php_git2
 {
+    int php_git2_invoke_callback(zval* func,zval* ret,zend_uint paramCount,zval* params[]);
+
     // Provide a type that contains an array of zvals converted from primative
     // values.
 
@@ -113,46 +115,7 @@ namespace php_git2
 
         int call(zval* func,zval* ret)
         {
-            int result = GIT_OK;
-            php_bailer bailer;
-
-            {
-                int retval;
-                php_bailout_context ctx(bailer);
-
-                // We allow null callables, which do nothing.
-                if (Z_TYPE_P(func) == IS_NULL) {
-                    return GIT_OK;
-                }
-
-                INIT_ZVAL(*ret);
-
-                if (BAILOUT_ENTER_REGION(ctx)) {
-                    retval = call_user_function(EG(function_table),NULL,func,ret,Count,params TSRMLS_CC);
-                    if (retval == FAILURE) {
-                        php_exception_wrapper ex;
-
-                        if (ex.has_exception()) {
-                            ex.set_giterr(TSRMLS_C);
-                            result = GIT_EPHPEXPROP;
-                        }
-                        else {
-                            php_git2_giterr_set(GITERR_INVALID,"Failed to invoke userspace callback");
-                            result = GIT_EPHPFATAL;
-                        }
-                    }
-                }
-                else {
-                    // Set a libgit2 error for completeness.
-                    php_git2_giterr_set(GITERR_INVALID,"");
-
-                    // Allow the fatal error to propogate.
-                    result = GIT_EPHPFATALPROP;
-                    bailer.handled();
-                }
-            }
-
-            return result;
+            return php_git2_invoke_callback(func,ret,Count,params);
         }
 
         zval* operator [](unsigned index)

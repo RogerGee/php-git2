@@ -44,10 +44,18 @@ extern "C" {
 #include <cstdarg>
 
 // Module globals
-ZEND_BEGIN_MODULE_GLOBALS(git2)
 
+ZEND_BEGIN_MODULE_GLOBALS(git2)
+  bool propagateFatalError;
 ZEND_END_MODULE_GLOBALS(git2)
 ZEND_EXTERN_MODULE_GLOBALS(git2)
+
+#ifdef ZTS
+#include "TSRM.h"
+#define GIT2_G(v)  TSRMG(git2_globals_id,zend_git2_globals*,v)
+#else
+#define GIT2_G(v)  (git2_globals.v)
+#endif
 
 // Provide macros for handling functionality for threaded PHP builds.
 
@@ -91,6 +99,8 @@ ZEND_EXTERN_MODULE_GLOBALS(git2)
 // Create custom git error values. These values must go outside of the range of
 // errors defined in the libgit2 "errors.h" header.
 
+#define GIT_EPHPRANGE_START   -30000
+
 #define GIT_EPHPFATAL         -30000
 #define GIT_EPHPEXPROP        -30001
 #define GIT_EPHPFATALPROP     -30002
@@ -110,7 +120,7 @@ namespace php_git2
 
         ~php_bailer()
         {
-            if (flag) {
+            if (flag || GIT2_G(propagateFatalError)) {
                 bailout();
             }
         }
@@ -309,7 +319,10 @@ namespace php_git2
     class php_exception_wrapper
     {
     public:
-        php_exception_wrapper();
+        php_exception_wrapper():
+            zex(EG(exception))
+        {
+        }
 
         bool has_exception() const
         {
@@ -362,6 +375,13 @@ namespace php_git2
     // Function to register constants defined in php-constants.cpp.
 
     void php_git2_register_constants(int module_number TSRMLS_DC);
+
+    // Functions to create/initialize module globals.
+
+    void php_git2_globals_ctor(zend_git2_globals* gbls TSRMLS_DC);
+    void php_git2_globals_dtor(zend_git2_globals* gbls TSRMLS_DC);
+    void php_git2_globals_init();
+    void php_git2_globals_request_init();
 
     // Helper functions for converting git2 values to PHP values.
 
