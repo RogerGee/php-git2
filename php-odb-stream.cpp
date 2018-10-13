@@ -112,7 +112,8 @@ void php_odb_stream_object::create_custom_stream(zval* zobj,unsigned int mode,zv
     handlers.read_property = odb_stream_read_property;
     handlers.write_property = odb_stream_write_property;
     handlers.has_property = odb_stream_has_property;
-    (void)ce;
+
+    UNUSED(ce);
 }
 
 /*static*/ int php_odb_stream_object::read(git_odb_stream *stream,char *buffer,size_t len)

@@ -53,7 +53,8 @@ php_odb_stream_internal_object::php_odb_stream_internal_object(zend_class_entry*
 /*static*/ void php_odb_stream_internal_object::init(zend_class_entry* ce)
 {
     handlers.get_constructor = php_git2::not_allowed_get_constructor;
-    (void)ce;
+
+    UNUSED(ce);
 }
 
 // Implementation of class methods

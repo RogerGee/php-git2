@@ -42,7 +42,8 @@ php_closure_object::~php_closure_object()
 {
     handlers.get_closure = closure_get_closure;
     handlers.get_constructor = php_git2::not_allowed_get_constructor;
-    (void)ce;
+
+    UNUSED(ce);
 }
 
 // Implementation of custom class handlers

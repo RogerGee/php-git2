@@ -495,7 +495,8 @@ namespace php_git2
             }
 
             return rsrc->get_handle_byref();
-            (void)argno;
+
+            UNUSED(argno);
         }
 
         typename GitResource::const_git2_type*
@@ -510,7 +511,8 @@ namespace php_git2
             // force the compiler to call the correct overloaded member
             // function. We have to do this since it's mutable.
             return const_cast<const GitResource*>(rsrc)->get_handle_byref();
-            (void)argno;
+
+            UNUSED(argno);
         }
 
         void ret(zval* return_value) const

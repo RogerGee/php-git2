@@ -96,7 +96,8 @@ php_odb_writepack_object::~php_odb_writepack_object()
     handlers.write_property = odb_writepack_write_property;
     handlers.has_property = odb_writepack_has_property;
     handlers.get_constructor = php_git2::not_allowed_get_constructor;
-    (void)ce;
+
+    UNUSED(ce);
 }
 
 // Implementation of custom object handlers

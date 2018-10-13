@@ -69,7 +69,7 @@ php_refdb_backend_internal_object::~php_refdb_backend_internal_object()
 /*static*/ void php_refdb_backend_internal_object::init(zend_class_entry* ce)
 {
     handlers.get_constructor = php_git2::not_allowed_get_constructor;
-    (void)ce;
+    UNUSED(ce);
 }
 
 // Class method implementation.

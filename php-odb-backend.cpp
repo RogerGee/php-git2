@@ -118,7 +118,8 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     handlers.read_property = odb_backend_read_property;
     handlers.write_property = odb_backend_write_property;
     handlers.has_property = odb_backend_has_property;
-    (void)ce;
+
+    UNUSED(ce);
 }
 
 /*static*/ int php_odb_backend_object::read(void** datap,size_t* sizep,

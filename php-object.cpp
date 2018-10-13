@@ -40,7 +40,8 @@ static zend_object_value php_create_object_handler(zend_class_entry* ce TSRMLS_D
     val.handlers = &T::handlers;
 
     return val;
-    (void)ce;
+
+    UNUSED(ce);
 }
 
 // Define the global list of class entry structure references.

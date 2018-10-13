@@ -102,12 +102,12 @@ static int reflog_entry_from_array(git_reflog_entry** out,zval* zarr)
 
     // TODO Uh, how do I set the fields on the opaque struct?
 
-    (void)oid_old;
-    (void)oid_old_len;
-    (void)oid_cur;
-    (void)oid_cur_len;
-    (void)committer;
-    (void)msg;
+    UNUSED(oid_old);
+    UNUSED(oid_old_len);
+    UNUSED(oid_cur);
+    UNUSED(oid_cur_len);
+    UNUSED(committer);
+    UNUSED(msg);
 
     *out = ent;
 
@@ -318,7 +318,7 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj)
     handlers.read_property = refdb_backend_read_property;
     handlers.write_property = refdb_backend_write_property;
     handlers.has_property = refdb_backend_has_property;
-    (void)ce;
+    UNUSED(ce);
 }
 
 /*static*/ int php_refdb_backend_object::exists(
