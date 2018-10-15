@@ -13,14 +13,6 @@
 #include <new>
 using namespace php_git2;
 
-// Helper macros
-
-#define EXTRACT_BACKEND(backend) \
-    reinterpret_cast<php_odb_backend_object::git_odb_backend_php*>(backend)
-
-#define EXTRACT_THISOBJ(backend) \
-    EXTRACT_BACKEND(backend)->thisobj
-
 // Custom class handlers
 
 static zval* odb_backend_read_property(zval* obj,zval* prop,int type,const zend_literal* key TSRMLS_DC);
@@ -125,49 +117,42 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 /*static*/ int php_odb_backend_object::read(void** datap,size_t* sizep,
     git_otype* typep,git_odb_backend* backend,const git_oid* oid)
 {
-    zval fname;
-    zval retval;
+    int result;
     zval* zoid;
     zval* ztype;
-    zval* params[2];
-    zval* thisobj = EXTRACT_THISOBJ(backend);
-    int result = GIT_OK;
-    void* data;
-    object_wrapper<php_odb_backend_object> wrapper(thisobj);
+    method_wrapper method("read",backend);
 
-    // Initialize zvals to default.
-    INIT_ZVAL(fname);
+    // Prepare parameters.
+
     ALLOC_INIT_ZVAL(ztype);
     ALLOC_INIT_ZVAL(zoid);
-    INIT_ZVAL(retval);
-    params[0] = ztype;
-    params[1] = zoid;
 
-    // Assign method call name and search OID string to respective zvals.
-    ZVAL_STRING(&fname,"read",1);
     convert_oid(zoid,oid);
 
     // Call userspace method implementation corresponding to odb operation.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,2,params
-            ZTS_MEMBER_CC(wrapper.object()->zts)) == FAILURE)
-    {
-        result = GIT_ERROR;
-    }
-    else {
-        // Return values to caller. We have to copy the data to use a persistent
-        // memory buffer that git2 can free.
-        convert_to_string(&retval);
-        data = pemalloc(Z_STRLEN(retval),1);
-        memcpy(data,Z_STRVAL(retval),Z_STRLEN(retval));
+
+    zval* params[] = { ztype, zoid };
+
+    result = method.call(2,params);
+    if (result == GIT_OK) {
+        void* data;
+        zval* retval = method.retval();
+
+        // Copy the returned data to a persistent memory buffer that git2 can
+        // free later on.
+        convert_to_string(retval);
+        data = pemalloc(Z_STRLEN_P(retval),1);
+        memcpy(data,Z_STRVAL_P(retval),Z_STRLEN_P(retval));
+
+        // Return values to caller.
         *datap = data;
-        *sizep = Z_STRLEN(retval);
+        *sizep = Z_STRLEN_P(retval);
         convert_to_long(ztype);
         *typep = (git_otype)Z_LVAL_P(ztype);
     }
 
     // Cleanup zvals.
-    zval_dtor(&fname);
-    zval_dtor(&retval);
+
     zval_ptr_dtor(&zoid);
     zval_ptr_dtor(&ztype);
 
@@ -178,43 +163,38 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     size_t* sizep,git_otype* typep,git_odb_backend* backend,const git_oid* prefix,
     size_t len)
 {
-    zval fname;
-    zval retval;
+    int result;
     zval* zfull;
     zval* ztype;
     zval* zprefix;
-    zval* thisobj = EXTRACT_THISOBJ(backend);
-    int result = GIT_OK;
-    void* data;
-    object_wrapper<php_odb_backend_object> wrapper(thisobj);
+    method_wrapper method("read_prefix",backend);
 
-    // Allocate/initialize zvals.
-    INIT_ZVAL(fname);
-    INIT_ZVAL(retval);
+    // Allocate/set zvals.
+
     ALLOC_INIT_ZVAL(zfull);
     ALLOC_INIT_ZVAL(ztype);
     ALLOC_INIT_ZVAL(zprefix);
 
-    // Assign values to function name and by-value arguments.
-    ZVAL_STRING(&fname,"read_prefix",1);
     convert_oid_prefix(zprefix,prefix,len);
+
+    // Call userspace method implementation corresponding to odb operation.
 
     zval* params[] = { zfull, ztype, zprefix };
 
-    // Call userspace method implementation corresponding to odb operation.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,3,params
-            ZTS_MEMBER_CC(ctx.object()->zts)) == FAILURE)
-    {
-        result = GIT_ERROR;
-    }
-    else {
-        // Return values to caller. We have to copy the data to use a persistent
-        // memory buffer that git2 can free.
-        convert_to_string(&retval);
-        data = pemalloc(Z_STRLEN(retval),1);
-        memcpy(data,Z_STRVAL(retval),Z_STRLEN(retval));
+    result = method.call(3,params);
+    if (result == GIT_OK) {
+        void* data;
+        zval* retval = method.retval();
+
+        // Copy the returned data to a persistent memory buffer that git2 can
+        // free later on.
+        convert_to_string(retval);
+        data = pemalloc(Z_STRLEN_P(retval),1);
+        memcpy(data,Z_STRVAL_P(retval),Z_STRLEN_P(retval));
+
+        // Return values to caller.
         *datap = data;
-        *sizep = Z_STRLEN(retval);
+        *sizep = Z_STRLEN_P(retval);
         convert_to_long(ztype);
         *typep = (git_otype)Z_LVAL_P(ztype);
         convert_to_string(zfull);
@@ -222,8 +202,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     }
 
     // Cleanup zvals.
-    zval_dtor(&fname);
-    zval_dtor(&retval);
+
     zval_ptr_dtor(&zfull);
     zval_ptr_dtor(&ztype);
     zval_ptr_dtor(&zprefix);
@@ -234,35 +213,26 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 /*static*/ int php_odb_backend_object::read_header(size_t* sizep,git_otype* typep,
     git_odb_backend* backend,const git_oid* oid)
 {
-    zval fname;
-    zval retval;
+    int result;
     zval* zsize;
     zval* ztype;
     zval* zoid;
-    zval* thisobj = EXTRACT_THISOBJ(backend);
-    int result = GIT_OK;
-    object_wrapper<php_odb_backend_object> wrapper(thisobj);
+    method_wrapper method("read_header",backend);
 
-    // Allocate/initialize zvals.
-    INIT_ZVAL(fname);
-    INIT_ZVAL(retval);
+    // Allocate/set zvals.
+
     ALLOC_INIT_ZVAL(zsize);
     ALLOC_INIT_ZVAL(ztype);
     ALLOC_INIT_ZVAL(zoid);
 
-    // Assign value to function name.
-    ZVAL_STRING(&fname,"read_header",1);
     convert_oid(zoid,oid);
+
+    // Call userspace method implementation corresponding to odb operation.
 
     zval* params[] = { zsize, ztype, zoid };
 
-    // Call userspace method implementation corresponding to odb operation.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,3,params
-            ZTS_MEMBER_CC(ctx.object()->zts)) == FAILURE)
-    {
-        result = GIT_ERROR;
-    }
-    else {
+    result = method.call(3,params);
+    if (result == GIT_OK) {
         // Return values to caller.
         convert_to_long(zsize);
         convert_to_long(ztype);
@@ -271,8 +241,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     }
 
     // Cleanup zvals.
-    zval_dtor(&fname);
-    zval_dtor(&retval);
+
     zval_ptr_dtor(&zsize);
     zval_ptr_dtor(&ztype);
     zval_ptr_dtor(&zoid);
@@ -283,40 +252,31 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 /*static*/ int php_odb_backend_object::write(git_odb_backend* backend,
     const git_oid* oid,const void* data,size_t size,git_otype type)
 {
-    zval fname;
-    zval retval;
+    int result;
     zval* zoid;
     zval* zpayload;
     zval* ztype;
-    zval* thisobj = EXTRACT_THISOBJ(backend);
-    int result = GIT_OK;
-    object_wrapper<php_odb_backend_object> wrapper(thisobj);
+    method_wrapper method("write",backend);
 
-    // Allocate/initialize zvals.
-    INIT_ZVAL(fname);
-    INIT_ZVAL(retval);
+    // Allocate and set zvals.
+
     MAKE_STD_ZVAL(zoid);
     MAKE_STD_ZVAL(zpayload);
     MAKE_STD_ZVAL(ztype);
 
-    // Assign values to function name and by-value arguments.
-    ZVAL_STRING(&fname,"write",1);
+
     convert_oid(zoid,oid);
     ZVAL_STRINGL(zpayload,(const char*)data,size,1);
     ZVAL_LONG(ztype,type);
 
+    // Call userspace method implementation corresponding to odb operation.
+
     zval* params[] = { zoid, zpayload, ztype };
 
-    // Call userspace method implementation corresponding to odb operation.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,3,params
-            ZTS_MEMBER_CC(ctx.object()->zts)) == FAILURE)
-    {
-        result = GIT_ERROR;
-    }
+    result = method.call(3,params);
 
     // Cleanup zvals.
-    zval_dtor(&fname);
-    zval_dtor(&retval);
+
     zval_ptr_dtor(&zoid);
     zval_ptr_dtor(&zpayload);
     zval_ptr_dtor(&ztype);
@@ -327,37 +287,30 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 /*static*/ int php_odb_backend_object::writestream(git_odb_stream** streamp,
     git_odb_backend* backend,git_off_t size,git_otype type)
 {
-    zval fname;
-    zval retval;
+    int result;
     zval* zsize;
     zval* ztype;
-    zval* thisobj = EXTRACT_THISOBJ(backend);
-    int result = GIT_OK;
-    object_wrapper<php_odb_backend_object> wrapper(thisobj);
+    method_wrapper method("writestream",backend);
 
-    // Allocate/initialize zvals.
-    INIT_ZVAL(fname);
-    INIT_ZVAL(retval);
+    // Allocate/set zvals.
+
     MAKE_STD_ZVAL(zsize);
     MAKE_STD_ZVAL(ztype);
 
-    // Assign values to function name and by-value arguments.
-    ZVAL_STRING(&fname,"writestream",1);
     ZVAL_LONG(zsize,size);
     ZVAL_LONG(ztype,type);
 
+    // Call userspace method implementation corresponding to odb operation.
+
     zval* params[] = { zsize, ztype };
 
-    // Call userspace method implementation corresponding to odb operation.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,2,params
-            ZTS_MEMBER_CC(ctx.object()->zts)) == FAILURE)
-    {
-        result = GIT_ERROR;
-    }
-    else {
+    result = method.call(2,params);
+    if (result == GIT_OK) {
+        zval* retval = method.retval();
+
         // Make sure returned zval is an object derived from GitODBStream.
-        if (Z_TYPE(retval) != IS_OBJECT
-            || !is_subclass_of(Z_OBJCE(retval),class_entry[php_git2_odb_stream_obj]))
+        if (Z_TYPE_P(retval) != IS_OBJECT
+            || !is_subclass_of(Z_OBJCE_P(retval),class_entry[php_git2_odb_stream_obj]))
         {
             php_git2_giterr_set(
                 GITERR_ODB,
@@ -366,45 +319,44 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 
             result = GIT_EPHPFATAL;
         }
+        else {
+            // Copy the return value zval.
+            zval* zobj;
+            MAKE_STD_ZVAL(zobj);
+            ZVAL_ZVAL(zobj,retval,1,0);
 
-        // Copy the return value zval.
-        zval* zobj;
-        MAKE_STD_ZVAL(zobj);
-        ZVAL_ZVAL(zobj,&retval,1,0);
+            try {
+                // Now create the custom stream backing. The stream tracks this
+                // object to keep it alive and provide access to the
+                // GitODBBackend derivation.
+                php_odb_stream_object* sobj = LOOKUP_OBJECT(php_odb_stream_object,retval);
+                sobj->create_custom_stream(zobj,GIT_STREAM_WRONLY,method.thisobj());
 
-        try {
+                // The libgit2 implementation expects the custom backing to
+                // provide a reference to the ODB backend.
+                sobj->stream->backend = backend;
 
-            // Now create the custom stream backing. The stream tracks this
-            // object to keep it alive and provide access to the GitODBBackend
-            // derivation.
-            php_odb_stream_object* sobj = LOOKUP_OBJECT(php_odb_stream_object,&retval);
-            sobj->create_custom_stream(zobj,GIT_STREAM_WRONLY,thisobj);
+                // Assign the git_odb_stream to the out parameter. This is safe
+                // since the instance holds its own zval that references the
+                // object backing, meaning the returned object will survive
+                // until the free() function is called on the git_odb_stream.
+                *streamp = sobj->stream;
+            } catch (php_git2_fatal_exception& ex) {
+                const char* msg = ex.what();
+                if (msg == nullptr) {
+                    msg = "GitODBBackend::writestream(): failed to generate the writestream";
+                }
+                php_git2_giterr_set(GITERR_ODB,msg);
 
-            // The libgit2 implementation expects the custom backing to provide
-            // a reference to the ODB backend.
-            sobj->stream->backend = backend;
-
-            // Assign the git_odb_stream to the out parameter. This is safe
-            // since the instance holds its own zval that references the object
-            // backing, meaning the returned object will survive until the
-            // free() function is called on the git_odb_stream.
-            *streamp = sobj->stream;
-        } catch (php_git2_fatal_exception& ex) {
-            const char* msg = ex.what();
-            if (msg == nullptr) {
-                msg = "GitODBBackend::writestream(): failed to generate the writestream";
+                result = GIT_EPHPFATAL;
             }
-            php_git2_giterr_set(GITERR_ODB,msg);
 
-            result = GIT_EPHPFATAL;
+            zval_ptr_dtor(&zobj);
         }
-
-        zval_ptr_dtor(&zobj);
     }
 
     // Cleanup zvals.
-    zval_dtor(&fname);
-    zval_dtor(&retval);
+
     zval_ptr_dtor(&zsize);
     zval_ptr_dtor(&ztype);
 
@@ -414,63 +366,73 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 /*static*/ int php_odb_backend_object::readstream(git_odb_stream** streamp,
     git_odb_backend* backend,const git_oid* oid)
 {
-    zval fname;
-    zval retval;
+    int result;
     zval* zbuf;
-    zval* thisobj = EXTRACT_THISOBJ(backend);
-    int result = GIT_OK;
-    object_wrapper<php_odb_backend_object> wrapper(thisobj);
+    method_wrapper method("readstream",backend);
 
-    // Allocate/initialize zvals.
-    INIT_ZVAL(fname);
-    INIT_ZVAL(retval);
+    // Allocate/set zvals.
+
     MAKE_STD_ZVAL(zbuf);
 
-    // Assign values to function name and by-value arguments.
-    ZVAL_STRING(&fname,"readstream",1);
     convert_oid(zbuf,oid);
+
+    // Call userspace method implementation corresponding to odb operation.
 
     zval* params[] = { zbuf };
 
-    // Call userspace method implementation corresponding to odb operation.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,1,params
-            ZTS_MEMBER_CC(ctx.object()->zts)) == FAILURE)
-    {
-        result = GIT_ERROR;
-    }
-    else {
+    result = method.call(1,params);
+    if (result == GIT_OK) {
+        zval* retval = method.retval();
+
         // Make sure returned zval is an object derived from GitODBStream.
-        if (Z_TYPE(retval) != IS_OBJECT
-            || !is_subclass_of(Z_OBJCE(retval),class_entry[php_git2_odb_stream_obj]))
+        if (Z_TYPE_P(retval) != IS_OBJECT
+            || !is_subclass_of(Z_OBJCE_P(retval),class_entry[php_git2_odb_stream_obj]))
         {
             php_git2_giterr_set(
                 GITERR_ODB,
                 "GitODBBackend::readstream(): return value must be an object "
                 "derived from GitODBStream");
 
-            return GIT_EPHPFATAL;
+            result = GIT_EPHPFATAL;
         }
+        else {
+            // Copy the return value zval.
+            zval* zobj;
+            MAKE_STD_ZVAL(zobj);
+            ZVAL_ZVAL(zobj,retval,1,0);
 
-        // Now create the custom stream backing. NOTE: it is safe to use
-        // 'retval' in create_custom_stream() since the implementation will copy
-        // the zval.
-        php_odb_stream_object* sobj = LOOKUP_OBJECT(php_odb_stream_object,&retval);
-        sobj->create_custom_stream(&retval,GIT_STREAM_RDONLY,thisobj);
+            try {
+                // Now create the custom stream backing. The stream tracks this
+                // object to keep it alive and provide access to the
+                // GitODBBackend derivation.
+                php_odb_stream_object* sobj = LOOKUP_OBJECT(php_odb_stream_object,retval);
+                sobj->create_custom_stream(zobj,GIT_STREAM_RDONLY,method.thisobj());
 
-        // Help out the implementation by providing a reference to the ODB
-        // backend.
-        sobj->stream->backend = backend;
+                // Help out the implementation by providing a reference to the
+                // ODB backend.
+                sobj->stream->backend = backend;
 
-        // Assign the git_odb_stream to the out parameter. This is safe since
-        // the instance holds its own zval that references the object backing,
-        // meaning the returned object will survive until the free() function is
-        // called on the git_odb_stream.
-        *streamp = sobj->stream;
+                // Assign the git_odb_stream to the out parameter. This is safe
+                // since the instance holds its own zval that references the
+                // object backing, meaning the returned object will survive
+                // until the free() function is called on the git_odb_stream.
+                *streamp = sobj->stream;
+            } catch (php_git2_fatal_exception& ex) {
+                const char* msg = ex.what();
+                if (msg == nullptr) {
+                    msg = "GitODBBackend::readstream(): failed to generate the readstream";
+                }
+                php_git2_giterr_set(GITERR_ODB,msg);
+
+                result = GIT_EPHPFATAL;
+            }
+
+            zval_ptr_dtor(&zobj);
+        }
     }
 
     // Cleanup zvals.
-    zval_dtor(&fname);
-    zval_dtor(&retval);
+
     zval_ptr_dtor(&zbuf);
 
     return result;
@@ -479,38 +441,32 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 /*static*/ int php_odb_backend_object::exists(git_odb_backend* backend,
     const git_oid* oid)
 {
-    zval fname;
-    zval retval;
+    int result;
     zval* zoid;
-    zval* thisobj = EXTRACT_THISOBJ(backend);
-    int result = GIT_OK;
-    object_wrapper<php_odb_backend_object> wrapper(thisobj);
+    method_wrapper method("exists",backend);
 
-    // Allocate/initialize zvals.
-    INIT_ZVAL(fname);
-    INIT_ZVAL(retval);
+    // Allocate/set zvals.
+
     MAKE_STD_ZVAL(zoid);
 
-    // Assign values to function name and by-value arguments.
-    ZVAL_STRING(&fname,"exists",1);
     convert_oid(zoid,oid);
+
+    // Call userspace method implementation corresponding to odb operation.
 
     zval* params[] = { zoid };
 
-    // Call userspace method implementation corresponding to odb operation.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,1,params
-            ZTS_MEMBER_CC(ctx.object()->zts)) == FAILURE)
-    {
-        result = GIT_ERROR;
-    }
-    else {
-        // Exists() must return a traditional Boolean value.
-        result = Z_BVAL(retval) ? 1 : 0;
+    result = method.call(1,params);
+    if (result == GIT_OK) {
+        zval* retval = method.retval();
+        convert_to_boolean(retval);
+
+        // NOTE: exists() returns 1 for TRUE and 0 for FALSE.
+
+        result = Z_BVAL_P(retval) ? 1 : 0;
     }
 
     // Cleanup zvals.
-    zval_dtor(&fname);
-    zval_dtor(&retval);
+
     zval_ptr_dtor(&zoid);
 
     return result;
@@ -519,49 +475,38 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 /*static*/ int php_odb_backend_object::exists_prefix(git_oid* oidp,
     git_odb_backend* backend,const git_oid* prefix,size_t len)
 {
-    zval fname;
-    zval retval;
+    int result;
     zval* zfull;
     zval* zoid;
-    zval* thisobj = EXTRACT_THISOBJ(backend);
-    int result = GIT_OK;
-    object_wrapper<php_odb_backend_object> wrapper(thisobj);
+    method_wrapper method("exists_prefix",backend);
 
-    // Allocate/initialize zvals.
-    INIT_ZVAL(fname);
-    INIT_ZVAL(retval);
+    // Allocate/set zvals.
+
     ALLOC_INIT_ZVAL(zfull);
     MAKE_STD_ZVAL(zoid);
 
-    // Assign values to function name and by-value arguments.
-    ZVAL_STRING(&fname,"exists",1);
     convert_oid_prefix(zoid,prefix,len);
+
+    // Call userspace method implementation corresponding to odb operation.
 
     zval* params[] = { zfull, zoid };
 
-    // Call userspace method implementation corresponding to odb operation.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,2,params
-            ZTS_MEMBER_CC(wrapper.object()->zts)) == FAILURE)
-    {
-        result = GIT_ERROR;
-    }
-    else {
-        // Return values to caller.
+    result = method.call(2,params);
+    if (result == GIT_OK) {
+        zval* retval = method.retval();
+
+        // Return values to caller. NOTE: exists_prefix() returns 0 on success
+        // (i.e. found) and the GIT_ENOTFOUND error when the element is not
+        // found.
+
         convert_to_string(zfull);
         convert_oid_fromstr(oidp,Z_STRVAL_P(zfull),Z_STRLEN_P(zfull));
-        convert_to_boolean(&retval);
-        if (Z_BVAL(retval)) {
-            // Function needs to return zero when the element is found.
-            result = 0;
-        }
-        else {
-            result = GIT_ENOTFOUND;
-        }
+        convert_to_boolean(retval);
+        result = Z_BVAL_P(retval) ? 0 : GIT_ENOTFOUND;
     }
 
     // Cleanup zvals.
-    zval_dtor(&fname);
-    zval_dtor(&retval);
+
     zval_ptr_dtor(&zfull);
     zval_ptr_dtor(&zoid);
 
@@ -570,29 +515,12 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 
 /*static*/ int php_odb_backend_object::refresh(git_odb_backend* backend)
 {
-    zval fname;
-    zval retval;
-    zval* thisobj = EXTRACT_THISOBJ(backend);
-    int result = GIT_OK;
-    object_wrapper<php_odb_backend_object> wrapper(thisobj);
-
-    // Allocate/initialize zvals.
-    INIT_ZVAL(fname);
-    INIT_ZVAL(retval);
-
-    // Assign values to function name and by-value arguments.
-    ZVAL_STRING(&fname,"refresh",1);
+    int result;
+    method_wrapper method("refresh",backend);
 
     // Call userspace method implementation corresponding to odb operation.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,0,NULL
-            ZTS_MEMBER_CC(wrapper.object()->zts)) == FAILURE)
-    {
-        result = GIT_ERROR;
-    }
 
-    // Cleanup zvals.
-    zval_dtor(&fname);
-    zval_dtor(&retval);
+    result = method.call();
 
     return result;
 }
@@ -600,35 +528,34 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 /*static*/ int php_odb_backend_object::foreach(git_odb_backend* backend,
     git_odb_foreach_cb cb,void* payload)
 {
-    int result = GIT_OK;
-    zval* thisobj = EXTRACT_THISOBJ(backend);
-    zval fname;
-    zval retval;
+    int result;
     zval* zclosure;
     zval* zpayload;
-    object_wrapper<php_odb_backend_object> wrapper(thisobj);
+    method_wrapper method("for_each",backend);
 
     // Create zvals for method call. The payload argument is always a NULL zval
     // from this context. However this fact should be mostly transparent to the
     // user since they will just pass it along in their implementation none the
-    // wiser. NOTE: the only time the payload zval is directly useful is if the
-    // PHP engine calls the "for_each()" method, not this function.
+    // wiser. The payload gets set on the closure object so that it is available
+    // to the actual callback. NOTE: the only time the payload zval parameter is
+    // directly useful is if the PHP engine calls the "for_each()" method, not
+    // this function.
 
-    INIT_ZVAL(fname);
-    INIT_ZVAL(retval);
-    ZVAL_STRING(&fname,"for_each",1);
     MAKE_STD_ZVAL(zclosure);
     ALLOC_INIT_ZVAL(zpayload);
 
     php_closure_object* closureInfo;
-    zval* params[] = { zclosure, zpayload };
     foreach_callback_info callbackInfo = { cb, payload };
+
+    // Make sure ZTS stuff is in-scope for call to object_init_ex() and
+    // zend_objects_get_address().
 #ifdef ZTS
-    TSRMLS_D = ZTS_MEMBER_CC(wrapper.object()->zts); // Make in-scope for call to object_init_ex().
+    TSRMLS_D = ZTS_MEMBER_C(method.backing()->zts);
 #endif
 
     // Set up the closure to call an internal function that will handle
     // calling the function and passing the payload.
+
     object_init_ex(zclosure,php_git2::class_entry[php_git2_closure_obj]);
     closureInfo = reinterpret_cast<php_closure_object*>
         (zend_objects_get_address(zclosure TSRMLS_CC));
@@ -643,12 +570,11 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     closureInfo->payload = &callbackInfo;
 
     // Call userspace method implementation corresponding to odb operation.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,2,params TSRMLS_CC) == FAILURE) {
-        result = GIT_ERROR;
-    }
 
-    zval_dtor(&fname);
-    zval_dtor(&retval);
+    zval* params[] = { zclosure, zpayload };
+
+    result = method.call(2,params);
+
     zval_ptr_dtor(&zclosure);
     zval_ptr_dtor(&zpayload);
 
@@ -668,38 +594,28 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 
 /*static*/ void php_odb_backend_object::free(git_odb_backend* backend)
 {
-    // Set backend to null in internal storage (just in case). Then explicitly
-    // call the destructor on the custom backend. Finally free the block of
-    // memory that holds the custom backend.
-
-    git_odb_backend_php* wrapper = EXTRACT_BACKEND(backend);
+    method_wrapper method("free",backend);
 
     // Make sure object buckets still exist to lookup object (in case the
     // destructor was already called). This happens when free() is called after
     // PHP has finished cleaning up all objects (but before all variables, which
     // may have references to git2 objects that reference this PHP object).
+
     if (EG(objects_store).object_buckets != nullptr) {
         // Call userspace free() method on the object. It may not necessarily be
         // implemented since we didn't check for it when the git_odb_backend_php
         // object was created. If not, we just let the callback fail.
 
-        zval fname;
-        zval retval;
-        object_wrapper<php_odb_backend_object> obj(wrapper->thisobj);
-
-        INIT_ZVAL(fname);
-        INIT_ZVAL(retval);
-        ZVAL_STRING(&fname,"free",1);
-        call_user_function(NULL,&wrapper->thisobj,&fname,&retval,0,NULL
-            ZTS_MEMBER_CC(obj.object()->zts));
-        zval_dtor(&fname);
-        zval_dtor(&retval);
+        method.call();
 
         // Unassign backend from the object since it is about to get destroyed.
-        obj.object()->backend = nullptr;
+        method.backing()->backend = nullptr;
     }
 
-    wrapper->~git_odb_backend_php();
+    // Explicitly call the destructor on the custom backend. Then free the block
+    // of memory that holds the custom backend.
+
+    method.object()->~git_odb_backend_php();
     efree(backend);
 }
 

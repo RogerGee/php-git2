@@ -12,13 +12,7 @@ extern "C" {
 }
 using namespace php_git2;
 
-// Helper macros and functions
-
-#define EXTRACT_BACKEND(backend) \
-    reinterpret_cast<php_refdb_backend_object::git_refdb_backend_php*>(backend)
-
-#define EXTRACT_THISOBJ(backend) \
-    EXTRACT_BACKEND(backend)->thisobj
+// Helper functions.
 
 static int reference_from_string(git_reference** out,zval* zstr,const char* ref_name)
 {
@@ -116,8 +110,15 @@ static int reflog_entry_from_array(git_reflog_entry** out,zval* zarr)
 
 struct custom_backend_iterator : git_reference_iterator
 {
+    typedef git_reference_iterator base_class;
+
+    using method_wrapper = php_method_wrapper<
+        custom_backend_iterator,
+        php_refdb_backend_object
+        >;
+
     // Store reference to GitRefDBBackend object.
-    zval* zobject;
+    zval* thisobj;
 
     // Store last returned name string.
     zval zlast;
@@ -125,31 +126,22 @@ struct custom_backend_iterator : git_reference_iterator
 
 static int custom_backend_iterator_next(git_reference** ref,custom_backend_iterator* iter)
 {
-    const int N = 1;
-    int result = GIT_OK;
-
-    zval fname;
-    zval retval;
-    zval* params[N];
+    int result;
     zval* zname;
+    custom_backend_iterator::method_wrapper method("iterator_next",iter);
 
-    INIT_ZVAL(fname);
-    INIT_ZVAL(retval);
-    ALLOC_INIT_ZVAL(zname);
-
-    ZVAL_STRING(&fname,"iterator_next",1);
-
-    params[0] = zname;
+    MAKE_STD_ZVAL(zname);
 
     // Call userspace method implementation corresponding to refdb operation.
-    if (call_user_function(NULL,&iter->zobject,&fname,&retval,N,params
-            ZTS_MEMBER_CC(wrapper.object()->zts)) == FAILURE)
-    {
-        result = GIT_ERROR;
-    }
-    else {
+
+    zval* params[] = { zname };
+
+    result = method.call(1,params);
+    if (result == GIT_OK) {
+        zval* retval = method.retval();
+
         // If userspace returned false, then iteration is over.
-        if (Z_TYPE(retval) == IS_BOOL && !Z_BVAL(retval)) {
+        if (Z_TYPE_P(retval) == IS_BOOL && !Z_BVAL_P(retval)) {
             result = GIT_ITEROVER;
         }
         else {
@@ -160,14 +152,13 @@ static int custom_backend_iterator_next(git_reference** ref,custom_backend_itera
             convert_to_string(&iter->zlast);
 
             // Return values.
-            convert_to_string(&retval);
-            result = reference_from_string(ref,&retval,Z_STRVAL(iter->zlast));
+            convert_to_string(retval);
+            result = reference_from_string(ref,retval,Z_STRVAL(iter->zlast));
         }
     }
 
     // Cleanup zvals.
-    zval_dtor(&fname);
-    zval_dtor(&retval);
+
     zval_ptr_dtor(&zname);
 
     return result;
@@ -175,31 +166,22 @@ static int custom_backend_iterator_next(git_reference** ref,custom_backend_itera
 
 static int custom_backend_iterator_next_name(const char** ref_name,custom_backend_iterator* iter)
 {
-    const int N = 1;
-    int result = GIT_OK;
-
-    zval fname;
-    zval retval;
-    zval* params[N];
+    int result;
     zval* zname;
+    custom_backend_iterator::method_wrapper method("iterator_next",iter);
 
-    INIT_ZVAL(fname);
-    INIT_ZVAL(retval);
-    ALLOC_INIT_ZVAL(zname);
-
-    ZVAL_STRING(&fname,"iterator_next",1);
-
-    params[0] = zname;
+    MAKE_STD_ZVAL(zname);
 
     // Call userspace method implementation corresponding to refdb operation.
-    if (call_user_function(NULL,&iter->zobject,&fname,&retval,N,params
-            ZTS_MEMBER_CC(wrapper.object()->zts)) == FAILURE)
-    {
-        result = GIT_ERROR;
-    }
-    else {
+
+    zval* params[] = { zname };
+
+    result = method.call(1,params);
+    if (result == GIT_OK) {
+        zval* retval = method.retval();
+
         // If userspace returned false, then iteration is over.
-        if (Z_TYPE(retval) == IS_BOOL && !Z_BVAL(retval)) {
+        if (Z_TYPE_P(retval) == IS_BOOL && !Z_BVAL_P(retval)) {
             result = GIT_ITEROVER;
         }
         else {
@@ -215,8 +197,7 @@ static int custom_backend_iterator_next_name(const char** ref_name,custom_backen
     }
 
     // Cleanup zvals.
-    zval_dtor(&fname);
-    zval_dtor(&retval);
+
     zval_ptr_dtor(&zname);
 
     return result;
@@ -224,7 +205,7 @@ static int custom_backend_iterator_next_name(const char** ref_name,custom_backen
 
 static void custom_backend_iterator_free(custom_backend_iterator* iter)
 {
-    zval_ptr_dtor(&iter->zobject);
+    zval_ptr_dtor(&iter->thisobj);
     zval_dtor(&iter->zlast);
     efree(iter);
 }
@@ -326,39 +307,29 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj)
     git_refdb_backend *backend,
     const char *ref_name)
 {
-    const int N = 1;
-    int result = GIT_OK;
-
-    zval fname;
-    zval retval;
-    zval* thisobj = EXTRACT_THISOBJ(backend);
-    zval* params[N];
+    int result;
     zval* zrefname;
+    method_wrapper method("exists",backend);
 
-    INIT_ZVAL(fname);
-    INIT_ZVAL(retval);
-    ALLOC_INIT_ZVAL(zrefname);
-
-    ZVAL_STRING(&fname,"exists",1);
+    MAKE_STD_ZVAL(zrefname);
     ZVAL_STRING(zrefname,ref_name,1);
 
-    params[0] = zrefname;
-
     // Call userspace method implementation corresponding to refdb operation.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,N,params
-            ZTS_MEMBER_CC(wrapper.object()->zts)) == FAILURE)
-    {
-        result = GIT_ERROR;
-    }
-    else {
-        // Return values.
-        convert_to_boolean(&retval);
-        *exists = Z_BVAL(retval);
+
+    zval* params[] = { zrefname };
+
+    result = method.call(1,params);
+    if (result == GIT_OK) {
+        zval* retval = method.retval();
+
+        // Return method call return value.
+
+        convert_to_boolean(retval);
+        *exists = Z_BVAL_P(retval);
     }
 
     // Cleanup zvals.
-    zval_dtor(&fname);
-    zval_dtor(&retval);
+
     zval_ptr_dtor(&zrefname);
 
     return result;
@@ -369,37 +340,29 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj)
     git_refdb_backend *backend,
     const char *ref_name)
 {
-    const int N = 1;
-    int result = GIT_OK;
-
-    zval fname;
-    zval retval;
-    zval* thisobj = EXTRACT_THISOBJ(backend);
-    zval* params[N];
+    int result;
     zval* zrefname;
+    method_wrapper method("lookup",backend);
 
-    INIT_ZVAL(fname);
-    INIT_ZVAL(retval);
-    ALLOC_INIT_ZVAL(zrefname);
-
-    ZVAL_STRING(&fname,"lookup",1);
+    MAKE_STD_ZVAL(zrefname);
     ZVAL_STRING(zrefname,ref_name,1);
 
     // Call userspace method implementation corresponding to refdb operation.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,N,params
-            ZTS_MEMBER_CC(wrapper.object()->zts)) == FAILURE)
-    {
-        result = GIT_ERROR;
-    }
-    else {
-        // Return values.
-        convert_to_string(&retval);
-        result = reference_from_string(out,&retval,ref_name);
+
+    zval* params[] = { zrefname };
+
+    result = method.call(1,params);
+    if (result == GIT_OK) {
+        zval* retval = method.retval();
+
+        // Return reference from method call return value.
+
+        convert_to_string(retval);
+        result = reference_from_string(out,retval,ref_name);
     }
 
     // Cleanup zvals.
-    zval_dtor(&fname);
-    zval_dtor(&retval);
+
     zval_ptr_dtor(&zrefname);
 
     return result;
@@ -410,35 +373,22 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj)
     struct git_refdb_backend *backend,
     const char *glob)
 {
-    const int N = 1;
-    int result = GIT_OK;
-
-    zval fname;
-    zval retval;
-    zval* thisobj = EXTRACT_THISOBJ(backend);
-    zval* params[N];
+    int result;
     zval* zglob;
+    method_wrapper method("iterator_new",backend);
 
-    INIT_ZVAL(fname);
-    INIT_ZVAL(retval);
     ALLOC_INIT_ZVAL(zglob);
-
-    ZVAL_STRING(&fname,"iterator_new",1);
     if (glob != nullptr) {
         ZVAL_STRING(zglob,glob,1);
     }
 
-    params[0] = zglob;
-
     // Call userspace method implementation corresponding to refdb operation.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,N,params
-            ZTS_MEMBER_CC(wrapper.object()->zts)) == FAILURE)
-    {
-        result = GIT_ERROR;
-    }
-    else {
-        // Create and return custom git_reference_iterator.
 
+    zval* params[] = { zglob };
+
+    result = method.call(1,params);
+    if (result == GIT_OK) {
+        zval* thisobj = method.thisobj();
         custom_backend_iterator* custom;
 
         custom = reinterpret_cast<custom_backend_iterator*>(emalloc(sizeof(custom_backend_iterator)));
@@ -446,16 +396,17 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj)
         custom->next = (int(*)(git_reference**,git_reference_iterator*))custom_backend_iterator_next;
         custom->next_name = (int(*)(const char**,git_reference_iterator*))custom_backend_iterator_next_name;
         custom->free = (void(*)(git_reference_iterator*))custom_backend_iterator_free;
+
         Z_ADDREF_P(thisobj);
-        custom->zobject = thisobj;
+        custom->thisobj = thisobj;
+
         INIT_ZVAL(custom->zlast);
 
         *iter = custom;
     }
 
     // Cleanup zvals.
-    zval_dtor(&fname);
-    zval_dtor(&retval);
+
     zval_ptr_dtor(&zglob);
 
     return result;
@@ -470,33 +421,31 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj)
     const git_oid *old,
     const char *old_target)
 {
-    const int N = 6;
-    int result = GIT_OK;
-
-    zval fname;
-    zval retval;
-    zval* thisobj = EXTRACT_THISOBJ(backend);
-    zval* params[N];
+    int result;
     zval* zref;
     zval* zforce;
     zval* zwho;
     zval* zmessage;
     zval* zold;
     zval* zoldtarget;
-    const php_resource_ref<php_git_reference> res;
+    method_wrapper method("write",backend);
 
-    INIT_ZVAL(fname);
-    INIT_ZVAL(retval);
-    ALLOC_INIT_ZVAL(zref);
-    ALLOC_INIT_ZVAL(zforce);
-    ALLOC_INIT_ZVAL(zwho);
-    ALLOC_INIT_ZVAL(zmessage);
-    ALLOC_INIT_ZVAL(zold);
-    ALLOC_INIT_ZVAL(zoldtarget);
+    MAKE_STD_ZVAL(zref);
+    MAKE_STD_ZVAL(zforce);
+    MAKE_STD_ZVAL(zwho);
+    MAKE_STD_ZVAL(zmessage);
+    MAKE_STD_ZVAL(zold);
+    MAKE_STD_ZVAL(zoldtarget);
 
-    ZVAL_STRING(&fname,"write",1);
-    *res.byval_git2() = ref;
-    res.ret(zref);
+    try {
+        const php_resource_ref<php_git_reference> res;
+        *res.byval_git2() = ref;
+        res.ret(zref);
+    } catch (php_git2_exception_base& ex) {
+        // TODO Handle external exception.
+
+    }
+
     ZVAL_BOOL(zforce,force);
     convert_signature(zwho,who);
     if (message != NULL) {
@@ -505,26 +454,14 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj)
     convert_oid(zold,old);
     ZVAL_STRING(zoldtarget,old_target,1);
 
-    params[0] = zref;
-    params[1] = zforce;
-    params[2] = zwho;
-    params[3] = zmessage;
-    params[4] = zold;
-    params[5] = zoldtarget;
-
     // Call userspace method implementation corresponding to refdb operation.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,N,params
-            ZTS_MEMBER_CC(wrapper.object()->zts)) == FAILURE)
-    {
-        result = GIT_ERROR;
-    }
-    else {
-        // TODO Check for exception.
-    }
+
+    zval* params[] = { zref, zforce, zwho, zmessage, zold, zoldtarget };
+
+    result = method.call(6,params);
 
     // Cleanup zvals.
-    zval_dtor(&fname);
-    zval_dtor(&retval);
+
     zval_ptr_dtor(&zref);
     zval_ptr_dtor(&zforce);
     zval_ptr_dtor(&zwho);
@@ -544,28 +481,20 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj)
     const git_signature *who,
     const char *message)
 {
-    const int N = 5;
-    int result = GIT_OK;
-
-    zval fname;
-    zval retval;
-    zval* thisobj = EXTRACT_THISOBJ(backend);
-    zval* params[N];
+    int result;
     zval* zoldname;
     zval* znewname;
     zval* zforce;
     zval* zwho;
     zval* zmessage;
+    method_wrapper method("rename",backend);
 
-    INIT_ZVAL(fname);
-    INIT_ZVAL(retval);
-    ALLOC_INIT_ZVAL(zoldname);
-    ALLOC_INIT_ZVAL(znewname);
-    ALLOC_INIT_ZVAL(zforce);
-    ALLOC_INIT_ZVAL(zwho);
+    MAKE_STD_ZVAL(zoldname);
+    MAKE_STD_ZVAL(znewname);
+    MAKE_STD_ZVAL(zforce);
+    MAKE_STD_ZVAL(zwho);
     ALLOC_INIT_ZVAL(zmessage);
 
-    ZVAL_STRING(&fname,"rename",1);
     ZVAL_STRING(zoldname,old_name,1);
     ZVAL_STRING(znewname,new_name,1);
     ZVAL_BOOL(zforce,1);
@@ -574,27 +503,20 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj)
         ZVAL_STRING(zmessage,message,1);
     }
 
-    params[0] = zoldname;
-    params[1] = znewname;
-    params[2] = zforce;
-    params[3] = zwho;
-    params[4] = zmessage;
-
     // Call userspace method implementation corresponding to refdb operation.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,N,params
-            ZTS_MEMBER_CC(wrapper.object()->zts)) == FAILURE)
-    {
-        result = GIT_ERROR;
-    }
-    else {
-        // Return values.
-        convert_to_string(&retval);
-        result = reference_from_string(out,&retval,new_name);
+
+    zval* params[] = { zoldname, znewname, zforce, zwho, zmessage };
+
+    result = method.call(5,params);
+    if (result == GIT_OK) {
+        zval* retval = method.retval();
+
+        convert_to_string(retval);
+        result = reference_from_string(out,retval,new_name);
     }
 
     // Cleanup zvals.
-    zval_dtor(&fname);
-    zval_dtor(&retval);
+
     zval_ptr_dtor(&zoldname);
     zval_ptr_dtor(&znewname);
     zval_ptr_dtor(&zforce);
@@ -610,46 +532,28 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj)
     const git_oid *old_id,
     const char *old_target)
 {
-    const int N = 3;
-    int result = GIT_OK;
-
-    zval fname;
-    zval retval;
-    zval* thisobj = EXTRACT_THISOBJ(backend);
-    zval* params[N];
+    int result;
     zval* zrefname;
     zval* zoldid;
     zval* zoldtarget;
+    method_wrapper method("del",backend);
 
-    INIT_ZVAL(fname);
-    INIT_ZVAL(retval);
-    ALLOC_INIT_ZVAL(zrefname);
-    ALLOC_INIT_ZVAL(zoldid);
-    ALLOC_INIT_ZVAL(zoldtarget);
+    MAKE_STD_ZVAL(zrefname);
+    MAKE_STD_ZVAL(zoldid);
+    MAKE_STD_ZVAL(zoldtarget);
 
-    ZVAL_STRING(&fname,"del",1);
     ZVAL_STRING(zrefname,ref_name,1);
     convert_oid(zoldid,old_id);
     ZVAL_STRING(zoldtarget,old_target,1);
 
-    params[0] = zrefname;
-    params[1] = zoldid;
-    params[2] = zoldtarget;
-
     // Call userspace method implementation corresponding to refdb operation.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,N,params
-            ZTS_MEMBER_CC(wrapper.object()->zts)) == FAILURE)
-    {
-        result = GIT_ERROR;
-    }
-    else {
-        // TODO Check for exception.
 
-    }
+    zval* params[] = { zrefname, zoldid, zoldtarget };
+
+    result = method.call(3,params);
 
     // Cleanup zvals.
-    zval_dtor(&fname);
-    zval_dtor(&retval);
+
     zval_ptr_dtor(&zrefname);
     zval_ptr_dtor(&zoldid);
     zval_ptr_dtor(&zoldtarget);
@@ -659,28 +563,12 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj)
 
 /*static*/ int php_refdb_backend_object::compress(git_refdb_backend *backend)
 {
-    const int N = 0;
-    int result = GIT_OK;
-
-    zval fname;
-    zval retval;
-    zval* thisobj = EXTRACT_THISOBJ(backend);
-
-    INIT_ZVAL(fname);
-    INIT_ZVAL(retval);
-
-    ZVAL_STRING(&fname,"compress",1);
+    int result;
+    method_wrapper method("compress",backend);
 
     // Call userspace method implementation corresponding to refdb operation.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,N,nullptr
-            ZTS_MEMBER_CC(wrapper.object()->zts)) == FAILURE)
-    {
-        result = GIT_ERROR;
-    }
 
-    // Cleanup zvals.
-    zval_dtor(&fname);
-    zval_dtor(&retval);
+    result = method.call();
 
     return result;
 }
@@ -689,38 +577,27 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj)
     git_refdb_backend *backend,
     const char *refname)
 {
-    const int N = 1;
-    int result = GIT_OK;
-
-    zval fname;
-    zval retval;
-    zval* thisobj = EXTRACT_THISOBJ(backend);
-    zval* params[N];
+    int result;
     zval* zrefname;
+    method_wrapper method("has_log",backend);
 
-    INIT_ZVAL(fname);
-    INIT_ZVAL(retval);
-    ALLOC_INIT_ZVAL(zrefname);
-
-    ZVAL_STRING(&fname,"has_log",1);
+    MAKE_STD_ZVAL(zrefname);
     ZVAL_STRING(zrefname,refname,1);
 
-    params[0] = zrefname;
-
     // Call userspace method implementation corresponding to refdb operation.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,N,params
-            ZTS_MEMBER_CC(wrapper.object()->zts)) == FAILURE)
-    {
-        result = GIT_ERROR;
-    }
-    else {
-        convert_to_boolean(&retval);
-        result = Z_BVAL(retval);
+
+    zval* params[] = { zrefname };
+
+    result = method.call(1,params);
+    if (result == GIT_OK) {
+        zval* retval = method.retval();
+
+        convert_to_boolean(retval);
+        result = Z_BVAL_P(retval);
     }
 
     // Cleanup zvals.
-    zval_dtor(&fname);
-    zval_dtor(&retval);
+
     zval_ptr_dtor(&zrefname);
 
     return result;
@@ -730,34 +607,21 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj)
     git_refdb_backend *backend,
     const char *refname)
 {
-    const int N = 1;
-    int result = GIT_OK;
-
-    zval fname;
-    zval retval;
-    zval* thisobj = EXTRACT_THISOBJ(backend);
-    zval* params[N];
+    int result;
     zval* zrefname;
+    method_wrapper method("ensure_log",backend);
 
-    INIT_ZVAL(fname);
-    INIT_ZVAL(retval);
-    ALLOC_INIT_ZVAL(zrefname);
-
-    ZVAL_STRING(&fname,"ensure_log",1);
+    MAKE_STD_ZVAL(zrefname);
     ZVAL_STRING(zrefname,refname,1);
 
-    params[0] = zrefname;
-
     // Call userspace method implementation corresponding to refdb operation.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,N,params
-            ZTS_MEMBER_CC(wrapper.object()->zts)) == FAILURE)
-    {
-        result = GIT_ERROR;
-    }
+
+    zval* params[] = { zrefname };
+
+    result = method.call(1,params);
 
     // Cleanup zvals.
-    zval_dtor(&fname);
-    zval_dtor(&retval);
+
     zval_ptr_dtor(&zrefname);
 
     return result;
@@ -768,76 +632,68 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj)
     git_refdb_backend *backend,
     const char *name)
 {
-    const int N = 1;
-    int result = GIT_OK;
-
     // TODO Until we can manipulate git_reflog and git_reflog_entry
     // appropriately, we cannot implement this function.
+
     giterr_set_str(GIT_ERROR,"GitRefDBBackend::reflog_read(): function is not supported at this time");
     return GIT_ERROR;
 
-    zval fname;
-    zval retval;
-    zval* thisobj = EXTRACT_THISOBJ(backend);
-    zval* params[N];
+    int result;
     zval* zname;
+    method_wrapper method("reflog_read",backend);
 
-    INIT_ZVAL(fname);
-    INIT_ZVAL(retval);
-    ALLOC_INIT_ZVAL(zname);
-
-    ZVAL_STRING(&fname,"reflog_read",1);
+    MAKE_STD_ZVAL(zname);
     ZVAL_STRING(zname,name,1);
 
-    params[0] = zname;
-
     // Call userspace method implementation corresponding to refdb operation.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,N,params
-            ZTS_MEMBER_CC(wrapper.object()->zts)) == FAILURE)
-    {
-        result = GIT_ERROR;
-    }
-    else {
-        if (Z_TYPE(retval) != IS_ARRAY) {
+
+    zval* params[] = { zname };
+
+    result = method.call(1,params);
+    if (result == GIT_OK) {
+        zval* retval = method.retval();
+
+        if (Z_TYPE_P(retval) != IS_ARRAY) {
             php_git2_giterr_set(
                 GITERR_INVALID,
                 "GitRefDBBackend::reflog_read(): return value must be array");
-            return GIT_ERROR;
-        }
 
-        zval** zlookup;
-        HashPosition pos;
-        git_reflog* log;
-
-        // TODO Allocate reflog instance.
-        log = nullptr;
-
-        for (zend_hash_internal_pointer_reset_ex(Z_ARRVAL(retval),&pos);
-             zend_hash_get_current_data_ex(Z_ARRVAL(retval),(void**)&zlookup,&pos) == SUCCESS;
-             zend_hash_move_forward_ex(Z_ARRVAL(retval),&pos))
-        {
-            git_reflog_entry* ent;
-
-            if (reflog_entry_from_array(&ent,*zlookup) == GIT_ERROR) {
-                result = GIT_ERROR;
-                break;
-            }
-
-            // TODO Append raw reflog entry to reflog.
-
-        }
-
-        if (result == GIT_ERROR) {
-            git_reflog_free(log);
+            result = GIT_ERROR;
         }
         else {
-            *out = log;
+            zval** zlookup;
+            HashPosition pos;
+            git_reflog* log;
+
+            // TODO Allocate reflog instance.
+            log = nullptr;
+
+            for (zend_hash_internal_pointer_reset_ex(Z_ARRVAL_P(retval),&pos);
+                 zend_hash_get_current_data_ex(Z_ARRVAL_P(retval),(void**)&zlookup,&pos) == SUCCESS;
+                 zend_hash_move_forward_ex(Z_ARRVAL_P(retval),&pos))
+            {
+                git_reflog_entry* ent;
+
+                if (reflog_entry_from_array(&ent,*zlookup) == GIT_ERROR) {
+                    result = GIT_ERROR;
+                    break;
+                }
+
+                // TODO Append raw reflog entry to reflog.
+
+            }
+
+            if (result == GIT_ERROR) {
+                git_reflog_free(log);
+            }
+            else {
+                *out = log;
+            }
         }
     }
 
     // Cleanup zvals.
-    zval_dtor(&fname);
-    zval_dtor(&retval);
+
     zval_ptr_dtor(&zname);
 
     return result;
@@ -847,40 +703,29 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj)
     git_refdb_backend *backend,
     git_reflog *reflog)
 {
-    const int N = 1;
-    int result = GIT_OK;
-
-    zval fname;
-    zval retval;
-    zval* thisobj = EXTRACT_THISOBJ(backend);
-    zval* params[N];
+    int result;
     zval* zreflog;
-    php_resource_ref<php_git_reflog> reflogResource;
+    method_wrapper method("reflog_write",backend);
 
-    INIT_ZVAL(fname);
-    INIT_ZVAL(retval);
-    ALLOC_INIT_ZVAL(zreflog);
+    MAKE_STD_ZVAL(zreflog);
 
-    ZVAL_STRING(&fname,"reflog_write",1);
-    *reflogResource.byval_git2() = reflog;
-    reflogResource.ret(zreflog);
+    try {
+        php_resource_ref<php_git_reflog> reflogResource;
+        *reflogResource.byval_git2() = reflog;
+        reflogResource.ret(zreflog);
+    } catch (php_git2_exception_base& ex) {
+        // TODO Handle exception
 
-    params[0] = zreflog;
+    }
 
     // Call userspace method implementation corresponding to refdb operation.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,N,params
-            ZTS_MEMBER_CC(wrapper.object()->zts)) == FAILURE)
-    {
-        result = GIT_ERROR;
-    }
-    else {
-        // TODO Check for exception.
 
-    }
+    zval* params[] = { zreflog };
+
+    result = method.call(1,params);
 
     // Cleanup zvals.
-    zval_dtor(&fname);
-    zval_dtor(&retval);
+
     zval_ptr_dtor(&zreflog);
 
     return result;
@@ -891,39 +736,24 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj)
     const char *old_name,
     const char *new_name)
 {
-    const int N = 2;
-    int result = GIT_OK;
-
-    zval fname;
-    zval retval;
-    zval* thisobj = EXTRACT_THISOBJ(backend);
-    zval* params[N];
+    int result;
     zval* zoldname;
     zval* znewname;
+    method_wrapper method("reflog_rename",backend);
 
-    INIT_ZVAL(fname);
-    INIT_ZVAL(retval);
-    ALLOC_INIT_ZVAL(zoldname);
-    ALLOC_INIT_ZVAL(znewname);
-
-    ZVAL_STRING(&fname,"reflog_rename",1);
+    MAKE_STD_ZVAL(zoldname);
+    MAKE_STD_ZVAL(znewname);
     ZVAL_STRING(zoldname,old_name,1);
     ZVAL_STRING(znewname,new_name,1);
 
     // Call userspace method implementation corresponding to refdb operation.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,N,params
-            ZTS_MEMBER_CC(wrapper.object()->zts)) == FAILURE)
-    {
-        result = GIT_ERROR;
-    }
-    else {
-        // TODO Check for exception.
 
-    }
+    zval* params[] = { zoldname, znewname };
+
+    result = method.call(2,params);
 
     // Cleanup zvals.
-    zval_dtor(&fname);
-    zval_dtor(&retval);
+
     zval_ptr_dtor(&zoldname);
     zval_ptr_dtor(&znewname);
 
@@ -933,37 +763,21 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj)
 /*static*/ int php_refdb_backend_object::reflog_delete(git_refdb_backend *backend,
     const char *name)
 {
-    const int N = 1;
-    int result = GIT_OK;
-
-    zval fname;
-    zval retval;
-    zval* thisobj = EXTRACT_THISOBJ(backend);
-    zval* params[N];
+    int result;
     zval* zname;
+    method_wrapper method("reflog_delete",backend);
 
-    INIT_ZVAL(fname);
-    INIT_ZVAL(retval);
-    ALLOC_INIT_ZVAL(zname);
-
-    ZVAL_STRING(&fname,"reflog_delete",1);
+    MAKE_STD_ZVAL(zname);
     ZVAL_STRING(zname,name,1);
 
-    params[0] = zname;
-
     // Call userspace method implementation corresponding to refdb operation.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,N,params
-            ZTS_MEMBER_CC(wrapper.object()->zts)) == FAILURE)
-    {
-        result = GIT_ERROR;
-    }
-    else {
-        // TODO Check for exception.
-    }
+
+    zval* params[] = { zname };
+
+    result = method.call(1,params);
 
     // Cleanup zvals.
-    zval_dtor(&fname);
-    zval_dtor(&retval);
+
     zval_ptr_dtor(&zname);
 
     return result;
@@ -973,44 +787,32 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj)
     git_refdb_backend *backend,
     const char *refname)
 {
-    const int N = 1;
-    int result = GIT_OK;
-
-    zval fname;
-    zval retval;
-    zval* thisobj = EXTRACT_THISOBJ(backend);
-    zval* params[N];
+    int result;
     zval* zrefname;
+    method_wrapper method("lock",backend);
 
-    INIT_ZVAL(fname);
-    INIT_ZVAL(retval);
-    ALLOC_INIT_ZVAL(zrefname);
-
-    ZVAL_STRING(&fname,"lock",1);
+    MAKE_STD_ZVAL(zrefname);
     ZVAL_STRING(zrefname,refname,1);
 
-    params[0] = zrefname;
-
     // Call userspace method implementation corresponding to refdb operation.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,N,params
-            ZTS_MEMBER_CC(wrapper.object()->zts)) == FAILURE)
-    {
-        result = GIT_ERROR;
-    }
-    else {
+
+    zval* params[] = { zrefname };
+
+    result = method.call(1,params);
+    if (result == GIT_OK) {
         zval* zcpy;
+        zval* retval = method.retval();
 
         // Copy the return value zval.
         MAKE_STD_ZVAL(zcpy);
-        ZVAL_COPY_VALUE(zcpy,&retval);
+        ZVAL_COPY_VALUE(zcpy,retval);
         zval_copy_ctor(zcpy);
 
         *payload_out = zcpy;
     }
 
     // Cleanup zvals.
-    zval_dtor(&fname);
-    zval_dtor(&retval);
+
     zval_ptr_dtor(&zrefname);
 
     return result;
@@ -1024,66 +826,53 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj)
     const git_signature *sig,
     const char *message)
 {
-    const int N = 6;
-    int result = GIT_OK;
-
-    zval fname;
-    zval retval;
-    zval* thisobj = EXTRACT_THISOBJ(backend);
-    zval* params[N];
+    int result;
     zval* zpayload;
     zval* zsuccess;
     zval* zupdatereflog;
     zval* zref;
     zval* zsig;
     zval* zmessage;
+    method_wrapper method("unlock",backend);
 
-    INIT_ZVAL(fname);
-    INIT_ZVAL(retval);
-    ALLOC_INIT_ZVAL(zsuccess);
-    ALLOC_INIT_ZVAL(zupdatereflog);
-    ALLOC_INIT_ZVAL(zref);
-    ALLOC_INIT_ZVAL(zsig);
+    MAKE_STD_ZVAL(zsuccess);
+    MAKE_STD_ZVAL(zupdatereflog);
+    MAKE_STD_ZVAL(zref);
+    MAKE_STD_ZVAL(zsig);
     ALLOC_INIT_ZVAL(zmessage);
-    const php_resource_ref<php_git_reference> res;
 
-    ZVAL_STRING(&fname,"unlock",1);
     if (payload != nullptr) {
         zpayload = reinterpret_cast<zval*>(payload);
     }
     else {
-        ALLOC_INIT_ZVAL(zpayload);
+        MAKE_STD_ZVAL(zpayload);
     }
     ZVAL_BOOL(zsuccess,success);
     ZVAL_BOOL(zupdatereflog,update_reflog);
-    *res.byval_git2() = ref;
-    res.ret(zref);
+
+    try {
+        const php_resource_ref<php_git_reference> res;
+
+        *res.byval_git2() = ref;
+        res.ret(zref);
+    } catch (php_git2_exception_base& ex) {
+        // TODO Handle exception
+
+    }
+
     convert_signature(zsig,sig);
     if (message != nullptr) {
         ZVAL_STRING(zmessage,message,1);
     }
 
-    params[0] = zpayload;
-    params[1] = zsuccess;
-    params[2] = zupdatereflog;
-    params[3] = zref;
-    params[4] = zsig;
-    params[5] = zmessage;
-
     // Call userspace method implementation corresponding to refdb operation.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,N,params
-            ZTS_MEMBER_CC(wrapper.object()->zts)) == FAILURE)
-    {
-        result = GIT_ERROR;
-    }
-    else {
-        // TODO Check for exception.
 
-    }
+    zval* params[] = { zpayload, zsuccess, zupdatereflog, zref, zsig, zmessage };
+
+    result = method.call(6,params);
 
     // Cleanup zvals.
-    zval_dtor(&fname);
-    zval_dtor(&retval);
+
     zval_ptr_dtor(&zpayload);
     zval_ptr_dtor(&zsuccess);
     zval_ptr_dtor(&zupdatereflog);
@@ -1096,18 +885,21 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj)
 
 /*static*/ void php_refdb_backend_object::free(git_refdb_backend *backend)
 {
-    git_refdb_backend_php* wrapper = EXTRACT_BACKEND(backend);
+    method_wrapper::object_wrapper object(backend);
 
     // Make sure object buckets still exist to lookup object (in case the
     // destructor was already called). This happens when free() is called after
     // PHP has finished cleaning up all objects (but before all variables, which
     // may have references to git2 objects that reference this PHP object).
     if (EG(objects_store).object_buckets != nullptr) {
-        object_wrapper<php_odb_backend_object> obj(wrapper->thisobj);
-        obj.object()->backend = nullptr;
+        // Set backend to null in internal storage.
+
+        object.backing()->backend = nullptr;
     }
 
-    wrapper->~git_refdb_backend_php();
+    // Call the destructor on the backend and free the structure.
+
+    object.object()->~git_refdb_backend_php();
     efree(backend);
 }
 

@@ -12,43 +12,42 @@ using namespace php_git2;
 
 int php_git2::php_git2_invoke_callback(zval* func,zval* ret,zend_uint paramCount,zval* params[])
 {
-    int result = GIT_OK;
     php_bailer bailer;
+    php_bailout_context ctx(bailer);
+    int result = GIT_OK;
 
-    {
+    // We allow null callables, which do nothing.
+    if (Z_TYPE_P(func) == IS_NULL) {
+        return GIT_OK;
+    }
+
+    INIT_ZVAL(*ret);
+
+    if (BAILOUT_ENTER_REGION(ctx)) {
         int retval;
-        php_bailout_context ctx(bailer);
 
-        // We allow null callables, which do nothing.
-        if (Z_TYPE_P(func) == IS_NULL) {
-            return GIT_OK;
-        }
-
-        INIT_ZVAL(*ret);
-
-        if (BAILOUT_ENTER_REGION(ctx)) {
-            retval = call_user_function(EG(function_table),NULL,func,ret,paramCount,params TSRMLS_CC);
-            if (retval == FAILURE) {
-                php_git2_giterr_set(GITERR_INVALID,"Failed to invoke userspace callback");
-                result = GIT_EPHPFATAL;
-            }
-            else {
-                php_exception_wrapper ex;
-
-                if (ex.has_exception()) {
-                    ex.set_giterr(TSRMLS_C);
-                    result = GIT_EPHPEXPROP;
-                }
-            }
+        retval = call_user_function(EG(function_table),NULL,func,ret,paramCount,params TSRMLS_CC);
+        if (retval == FAILURE) {
+            php_git2_giterr_set(GITERR_INVALID,"Failed to invoke userspace callback");
+            result = GIT_EPHPFATAL;
         }
         else {
-            // Set a libgit2 error for completeness.
-            php_git2_giterr_set(GITERR_INVALID,"PHP reported a fatal error");
+            php_exception_wrapper ex;
 
-            // Allow the fatal error to propogate.
-            result = GIT_EPHPFATALPROP;
-            bailer.handled();
+            // Handle case where PHP userspace threw an exception.
+            if (ex.has_exception()) {
+                ex.set_giterr(TSRMLS_C);
+                result = GIT_EPHPEXPROP;
+            }
         }
+    }
+    else {
+        // Set a libgit2 error for completeness.
+        php_git2_giterr_set(GITERR_INVALID,"PHP reported a fatal error");
+
+        // Allow the fatal error to propogate.
+        result = GIT_EPHPFATALPROP;
+        bailer.handled();
     }
 
     return result;

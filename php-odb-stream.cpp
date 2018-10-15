@@ -7,14 +7,6 @@
 #include "php-object.h"
 using namespace php_git2;
 
-// Helper macros
-
-#define EXTRACT_STREAM(stream) \
-    reinterpret_cast<php_odb_stream_object::git_odb_stream_php*>(stream)
-
-#define EXTRACT_THISOBJ(stream) \
-    EXTRACT_STREAM(stream)->thisobj
-
 // Custom object handlers
 
 static zval* odb_stream_read_property(zval* obj,zval* prop,int type,const zend_literal* key TSRMLS_DC);
@@ -118,151 +110,105 @@ void php_odb_stream_object::create_custom_stream(zval* zobj,unsigned int mode,zv
 
 /*static*/ int php_odb_stream_object::read(git_odb_stream *stream,char *buffer,size_t len)
 {
-    zval fname;
-    zval retval;
+    int result;
     zval* zlen;
-    zval* params[1];
-    zval* thisobj = EXTRACT_THISOBJ(stream);
-    int result = GIT_OK;
-    object_wrapper<php_odb_stream_object> obj(thisobj);
+    method_wrapper method("read",stream);
 
-    // Initialize zvals.
-    INIT_ZVAL(fname);
-    INIT_ZVAL(retval);
     MAKE_STD_ZVAL(zlen);
-
-    // Assign length to parameter zval.
     ZVAL_LONG(zlen,len);
-    params[0] = zlen;
-
-    // Assign method name.
-    ZVAL_STRING(&fname,"read",1);
 
     // Call userspace method implementation of corresponding stream operation.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,1,params
-            ZTS_MEMBER_CC(obj.object()->zts)) == FAILURE)
-    {
-        result = GIT_ERROR;
-    }
-    else {
+
+    zval* params[] = { zlen };
+
+    result = method.call(1,params);
+    if (result == GIT_OK) {
+        zval* retval = method.retval();
+        size_t n;
+
         // Return values to caller. We copy the data into the git2-provided
         // buffer, making sure not to overflow.
-        size_t n;
-        convert_to_string(&retval);
-        n = Z_STRLEN(retval);
+
+        convert_to_string(retval);
+
+        n = Z_STRLEN_P(retval);
         if (n > len) {
             n = len;
         }
-        memcpy(buffer,Z_STRVAL(retval),n);
+
+        memcpy(buffer,Z_STRVAL_P(retval),n);
     }
 
     // Cleanup zvals.
-    zval_dtor(&fname);
-    zval_dtor(&retval);
+
     zval_ptr_dtor(&zlen);
+
     return result;
 }
 
 /*static*/ int php_odb_stream_object::write(git_odb_stream *stream,const char *buffer,size_t len)
 {
-    zval fname;
-    zval retval;
+    int result;
     zval* zbuf;
-    zval* params[1];
-    zval* thisobj = EXTRACT_THISOBJ(stream);
-    int result = GIT_OK;
-    object_wrapper<php_odb_stream_object> obj(thisobj);
+    method_wrapper method("write",stream);
 
-    // Initialize zvals.
-    INIT_ZVAL(fname);
-    INIT_ZVAL(retval);
     MAKE_STD_ZVAL(zbuf);
-
-    // Assign buffer to zval to pass into method call.
     ZVAL_STRINGL(zbuf,buffer,len,1);
-    params[0] = zbuf;
-
-    // Assign method name.
-    ZVAL_STRING(&fname,"write",1);
 
     // Call userspace method implementation of corresponding stream operation.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,1,params
-            ZTS_MEMBER_CC(obj.object()->zts)) == FAILURE)
-    {
-        result = GIT_ERROR;
-    }
+
+    zval* params[] = { zbuf };
+
+    result = method.call(1,params);
 
     // Cleanup zvals.
-    zval_dtor(&fname);
-    zval_dtor(&retval);
+
     zval_ptr_dtor(&zbuf);
+
     return result;
 }
 
 /*static*/ int php_odb_stream_object::finalize_write(git_odb_stream *stream,const git_oid *oid)
 {
-    zval fname;
-    zval retval;
+    int result;
     zval* zbuf;
-    zval* params[1];
-    zval* thisobj = EXTRACT_THISOBJ(stream);
-    int result = GIT_OK;
-    object_wrapper<php_odb_stream_object> obj(thisobj);
+    method_wrapper method("finalize_write",stream);
 
-    // Initialize zvals.
-    INIT_ZVAL(fname);
-    INIT_ZVAL(retval);
+    // Initialize/set zvals.
+
     MAKE_STD_ZVAL(zbuf);
-
-    // Assign OID to parameter zval.
     convert_oid(zbuf,oid);
-    params[0] = zbuf;
-
-    // Assign method name.
-    ZVAL_STRING(&fname,"finalize_write",1);
 
     // Call userspace method implementation of corresponding stream operation.
-    if (call_user_function(NULL,&thisobj,&fname,&retval,1,params
-            ZTS_MEMBER_CC(obj.object()->zts)) == FAILURE)
-    {
-        result = GIT_ERROR;
-    }
+
+    zval* params[] = { zbuf };
+
+    result = method.call(1,params);
 
     // Cleanup zvals.
-    zval_dtor(&fname);
-    zval_dtor(&retval);
+
     zval_ptr_dtor(&zbuf);
+
     return result;
 }
 
 /*static*/ void php_odb_stream_object::free(git_odb_stream *stream)
 {
-    // First mark the custom stream as having been deleted so as to avoid
-    // infinite recursion. Then explicitly call the destructor on the custom
-    // stream. Finally free the block of memory that holds the custom stream.
-
-    git_odb_stream_php* wrapper = EXTRACT_STREAM(stream);
+    method_wrapper method("free",stream);
 
     // Make sure object buckets still exist to lookup object (in case the
     // destructor was already called).
+
     if (EG(objects_store).object_buckets != nullptr) {
-        zval fname;
-        zval retval;
-        object_wrapper<php_odb_stream_object> obj(wrapper->thisobj);
+        // Call userspace free() method on the object.
 
-        // Call corresponding userspace method.
-        INIT_ZVAL(fname);
-        INIT_ZVAL(retval);
-        ZVAL_STRING(&fname,"free",1);
-        call_user_function(NULL,&wrapper->thisobj,&fname,&retval,0,NULL
-            ZTS_MEMBER_CC(obj.object()->zts));
-        zval_dtor(&fname);
-        zval_dtor(&retval);
+        method.call();
 
-        obj.object()->stream = nullptr;
+        // Unassign stream from the object since it is about to get destroyed.
+        method.backing()->stream = nullptr;
     }
 
-    wrapper->~git_odb_stream_php();
+    method.object()->~git_odb_stream_php();
     efree(stream);
 }
 

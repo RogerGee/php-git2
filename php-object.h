@@ -45,6 +45,125 @@ namespace php_git2
         _php_git2_obj_top_
     };
 
+    // Define a type for wrapping method calls.
+
+    template<typename ObjectType,typename BackingType>
+    class php_object_wrapper
+    {
+    public:
+        php_object_wrapper(typename ObjectType::base_class* base):
+            wrapperObject(static_cast<ObjectType*>(base)), backingObject(nullptr)
+        {
+        }
+
+        zval* thisobj()
+        {
+            return wrapperObject->thisobj;
+        }
+
+        ObjectType* object()
+        {
+            return wrapperObject;
+        }
+
+        BackingType* backing()
+        {
+            // Lazy load the backing object.
+            if (backingObject == nullptr) {
+                backingObject = LOOKUP_OBJECT(BackingType,wrapperObject->thisobj);
+            }
+
+            return backingObject;
+        }
+
+    protected:
+        zval** thisobj_pp()
+        {
+            return &wrapperObject->thisobj;
+        }
+
+    private:
+        ObjectType* wrapperObject;
+        BackingType* backingObject;
+    };
+
+    template<typename ObjectType,typename BackingType>
+    class php_method_wrapper:
+        public php_object_wrapper<ObjectType,BackingType>
+    {
+    public:
+        using object_wrapper = php_object_wrapper<ObjectType,BackingType>;
+
+        php_method_wrapper(const char* methodName,typename ObjectType::base_class* base):
+            object_wrapper(base)
+        {
+            INIT_ZVAL(zmethod);
+            ZVAL_STRING(&zmethod,methodName,1);
+            INIT_ZVAL(zretval);
+        }
+
+        ~php_method_wrapper()
+        {
+            zval_dtor(&zmethod);
+            zval_dtor(&zretval);
+        }
+
+        int call(int nparams = 0,zval* params[] = nullptr)
+        {
+            php_bailer bailer;
+            php_bailout_context ctx(bailer);
+            int result = GIT_OK;
+#ifdef ZTS
+            TSRMLS_D = ZTS_MEMBER_C(object_wrapper::backing()->zts);
+#endif
+
+            if (BAILOUT_ENTER_REGION(ctx)) {
+                int retval;
+
+                retval = call_user_function(
+                    NULL,
+                    object_wrapper::thisobj_pp(),
+                    &zmethod,
+                    &zretval,
+                    nparams,
+                    params TSRMLS_CC);
+
+                if (retval == FAILURE) {
+                    php_git2_giterr_set(GITERR_INVALID,"Failed to invoke userspace method");
+                    result = GIT_EPHPFATAL;
+                }
+                else {
+                    php_exception_wrapper ex;
+
+                    // Handle case where PHP userspace threw an exception.
+                    if (ex.has_exception()) {
+                        ex.set_giterr(TSRMLS_C);
+                        result = GIT_EPHPEXPROP;
+                    }
+                }
+            }
+            else {
+                // Set a libgit2 error for completeness.
+                php_git2_giterr_set(GITERR_INVALID,"PHP reported a fatal error");
+
+                // Allow the fatal error to propogate.
+                result = GIT_EPHPFATALPROP;
+                bailer.handled();
+            }
+
+            return result;
+        }
+
+        zval* retval()
+        {
+            return &zretval;
+        }
+
+    private:
+        zval zmethod;
+        zval zretval;
+    };
+
     // Define zend_object derivations for objects that require an extended
     // backend structure. Each class must provide a static 'handlers' member and
     // a static 'init' function for handling class initialization.
@@ -68,11 +187,18 @@ namespace php_git2
         struct git_odb_backend_php:
             git_odb_backend
         {
+            typedef git_odb_backend base_class;
+
             git_odb_backend_php(zval* zv);
             ~git_odb_backend_php();
 
             zval* thisobj;
         };
+
+        using method_wrapper = php_method_wrapper<
+            php_odb_backend_object::git_odb_backend_php,
+            php_odb_backend_object
+            >;
 
         // Function entries for custom odb_backend implementations provided from
         // PHP userspace.
@@ -142,11 +268,18 @@ namespace php_git2
         struct git_odb_stream_php:
             git_odb_stream
         {
+            typedef git_odb_stream base_class;
+
             git_odb_stream_php(zval* zv,unsigned int mode);
             ~git_odb_stream_php();
 
             zval* thisobj;
         };
+
+        using method_wrapper = php_method_wrapper<
+            php_odb_stream_object::git_odb_stream_php,
+            php_odb_stream_object
+            >;
 
         static int read(git_odb_stream *stream,char *buffer,size_t len);
         static int write(git_odb_stream *stream,const char *buffer,size_t len);
@@ -193,11 +326,18 @@ namespace php_git2
         struct git_config_backend_php:
             git_config_backend
         {
+            typedef git_config_backend base_class;
+
             git_config_backend_php(zval* zv);
             ~git_config_backend_php();
 
             zval* thisobj;
         };
+
+        using method_wrapper = php_method_wrapper<
+            php_config_backend_object::git_config_backend_php,
+            php_config_backend_object
+            >;
 
         // Function entries for custom config_backend implementations provided
         // from PHP userspace.
@@ -231,11 +371,18 @@ namespace php_git2
         struct git_refdb_backend_php:
             git_refdb_backend
         {
+            typedef git_refdb_backend base_class;
+
             git_refdb_backend_php(zval* zv);
             ~git_refdb_backend_php();
 
             zval* thisobj;
         };
+
+        using method_wrapper = php_method_wrapper<
+            php_refdb_backend_object::git_refdb_backend_php,
+            php_refdb_backend_object
+            >;
 
         static int exists(
             int *exists,
@@ -325,23 +472,6 @@ namespace php_git2
     bool is_method_overridden(zend_class_entry* ce,const char* method,int len);
     zend_function* not_allowed_get_constructor(zval* object TSRMLS_DC);
     zend_function* disallow_base_get_constructor(zval* object TSRMLS_DC);
-
-    template<typename T>
-    class object_wrapper
-    {
-    public:
-        object_wrapper(zval* zobj):
-            obj(LOOKUP_OBJECT(T,zobj))
-        {
-        }
-
-        T* object()
-        {
-            return obj;
-        }
-    private:
-        T* obj;
-    };
 
     // Extern variables in this namespace.
     extern zend_class_entry* class_entry[];
