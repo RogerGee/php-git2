@@ -433,9 +433,9 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj)
     MAKE_STD_ZVAL(zref);
     MAKE_STD_ZVAL(zforce);
     MAKE_STD_ZVAL(zwho);
-    MAKE_STD_ZVAL(zmessage);
-    MAKE_STD_ZVAL(zold);
-    MAKE_STD_ZVAL(zoldtarget);
+    ALLOC_INIT_ZVAL(zmessage);
+    ALLOC_INIT_ZVAL(zold);
+    ALLOC_INIT_ZVAL(zoldtarget);
 
     try {
         const php_resource_ref<php_git_reference> res;
@@ -451,8 +451,12 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj)
     if (message != NULL) {
         ZVAL_STRING(zmessage,message,1);
     }
-    convert_oid(zold,old);
-    ZVAL_STRING(zoldtarget,old_target,1);
+    if (old != nullptr) {
+        convert_oid(zold,old);
+    }
+    if (old_target != nullptr) {
+        ZVAL_STRING(zoldtarget,old_target,1);
+    }
 
     // Call userspace method implementation corresponding to refdb operation.
 
@@ -539,12 +543,16 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj)
     method_wrapper method("del",backend);
 
     MAKE_STD_ZVAL(zrefname);
-    MAKE_STD_ZVAL(zoldid);
-    MAKE_STD_ZVAL(zoldtarget);
+    ALLOC_INIT_ZVAL(zoldid);
+    ALLOC_INIT_ZVAL(zoldtarget);
 
     ZVAL_STRING(zrefname,ref_name,1);
-    convert_oid(zoldid,old_id);
-    ZVAL_STRING(zoldtarget,old_target,1);
+    if (old_id != nullptr) {
+        convert_oid(zoldid,old_id);
+    }
+    if (old_target != nullptr) {
+        ZVAL_STRING(zoldtarget,old_target,1);
+    }
 
     // Call userspace method implementation corresponding to refdb operation.
 

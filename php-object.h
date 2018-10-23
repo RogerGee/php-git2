@@ -466,6 +466,7 @@ namespace php_git2
         php_callback_sync* cb,zval* zbackend,php_git_odb* owner TSRMLS_DC);
     void php_git2_make_odb_stream(zval* zp,git_odb_stream* stream,php_git_odb* owner TSRMLS_DC);
     void php_git2_make_writestream(zval* zp,git_writestream* ws TSRMLS_DC);
+    void php_git2_make_refdb_backend(zval* zp,git_refdb_backend* backend TSRMLS_DC);
 
     // Useful helpers
 

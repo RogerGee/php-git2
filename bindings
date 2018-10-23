@@ -1,9 +1,9 @@
-Bindings for libgit2 - v0.25.1
+Bindings for libgit2
 --------------------------------------------------------------------------------
 
 These bindings are generated from the headers using:
 
-    $ find /usr/local/include/git2 -type f \
+    $ find /path/to/include/git2 -type f \
         | xargs cat \
         | sed -n 's/^.*\(git_[^ ()]\+\)(.*$/\1/p' \
         | sort \
@@ -11,11 +11,21 @@ These bindings are generated from the headers using:
 
 Legend:
 
-    . unimplemented
-    + implemented
-    - removed
+    The first column in Coverage denotes the state of the implementation of the
+    binding. The following symbols are used:
+
+      . unimplemented
+      + implemented
+      - removed from PHP API
+      X removed from previous version
+
+    Each subcolumn of the first column, starting from the left and going right,
+    represents a covered version of libgit2 in the following order:
+
+      v0.25.1   <-- left-most
 
 --------------------------------------------------------------------------------
+Coverage
 
 + git_annotated_commit_free
 + git_annotated_commit_from_fetchhead
@@ -456,13 +466,13 @@ Legend:
 . git_rebase_operation_byindex
 . git_rebase_operation_current
 . git_rebase_operation_entrycount
-. git_refdb_backend_fs
-. git_refdb_compress
-. git_refdb_free
-. git_refdb_init_backend
-. git_refdb_new
-. git_refdb_open
-. git_refdb_set_backend
++ git_refdb_backend_fs
++ git_refdb_compress
++ git_refdb_free
+- git_refdb_init_backend
++ git_refdb_new
++ git_refdb_open
++ git_refdb_set_backend
 + git_reference__alloc
 + git_reference__alloc_symbolic
 + git_reference_cmp
@@ -598,7 +608,7 @@ Legend:
 + git_repository_open_bare
 + git_repository_open_ext
 + git_repository_path
-. git_repository_refdb
++ git_repository_refdb
 + git_repository_reinit_filesystem
 + git_repository_set_bare
 + git_repository_set_config
@@ -609,7 +619,7 @@ Legend:
 + git_repository_set_index
 + git_repository_set_namespace
 + git_repository_set_odb
-. git_repository_set_refdb
++ git_repository_set_refdb
 + git_repository_set_workdir
 + git_repository_state
 + git_repository_state_cleanup

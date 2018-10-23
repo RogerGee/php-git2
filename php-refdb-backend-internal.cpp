@@ -51,6 +51,21 @@ zend_function_entry php_git2::refdb_backend_internal_methods[] = {
     PHP_FE_END
 };
 
+// Make function implementation
+
+void php_git2::php_git2_make_refdb_backend(zval* zp,git_refdb_backend* backend TSRMLS_DC)
+{
+    php_refdb_backend_object* obj;
+    zend_class_entry* ce = php_git2::class_entry[php_git2_refdb_backend_internal_obj];
+
+    // Create object zval.
+    object_init_ex(zp,ce);
+    obj = reinterpret_cast<php_refdb_backend_object*>(zend_objects_get_address(zp TSRMLS_CC));
+
+    // Assign the backend.
+    obj->backend = backend;
+}
+
 // Implementation of php_refdb_backend_internal_object
 
 /*static*/ zend_object_handlers php_refdb_backend_internal_object::handlers;

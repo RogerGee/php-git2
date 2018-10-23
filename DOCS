@@ -56,6 +56,7 @@ purpose) are determined by the C++ compiler via 'typeid'.
     git_note
     git_note_iterator
     git_reflog
+    git_refdb
 
 The following structures are not represented as resources in the PHP
 API. Instead a scalar, array or object type is used:
@@ -218,9 +219,9 @@ git_repository_ident(&string,repo)
 
 git_repository_init_ext(string,array|null)
 
-    ** The final parameter is an array of options with keys corresponding to the
-       git_repository_init_options struct. It may be null if you want to use the
-       defaults. **
+    The final parameter is an array of options with keys corresponding to the
+    git_repository_init_options struct. It may be null if you want to use the
+    defaults.
 
     Returns git_repository resource
 
@@ -275,6 +276,12 @@ git_repository_index(resource)
     Returns git_index resource
 
 git_repository_set_index(resource,resource)
+
+git_repository_refdb(resource)
+
+    Returns git_refdb resource
+
+git_repository_set_refdb(resource,resource)
 
 ----------------------------------------
 [git_reference]
@@ -410,7 +417,15 @@ git_reference_type(resource)
 
 git_reference_foreach(resource,callable,mixed)
 
+    Callback signature: void callback(resource $ref,mixed $payload)
+
+        The callback should throw on error.
+
 git_reference_foreach_name(resource,callable,mixed)
+
+    Callback signature: void callback(string $name,mixed $payload)
+
+        The callback should throw on error.
 
 git_reference_foreach_glob(resource,string,callable,mixed)
 
@@ -504,7 +519,9 @@ git_revwalk_free(resource)
 
 git_revwalk_add_hide_cb(resource,callable,mixed)
 
-    callback(string $commitId,mixed $payload)
+    Callback signature: void callback(string $commitId,mixed $payload)
+
+        The function should throw on error.
 
 git_revwalk_hide_glob(resource,string)
 
@@ -550,16 +567,20 @@ git_packbuilder_insert(resource,string,string|null)
 
 git_packbuilder_foreach(resource,callable,mixed)
 
-    ** If the 3rd parameter is a stream and the 2nd parameter is null, then each
-       call will write the data to the stream. **
+    If the 3rd parameter is a stream and the 2nd parameter is null, then each
+    call will write the data to the stream.
 
-    Callback signature: callback(string $data,int $length,mixed $payload)
+    Callback signature: void callback(string $data,int $length,mixed $payload)
+
+        The callback should throw on error.
 
 git_packbuilder_set_threads(resource,int)
 
 git_packbuilder_set_callbacks(resource,callable,mixed)
 
-    Callback signature: callback(int $stage,int $current,int $total,mixed $payload)
+    Callback signature: void callback(int $stage,int $current,int $total,mixed $payload)
+
+        The callback should throw on error.
 
 git_packbuilder_object_count(resource)
 
@@ -569,7 +590,8 @@ git_packbuilder_write(resource,string,int,callable,mixed)
 
     Callback signature: callback(array $stats)
 
-        ** Stats array has properties of git2 git_transfer_progress struct. **
+        The $stats array has properties of the libgit2 git_transfer_progress
+        struct.
 
 git_packbuilder_written(resource)
 
@@ -719,6 +741,10 @@ git_odb_exists_prefix(resource,string)
 
 git_odb_foreach(resource,callable,mixed)
 
+    Callback signature: void callback(string $oid,mixed $payload)
+
+        The callback should throw on error.
+
 git_odb_refresh(resource)
 
 git_odb_get_backend(resource,int)
@@ -839,6 +865,12 @@ git_commit_create_from_callback(resource,string|null,resource,resource,string|nu
     Example
         $oid = git_commit_from_callback($repo,$ref,$author,$committer,$encoding,
                                         $message,$treeId,$callable,$payload);
+
+    Callback signature: string callback(int $idx,mixed $payload)
+
+        This callback is not designed to report errors. If an error occures,
+        then the calling function will finish and the error will be logged as a
+        warning.
 
     Returns string containing the new commit's OID
 
@@ -1031,7 +1063,9 @@ git_tree_entry_type(resource)
 
 git_tree_walk(resource,int,callable,mixed)
 
-    Returns int
+    Callback signature: void callback(string $root,resource $entry,mixed $payload)
+
+        The callback should throw on error.
 
 ----------------------------------------
 [git_signature]
@@ -1376,12 +1410,12 @@ git_config_add_file_ondisk(resource,string,int,bool)
 
 git_config_foreach(resource,callable,mixed)
 
-    ** Note: if an iteration of the callback returns non-zero, the operation is
-       aborted. Return a positive value (or true) to abort and avoid throwing an
-       exception. If a negative value is returned, then the function assumes its
-       a git error. **
+    Callback signature: bool callback(array $entry,mixed $payload)
 
-    Callback signature: callback(array $entry,mixed $payload)
+        Note: if an iteration of the callback returns TRUE, the operation is
+        considered over and iterator stops.
+
+        The callback should throw on error.
 
 git_config_foreach_match(resource,string,callable,mixed)
 
@@ -1446,9 +1480,11 @@ git_clone(string,string,array|null)
        provided via calling git_clone_init_options(). You may specify null to
        use only the defaults. **
 
-    repository_cb signature: callback(string $path,bool $bare,mixed $payload)
+    Callback 'repository_cb' signature: callback(string $path,bool $bare,mixed $payload)
 
-        Should return git_repository resource
+        The callback should return git_repository resource.
+
+        The callback should throw on error.
 
     Returns git_repository resource
 
@@ -1554,27 +1590,43 @@ git_tag_list_match(resource,string)
 
 git_tag_foreach(resource,callable,mixed)
 
+    Callback signature: void callback(string $name,string $oid,mixed $payload)
+
+        The callback should throw on error.
+
 ----------------------------------------
 [git_diff]
 ----------------------------------------
 
-* Callback signatures *
+Callback signatures for git_diff functions:
 
-    notify_callback(resource $diff,array $delta,string $matchedPathspec,mixed $payload)
+    notify_callback: int callback(resource $diff,array $delta,string $matchedPathspec,mixed $payload)
 
-        returns int
+        NOTE: Errors generated by this callback cannot be handled and will be
+        logged as warnings.
 
-    progress_callback(resource $diff,string $oldPath,string $newPath,mixed $payload)
+    progress_callback: bool callback(resource $diff,string $oldPath,string $newPath,mixed $payload)
 
-        returns bool: false value aborts diff (except null)
+        NOTE: Errors generated by this callback cannot be handled and will be
+        logged as warnings.
 
-    file_callback(array $delta,float $progress,mixed $payload)
+        A return value of FALSE aborts the diff
 
-    binary_callback(array $delta,array $binary,mixed $payload)
+    file_callback: void callback(array $delta,float $progress,mixed $payload)
 
-    hunk_callback(array $delta,array $hunk,mixed $payload)
+        The callback should throw on error.
 
-    line_callback(array $delta,array $hunk,array $line,mixed $payload)
+    binary_callback: void callback(array $delta,array $binary,mixed $payload)
+
+        The callback should throw on error.
+
+    hunk_callback: void callback(array $delta,array $hunk,mixed $payload)
+
+        The callback should throw on error.
+
+    line_callback: void callback(array $delta,array $hunk,array $line,mixed $payload)
+
+        The callback should throw on error.
 
 git_diff_free(resource)
 
@@ -1641,7 +1693,7 @@ git_diff_num_deltas_of_type(resource)
 
 git_diff_find_similar(resource,array)
 
-    ** The options array has the same property names as the libgit2 type. **
+    The options array has the same property names as the libgit2 type.
 
 git_diff_get_stats(resource)
 
@@ -1692,9 +1744,9 @@ git_index_add(resource,array)
 
 git_index_add_all(resource,array,int,callable,mixed)
 
-    callable(string $path,string $matched_pathspec,mixed $payload)
+    Callback signature: void callback(string $path,string $matched_pathspec,mixed $payload)
 
-        Returns int
+        The callback should throw on error.
 
 git_index_add_bypath(resource,string)
 
@@ -1852,6 +1904,12 @@ git_attr_cache_flush(resource)
 
 git_attr_foreach(resource,int,string,callable,mixed)
 
+    Callback signature: void callback(string $name,string $value,mixed $payload)
+
+        NOTE: $value may be NULL
+
+        The function should throw on error.
+
 git_attr_get(resource,int,string,string)
 
     Returns string
@@ -1891,7 +1949,13 @@ git_status_file(resource,string)
 
 git_status_foreach(resource,callable,mixed)
 
+    Callback signature: void callback(string $path,int $status_flag,mixed $payload)
+
+        The function should throw on error.
+
 git_status_foreach_ext(resource,array,callable,mixed)
+
+    See notes on git_status_foreach() for callback signature.
 
 git_status_list_entrycount(resource)
 
@@ -2062,6 +2126,28 @@ git_reflog_rename(resource,string,string)
 
 git_reflog_write(resource)
 
+----------------------------------------
+[git_refdb]
+----------------------------------------
+
+git_refdb_backend_fs(resource)
+
+    Returns GitRefDBBackend_Internal object
+
+git_refdb_compress(resource)
+
+git_refdb_free(resource)
+
+git_refdb_new(resource)
+
+    Returns git_refdb resource
+
+git_refdb_open(resource)
+
+    Returns git_refdb resource
+
+git_refdb_set_backend(resource,object)
+
 --------------------------------------------------------------------------------
 Class API Reference
 
@@ -2081,29 +2167,27 @@ abstract class GitODBBackend:
         resource $odb
 
     methods:
-        ** All methods should throw on failure. **
+        NOTE: All methods should throw on failure.
 
-        ** If a method is not to be implemented, either leave it alone (i.e. do
-           not implement it) or have it call trigger_error() with
-           E_USER_ERROR. These functions can be called from userspace if you
-           know what is available; however they are designed to be defined in
-           userspace and called by git2. **
+        NOTE: If a method is not to be implemented, either leave it alone
+              (i.e. do not implement it) or have it call trigger_error() with
+              E_USER_ERROR. These functions can be called from userspace if you
+              know what is available; however they are designed to be defined in
+              userspace and called by git2.
 
         string read(int &$type,string $oid)
 
-            ** Will return size and type as out parameters respectively. **
+            The method should write the object type to the $type out parameter.
 
         string read_prefix(string &$fullOid,int &$type,string $abbrevOid)
 
             ** Will return oid, size and type as out parameters respectively. **
 
-        bool read_header(int &$size,int &$type,string $oid)
+        void read_header(int &$size,int &$type,string $oid)
 
             ** Will return size and type as out parameters respectively. **
 
-            Returns true
-
-        bool write(string $oid,string $data,int $type)
+        void write(string $oid,string $data,int $type)
 
         GitODBStream writestream(int $offset,int $objectType)
 
@@ -2111,9 +2195,11 @@ abstract class GitODBBackend:
 
         bool exists(string $oid)
 
+        bool exists_prefix(string &$fullOid,string $prefix)
+
         void refresh()
 
-        int for_each(callable $func,mixed $payload)
+        void for_each(callable $callback,mixed $payload)
 
             ** Note: this function is not named canonically with git2 since
                "foreach" is a reserved word in PHP. **
@@ -2158,24 +2244,24 @@ final class GitODBWritepack:
         backend: object instance of type GitODBBackend
 
     methods:
-        int append(string)
+        void append(string)
 
-        int commit()
+        void commit()
 
         void free()
 
 abstract class GitODBStream:
 
-    ** This class has properties/methods that align with the git_odb_stream
-       structure. **
+    This class has properties/methods that align with the git_odb_stream
+    structure.
 
     properties:
-        mode: int
-        declared_size: int
-        received_bytes: int
+        int $mode
+        int $declared_size
+        int $received_bytes
 
     methods:
-        ** All methods should throw on failure. **
+        NOTE: All methods should throw on failure.
 
         string read(int $bufsz)
 
@@ -2212,60 +2298,50 @@ abstract class GitConfigBackend:
        structure. **
 
     methods:
-        mixed open(int $level)
+        NOTE: All methods should throw on failure.
 
-            ** Method may return false to indicate failure. If the method has no
-               return value (i.e. returns null), or a truthy value is returned,
-               then the implementation assumes success. **
+        NOTE: If a method is not to be implemented, either leave it alone
+              (i.e. do not implement it) or have it call trigger_error() with
+              E_USER_ERROR. These functions can be called from userspace if you
+              know what is available; however they are designed to be defined in
+              userspace and called by git2.
+
+        void open(int $level)
 
         array get(string $key)
 
-            ** Method returns array with properties 'name', 'value' and 'level'
-               corresponding to git_config_entry. If the method fails lookup, it
-               should return false or some falsy value (e.g. 0, null). **
+            This method returns array with properties 'name', 'value' and
+            'level' corresponding to git_config_entry. If the method fails
+            lookup, it should return false or some falsy value (e.g. 0, null).
 
-            ** If 'level' is not specified in the return array, then level
-               defaults to GIT_CONFIG_LEVEL_APP. **
+            If 'level' is not specified in the return array, then level defaults
+            to GIT_CONFIG_LEVEL_APP.
 
-        mixed set(string $key,string $value)
+        void set(string $key,string $value)
 
-            ** Method may return false to indicate failure. If the method has no
-               return value (i.e. returns null), or a truthy value is returned,
-               then the implementation assumes success. **
+        void set_multivar(string $name,string $regexp,string $value)
 
-        mixed set_multivar(string $name,string $regexp,string $value)
+        void del(string $name)
 
-            ** Method may return false to indicate failure. If the method has no
-               return value (i.e. returns null), or a truthy value is returned,
-               then the implementation assumes success. **
-
-        mixed del(string $name)
-
-            ** Method may return false to indicate failure. If the method has no
-               return value (i.e. returns null), or a truthy value is returned,
-               then the implementation assumes success. **
-
-        mixed del_multivar(string $name,string $regexp)
-
-            ** Method may return false to indicate failure. If the method has no
-               return value (i.e. returns null), or a truthy value is returned,
-               then the implementation assumes success. **
+        void del_multivar(string $name,string $regexp)
 
         mixed iterator_new()
 
-            ** Method should initialize the object for a new
-               iteration. Iteration will call the iterator_next() method. This
-               method may optionally return a context value to identify the
-               iterator. This is largely not useful since git2 config iteration
-               is currently only synchronous. **
+            This method should initialize the object for a new
+            iteration. Iteration will call the iterator_next() method. This
+            method may optionally return a context value to identify the
+            iterator. This is largely not useful since git2 config iteration is
+            currently only synchronous.
 
         array iterator_next(mixed $context)
 
-            ** Method should return next config value. The return value is the
-               same as for get(). The $context argument holds any value returned
-               from iterator_new(). **
+            This method should return the next config value. The return value is
+            the same as for the get() method.
 
-            ** Method returns false on iteration over. **
+            The $context argument holds any value returned from a previous call
+            to iterator_new().
+
+            This method must return false when iteration is over.
 
         GitConfigBackend snapshot()
 

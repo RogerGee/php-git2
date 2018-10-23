@@ -576,6 +576,34 @@ static constexpr auto ZIF_GIT_REPOSITORY_SET_INDEX = zif_php_git2_function_setde
     php_git2::sequence<1,0> // Make the index dependent on the repository.
     >;
 
+static constexpr auto ZIF_GIT_REPOSITORY_REFDB = zif_php_git2_function_setdeps<
+    php_git2::func_wrapper<
+        int,
+        git_refdb**,
+        git_repository*>::func<git_repository_refdb>,
+    php_git2::local_pack<
+        php_git2::php_resource_ref<php_git2::php_git_refdb>,
+        php_git2::php_resource<php_git2::php_git_repository>
+        >,
+    php_git2::sequence<0,1>, // Make the git_refdb dependent on the repository.
+    1,
+    php_git2::sequence<1>,
+    php_git2::sequence<0,1>,
+    php_git2::sequence<0,0>
+    >;
+
+static constexpr auto ZIF_GIT_REPOSITORY_SET_REFDB = zif_php_git2_function_setdeps_void<
+    php_git2::func_wrapper<
+        void,
+        git_repository*,
+        git_refdb*>::func<git_repository_set_refdb>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_repository>,
+        php_git2::php_resource<php_git2::php_git_refdb>
+        >,
+    php_git2::sequence<1,0> // Make the git_refdb dependent on the repository.
+    >;
+
 // Function Entries:
 
 #define GIT_REPOSITORY_FE                                               \
@@ -619,7 +647,9 @@ static constexpr auto ZIF_GIT_REPOSITORY_SET_INDEX = zif_php_git2_function_setde
     PHP_GIT2_FE(git_repository_config_snapshot,ZIF_GIT_REPOSITORY_CONFIG_SNAPSHOT,NULL) \
     PHP_GIT2_FE(git_repository_set_config,ZIF_GIT_REPOSITORY_SET_CONFIG,NULL) \
     PHP_GIT2_FE(git_repository_index,ZIF_GIT_REPOSITORY_INDEX,NULL)     \
-    PHP_GIT2_FE(git_repository_set_index,ZIF_GIT_REPOSITORY_SET_INDEX,NULL)
+    PHP_GIT2_FE(git_repository_set_index,ZIF_GIT_REPOSITORY_SET_INDEX,NULL) \
+    PHP_GIT2_FE(git_repository_refdb,ZIF_GIT_REPOSITORY_REFDB,NULL)     \
+    PHP_GIT2_FE(git_repository_set_refdb,ZIF_GIT_REPOSITORY_SET_REFDB,NULL)
 
 #endif
 
