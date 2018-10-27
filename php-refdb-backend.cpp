@@ -266,7 +266,7 @@ int refdb_backend_has_property(zval* obj,zval* prop,int chk_type,const zend_lite
 // Implementation of php_refdb_backend_object
 
 php_refdb_backend_object::php_refdb_backend_object(zend_class_entry* ce TSRMLS_DC):
-    backend(nullptr), zts(TSRMLS_C)
+    backend(nullptr), owner(nullptr), zts(TSRMLS_C)
 {
     zend_object_std_init(this,ce TSRMLS_CC);
     object_properties_init(this,ce);
@@ -274,10 +274,15 @@ php_refdb_backend_object::php_refdb_backend_object(zend_class_entry* ce TSRMLS_D
 
 php_refdb_backend_object::~php_refdb_backend_object()
 {
+    // Free the object if we do not have an owner.
+    if (owner == nullptr && backend != nullptr) {
+        backend->free(backend);
+    }
+
     zend_object_std_dtor(this ZTS_MEMBER_CC(this->zts));
 }
 
-void php_refdb_backend_object::create_custom_backend(zval* zobj)
+void php_refdb_backend_object::create_custom_backend(zval* zobj,php_git_refdb* ownerRefdb)
 {
     // NOTE: 'zobj' is the zval to the outer object that wraps this custom
     // zend_object derivation.
@@ -291,6 +296,9 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj)
     // Create custom backend. Custom backends are always passed off to git2, so
     // we are not responsible for calling its free function.
     backend = new (emalloc(sizeof(git_refdb_backend_php))) git_refdb_backend_php(zobj);
+
+    // Set the backend owner (may be null).
+    owner = ownerRefdb;
 }
 
 /*static*/ zend_object_handlers php_refdb_backend_object::handlers;

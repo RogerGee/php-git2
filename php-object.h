@@ -361,9 +361,10 @@ namespace php_git2
         ~php_refdb_backend_object();
 
         git_refdb_backend* backend;
+        php_git_refdb* owner;
         php_zts_member zts;
 
-        void create_custom_backend(zval* zobj);
+        void create_custom_backend(zval* zobj,php_git_refdb* owner = nullptr);
 
         static zend_object_handlers handlers;
         static void init(zend_class_entry* ce);
@@ -466,7 +467,7 @@ namespace php_git2
         php_callback_sync* cb,zval* zbackend,php_git_odb* owner TSRMLS_DC);
     void php_git2_make_odb_stream(zval* zp,git_odb_stream* stream,php_git_odb* owner TSRMLS_DC);
     void php_git2_make_writestream(zval* zp,git_writestream* ws TSRMLS_DC);
-    void php_git2_make_refdb_backend(zval* zp,git_refdb_backend* backend TSRMLS_DC);
+    void php_git2_make_refdb_backend(zval* zp,git_refdb_backend* backend,php_git_refdb* owner TSRMLS_DC);
 
     // Useful helpers
 
