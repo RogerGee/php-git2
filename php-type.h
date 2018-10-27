@@ -442,7 +442,7 @@ namespace php_git2
                 rsrc = (GitResource*)zend_fetch_resource(&value TSRMLS_CC,-1,
                     GitResource::resource_name(),NULL,1,GitResource::resource_le());
                 if (rsrc == nullptr) {
-                    throw php_git2_exception("The fetched resource is invalid");
+                    throw php_git2_exception("The specified resource is invalid");
                 }
             }
         }

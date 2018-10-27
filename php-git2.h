@@ -23,6 +23,7 @@ extern "C" {
 #include <ext/standard/php_incomplete_class.h>
 #include <ext/standard/info.h>
 #include <ext/standard/php_array.h>
+#undef lookup
 }
 
 #define PHP_GIT2_EXTNAME "git2"
