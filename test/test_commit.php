@@ -160,8 +160,42 @@ function test_create_alternate() {
     var_dump($id);
 }
 
+function test_callback_error_handling() {
+    $repo = git_repository_open_bare(testbed_get_repo_path());
+    $lambda = function($idx,$repo) {
+        // Uncomment this line to test the handling of fatal errors.
+        //$foo = $bar();
+
+        throw new \Exception("I was thrown from inside the callback");
+    };
+
+    // Create a random reference for this test commit.
+    $ref = "refs/heads/myref" . rand(1,1000);
+
+    // Create a bogus author.
+    $author = git_signature_now('Bargus Targ','bargus.targ@example.com');
+
+    try {
+        $id = git_commit_create_from_callback(
+            $repo,
+            $ref,
+            $author,
+            $author,
+            null,
+            "[stupid] Testing the callback error handling",
+            '80113d972e694eeef398fc7bbac5023ab7d2a311',
+            $lambda,
+            $repo);
+
+        var_dump($id);
+    } catch (\Exception $ex) {
+        testbed_unit('Caught exception',$ex);
+    }
+}
+
 testbed_test('Commit/open','Git2Test\Commit\test_open');
 testbed_test('Commit/lookup','Git2Test\Commit\test_lookup');
 testbed_test('Commit/create','Git2Test\Commit\test_create');
 testbed_test('Commit/signature','Git2Test\Commit\test_signature');
 testbed_test('Commit/create_alternate','Git2Test\Commit\test_create_alternate');
+testbed_test('Commit/callback_error_handling','Git2Test\Commit\test_callback_error_handling');

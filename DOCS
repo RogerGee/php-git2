@@ -2417,14 +2417,16 @@ abstract class GitRefDBBackend:
 
 final class GitRefDBBackend_Internal extends GitRefDBBackend:
 
-    ** This class represents internal refdb backends. It cannot be instantiated
-       directly. **
+    This class represents internal refdb backends. It cannot be instantiated
+    directly. It's used most notably to represent the values returned from the
+    git2 library that are to be used by userspace code such as from
+    git_refdb_backend_fs().
 
-    ** NOTE: The GitRefDBBackend_Internal does not provide access to the lock()
-       and unlock() methods. They will generate a fatal error if called. **
+    NOTE: The GitRefDBBackend_Internal does not provide access to the lock()
+    and unlock() methods. They will generate a fatal error if called.
 
-    ** NOTE: The following method signatures represent overloads in this derived
-       class. **
+    NOTE: The following method signatures listed here represent overloads in
+    this derived class.
 
     resource lookup(string $refname)
 

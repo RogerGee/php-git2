@@ -6,15 +6,14 @@ require_once 'test_base.php';
  * Create a custom ODB backend that uses the PHP serialization.
  */
 class PHPSerializedODB extends GitODBBackend {
-    private $name;
+    private $path;
     private $vars;
 
     public function __construct($name) {
-        $this->name = $name;
+        $this->path = testbed_path('PHPSerialized',true) . "/$name";
 
-        $path = $this->getFilePath();
-        if (is_file($path)) {
-            $this->vars = unserialize(file_get_contents($path));
+        if (is_file($this->path)) {
+            $this->vars = unserialize(file_get_contents($this->path));
         }
         else {
             $this->vars = [];
@@ -22,7 +21,7 @@ class PHPSerializedODB extends GitODBBackend {
     }
 
     public function free() {
-        file_put_contents($this->getFilePath(),serialize($this->vars));
+        file_put_contents($this->path,serialize($this->vars));
         unset($this->vars);
     }
 
@@ -50,10 +49,6 @@ class PHPSerializedODB extends GitODBBackend {
         foreach (array_keys($this->vars) as $oid) {
             $callback($oid,$payload);
         }
-    }
-
-    private function getFilePath() {
-        return $base = testbed_path('PHPSerializedODB',true) . "/{$this->name}";
     }
 }
 

@@ -1,15 +1,15 @@
 <?php
 
-class PHPGitConfig extends GitConfigBackend {
-    private $readOnly;
+class PHPSerializedConfig extends GitConfigBackend {
     private $path;
-    private $backing;
+    private $readOnly;
     private $level;
 
-    public function __construct($path,$readOnly = false) {
+    private $backing = [];
+
+    public function __construct($name,$readOnly = false) {
+        $this->path = testbed_path('PHPSerialized',true) . "/$name.config.phpdb";
         $this->readOnly = $readOnly;
-        $this->path = $path;
-        $this->backing = [];
     }
 
     public function __destruct() {
@@ -32,11 +32,14 @@ class PHPGitConfig extends GitConfigBackend {
     }
 
     public function set($key,$value) {
+        $this->checkReadOnly();
         $this->backing[$key] = $value;
     }
 
     public function set_multivar($name,$regexp,$value) {
+        $this->checkReadOnly();
 
+        // TODO
     }
 
     public function del($name) {
@@ -47,6 +50,7 @@ class PHPGitConfig extends GitConfigBackend {
     public function del_multivar($name,$regexp) {
         $this->checkReadOnly();
 
+        // TODO
     }
 
     public function iterator_new() {

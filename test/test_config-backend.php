@@ -3,15 +3,14 @@
 namespace Git2Test\ConfigBackend;
 
 use Exception;
-use PHPGitConfig;
+use PHPSerializedConfig;
 
 require_once 'test_base.php';
-require_once 'PHPGitConfig.php';
+require_once 'PHPSerializedConfig.php';
 
 function test_custom_backend() {
-    $path = testbed_get_root() . '/config-backend-test.config';
     $config = git_config_new();
-    $backend = new PHPGitConfig($path);
+    $backend = new PHPSerializedConfig('test1');
 
     git_config_add_backend($config,$backend,GIT_CONFIG_LEVEL_APP,true);
 
@@ -56,8 +55,8 @@ function test_custom_backend_lifetime() {
         testbed_unit('get user.name',$val);
     };
 
-    $path = testbed_get_root() . '/config-backend-test.config';
-    $backend = new PHPGitConfig($path);
+    // Open the existing config store from a previous test.
+    $backend = new PHPSerializedConfig('test1');
 
     // NOTE: each call to $inner creates a new git2 backend that references the
     // same object.
@@ -68,8 +67,8 @@ function test_custom_backend_lifetime() {
 
 function test_custom_backend_lifetime2() {
     $inner = function() {
-        $path = testbed_get_root() . '/config-backend-test.config';
-        $backend = new PHPGitConfig($path);
+        // Open the existing config store from a previous test.
+        $backend = new PHPSerializedConfig('test1');
 
         $config = git_config_new();
         git_config_add_backend($config,$backend,GIT_CONFIG_LEVEL_APP,true);

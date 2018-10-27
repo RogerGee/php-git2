@@ -101,7 +101,24 @@ function testbed_unit($section,$mixed) {
     $tab = '  ';
     color_echo("$section",COLOR_GREEN,"{$tab}unit: ");
     $tab = "$tab$tab";
-    if (!is_resource($mixed)) {
+    if ($mixed instanceof Exception) {
+        $message = $mixed->getMessage();
+        $file = pathinfo($mixed->getFile(),PATHINFO_FILENAME);
+        $line = $mixed->getLine();
+        $trace = '';
+        foreach ($mixed->getTrace() as $elem) {
+            if (isset($elem['file'])) {
+                $elemFile = pathinfo($elem['file'],PATHINFO_FILENAME);
+                $trace .= '  ' . $elem['function'] . ' (' . $elemFile . ')' . PHP_EOL;
+            }
+            else {
+                $trace .= '  ' . $elem['function'] . PHP_EOL;
+            }
+        }
+        $text = "[Exception] $file:$line: $message" . PHP_EOL
+              . $trace;
+    }
+    else if (!is_resource($mixed)) {
         $text = var_export($mixed,true);
     }
     else {
@@ -149,4 +166,31 @@ function testbed_test($title,callable $lambda) {
     }
 
     return $ret;
+}
+
+function testbed_remove_recursive($path) {
+    if (is_dir($path)) {
+        // Out of an abundance of paranoia, we will make sure each file we
+        // delete is prefixed exactly with the testbed root.
+        $root = testbed_get_root();
+        if (substr($path,0,strlen($root)) != $root) {
+            throw new Exception('fail testbed_remove_recursive!');
+        }
+
+        $entries = array_diff(scandir($path),['..','.']);
+        $files = [];
+        $dirs = [];
+        foreach ($entries as $ent) {
+            $ent = implode(DIRECTORY_SEPARATOR,[$path,$ent]);
+
+            if (is_dir($ent)) {
+                testbed_remove_recursive($ent);
+            }
+            if (is_file($ent)) {
+                unlink($ent);
+            }
+        }
+
+        rmdir($path);
+    }
 }
