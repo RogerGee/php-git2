@@ -1180,10 +1180,12 @@ namespace php_git2
     // Enumerate nofree alternatives of certain resource types.
 
     using php_git_repository_nofree = git2_resource_nofree<git_repository>;
+    using php_git_reference_nofree = git2_resource_nofree<git_reference>;
     using php_git_tree_entry_nofree = git2_resource_nofree<git_tree_entry>;
     using php_git_signature_nofree = git2_resource_nofree<git_signature>;
     using php_git_odb_nofree = git2_resource_nofree<git_odb>;
     using php_git_diff_nofree = git2_resource_nofree<git_diff>;
+    using php_git_reflog_nofree = git2_resource_nofree<git_reflog>;
 
 } // namespace php_git2
 

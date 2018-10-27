@@ -446,7 +446,7 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj,php_git_refdb* o
     ALLOC_INIT_ZVAL(zoldtarget);
 
     try {
-        const php_resource_ref<php_git_reference> res;
+        const php_resource_ref<php_git_reference_nofree> res;
         *res.byval_git2() = ref;
         res.ret(zref);
     } catch (php_git2_exception_base& ex) {
@@ -726,7 +726,7 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj,php_git_refdb* o
     MAKE_STD_ZVAL(zreflog);
 
     try {
-        php_resource_ref<php_git_reflog> reflogResource;
+        php_resource_ref<php_git_reflog_nofree> reflogResource;
         *reflogResource.byval_git2() = reflog;
         reflogResource.ret(zreflog);
     } catch (php_git2_exception_base& ex) {
@@ -867,7 +867,7 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj,php_git_refdb* o
     ZVAL_BOOL(zupdatereflog,update_reflog);
 
     try {
-        const php_resource_ref<php_git_reference> res;
+        const php_resource_ref<php_git_reference_nofree> res;
 
         *res.byval_git2() = ref;
         res.ret(zref);
