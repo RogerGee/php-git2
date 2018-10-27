@@ -53,6 +53,12 @@ namespace php_git2
             if (object->backend == nullptr) {
                 object->create_custom_backend(value,ownerWrapper.get_object());
             }
+            else if (object->owner != nullptr) {
+                throw php_git2_exception("The refdb backend is already owned by a refdb");
+            }
+            else {
+                object->owner = ownerWrapper.get_object();
+            }
 
             return object->backend;
         }

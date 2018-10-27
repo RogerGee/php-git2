@@ -135,9 +135,16 @@ namespace php_git2
             object = reinterpret_cast<php_config_backend_object*>
                 (zend_objects_get_address(value TSRMLS_CC));
 
-            // Create custom backing if one doesn't already exist.
+            // Create custom backing if one doesn't already exist. Make sure the
+            // owner is attached to the object.
             if (object->backend == nullptr) {
                 object->create_custom_backend(value,ownerWrapper.get_object());
+            }
+            else if (object->owner != nullptr) {
+                throw php_git2_exception("The config backend is already owned by a repository");
+            }
+            else {
+                object->owner = ownerWrapper.get_object();
             }
 
             return object->backend;

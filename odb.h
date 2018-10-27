@@ -106,6 +106,13 @@ namespace php_git2
             if (object->backend == nullptr) {
                 object->create_custom_backend(value,ownerWrapper.get_object());
             }
+            else if (object->owner != nullptr) {
+                throw php_git2_exception("The ODB backend is already owned by an ODB");
+            }
+            else {
+                object->owner = ownerWrapper.get_object();
+            }
+
             return object->backend;
         }
     private:
