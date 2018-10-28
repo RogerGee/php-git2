@@ -16,7 +16,7 @@ function test_session_backend() {
     // Create custom backend. NOTE: This backend does not implement its own
     // writestream() method so we get a fake wstream when calling
     // git_odb_open_wstream().
-    $backend = new PHPSerializedODB('odbcustom.test_session_backend');
+    $backend = new PHPSerializedODB('test1');
     $repo = git_repository_new();
     $odb = git_odb_new();
 
@@ -52,7 +52,6 @@ EOF;
             });
         $stream->write($data);
         $stream->finalize_write($oid);
-        $stream->free();
     };
 
     git_odb_foreach($srcodb,$lambda,[$srcodb,$odb]);
@@ -62,7 +61,7 @@ EOF;
 function test_session_backend_with_stream() {
     // Create custom backend. NOTE: This backend implements its own
     // writestream().
-    $backend = new PHPSerializedODB_WithStream('odbcustom.test_session_backend_with_stream');
+    $backend = new PHPSerializedODB_WithStream('test2');
     $repo = git_repository_new();
     $odb = git_odb_new();
 
@@ -96,14 +95,13 @@ EOF;
             });
         $stream->write($data);
         $stream->finalize_write($oid);
-        $stream->free();
     };
 
     git_odb_foreach($srcodb,$lambda,[$srcodb,$odb]);
     echo 'Custom ODB has ' . $backend->count() . " entries.\n";
 }
 
-function test_default_writepack() {
+function test_default_writestream() {
     global $HASH;
 
     // Create a new git repository and add a blob to its ODB.
@@ -112,7 +110,7 @@ function test_default_writepack() {
     $tm = $dt->format('Y-m-d H:i:s');
     $data = "This is a blob created on $tm";
 
-    $backend = new PHPSerializedODB('odbcustom.test_default_writepack');
+    $backend = new PHPSerializedODB('test3');
     $repo = git_repository_new();
     $odb = git_odb_new();
 
@@ -128,7 +126,6 @@ function test_default_writepack() {
 
     $stream->write($data);
     $stream->finalize_write($HASH = sha1($data));
-    $stream->free();
 
     echo "Wrote blob with ID=$HASH.\n";
 }
@@ -136,7 +133,7 @@ function test_default_writepack() {
 function test_read_object() {
     global $HASH;
 
-    $backend = new PHPSerializedODB('odbcustom.test_default_writepack');
+    $backend = new PHPSerializedODB('test3');
     $repo = git_repository_new();
     $odb = git_odb_new();
 
@@ -148,7 +145,7 @@ function test_read_object() {
 }
 
 function test_foreach() {
-    $backend = new PHPSerializedODB('odbcustom.test_session_backend');
+    $backend = new PHPSerializedODB('test1');
 
     $n = 0;
     $MAX = 32;
@@ -198,7 +195,7 @@ function test_empty() {
 
 testbed_test('Custom ODB/Copy (Default Stream)','\Git2Test\ODBCustom\test_session_backend');
 testbed_test('Custom ODB/Copy (Custom Stream)','\Git2Test\ODBCustom\test_session_backend_with_stream');
-testbed_test('Custom ODB/Default Writepack','\Git2Test\ODBCustom\test_default_writepack');
+testbed_test('Custom ODB/Default Writestream','\Git2Test\ODBCustom\test_default_writestream');
 testbed_test('Custom ODB/Read Object','\Git2Test\ODBCustom\test_read_object');
 testbed_test('Custom ODB/Foreach','\Git2Test\ODBCustom\test_foreach');
 testbed_test('Custom ODB/Empty','\Git2Test\ODBCustom\test_empty');

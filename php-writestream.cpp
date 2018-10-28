@@ -10,11 +10,9 @@ using namespace php_git2;
 // Class method entries
 static PHP_METHOD(GitWritestream,write);
 static PHP_METHOD(GitWritestream,close);
-static PHP_METHOD(GitWritestream,free);
 zend_function_entry php_git2::writestream_methods[] = {
     PHP_ME(GitWritestream,write,NULL,ZEND_ACC_PUBLIC)
     PHP_ME(GitWritestream,close,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitWritestream,free,NULL,ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
@@ -124,12 +122,6 @@ PHP_METHOD(GitWritestream,close)
             ex.handle();
         }
     }
-}
-
-PHP_METHOD(GitWritestream,free)
-{
-    // NOOP - we don't want the user explicitly controlling the freeing of this
-    // object.
 }
 
 /*

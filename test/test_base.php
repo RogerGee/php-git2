@@ -118,6 +118,11 @@ function testbed_unit($section,$mixed) {
         $text = "[Exception] $file:$line: $message" . PHP_EOL
               . $trace;
     }
+    else if (is_object($mixed)) {
+        ob_start();
+        var_dump($mixed);
+        $text = ob_get_clean();
+    }
     else if (!is_resource($mixed)) {
         $text = var_export($mixed,true);
     }

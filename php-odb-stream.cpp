@@ -18,13 +18,11 @@ static int odb_stream_has_property(zval* obj,zval* prop,int chk_type,const zend_
 static PHP_EMPTY_METHOD(GitODBStream,read);
 static PHP_EMPTY_METHOD(GitODBStream,write);
 static PHP_EMPTY_METHOD(GitODBStream,finalize_write);
-static PHP_EMPTY_METHOD(GitODBStream,free);
 
 zend_function_entry php_git2::odb_stream_methods[] = {
     PHP_ME(GitODBStream,read,NULL,ZEND_ACC_PUBLIC)
     PHP_ME(GitODBStream,write,NULL,ZEND_ACC_PUBLIC)
     PHP_ME(GitODBStream,finalize_write,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitODBStream,free,NULL,ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
@@ -194,21 +192,17 @@ void php_odb_stream_object::create_custom_stream(zval* zobj,unsigned int mode,zv
 
 /*static*/ void php_odb_stream_object::free(git_odb_stream *stream)
 {
-    method_wrapper method("free",stream);
+    method_wrapper::object_wrapper object(stream);
 
     // Make sure object buckets still exist to lookup object (in case the
     // destructor was already called).
 
     if (EG(objects_store).object_buckets != nullptr) {
-        // Call userspace free() method on the object.
-
-        method.call();
-
         // Unassign stream from the object since it is about to get destroyed.
-        method.backing()->stream = nullptr;
+        object.backing()->stream = nullptr;
     }
 
-    method.object()->~git_odb_stream_php();
+    object.object()->~git_odb_stream_php();
     efree(stream);
 }
 

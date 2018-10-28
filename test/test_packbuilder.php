@@ -84,7 +84,7 @@ function test_write_cancel() {
     $path = testbed_path('packdir2',true);
 
     $progressCallback = function(array $stats,$payload) {
-        return -1;
+        return false;
     };
 
     try {

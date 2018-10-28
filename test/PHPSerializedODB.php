@@ -20,7 +20,7 @@ class PHPSerializedODB extends GitODBBackend {
         }
     }
 
-    public function free() {
+    public function __destruct() {
         file_put_contents($this->path,serialize($this->vars));
         unset($this->vars);
     }

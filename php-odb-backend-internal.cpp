@@ -40,7 +40,6 @@ ZEND_END_ARG_INFO()
 static PHP_METHOD(GitODBBackend_Internal,refresh);
 static PHP_METHOD(GitODBBackend_Internal,for_each);
 static PHP_METHOD(GitODBBackend_Internal,writepack);
-static PHP_METHOD(GitODBBackend_Internal,free);
 zend_function_entry php_git2::odb_backend_internal_methods[] = {
     PHP_ME(GitODBBackend_Internal,read,GitODBBackend_Internal_read_arginfo,ZEND_ACC_PUBLIC)
     PHP_ME(GitODBBackend_Internal,read_prefix,GitODBBackend_Internal_read_prefix_arginfo,ZEND_ACC_PUBLIC)
@@ -53,7 +52,6 @@ zend_function_entry php_git2::odb_backend_internal_methods[] = {
     PHP_ME(GitODBBackend_Internal,refresh,NULL,ZEND_ACC_PUBLIC)
     PHP_ME(GitODBBackend_Internal,for_each,NULL,ZEND_ACC_PUBLIC)
     PHP_ME(GitODBBackend_Internal,writepack,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitODBBackend_Internal,free,NULL,ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
@@ -586,30 +584,6 @@ PHP_METHOD(GitODBBackend_Internal,writepack)
         if (BAILOUT_ENTER_REGION(ctx)) {
             ex.handle();
         }
-    }
-}
-
-PHP_METHOD(GitODBBackend_Internal,free)
-{
-    php_odb_backend_object* object = LOOKUP_OBJECT(php_odb_backend_object,getThis());
-
-    // Backend must be created and the function must be implemented.
-    if (object->backend == nullptr || object->backend->free == nullptr) {
-        php_error(E_ERROR,"GitODBBackend_Internal::free(): method is not available");
-        return;
-    }
-
-    // We really don't want people to be able to shoot themselves in the foot
-    // with this one (after all, crashing the Web server is generally not
-    // considered a good thing to do). We only call free if the owner is not
-    // set. If the owner is set then we silently do nothing (the user really has
-    // no business calling this anyway since our destructor will get it).
-
-    if (object->owner == nullptr) {
-        object->backend->free(object->backend);
-
-        // Avoid double free's later on.
-        object->backend = nullptr;
     }
 }
 

@@ -107,16 +107,12 @@ function test_writepack() {
         . '348cdc9c9d75128cf2fca4951e4020024f20494afed7ccfb9056fe89ef493d1983c26'
         . 'd10f291f39';
 
-    var_dump($wp);
-    $backend = $wp->backend;
-    var_dump($backend->version);
-    echo "writepack: append\n";
-    var_dump($wp->append(hex2bin($pack)));
-    echo "\nwritepack: commit\n";
-    var_dump($wp->commit());
-
-    // Freeing is optional but we should test it.
-    $wp->free();
+    testbed_unit('writepack',$wp);
+    testbed_unit('writepack->backend->version',$wp->backend->version);
+    testbed_unit('writepack->progress (before)',$wp->progress);
+    testbed_unit('writepack->append()',$wp->append(hex2bin($pack)));
+    testbed_unit('writepack->commit()',$wp->commit());
+    testbed_unit('writeback->progress (after)',$wp->progress);
 }
 
 function test_writepack2() {
@@ -141,22 +137,15 @@ function test_writepack2() {
         . 'd10f291f39';
 
     // These should be the same object.
-    var_dump($backend);
-    var_dump($wp->backend);
+    testbed_unit('backend (original)',$backend);
+    testbed_unit('backend (from writepack)',$wp->backend);
 
-    $wp->append(hex2bin($pack));
-    echo "The result: \n";
-    var_dump($wp->commit());
-
-    $backend->free();
-
-    // This will raise a fatal error since the object was invalidated (it won't
-    // crash though).
-    // $wp->backend->free();
+    testbed_unit('wp->append()',$wp->append(hex2bin($pack)));
+    testbed_unit('wp->commit()',$wp->commit());
 }
 
-testbed_test('ODB BACKEND READ OBJECT','Git2Test\ODBBackend\test_read');
-testbed_test('ODB BACKEND WRITE OBJECT','Git2Test\ODBBackend\test_write');
-testbed_test('ODB BACKEND FOREACH','Git2Test\ODBBackend\test_foreach');
-testbed_test('ODB BACKEND WRITEPACK','Git2Test\ODBBackend\test_writepack');
-testbed_test('ODB BACKEND WRITEPACK/ALT','Git2Test\ODBBackend\test_writepack2');
+testbed_test('ODB Backend read object','Git2Test\ODBBackend\test_read');
+testbed_test('ODB Backend write object','Git2Test\ODBBackend\test_write');
+testbed_test('ODB Backend foreach','Git2Test\ODBBackend\test_foreach');
+testbed_test('ODB Backend writepack','Git2Test\ODBBackend\test_writepack');
+testbed_test('ODB Backend writepack/alt','Git2Test\ODBBackend\test_writepack2');

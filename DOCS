@@ -572,6 +572,8 @@ git_packbuilder_foreach(resource,callable,mixed)
 
     Callback signature: void callback(string $data,int $length,mixed $payload)
 
+        The callback should return false to cancel the transaction.
+
         The callback should throw on error.
 
 git_packbuilder_set_threads(resource,int)
@@ -699,7 +701,7 @@ git_odb_object_size(resource)
 
 git_odb_object_type(resource)
 
-    Returns int
+   Returns int
 
 git_odb_object_dup(resource)
 
@@ -2159,14 +2161,17 @@ The following classes are provided by the extension:
 
 abstract class GitODBBackend:
 
-    ** This class has properties/methods that align with the git_odb_backend
-       structure. **
+    This class has properties/methods that align with the git_odb_backend
+    structure. You use it to define your own custom backend.
 
     properties:
+
         int $version
+
         resource $odb
 
     methods:
+
         NOTE: All methods should throw on failure.
 
         NOTE: If a method is not to be implemented, either leave it alone
@@ -2181,11 +2186,11 @@ abstract class GitODBBackend:
 
         string read_prefix(string &$fullOid,int &$type,string $abbrevOid)
 
-            ** Will return oid, size and type as out parameters respectively. **
+            Will return oid and type as out parameters respectively.
 
         void read_header(int &$size,int &$type,string $oid)
 
-            ** Will return size and type as out parameters respectively. **
+            Will return size and type as out parameters respectively.
 
         void write(string $oid,string $data,int $type)
 
@@ -2201,8 +2206,8 @@ abstract class GitODBBackend:
 
         void for_each(callable $callback,mixed $payload)
 
-            ** Note: this function is not named canonically with git2 since
-               "foreach" is a reserved word in PHP. **
+            Note: This function is not named canonically with git2 since
+                  "foreach" is a reserved word in PHP.
 
             Callback signature: int callback(string $id,mixed $payload)
 
@@ -2212,7 +2217,7 @@ abstract class GitODBBackend:
             implementation constraints. When the git2 library internally is
             routed to this method by the extension, the payload will be null
             even if some underlying value is assigned. In this case the
-            extension takes care of forwarding the payload behind-the-scenes
+            extension takes care of forwarding the payload "behind the scenes"
             since the payload value cannot be converted to a PHP value (plus,
             that operation would be wasteful anyway). The payload value only
             really matters in userspace if userspace initiated the method call
@@ -2226,47 +2231,60 @@ abstract class GitODBBackend:
             stop looping. The method should return 0 or the non-zero callback
             value upon return.
 
-        GitODBWritepack writepack(callable $func,mixed $payload)
+        GitODBWritepack writepack(resource $odb,callable $func,mixed $payload)
 
-        void free()
+            Callback signature: int callback(array $stats,mixed $payload)
+
+            If the callack returns less than zero, the transfer should be
+            canceled.
 
 final class GitODBBackend_Internal extends GitODBBackend
 
-    ** This class is used to represent internal ODB backends. It cannot be
-       instantiated directly. **
+    This class is used to represent internal ODB backends. It cannot be
+    instantiated directly.
 
 final class GitODBWritepack:
 
-    ** This class has properties/methods that align with the git_odb_writepack
-       structure. **
+    This class has properties/methods that align with the git_odb_writepack
+    structure.
+
+    NOTE: This object maintains its own git_transfer_progress structure
+          internally. This object is implicitly passed to the append() and
+          commit() methods. You can access a readonly version of this data from
+          the $progress property.
 
     properties:
-        backend: object instance of type GitODBBackend
+
+        GitODBBackend $backend
+
+        array $progress
 
     methods:
+
         void append(string)
 
         void commit()
 
-        void free()
-
 abstract class GitODBStream:
 
     This class has properties/methods that align with the git_odb_stream
-    structure.
+    structure. You use this class to interface with ODB stream's returned by
+    libgit2 and to create your own custom ODB streams.
 
     properties:
+
         int $mode
         int $declared_size
         int $received_bytes
 
     methods:
+
         NOTE: All methods should throw on failure.
 
         string read(int $bufsz)
 
-            ** Creates a buffer of the specified size and calls the read()
-               function for the stream. **
+            Creates a buffer of the specified size and calls the read() function
+            for the stream.
 
         void write(string $buffer)
 
@@ -2274,30 +2292,27 @@ abstract class GitODBStream:
 
 final class GitODBStream_Internal extends GitODBStream:
 
-    ** This class is used to represent internal ODB stream objects. It cannot be
-       instantiated directly. **
+    This class is used to represent internal ODB stream objects. It cannot be
+    instantiated directly.
 
 final class GitWritestream:
 
-    ** This class has properties/methods that align with the git_writestream
-       structure. **
+    This class has properties/methods that align with the git_writestream
+    structure.
 
     methods:
+
         void write(string $buffer)
 
         void close()
 
-        void free()
-
-            ** This method is included for completeness but doesn't actually
-               need to be called. It is a noop. **
-
 abstract class GitConfigBackend:
 
-    ** This class has properties/methods that align with the git_config_backend
-       structure. **
+    This class has properties/methods that align with the git_config_backend
+    structure.
 
     methods:
+
         NOTE: All methods should throw on failure.
 
         NOTE: If a method is not to be implemented, either leave it alone
@@ -2351,8 +2366,9 @@ abstract class GitConfigBackend:
 
 abstract class GitRefDBBackend:
 
-    ** This class has methods and properties that align with the
-       git_refdb_backend structure. **
+    This class has methods and properties that align with the git_refdb_backend
+    structure. You can use this class to define your own custom reference
+    databases.
 
     methods:
 
@@ -2360,26 +2376,26 @@ abstract class GitRefDBBackend:
 
         string lookup(string $ref_name)
 
-            ** Method should return string OID or symbolic name. **
+            Method should return string OID or symbolic name.
 
         void iterator_new(string $glob)
 
-            ** $glob may be NULL **
+            $glob may be NULL
 
         string iterator_next(string &$name)
 
-            ** Method should return string OID or symbolic name and assign
-               reference name to $name. **
+            Method should return string OID or symbolic name and assign
+            reference name to $name.
 
-            ** Method should return false when iteration is over. **
+            Method should return false when iteration is over.
 
         void write(resource $ref,bool $force,array $who,string $message,string $old,string $old_target)
 
-            ** NOTE: $message may be NULL. **
+            NOTE: $message may be NULL.
 
         resource rename(string $old_name,string $new_name,bool $force,array $who,string $message)
 
-            ** NOTE: $message may be NULL. **
+            NOTE: $message may be NULL.
 
             Returns git_reference resource
 
@@ -2393,15 +2409,15 @@ abstract class GitRefDBBackend:
 
         array reflog_read(string $name)
 
-            ** NOTE: This method is unimplementable by custom backends until
-               libgit2 exposes proper support for creating/manipulating
-               reflogs. **
+            NOTE: This method is unimplementable by custom backends until
+                  libgit2 exposes proper support for creating/manipulating
+                  reflogs.
 
-            ** Method returns indexed array of reflog entries. **
+            Method returns indexed array of reflog entries.
 
         void reflog_write(resource $reflog)
 
-            ** Method is passed a git_reflog resource. **
+            Method is passed a git_reflog resource.
 
         void reflog_rename(string $old_name,string $new_name)
 
@@ -2409,18 +2425,19 @@ abstract class GitRefDBBackend:
 
         mixed lock(string $refname)
 
-            ** NOTE: Whatever value is returned from this method is the value
-               subsequently passed as the first argument to the unlock()
-               method. **
+            NOTE: Whatever value is returned from this method is the value
+                  subsequently passed as the first argument to the unlock()
+                  method.
 
         void unlock(mixed $payload,bool $success,bool $update_reflog,resource $ref,array $sig,string $message)
 
 final class GitRefDBBackend_Internal extends GitRefDBBackend:
 
-    This class represents internal refdb backends. It cannot be instantiated
-    directly. It's used most notably to represent the values returned from the
-    git2 library that are to be used by userspace code such as from
+    This class represents internal refdb backends. You use this class to
+    interface with refdb backends returned by libgit2, such as from
     git_refdb_backend_fs().
+
+    This class cannot be instantiated directly.
 
     NOTE: The GitRefDBBackend_Internal does not provide access to the lock()
     and unlock() methods. They will generate a fatal error if called.

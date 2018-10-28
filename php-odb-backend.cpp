@@ -42,7 +42,6 @@ static PHP_EMPTY_METHOD(GitODBBackend,exists_prefix);
 static PHP_EMPTY_METHOD(GitODBBackend,refresh);
 static PHP_EMPTY_METHOD(GitODBBackend,for_each);
 static PHP_EMPTY_METHOD(GitODBBackend,writepack);
-static PHP_EMPTY_METHOD(GitODBBackend,free);
 
 zend_function_entry php_git2::odb_backend_methods[] = {
     PHP_ME(GitODBBackend,read,NULL,ZEND_ACC_PUBLIC)
@@ -56,7 +55,6 @@ zend_function_entry php_git2::odb_backend_methods[] = {
     PHP_ME(GitODBBackend,refresh,NULL,ZEND_ACC_PUBLIC)
     PHP_ME(GitODBBackend,for_each,NULL,ZEND_ACC_PUBLIC)
     PHP_ME(GitODBBackend,writepack,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitODBBackend,free,NULL,ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
@@ -594,7 +592,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 
 /*static*/ void php_odb_backend_object::free(git_odb_backend* backend)
 {
-    method_wrapper method("free",backend);
+    method_wrapper::object_wrapper object(backend);
 
     // Make sure object buckets still exist to lookup object (in case the
     // destructor was already called). This happens when free() is called after
@@ -602,20 +600,14 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     // may have references to git2 objects that reference this PHP object).
 
     if (EG(objects_store).object_buckets != nullptr) {
-        // Call userspace free() method on the object. It may not necessarily be
-        // implemented since we didn't check for it when the git_odb_backend_php
-        // object was created. If not, we just let the callback fail.
-
-        method.call();
-
         // Unassign backend from the object since it is about to get destroyed.
-        method.backing()->backend = nullptr;
+        object.backing()->backend = nullptr;
     }
 
     // Explicitly call the destructor on the custom backend. Then free the block
     // of memory that holds the custom backend.
 
-    method.object()->~git_odb_backend_php();
+    object.object()->~git_odb_backend_php();
     efree(backend);
 }
 
