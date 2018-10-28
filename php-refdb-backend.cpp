@@ -954,7 +954,11 @@ php_refdb_backend_object::git_refdb_backend_php::git_refdb_backend_php(zval* zv)
     reflog_write = php_refdb_backend_object::reflog_write;
     reflog_rename = php_refdb_backend_object::reflog_rename;
     reflog_delete = php_refdb_backend_object::reflog_delete;
-    if (is_method_overridden(ce,"iterator",sizeof("iterator"))) {
+    if (is_method_overridden(ce,"iterator_new",sizeof("iterator_new"))) {
+        if (!is_method_overridden(ce,"iterator_next",sizeof("iterator_next"))) {
+            throw php_git2_fatal_exception("Cannot create custom refdb backend: must implement iterator_next() with iterator_new()");
+        }
+
         iterator = php_refdb_backend_object::iterator;
     }
     if (is_method_overridden(ce,"compress",sizeof("compress"))) {
@@ -967,7 +971,7 @@ php_refdb_backend_object::git_refdb_backend_php::git_refdb_backend_php(zval* zv)
         // what happens in git2 source code: unlock is not checked but only
         // called when lock is present.
         if (!is_method_overridden(ce,"unlock",sizeof("unlock"))) {
-            throw php_git2_fatal_exception("Cannot create custom refdb baceknd: unlock() must be "
+            throw php_git2_fatal_exception("Cannot create custom refdb backend: unlock() must be "
                 "implemented with lock()");
         }
 

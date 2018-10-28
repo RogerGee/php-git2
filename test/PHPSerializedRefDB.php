@@ -7,7 +7,7 @@ class PHPSerializedRefDB extends GitRefDBBackend {
     private $store;
 
     public function __construct($name) {
-        $this->path = testbed_path('PHPSerialized',true) . "/$name";
+        $this->path = testbed_path('PHPSerialized',true) . "/$name.refdb.phpdb";
 
         if (is_file($this->path)) {
             $this->store = unserialize(file_get_contents($this->path));
@@ -35,7 +35,9 @@ class PHPSerializedRefDB extends GitRefDBBackend {
 
     public function iterator_next(&$name) {
         $name = key($this->store);
-        $oid = next($this->store);
+        $oid = current($this->store);
+
+        next($this->store);
 
         return $oid;
     }

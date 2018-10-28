@@ -10,7 +10,7 @@ class PHPSerializedODB extends GitODBBackend {
     private $vars;
 
     public function __construct($name) {
-        $this->path = testbed_path('PHPSerialized',true) . "/$name";
+        $this->path = testbed_path('PHPSerialized',true) . "/$name.odb.phpdb";
 
         if (is_file($this->path)) {
             $this->vars = unserialize(file_get_contents($this->path));

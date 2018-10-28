@@ -76,6 +76,32 @@ function test_custom() {
     testbed_unit('custom lookup',$result);
 }
 
+function test_custom_iteration() {
+    $storePath = testbed_path('global_store',true);
+    $odbBackend = git_odb_backend_loose($storePath,5,false,0700,0600);
+
+    $repo = git_repository_new();
+    $backend = new PHPSerializedRefDB('test1');
+    $refdb = git_refdb_new($repo);
+    $odb = git_odb_new();
+
+    git_refdb_set_backend($refdb,$backend);
+    git_odb_add_backend($odb,$odbBackend,1);
+
+    git_repository_set_refdb($repo,$refdb);
+    git_repository_set_odb($repo,$odb);
+
+    $callback = function($ref,$payload) {
+        $name = git_reference_name($ref);
+        $target = git_reference_target($ref);
+
+        testbed_unit('callback ref',"$name => $target");
+    };
+
+    git_reference_foreach($repo,$callback,null);
+}
+
 testbed_test('RefDB/builtin','Git2Test\RefDB\test_builtin');
 testbed_test('RefDB/compress','Git2Test\RefDB\test_compress');
 testbed_test('RefDB/custom','Git2Test\RefDB\test_custom');
+testbed_test('RefDB/custom/iteration','Git2Test\RefDB\test_custom_iteration');
