@@ -20,11 +20,9 @@ static int odb_writepack_has_property(zval* obj,zval* prop,int chk_type,const ze
 
 static PHP_METHOD(GitODBWritepack,append);
 static PHP_METHOD(GitODBWritepack,commit);
-static PHP_METHOD(GitODBWritepack,free);
 zend_function_entry php_git2::odb_writepack_methods[] = {
     PHP_ME(GitODBWritepack,append,NULL,ZEND_ACC_PUBLIC)
     PHP_ME(GitODBWritepack,commit,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitODBWritepack,free,NULL,ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
@@ -158,6 +156,12 @@ zval* odb_writepack_read_property(zval* obj,zval* prop,int type,const zend_liter
             }
         }
     }
+    else if (strcmp(str,"progress") == 0) {
+        // NOTE: We create a new zval every time since this property is readonly
+        // and the value may change.
+        MAKE_STD_ZVAL(ret);
+        php_git2::convert_transfer_progress(ret,&wrapper->prog);
+    }
     else {
         ret = (*std_object_handlers.read_property)(obj,prop,type,key TSRMLS_CC);
     }
@@ -188,7 +192,7 @@ void odb_writepack_write_property(zval* obj,zval* prop,zval* value,const zend_li
     }
 
     str = Z_STRVAL_P(prop);
-    if (strcmp(str,"backend") == 0) {
+    if (strcmp(str,"backend") == 0 || strcmp(str,"progress") == 0) {
         php_error(E_ERROR,"Property '%s' of GitODBWritepack cannot be updated",str);
     }
     else {
@@ -287,19 +291,6 @@ PHP_METHOD(GitODBWritepack,commit)
         if (BAILOUT_ENTER_REGION(ctx)) {
             ex.handle();
         }
-    }
-}
-
-PHP_METHOD(GitODBWritepack,free)
-{
-    php_odb_writepack_object* object = LOOKUP_OBJECT(php_odb_writepack_object,getThis());
-
-    assert(object->writepack != nullptr);
-
-    object = LOOKUP_OBJECT(php_odb_writepack_object,getThis());
-    if (object->writepack != nullptr) {
-        object->writepack->free(object->writepack);
-        object->writepack = nullptr;
     }
 }
 

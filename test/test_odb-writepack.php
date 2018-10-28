@@ -25,16 +25,12 @@ function test_basic() {
         . '348cdc9c9d75128cf2fca4951e4020024f20494afed7ccfb9056fe89ef493d1983c26'
         . 'd10f291f39';
 
-    var_dump($wp);
-    $backend = $wp->backend;
-    var_dump($backend->version);
-    echo "writepack: append\n";
-    var_dump($wp->append(hex2bin($pack)));
-    echo "\nwritepack: commit\n";
-    var_dump($wp->commit());
-
-    // Freeing is optional but we should test it.
-    $wp->free();
+    testbed_unit('writepack',$wp);
+    testbed_unit('writepack->backend->version',$wp->backend->version);
+    testbed_unit('writepack->progress (before)',$wp->progress);
+    testbed_unit('writepack->append()',$wp->append(hex2bin($pack)));
+    testbed_unit('writepack->commit()',$wp->commit());
+    testbed_unit('writeback->progress (after)',$wp->progress);
 }
 
 function test_lifetime() {
@@ -53,19 +49,16 @@ function test_lifetime() {
             . '348cdc9c9d75128cf2fca4951e4020024f20494afed7ccfb9056fe89ef493d1983c26'
             . 'd10f291f39';
 
-        echo "writepack: append\n";
-        var_dump($wp->append(hex2bin($pack)));
-
-        echo "\nwritepack: commit\n";
-        var_dump($wp->commit());
+        testbed_unit('writepack->append',$wp->append(hex2bin($pack)));
+        testbed_unit('writepack->commit',$wp->commit());
 
         // Return before freeing.
         return $wp;
     };
 
     $wp = $lambda();
-    var_dump($wp);
-    $wp->free();
+    testbed_unit('writepack->backend',$wp->backend);
+    testbed_unit('writepack->progress',$wp->progress);
 }
 
 function test_callback_errors() {
@@ -101,6 +94,6 @@ function test_callback_errors() {
     }
 }
 
-testbed_test('WRITEPACK','Git2Test\ODBWritepack\test_basic');
-testbed_test('WRITEPACK/LIFETIME OF OBJECT','Git2Test\ODBWritepack\test_lifetime');
-testbed_test('WRITEPACK/CALLBACK ERRORS','Git2Test\ODBWritepack\test_callback_errors');
+testbed_test('Writepack','Git2Test\ODBWritepack\test_basic');
+testbed_test('Writepack/Lifetime of object','Git2Test\ODBWritepack\test_lifetime');
+testbed_test('Writepack/Callback errors','Git2Test\ODBWritepack\test_callback_errors');
