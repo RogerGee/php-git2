@@ -157,6 +157,13 @@ transfer_progress_callback::callback(const git_transfer_progress* stats,void* pa
     php_git2::convert_transfer_progress(zstats,stats);
 
     result = params.call(cb->func,&retval);
+
+    if (result == 0) {
+        if (Z_TYPE(retval) == IS_BOOL && !Z_BVAL(retval)) {
+            result = -1;
+        }
+    }
+
     zval_dtor(&retval);
 
     return result;

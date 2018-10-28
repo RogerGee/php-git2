@@ -50,7 +50,7 @@ function test_write() {
     $build = git_packbuilder_new($repo);
 
     git_packbuilder_insert_recur($build,git_reference_target($ref),null);
-    $path = testbed_path('packdir',true);
+    $path = testbed_path('packdir1',true);
 
     $progressCallback = function(array $stats,$payload) {
         $keys = array_keys($stats);
@@ -76,6 +76,26 @@ function test_write() {
     var_dump(git_packbuilder_written($build));
 }
 
+function test_write_cancel() {
+    $repo = git_repository_open_bare(testbed_get_repo_path());
+    $build = git_packbuilder_new($repo);
+
+    git_packbuilder_insert_recur($build,'ae65689605c57e3cad647da378a7654e3e081dab',null);
+    $path = testbed_path('packdir2',true);
+
+    $progressCallback = function(array $stats,$payload) {
+        return -1;
+    };
+
+    try {
+        git_packbuilder_write($build,$path,0660,$progressCallback,null);
+        var_dump(git_packbuilder_written($build));
+    } catch (\Exception $ex) {
+        echo 'Caught error: ' . $ex->getMessage() . PHP_EOL;
+    }
+}
+
 testbed_test('Packbuilder/generate','Git2Test\Packbuilder\test_generate');
 testbed_test('Packbuilder/callbacks','Git2Test\Packbuilder\test_callbacks');
 testbed_test('Packbuilder/write','Git2Test\Packbuilder\test_write');
+testbed_test('Packbuilder/write/cancel','Git2Test\Packbuilder\test_write_cancel');
