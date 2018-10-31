@@ -71,6 +71,7 @@ static zend_function_entry php_git2_functions[] = {
     GIT_NOTE_FE
     GIT_REFLOG_FE
     GIT_REFDB_FE
+    GIT_PATCH_FE
     PHP_FE_END
 };
 
@@ -150,7 +151,8 @@ PHP_MINIT_FUNCTION(git2)
         git_note,
         git_note_iterator,
         git_reflog,
-        git_refdb >(module_number);
+        git_refdb,
+        git_patch >(module_number);
 
     // Register all classes provided by this extension.
     php_git2_register_classes(TSRMLS_C);

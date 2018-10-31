@@ -26,7 +26,6 @@ namespace php_git2
             if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
                 array_wrapper arr(value);
 
-                GIT2_ARRAY_LOOKUP_LONG(arr,version,opts);
                 GIT2_ARRAY_LOOKUP_LONG(arr,bare,opts);
                 GIT2_ARRAY_LOOKUP_LONG(arr,local,opts);
                 GIT2_ARRAY_LOOKUP_STRING_NULLABLE(arr,checkout_branch,opts);
@@ -39,7 +38,8 @@ namespace php_git2
                     repository_cb_payload,
                     opts);
 
-                // TODO Handle git_remote_create_cb callback property.
+                // TODO Handle fetch_opts property.
+                // TODO Handle remote_cb property.
 
                 return &opts;
             }

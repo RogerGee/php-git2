@@ -204,6 +204,27 @@ namespace php_git2
         }
     };
 
+    class php_notfound_retval_rethandler
+    {
+    public:
+        template<typename... Ts>
+        bool ret(int retval,zval* return_value,local_pack<Ts...>& pack)
+        {
+            if (retval != 0) {
+                if (retval != GIT_ENOTFOUND) {
+                    return false;
+                }
+
+                RETVAL_FALSE;
+            }
+            else {
+                RETVAL_LONG(retval);
+            }
+
+            return true;
+        }
+    };
+
     template<unsigned Position,typename ResourceDeps>
     class php_resource_notfound_rethandler
     {

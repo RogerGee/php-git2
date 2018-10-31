@@ -42,6 +42,7 @@
 #include "note.h"
 #include "reflog.h"
 #include "refdb.h"
+#include "patch.h"
 
 #endif
 

@@ -57,6 +57,7 @@ purpose) are determined by the C++ compiler via 'typeid'.
     git_note_iterator
     git_reflog
     git_refdb
+    git_patch
 
 The following structures are not represented as resources in the PHP
 API. Instead a scalar, array or object type is used:
@@ -2149,6 +2150,73 @@ git_refdb_open(resource)
     Returns git_refdb resource
 
 git_refdb_set_backend(resource,object)
+
+----------------------------------------
+[git_patch]
+----------------------------------------
+
+git_patch_free(resource)
+
+git_patch_from_blob_and_buffer(resource|null,string|null,string|null,int,string|null,array|null)
+
+    Returns git_patch resource
+
+git_patch_from_blobs(resource|null,string|null,resource|null,string|null,array|null)
+
+    Returns git_patch resource
+
+git_patch_from_buffers(string|null,string|null,string|null,string|null,array|null)
+
+    Returns git_patch resource
+
+git_patch_from_diff(resource,int)
+
+    Returns git_patch_resource
+
+git_patch_get_delta(resource)
+
+    Returns array
+
+git_patch_get_hunk(&int,resource,int)
+
+    The function will assign the lines_in_hunk to the first parameter.
+
+    Returns array
+
+git_patch_get_line_in_hunk(resource,int,int)
+
+    Returns array
+
+git_patch_line_stats(&int,&int,resource)
+
+    The function returns the total_context value.
+
+    The total_additions value is assigned to the first parameter, and the
+    total_deletions value is assigned to the second parameter.
+
+    Returns int
+
+git_patch_num_hunks(resource)
+
+    Returns int
+
+git_patch_num_lines_in_hunk(resource,int)
+
+    Returns int or false if invalid hunk index
+
+git_patch_print(resource,callable,mixed)
+
+    Callback signature: void callback(array $delta,array $hunk,array $line,mixed $payload)
+
+        The callback should throw on error.
+
+git_patch_size(resource,bool,bool,bool)
+
+    Returns int
+
+git_patch_to_buf(resource)
+
+    Returns string
 
 --------------------------------------------------------------------------------
 Class API Reference

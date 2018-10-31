@@ -253,8 +253,35 @@ namespace php_git2
         {
             return Z_STRLEN_P(conn.byval_php(p));
         }
-    private:
+
+    protected:
         connect_t& conn;
+    };
+
+    template<typename IntType,typename StringType = php_nullable_string>
+    class php_string_length_connector_null:
+        public php_string_length_connector<IntType,StringType>
+    {
+        using base_type = php_string_length_connector<IntType,StringType>;
+    public:
+        using typename base_type::connect_t;
+        using typename base_type::target_t;
+
+        php_string_length_connector_null(connect_t& obj TSRMLS_DC):
+            base_type(obj TSRMLS_CC)
+        {
+        }
+
+        target_t byval_git2(unsigned p)
+        {
+            zval* zv = base_type::conn.byval_php(p);
+
+            if (Z_TYPE_P(zv) != IS_STRING) {
+                return 0;
+            }
+
+            return Z_STRLEN_P(zv);
+        }
     };
 
     // Provide a connector for an arbitrary string buffer that can be returned
@@ -1176,6 +1203,7 @@ namespace php_git2
     using php_git_note_iterator = git2_resource<git_note_iterator>;
     using php_git_reflog = git2_resource<git_reflog>;
     using php_git_refdb = git2_resource<git_refdb>;
+    using php_git_patch = git2_resource<git_patch>;
 
     // Enumerate nofree alternatives of certain resource types.
 
