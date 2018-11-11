@@ -5,7 +5,8 @@
  */
 
 #include "php-git2.h"
-#include "php-git2-fe.h"
+#include "git2-resource.h"
+#include "php-object.h"
 using namespace std;
 using namespace php_git2;
 
@@ -20,68 +21,13 @@ static PHP_MINFO_FUNCTION(git2);
 static PHP_MSHUTDOWN_FUNCTION(git2);
 static PHP_RSHUTDOWN_FUNCTION(git2);
 
-// Exported extension functions defined in this unit.
-PHP_FUNCTION(git_libgit2_version);
-PHP_FUNCTION(git2_version);
-
-// Functions exported by this extension into PHP.
-static zend_function_entry php_git2_functions[] = {
-    // Functions that do not directly wrap libgit2 exports:
-    PHP_FE(git2_version,NULL)
-
-    // General libgit2 functions:
-    PHP_FE(git_libgit2_version,NULL)
-    PHP_GIT2_FE(git_libgit2_features,
-        (zif_php_git2_function<
-            func_wrapper<int>::func<git_libgit2_features>,
-            local_pack<>,
-            0 >),
-        NULL)
-
-    // Include template specializations for the different library wrappers. The
-    // compiler will instantiate these into this compilation unit.
-    GIT_REPOSITORY_FE
-    GIT_REFERENCE_FE
-    GIT_OBJECT_FE
-    GIT_REVWALK_FE
-    GIT_PACKBUILDER_FE
-    GIT_INDEXER_FE
-    GIT_ODB_FE
-    GIT_COMMIT_FE
-    GIT_BLOB_FE
-    GIT_TREE_FE
-    GIT_SIGNATURE_FE
-    GIT_TREEBUILDER_FE
-    GIT_BLAME_FE
-    GIT_REVPARSE_FE
-    GIT_ANNOTATED_FE
-    GIT_BRANCH_FE
-    GIT_CONFIG_FE
-    GIT_CLONE_FE
-    GIT_CHECKOUT_FE
-    GIT_TAG_FE
-    GIT_DIFF_FE
-    GIT_INDEX_FE
-    GIT_TRACE_FE
-    GIT_IGNORE_FE
-    GIT_ATTR_FE
-    GIT_STATUS_FE
-    GIT_CHERRYPICK_FE
-    GIT_MERGE_FE
-    GIT_NOTE_FE
-    GIT_REFLOG_FE
-    GIT_REFDB_FE
-    GIT_PATCH_FE
-    PHP_FE_END
-};
-
 // Module entry table.
 zend_module_entry git2_module_entry = {
 #if ZEND_MODULE_API_NO >= 20010901
     STANDARD_MODULE_HEADER,
 #endif
     PHP_GIT2_EXTNAME,
-    php_git2_functions,
+    php_git2::functions,
     PHP_MINIT(git2),
     PHP_MSHUTDOWN(git2),
     PHP_RINIT(git2),
@@ -204,29 +150,6 @@ PHP_MSHUTDOWN_FUNCTION(git2)
 PHP_RSHUTDOWN_FUNCTION(git2)
 {
     return SUCCESS;
-}
-
-PHP_FUNCTION(git_libgit2_version)
-{
-    char buf[128];
-    int major, minor, rev;
-
-    git_libgit2_version(&major,&minor,&rev);
-    snprintf(buf,sizeof(buf),"%d.%d.%d",major,minor,rev);
-
-    RETURN_STRING(buf,1);
-}
-
-PHP_FUNCTION(git2_version)
-{
-    char buf[128];
-    int major, minor, rev;
-
-    git_libgit2_version(&major,&minor,&rev);
-    snprintf(buf,sizeof(buf),"%s %s (libgit2 %d.%d.%d)",PHP_GIT2_EXTNAME,PHP_GIT2_EXTVER,
-        major,minor,rev);
-
-    RETURN_STRING(buf,1);
 }
 
 // php_git2_exception__with_message

@@ -108,6 +108,9 @@ ZEND_EXTERN_MODULE_GLOBALS(git2)
 
 namespace php_git2
 {
+
+    extern zend_function_entry functions[];
+
     // Provide types for tracking bailouts and manipulating PHP bailout jump
     // buffers.
 
