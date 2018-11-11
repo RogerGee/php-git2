@@ -41,6 +41,7 @@
 #include "reflog.h"
 #include "refdb.h"
 #include "patch.h"
+#include "describe.h"
 
 // Exported extension functions defined in this unit.
 static PHP_FUNCTION(git_libgit2_version);
@@ -94,6 +95,7 @@ zend_function_entry php_git2::functions[] = {
     GIT_REFLOG_FE
     GIT_REFDB_FE
     GIT_PATCH_FE
+    GIT_DESCRIBE_FE
     PHP_FE_END
 };
 

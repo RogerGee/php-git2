@@ -86,6 +86,17 @@ long array_wrapper::get_long() const
     return 0;
 }
 
+bool array_wrapper::get_bool() const
+{
+    if (found()) {
+        zval* zv = copy_if_not_type(IS_BOOL);
+
+        return Z_BVAL_P(zv);
+    }
+
+    return false;
+}
+
 zval* array_wrapper::get_zval() const
 {
     if (found()) {

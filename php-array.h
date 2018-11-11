@@ -36,6 +36,7 @@ namespace php_git2
         const char* get_string_nullable() const;
         int get_string_length() const;
         long get_long() const;
+        bool get_bool() const;
         zval* get_zval() const;
         void get_oid(git_oid* out) const;
     private:
@@ -85,6 +86,16 @@ namespace php_git2
 #define GIT2_ARRAY_INDEX_LONG(wrapper,index,name,var)       \
     if (wrapper.query(index)) {                             \
         var.name = (decltype(var.name))wrapper.get_long();  \
+    }
+
+#define GIT2_ARRAY_LOOKUP_BOOL(wrapper,name,var)                        \
+    if (wrapper.query(#name,sizeof(#name))) {                           \
+        var.name = (decltype(var.name))wrapper.get_bool();              \
+    }
+
+#define GIT2_ARRAY_INDEX_BOOL(wrapper,index,name,var)       \
+    if (wrapper.query(index)) {                             \
+        var.name = (decltype(var.name))wrapper.get_bool();  \
     }
 
 #define GIT2_ARRAY_LOOKUP_OID(wrapper,name,var) \

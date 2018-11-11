@@ -58,6 +58,7 @@ purpose) are determined by the C++ compiler via 'typeid'.
     git_reflog
     git_refdb
     git_patch
+    git_describe_result
 
 The following structures are not represented as resources in the PHP
 API. Instead a scalar, array or object type is used:
@@ -93,6 +94,8 @@ API. Instead a scalar, array or object type is used:
     git_merge_file_input                           array
     git_merge_file_result                          array
     git_reflog_entry                               array
+    git_describe_options                           array
+    git_describe_format_options                    array
 
 For objects, see the later section regarding Classes.
 
@@ -2217,6 +2220,24 @@ git_patch_size(resource,bool,bool,bool)
 git_patch_to_buf(resource)
 
     Returns string
+
+----------------------------------------
+[git_describe]
+----------------------------------------
+
+git_describe_commit(resource,array|null)
+
+    Returns git_describe_result resource
+
+git_describe_format(resource,array|null)
+
+    Returns string
+
+git_describe_result_free(resource)
+
+git_describe_workdir(resource,array|null)
+
+    Returns git_describe_result resource
 
 --------------------------------------------------------------------------------
 Class API Reference
