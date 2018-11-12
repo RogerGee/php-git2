@@ -11,7 +11,7 @@
 namespace php_git2
 {
 
-    // Explicitly specialize git2_resource destructor for git_repository.
+    // Explicitly specialize git2_resource destructor for git_patch.
     template<> php_git_patch::~git2_resource()
     {
         git_patch_free(handle);

@@ -1205,6 +1205,7 @@ namespace php_git2
     using php_git_refdb = git2_resource<git_refdb>;
     using php_git_patch = git2_resource<git_patch>;
     using php_git_describe_result = git2_resource<git_describe_result>;
+    using php_git_rebase = git2_resource<git_rebase>;
 
     // Enumerate nofree alternatives of certain resource types.
 

@@ -99,7 +99,8 @@ PHP_MINIT_FUNCTION(git2)
         git_reflog,
         git_refdb,
         git_patch,
-        git_describe_result >(module_number);
+        git_describe_result,
+        git_rebase >(module_number);
 
     // Register all classes provided by this extension.
     php_git2_register_classes(TSRMLS_C);
@@ -707,6 +708,26 @@ void php_git2::convert_reflog(zval* zv,const git_reflog* log)
         convert_reflog_entry(zentry,ent);
 
         add_next_index_zval(zv,zentry);
+    }
+}
+
+void php_git2::convert_rebase_operation(zval* zv,const git_rebase_operation* oper)
+{
+    array_init(zv);
+
+    add_assoc_long(zv,"type",oper->type);
+
+    zval* zid;
+    MAKE_STD_ZVAL(zid);
+
+    convert_oid(zid,&oper->id);
+    add_assoc_zval_ex(zv,"id",sizeof("id"),zid);
+
+    if (oper->exec != nullptr) {
+        add_assoc_string(zv,"exec",const_cast<char*>(oper->exec),1);
+    }
+    else {
+        add_assoc_null(zv,"exec");
     }
 }
 

@@ -15,7 +15,8 @@ php-git2-fe.lo: php-git2-fe.cpp php-git2.h config.h php-function.h \
  packbuilder.h indexer.h odb.h commit.h blob.h tree.h signature.h \
  treebuilder.h blame.h revparse.h annotated.h branch.h config-git2.h \
  clone.h checkout.h tag.h diff.h index.h trace.h ignore.h attr.h status.h \
- cherrypick.h merge.h note.h reflog.h refdb.h patch.h describe.h
+ cherrypick.h merge.h note.h reflog.h refdb.h patch.h describe.h \
+ rebase.h
 php-callback.lo: php-callback.cpp php-callback.h php-type.h php-git2.h \
  git2-resource.h php-array.h config.h
 php-object.lo: php-object.cpp php-object.h php-callback.h php-type.h \

@@ -59,6 +59,7 @@ purpose) are determined by the C++ compiler via 'typeid'.
     git_refdb
     git_patch
     git_describe_result
+    git_rebase
 
 The following structures are not represented as resources in the PHP
 API. Instead a scalar, array or object type is used:
@@ -2238,6 +2239,50 @@ git_describe_result_free(resource)
 git_describe_workdir(resource,array|null)
 
     Returns git_describe_result resource
+
+----------------------------------------
+[git_rebase]
+----------------------------------------
+
+git_rebase_abort(resource)
+
+    Returns true if successful, false if a rebase is not in progress
+
+git_rebase_commit(&string,resource,resource|null,resource,string|null,string|null)
+
+    Returns int (same as git2 function, still throws on error)
+
+git_rebase_finish(resource,resource|null)
+
+git_rebase_free(resource)
+
+git_rebase_init(resource,resource|null,resource|null,resource|null,array|null)
+
+    Returns git_rebase resource
+
+git_rebase_inmemory_index(resource)
+
+    Returns git_index resource
+
+git_rebase_next(resource)
+
+    Returns array
+
+git_rebase_open(resource,array|null)
+
+    Returns git_rebase resource
+
+git_rebase_operation_byindex(resource,int)
+
+    Returns array
+
+git_rebase_operation_current(resource)
+
+    Returns int
+
+git_rebase_operation_entrycount(resource)
+
+    Returns int
 
 --------------------------------------------------------------------------------
 Class API Reference
