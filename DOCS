@@ -2284,6 +2284,26 @@ git_rebase_operation_entrycount(resource)
 
     Returns int
 
+----------------------------------------
+[git_reset]
+----------------------------------------
+
+git_reset(resource,resource,int,array|null)
+
+git_reset_default(resource,resource|null,array)
+
+git_reset_from_annotated(resource,resource,int,array)
+
+----------------------------------------
+[git_revert]
+----------------------------------------
+
+git_revert(resource,resource,array|null)
+
+git_revert_commit(resource,resource,resource,int,array|null)
+
+    Returns git_index resource
+
 --------------------------------------------------------------------------------
 Class API Reference
 
