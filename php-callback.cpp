@@ -282,9 +282,9 @@ commit_parent_callback::callback(size_t idx,void* payload)
         return nullptr;
     }
 
-    // Otherwise a string is returning representing the ID of a commit. We
-    // convert this to binary and store the result in the git_oid attached
-    // to the callback.
+    // Otherwise a string is returned representing the ID of a commit. We
+    // convert this to binary and store the result in the git_oid attached to
+    // the callback.
     oid = &cb->oidbuf;
     convert_to_string(&retval);
     convert_oid_fromstr(oid,Z_STRVAL(retval),Z_STRLEN(retval));
@@ -894,6 +894,82 @@ int note_foreach_callback::callback(const git_oid* blob_id,
     params.assign<2>(cb->data);
 
     result = params.call(cb->func,&retval);
+    zval_dtor(&retval);
+
+    return result;
+}
+
+// stash_callback
+
+int stash_callback::callback(size_t index,
+    const char* message,
+    const git_oid* stash_id,
+    void* payload)
+{
+    php_callback_sync* cb = reinterpret_cast<php_callback_sync*>(payload);
+
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
+    if (Z_TYPE_P(cb->func) == IS_NULL) {
+        return GIT_OK;
+    }
+
+    int result;
+    zval retval;
+    zval_array<4> params ZTS_CTOR;
+    char buf[GIT_OID_HEXSZ + 1];
+
+    params.assign<0>(index,message);
+    git_oid_tostr(buf,sizeof(buf),stash_id);
+    ZVAL_STRING(params[2],buf,1);
+    params.assign<3>(cb->data);
+
+    result = params.call(cb->func,&retval);
+
+    if (result == GIT_OK) {
+        if (Z_TYPE(retval) != IS_NULL) {
+            convert_to_boolean(&retval);
+            result = Z_BVAL(retval) ? 0 : -1;
+        }
+    }
+
+    zval_dtor(&retval);
+
+    return result;
+}
+
+// stash_apply_progress_callback
+
+int stash_apply_progress_callback::callback(
+    git_stash_apply_progress_t progress,
+    void* payload)
+{
+    php_callback_sync* cb = reinterpret_cast<php_callback_sync*>(payload);
+
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
+    if (Z_TYPE_P(cb->func) == IS_NULL) {
+        return GIT_OK;
+    }
+
+    int result;
+    zval retval;
+    zval_array<2> params ZTS_CTOR;
+
+    params.assign<0>(static_cast<long>(progress),cb->data);
+    result = params.call(cb->func,&retval);
+
+    if (result == GIT_OK) {
+        if (Z_TYPE(retval) != IS_NULL) {
+            convert_to_boolean(&retval);
+            result = Z_BVAL(retval) ? 0 : -1;
+        }
+    }
+
     zval_dtor(&retval);
 
     return result;

@@ -45,6 +45,7 @@
 #include "rebase.h"
 #include "reset.h"
 #include "revert.h"
+#include "stash.h"
 
 // Exported extension functions defined in this unit.
 static PHP_FUNCTION(git_libgit2_version);
@@ -102,6 +103,7 @@ zend_function_entry php_git2::functions[] = {
     GIT_REBASE_FE
     GIT_RESET_FE
     GIT_REVERT_FE
+    GIT_STASH_FE
     PHP_FE_END
 };
 

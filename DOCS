@@ -2304,6 +2304,38 @@ git_revert_commit(resource,resource,resource,int,array|null)
 
     Returns git_index resource
 
+----------------------------------------
+[git_stash]
+----------------------------------------
+
+Stash apply options callback signature:
+
+    void callback(int $progress,mixed $payload)
+
+        The callback should return false to abort the stash.
+
+        The callback should throw on error.
+
+git_stash_apply(resource,int,array|null)
+
+git_stash_drop(resource,int)
+
+git_stash_foreach(resource,callable,mixed)
+
+    Callback signature:
+
+        void callback(int $index,string $message,string $stash_id,mixed $payload)
+
+            The callback should return false to stop iteration.
+
+            The callback should throw on error.
+
+git_stash_pop(resource,int,array|null)
+
+git_stash_save(resource,resource,string,int)
+
+    Returns int
+
 --------------------------------------------------------------------------------
 Class API Reference
 

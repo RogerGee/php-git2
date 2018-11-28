@@ -572,6 +572,24 @@ namespace php_git2
             void* payload);
     };
 
+    struct stash_callback
+    {
+        typedef git_stash_cb type;
+        static int callback(
+            size_t index,
+            const char* message,
+            const git_oid* stash_id,
+            void* payload);
+    };
+
+    struct stash_apply_progress_callback
+    {
+        typedef git_stash_apply_progress_cb type;
+        static int callback(
+            git_stash_apply_progress_t progress,
+            void* payload);
+    };
+
 } // namespace php_git2
 
 #endif
