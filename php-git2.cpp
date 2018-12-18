@@ -100,7 +100,8 @@ PHP_MINIT_FUNCTION(git2)
         git_refdb,
         git_patch,
         git_describe_result,
-        git_rebase >(module_number);
+        git_rebase,
+        git_remote >(module_number);
 
     // Register all classes provided by this extension.
     php_git2_register_classes(TSRMLS_C);
@@ -731,9 +732,63 @@ void php_git2::convert_rebase_operation(zval* zv,const git_rebase_operation* ope
     }
 }
 
+void php_git2::convert_cert(zval* zv,const git_cert* cert)
+{
+    array_init(zv);
+
+    add_assoc_long(zv,"cert_type",cert->cert_type);
+}
+
+void php_git2::convert_push_update(zval* zv,const git_push_update* up)
+{
+    zval* zoidsrc;
+    zval* zoiddst;
+
+    array_init(zv);
+
+    add_assoc_string(zv,"src_refname",up->src_refname,1);
+    add_assoc_string(zv,"dst_refname",up->dst_refname,1);
+
+    MAKE_STD_ZVAL(zoidsrc);
+    MAKE_STD_ZVAL(zoiddst);
+
+    convert_oid(zoidsrc,&up->src);
+    convert_oid(zoiddst,&up->dst);
+
+    add_assoc_zval(zv,"src",zoidsrc);
+    add_assoc_zval(zv,"dst",zoiddst);
+}
+
+void convert_push_head(zval* zv,const git_remote_head* head)
+{
+    zval* zoid;
+    zval* zloid;
+
+    array_init(zv);
+
+    add_assoc_bool(zv,"local",head->local);
+
+    MAKE_STD_ZVAL(zoid);
+    MAKE_STD_ZVAL(zloid);
+
+    convert_oid(zoid,&head->oid);
+    convert_oid(zloid,&head->loid);
+
+    add_assoc_zval(zv,"oid",zoid);
+    add_assoc_zval(zv,"loid",zloid);
+
+    add_assoc_string(zv,"name",head->name,1);
+    if (head->symref_target != nullptr) {
+        add_assoc_string(zv,"symref_target",head->symref_target,1);
+    }
+    else {
+        add_assoc_null(zv,"symref_target");
+    }
+}
+
 git_signature* php_git2::convert_signature(zval* zv)
 {
-    // NOTE: This functions returns nullptr if the PHP array was not formatted
+    // NOTE: This function returns nullptr if the PHP array was not formatted
     // correctly.
 
     const char* name;

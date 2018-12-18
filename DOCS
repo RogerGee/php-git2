@@ -60,6 +60,7 @@ purpose) are determined by the C++ compiler via 'typeid'.
     git_patch
     git_describe_result
     git_rebase
+    git_remote
 
 The following structures are not represented as resources in the PHP
 API. Instead a scalar, array or object type is used:
@@ -2335,6 +2336,95 @@ git_stash_pop(resource,int,array|null)
 git_stash_save(resource,resource,string,int)
 
     Returns int
+
+----------------------------------------
+[git_remote]
+----------------------------------------
+
+Callback signatures:
+
+    Transport message callback:
+
+        bool callback(string $str,mixed $payload)
+
+            If the function returns non-null and false, then the operation is
+            aborted.
+
+git_remote_add_fetch()
+
+git_remote_add_push()
+
+git_remote_autotag()
+
+git_remote_connect()
+
+git_remote_connected()
+
+git_remote_create()
+
+git_remote_create_anonymous()
+
+git_remote_create_with_fetchspec()
+
+git_remote_default_branch()
+
+git_remote_delete()
+
+git_remote_disconnect()
+
+git_remote_download()
+
+git_remote_dup()
+
+git_remote_fetch()
+
+git_remote_free()
+
+git_remote_get_fetch_refspecs()
+
+git_remote_get_push_refspecs()
+
+git_remote_get_refspec()
+
+git_remote_is_valid_name()
+
+git_remote_list()
+
+git_remote_lookup()
+
+git_remote_ls()
+
+git_remote_name()
+
+git_remote_owner()
+
+git_remote_prune()
+
+git_remote_prune_refs()
+
+git_remote_push()
+
+git_remote_pushurl()
+
+git_remote_refspec_count()
+
+git_remote_rename()
+
+git_remote_set_autotag()
+
+git_remote_set_pushurl()
+
+git_remote_set_url()
+
+git_remote_stats()
+
+git_remote_stop()
+
+git_remote_update_tips()
+
+git_remote_upload()
+
+git_remote_url()
 
 --------------------------------------------------------------------------------
 Class API Reference

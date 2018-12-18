@@ -558,7 +558,7 @@ Coverage
 . git_remote_get_fetch_refspecs
 . git_remote_get_push_refspecs
 . git_remote_get_refspec
-. git_remote_init_callbacks
+- git_remote_init_callbacks
 . git_remote_is_valid_name
 . git_remote_list
 . git_remote_lookup

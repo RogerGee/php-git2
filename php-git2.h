@@ -409,6 +409,9 @@ namespace php_git2
     void convert_reflog_entry(zval* zv,const git_reflog_entry* ent);
     void convert_reflog(zval* zv,const git_reflog* log);
     void convert_rebase_operation(zval* zv,const git_rebase_operation* oper);
+    void convert_cert(zval* zv,const git_cert* cert);
+    void convert_push_update(zval* zv,const git_push_update* up);
+    void convert_remote_head(zval* zv,const git_remote_head* head);
 
     // Helper functions for converting PHP values to git2 values.
 

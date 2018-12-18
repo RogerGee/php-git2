@@ -375,7 +375,11 @@ int packbuilder_progress_callback::callback(int stage,uint32_t current,uint32_t 
     zval_array<4> params ZTS_CTOR;
 
     // Convert arguments to PHP values.
-    params.assign<0>((long)stage,(long)current,(long)total,cb->data);
+    params.assign<0>(
+        static_cast<long>(stage),
+        static_cast<long>(current),
+        static_cast<long>(total),
+        cb->data);
 
     // Call the userspace callback.
     result = params.call(cb->func,&retval);
@@ -969,6 +973,315 @@ int stash_apply_progress_callback::callback(
             result = Z_BVAL(retval) ? 0 : -1;
         }
     }
+
+    zval_dtor(&retval);
+
+    return result;
+}
+
+// remote_transport_message_callback
+
+int remote_transport_message_callback::callback(const char* str,int len,void* payload)
+{
+    git_remote_callbacks_info* info = reinterpret_cast<git_remote_callbacks_info*>(payload);
+    php_callback_base* cb = &info->transportMessageCallback;
+
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
+    if (Z_TYPE_P(cb->func) == IS_NULL) {
+        return GIT_OK;
+    }
+
+    int result;
+    zval retval;
+    zval_array<2> params ZTS_CTOR;
+
+    params.assign<0>(static_cast<const void*>(str),static_cast<size_t>(len),cb->data);
+    result = params.call(cb->func,&retval);
+
+    if (result == GIT_OK) {
+        if (Z_TYPE(retval) != IS_NULL) {
+            convert_to_boolean(&retval);
+            result = Z_BVAL(retval) ? 0 : -1;
+        }
+    }
+
+    zval_dtor(&retval);
+
+    return result;
+}
+
+// remote_completion_callback
+
+int remote_completion_callback::callback(
+    git_remote_completion_type type,
+    void* payload)
+{
+    git_remote_callbacks_info* info = reinterpret_cast<git_remote_callbacks_info*>(payload);
+    php_callback_base* cb = &info->transportMessageCallback;
+
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
+    if (Z_TYPE_P(cb->func) == IS_NULL) {
+        return GIT_OK;
+    }
+
+    int result;
+    zval retval;
+    zval_array<2> params ZTS_CTOR;
+
+    params.assign<0>(static_cast<long>(type),cb->data);
+    result = params.call(cb->func,&retval);
+
+    zval_dtor(&retval);
+
+    return result;
+}
+
+// remote_cred_acquire_callback
+
+int remote_cred_acquire_callback::callback(git_cred** cred,
+    const char* url,
+    const char* username_from_url,
+    unsigned int allowed_types,
+    void* payload)
+{
+    git_remote_callbacks_info* info = reinterpret_cast<git_remote_callbacks_info*>(payload);
+    php_callback_base* cb = &info->credAcquireCallback;
+
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
+    if (Z_TYPE_P(cb->func) == IS_NULL) {
+        return GIT_OK;
+    }
+
+    int result;
+    zval retval;
+    zval_array<4> params ZTS_CTOR;
+
+    params.assign<0>(url,username_from_url,allowed_types,cb->data);
+    result = params.call(cb->func,&retval);
+
+    if (result == GIT_OK) {
+        // TODO Handle return value to return git_cred.
+        result = GIT_PASSTHROUGH;
+    }
+
+    zval_dtor(&retval);
+
+    return result;
+}
+
+// remote_transport_certificate_check_callback
+
+int remote_transport_certificate_check_callback::callback(git_cert* cert,
+    int valid,
+    const char* host,
+    void* payload)
+{
+    git_remote_callbacks_info* info = reinterpret_cast<git_remote_callbacks_info*>(payload);
+    php_callback_base* cb = &info->transportCertificateCheckCallback;
+
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
+    if (Z_TYPE_P(cb->func) == IS_NULL) {
+        return GIT_OK;
+    }
+
+    int result;
+    zval retval;
+    zval_array<4> params ZTS_CTOR;
+
+    convert_cert(params[0],cert);
+    params.assign<1>(static_cast<bool>(valid),host,cb->data);
+    result = params.call(cb->func,&retval);
+
+    if (result == GIT_OK) {
+        convert_to_boolean(&retval);
+        result = (Z_BVAL(retval)) ? 1 : 0;
+    }
+
+    zval_dtor(&retval);
+
+    return result;
+}
+
+// remote_transfer_progress_callback
+
+int remote_transfer_progress_callback::callback(
+    const git_transfer_progress* stats,
+    void* payload)
+{
+    git_remote_callbacks_info* info = reinterpret_cast<git_remote_callbacks_info*>(payload);
+    php_callback_base* cb = &info->transportCertificateCheckCallback;
+
+    // Implement this callback in terms of the already defined transfer_progress
+    // callback.
+
+    return transfer_progress_callback::callback(stats,cb);
+}
+
+// remote_update_tips_callback
+
+int remote_update_tips_callback::callback(
+    const char* refname,
+    const git_oid* a,
+    const git_oid* b,
+    void* payload)
+{
+    git_remote_callbacks_info* info = reinterpret_cast<git_remote_callbacks_info*>(payload);
+    php_callback_base* cb = &info->updateTipsCallback;
+
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
+    if (Z_TYPE_P(cb->func) == IS_NULL) {
+        return GIT_OK;
+    }
+
+    int result;
+    zval retval;
+    zval_array<4> params ZTS_CTOR;
+
+    params.assign<0>(refname);
+    convert_oid(params[1],a);
+    convert_oid(params[2],b);
+    params.assign<3>(cb->data);
+    result = params.call(cb->func,&retval);
+
+    zval_dtor(&retval);
+
+    return result;
+}
+
+// remote_packbuilder_progress_callback
+
+int remote_packbuilder_progress_callback::callback(
+    int stage,
+    uint32_t current,
+    uint32_t total,
+    void* payload)
+{
+    git_remote_callbacks_info* info = reinterpret_cast<git_remote_callbacks_info*>(payload);
+    php_callback_base* cb = &info->packbuilderProgressCallback;
+
+    // Implement this callback in terms of the already defined
+    // packbuilder_progress callback.
+
+    return packbuilder_progress_callback::callback(stage,current,total,cb);
+}
+
+// remote_push_transfer_progress_callback
+
+int remote_push_transfer_progress_callback::callback(
+    unsigned int current,
+    unsigned int total,
+    size_t bytes,
+    void* payload)
+{
+    git_remote_callbacks_info* info = reinterpret_cast<git_remote_callbacks_info*>(payload);
+    php_callback_base* cb = &info->pushTransferProgressCallback;
+
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
+    if (Z_TYPE_P(cb->func) == IS_NULL) {
+        return GIT_OK;
+    }
+
+    int result;
+    zval retval;
+    zval_array<4> params ZTS_CTOR;
+
+    params.assign<0>(
+        static_cast<long>(current),
+        static_cast<long>(total),
+        static_cast<long>(bytes),
+        cb->data);
+    result = params.call(cb->func,&retval);
+
+    zval_dtor(&retval);
+
+    return result;
+}
+
+// remote_push_update_reference_callback
+
+int remote_push_update_reference_callback::callback(
+    const char* refname,
+    const char* status,
+    void* payload)
+{
+    git_remote_callbacks_info* info = reinterpret_cast<git_remote_callbacks_info*>(payload);
+    php_callback_base* cb = &info->pushUpdateReferenceCallback;
+
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
+    if (Z_TYPE_P(cb->func) == IS_NULL) {
+        return GIT_OK;
+    }
+
+    int result;
+    zval retval;
+    zval_array<3> params ZTS_CTOR;
+
+    params.assign<0>(refname);
+    if (status != nullptr) {
+        params.assign<1>(status);
+    }
+    params.assign<2>(cb->data);
+    result = params.call(cb->func,&retval);
+
+    zval_dtor(&retval);
+
+    return result;
+}
+
+// remote_push_negotiation_callback
+
+int remote_push_negotiation_callback::callback(
+    const git_push_update** updates,
+    size_t len,
+    void *payload)
+{
+    git_remote_callbacks_info* info = reinterpret_cast<git_remote_callbacks_info*>(payload);
+    php_callback_base* cb = &info->pushNegotiationCallback;
+
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
+    if (Z_TYPE_P(cb->func) == IS_NULL) {
+        return GIT_OK;
+    }
+
+    int result;
+    zval retval;
+    zval_array<2> params ZTS_CTOR;
+
+    array_init(params[0]);
+    for (size_t i = 0;i < len;++i) {
+        zval* zv;
+        MAKE_STD_ZVAL(zv);
+        convert_push_update(zv,updates[i]);
+
+        add_next_index_zval(params[0],zv);
+    }
+
+    params.assign<1>(cb->data);
+    result = params.call(cb->func,&retval);
 
     zval_dtor(&retval);
 

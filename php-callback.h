@@ -590,6 +590,115 @@ namespace php_git2
             void* payload);
     };
 
+    struct git_remote_callbacks_info
+    {
+        php_callback_base transportMessageCallback;
+        php_callback_base completionCallback;
+        php_callback_base credAcquireCallback;
+        php_callback_base transportCertificateCheckCallback;
+        php_callback_base transferProgressCallback;
+        php_callback_base updateTipsCallback;
+        php_callback_base packbuilderProgressCallback;
+        php_callback_base pushTransferProgressCallback;
+        php_callback_base pushUpdateReferenceCallback;
+        php_callback_base pushNegotiationCallback;
+        //php_callback_base transportCallback;
+    };
+
+    struct remote_transport_message_callback
+    {
+        typedef git_transport_message_cb type;
+        static int callback(
+            const char* str,
+            int len,
+            void* payload);
+    };
+
+    struct remote_completion_callback
+    {
+        typedef int (*type)(git_remote_completion_type,void*);
+        static int callback(
+            git_remote_completion_type type,
+            void* payload);
+    };
+
+    struct remote_cred_acquire_callback
+    {
+        typedef git_cred_acquire_cb type;
+        static int callback(
+            git_cred** cred,
+            const char* url,
+            const char* username_from_url,
+            unsigned int allowed_types,
+            void* payload);
+    };
+
+    struct remote_transport_certificate_check_callback
+    {
+        typedef git_transport_certificate_check_cb type;
+        static int callback(
+            git_cert* cert,
+            int valid,
+            const char* host,
+            void* payload);
+    };
+
+    struct remote_transfer_progress_callback
+    {
+        typedef git_transfer_progress_cb type;
+        static int callback(
+            const git_transfer_progress* stats,
+            void* payload);
+    };
+
+    struct remote_update_tips_callback
+    {
+        typedef int (*type)(const char*,const git_oid*,const git_oid*,void*);
+        static int callback(
+            const char* refname,
+            const git_oid* a,
+            const git_oid* b,
+            void* payload);
+    };
+
+    struct remote_packbuilder_progress_callback
+    {
+        typedef git_packbuilder_progress type;
+        static int callback(
+            int stage,
+            uint32_t current,
+            uint32_t total,
+            void* payload);
+    };
+
+    struct remote_push_transfer_progress_callback
+    {
+        typedef git_push_transfer_progress type;
+        static int callback(
+            unsigned int current,
+            unsigned int total,
+            size_t bytes,
+            void* payload);
+    };
+
+    struct remote_push_update_reference_callback
+    {
+        typedef int (*type)(const char*,const char*,void*);
+        static int callback(
+            const char* refname,
+            const char* status,
+            void* payload);
+    };
+
+    struct remote_push_negotiation_callback
+    {
+        typedef git_push_negotiation type;
+        static int callback(
+            const git_push_update** updates,
+            size_t len,
+            void *payload);
+    };
+
 } // namespace php_git2
 
 #endif
