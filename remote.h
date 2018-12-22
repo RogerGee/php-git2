@@ -34,6 +34,7 @@ namespace php_git2
                     remote_transport_message_callback,
                     info.transportMessageCallback,
                     sideband_progress,
+                    payload,
                     opts);
 
                 GIT2_ARRAY_LOOKUP_CALLBACK(
@@ -41,6 +42,7 @@ namespace php_git2
                     remote_cred_acquire_callback,
                     info.credAcquireCallback,
                     credentials,
+                    payload,
                     opts);
 
                 GIT2_ARRAY_LOOKUP_CALLBACK(
@@ -48,6 +50,7 @@ namespace php_git2
                     remote_transport_certificate_check_callback,
                     info.transportCertificateCheckCallback,
                     certificate_check,
+                    payload,
                     opts);
 
                 GIT2_ARRAY_LOOKUP_CALLBACK(
@@ -55,6 +58,7 @@ namespace php_git2
                     remote_transfer_progress_callback,
                     info.transferProgressCallback,
                     transfer_progress,
+                    payload,
                     opts);
 
                 GIT2_ARRAY_LOOKUP_CALLBACK(
@@ -62,6 +66,7 @@ namespace php_git2
                     remote_update_tips_callback,
                     info.updateTipsCallback,
                     update_tips,
+                    payload,
                     opts);
 
                 GIT2_ARRAY_LOOKUP_CALLBACK(
@@ -69,6 +74,7 @@ namespace php_git2
                     remote_packbuilder_progress_callback,
                     info.packbuilderProgressCallback,
                     pack_progress,
+                    payload,
                     opts);
 
                 GIT2_ARRAY_LOOKUP_CALLBACK(
@@ -76,6 +82,7 @@ namespace php_git2
                     remote_push_transfer_progress_callback,
                     info.pushTransferProgressCallback,
                     push_transfer_progress,
+                    payload,
                     opts);
 
                 GIT2_ARRAY_LOOKUP_CALLBACK(
@@ -83,6 +90,7 @@ namespace php_git2
                     remote_push_update_reference_callback,
                     info.pushUpdateReferenceCallback,
                     push_update_reference,
+                    payload,
                     opts);
 
                 GIT2_ARRAY_LOOKUP_CALLBACK(
@@ -90,6 +98,7 @@ namespace php_git2
                     remote_push_negotiation_callback,
                     info.pushNegotiationCallback,
                     push_negotiation,
+                    payload,
                     opts);
 
                 // TODO Handle transport callback.
@@ -105,16 +114,152 @@ namespace php_git2
         git_remote_callbacks_info info;
     };
 
-    class php_git_proxy_options
+    class php_git_proxy_options:
+        public php_value_base
     {
+    public:
+        php_git_proxy_options()
+        {
+            git_proxy_init_options(&opts,GIT_PROXY_OPTIONS_VERSION);
+        }
+
+        const git_proxy_options* byval_git2(unsigned argno = argno_max)
+        {
+            if (Z_TYPE_P(value) == IS_ARRAY) {
+                array_wrapper arr(value);
+
+                GIT2_ARRAY_LOOKUP_LONG(arr,version,opts);
+                GIT2_ARRAY_LOOKUP_LONG(arr,type,opts);
+                GIT2_ARRAY_LOOKUP_STRING(arr,url,opts);
+
+                GIT2_ARRAY_LOOKUP_CALLBACK(
+                    arr,
+                    proxy_cred_acquire_callback,
+                    info.credAcquireCallback,
+                    credentials,
+                    payload,
+                    opts);
+
+                GIT2_ARRAY_LOOKUP_CALLBACK(
+                    arr,
+                    proxy_transport_certificate_check_callback,
+                    info.transportCertificateCheckCallback,
+                    certificate_check,
+                    payload,
+                    opts);
+
+                opts.payload = &info;
+            }
+            else if (Z_TYPE_P(value) != IS_NULL) {
+                error("array",argno);
+            }
+
+            return &opts;
+        }
+
+    private:
+        git_proxy_options opts;
+        git_proxy_callbacks_info info;
     };
 
-    class php_git_fetch_options
+    class php_git_fetch_options:
+        public php_value_base
     {
+    public:
+        php_git_fetch_options()
+        {
+            git_fetch_init_options(&opts,GIT_FETCH_OPTIONS_VERSION);
+        }
+
+        const git_fetch_options* byval_git2(unsigned argno = argno_max)
+        {
+            if (Z_TYPE_P(value) == IS_ARRAY) {
+                array_wrapper arr(value);
+                php_git_remote_callbacks callbacks;
+                php_git_proxy_options proxy_opts;
+
+                GIT2_ARRAY_LOOKUP_LONG(arr,version,opts);
+                GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(
+                    arr,
+                    callbacks,
+                    callbacks,
+                    opts);
+                GIT2_ARRAY_LOOKUP_LONG(arr,prune,opts);
+                GIT2_ARRAY_LOOKUP_BOOL(arr,update_fetchhead,opts);
+                GIT2_ARRAY_LOOKUP_LONG(arr,download_tags,opts);
+                GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(
+                    arr,
+                    proxy_opts,
+                    proxy_opts,
+                    opts);
+
+                // NOTE: custom_headers is stored on the object so that it
+                // cleans up the dynamic memory when the object is destroyed.
+                GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(
+                    arr,
+                    custom_headers,
+                    custom_headers,
+                    opts);
+            }
+            else if (Z_TYPE_P(value) != IS_NULL) {
+                error("array",argno);
+            }
+
+            return &opts;
+        }
+
+    private:
+        git_fetch_options opts;
+        php_strarray_array custom_headers;
     };
 
-    class php_git_push_options
+    class php_git_push_options:
+        public php_value_base
     {
+    public:
+        php_git_push_options()
+        {
+            git_push_init_options(&opts,GIT_PUSH_OPTIONS_VERSION);
+        }
+
+        const git_push_options* byval_git2(unsigned argno = argno_max)
+        {
+            if (Z_TYPE_P(value) == IS_ARRAY) {
+                array_wrapper arr(value);
+                php_git_remote_callbacks callbacks;
+                php_git_proxy_options proxy_opts;
+
+                GIT2_ARRAY_LOOKUP_LONG(arr,version,opts);
+                GIT2_ARRAY_LOOKUP_LONG(arr,pb_parallelism,opts);
+                GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(
+                    arr,
+                    callbacks,
+                    callbacks,
+                    opts);
+                GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(
+                    arr,
+                    proxy_opts,
+                    proxy_opts,
+                    opts);
+
+                // NOTE: custom_headers is stored on the object so that it
+                // cleans up the dynamic memory when the object is destroyed.
+                GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(
+                    arr,
+                    custom_headers,
+                    custom_headers,
+                    opts);
+            }
+            else if (Z_TYPE_P(value) != IS_NULL) {
+                error("array",argno);
+            }
+
+            return &opts;
+        }
+
+    private:
+        git_push_options opts;
+        php_strarray_array custom_headers;
     };
 
     class php_git_remote_head
@@ -139,7 +284,7 @@ namespace php_git2
             for (size_t i = 0;i < conn;++i) {
                 zval* zv;
                 MAKE_STD_ZVAL(zv);
-                convert_push_head(zv,arr[i]);
+                convert_remote_head(zv,arr[i]);
 
                 add_next_index_zval(return_value,zv);
             }

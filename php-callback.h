@@ -479,6 +479,9 @@ namespace php_git2
 
     struct git_diff_callback_info
     {
+        // TODO Handle lifetime of callbacks. The php_callback_base currently
+        // leaves the callback+payload zvals allocated.
+
         php_callback_base fileCallback;
         php_callback_base binaryCallback;
         php_callback_base hunkCallback;
@@ -590,8 +593,32 @@ namespace php_git2
             void* payload);
     };
 
+    struct cred_acquire_callback
+    {
+        typedef git_cred_acquire_cb type;
+        static int callback(
+            git_cred** cred,
+            const char* url,
+            const char* username_from_url,
+            unsigned int allowed_types,
+            void* payload);
+    };
+
+    struct transport_certificate_check_callback
+    {
+        typedef git_transport_certificate_check_cb type;
+        static int callback(
+            git_cert* cert,
+            int valid,
+            const char* host,
+            void* payload);
+    };
+
     struct git_remote_callbacks_info
     {
+        // TODO Handle lifetime of callbacks. The php_callback_base currently
+        // leaves the callback+payload zvals allocated.
+
         php_callback_base transportMessageCallback;
         php_callback_base completionCallback;
         php_callback_base credAcquireCallback;
@@ -697,6 +724,33 @@ namespace php_git2
             const git_push_update** updates,
             size_t len,
             void *payload);
+    };
+
+    struct git_proxy_callbacks_info
+    {
+        php_callback_sync credAcquireCallback;
+        php_callback_sync transportCertificateCheckCallback;
+    };
+
+    struct proxy_cred_acquire_callback
+    {
+        typedef git_cred_acquire_cb type;
+        static int callback(
+            git_cred** cred,
+            const char* url,
+            const char* username_from_url,
+            unsigned int allowed_types,
+            void* payload);
+    };
+
+    struct proxy_transport_certificate_check_callback
+    {
+        typedef git_transport_certificate_check_cb type;
+        static int callback(
+            git_cert* cert,
+            int valid,
+            const char* host,
+            void* payload);
     };
 
 } // namespace php_git2

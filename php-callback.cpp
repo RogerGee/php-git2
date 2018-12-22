@@ -979,6 +979,76 @@ int stash_apply_progress_callback::callback(
     return result;
 }
 
+// cred_acquire_callback
+
+int cred_acquire_callback::callback(git_cred** cred,
+    const char* url,
+    const char* username_from_url,
+    unsigned int allowed_types,
+    void* payload)
+{
+    php_callback_base* cb = reinterpret_cast<php_callback_base*>(payload);
+
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
+    if (Z_TYPE_P(cb->func) == IS_NULL) {
+        return GIT_OK;
+    }
+
+    int result;
+    zval retval;
+    zval_array<4> params ZTS_CTOR;
+
+    params.assign<0>(url,username_from_url,allowed_types,cb->data);
+    result = params.call(cb->func,&retval);
+
+    if (result == GIT_OK) {
+        // TODO Handle return value to return git_cred.
+        result = GIT_PASSTHROUGH;
+    }
+
+    zval_dtor(&retval);
+
+    return result;
+}
+
+// transport_certificate_check_callback
+
+int transport_certificate_check_callback::callback(git_cert* cert,
+    int valid,
+    const char* host,
+    void* payload)
+{
+    php_callback_base* cb = reinterpret_cast<php_callback_base*>(payload);
+
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
+    if (Z_TYPE_P(cb->func) == IS_NULL) {
+        return GIT_OK;
+    }
+
+    int result;
+    zval retval;
+    zval_array<4> params ZTS_CTOR;
+
+    convert_cert(params[0],cert);
+    params.assign<1>(static_cast<bool>(valid),host,cb->data);
+    result = params.call(cb->func,&retval);
+
+    if (result == GIT_OK) {
+        convert_to_boolean(&retval);
+        result = (Z_BVAL(retval)) ? 1 : 0;
+    }
+
+    zval_dtor(&retval);
+
+    return result;
+}
+
 // remote_transport_message_callback
 
 int remote_transport_message_callback::callback(const char* str,int len,void* payload)
@@ -1053,29 +1123,9 @@ int remote_cred_acquire_callback::callback(git_cred** cred,
     git_remote_callbacks_info* info = reinterpret_cast<git_remote_callbacks_info*>(payload);
     php_callback_base* cb = &info->credAcquireCallback;
 
-#ifdef ZTS
-    TSRMLS_D = ZTS_MEMBER_PC(cb);
-#endif
+    // Implement callback in terms of existing implementation.
 
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK;
-    }
-
-    int result;
-    zval retval;
-    zval_array<4> params ZTS_CTOR;
-
-    params.assign<0>(url,username_from_url,allowed_types,cb->data);
-    result = params.call(cb->func,&retval);
-
-    if (result == GIT_OK) {
-        // TODO Handle return value to return git_cred.
-        result = GIT_PASSTHROUGH;
-    }
-
-    zval_dtor(&retval);
-
-    return result;
+    return cred_acquire_callback::callback(cred,url,username_from_url,allowed_types,cb);
 }
 
 // remote_transport_certificate_check_callback
@@ -1088,30 +1138,9 @@ int remote_transport_certificate_check_callback::callback(git_cert* cert,
     git_remote_callbacks_info* info = reinterpret_cast<git_remote_callbacks_info*>(payload);
     php_callback_base* cb = &info->transportCertificateCheckCallback;
 
-#ifdef ZTS
-    TSRMLS_D = ZTS_MEMBER_PC(cb);
-#endif
+    // Implement callback in terms of existing implementation.
 
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK;
-    }
-
-    int result;
-    zval retval;
-    zval_array<4> params ZTS_CTOR;
-
-    convert_cert(params[0],cert);
-    params.assign<1>(static_cast<bool>(valid),host,cb->data);
-    result = params.call(cb->func,&retval);
-
-    if (result == GIT_OK) {
-        convert_to_boolean(&retval);
-        result = (Z_BVAL(retval)) ? 1 : 0;
-    }
-
-    zval_dtor(&retval);
-
-    return result;
+    return transport_certificate_check_callback::callback(cert,valid,host,cb);
 }
 
 // remote_transfer_progress_callback
@@ -1286,6 +1315,37 @@ int remote_push_negotiation_callback::callback(
     zval_dtor(&retval);
 
     return result;
+}
+
+// proxy_cred_acquire_callback
+
+int proxy_cred_acquire_callback::callback(git_cred** cred,
+    const char* url,
+    const char* username_from_url,
+    unsigned int allowed_types,
+    void* payload)
+{
+    git_proxy_callbacks_info* info = reinterpret_cast<git_proxy_callbacks_info*>(payload);
+    php_callback_base* cb = &info->credAcquireCallback;
+
+    // Implement callback in terms of existing implementation.
+
+    return cred_acquire_callback::callback(cred,url,username_from_url,allowed_types,cb);
+}
+
+// proxy_transport_certificate_check_callback
+
+int proxy_transport_certificate_check_callback::callback(git_cert* cert,
+    int valid,
+    const char* host,
+    void* payload)
+{
+    git_proxy_callbacks_info* info = reinterpret_cast<git_proxy_callbacks_info*>(payload);
+    php_callback_base* cb = &info->transportCertificateCheckCallback;
+
+    // Implement callback in terms of existing implementation.
+
+    return transport_certificate_check_callback::callback(cert,valid,host,cb);
 }
 
 /*
