@@ -47,6 +47,7 @@
 #include "revert.h"
 #include "stash.h"
 #include "remote.h"
+#include "refspec.h"
 
 // Exported extension functions defined in this unit.
 static PHP_FUNCTION(git_libgit2_version);
@@ -106,6 +107,7 @@ zend_function_entry php_git2::functions[] = {
     GIT_REVERT_FE
     GIT_STASH_FE
     GIT_REMOTE_FE
+    GIT_REFSPEC_FE
     PHP_FE_END
 };
 

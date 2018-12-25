@@ -348,11 +348,12 @@ namespace php_git2
         {
             RETVAL_LONG(static_cast<long>(n));
         }
-    protected:
+
         IntType get_value() const
         {
             return n;
         }
+
     private:
         IntType n;
     };
@@ -1159,6 +1160,23 @@ namespace php_git2
         git_strarray arr;
     };
 
+    class php_strarray_array_nullable:
+        public php_strarray_array
+    {
+    public:
+        ZTS_CONSTRUCTOR(php_strarray_array_nullable);
+
+        git_strarray* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            if (Z_TYPE_P(value) == IS_NULL) {
+                return nullptr;
+            }
+
+            return php_strarray_array::byval_git2(argno);
+        }
+
+    };
+
     class php_strarray_byval_array:
         public php_strarray_array
     {
@@ -1207,6 +1225,7 @@ namespace php_git2
     using php_git_describe_result = git2_resource<git_describe_result>;
     using php_git_rebase = git2_resource<git_rebase>;
     using php_git_remote = git2_resource<git_remote>;
+    using php_git_refspec = git2_resource<const git_refspec>;
 
     // Enumerate nofree alternatives of certain resource types.
 

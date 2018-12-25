@@ -61,6 +61,7 @@ purpose) are determined by the C++ compiler via 'typeid'.
     git_describe_result
     git_rebase
     git_remote
+    git_refspec
 
 The following structures are not represented as resources in the PHP
 API. Instead a scalar, array or object type is used:
@@ -613,7 +614,9 @@ git_indexer_new(string,long,resource,callable,mixed)
 
     ** The 3rd parameter may be null. **
 
-    Callback signature: callback(array $stats,mixed $payload)
+    Callback signature:
+
+        void callback(array $stats,mixed $payload)
 
     Return git_indexer resource
 
@@ -2350,81 +2353,207 @@ Callback signatures:
             If the function returns non-null and false, then the operation is
             aborted.
 
-git_remote_add_fetch()
+    Completion callback:
 
-git_remote_add_push()
+        void callback(int $type,mixed $payload)
 
-git_remote_autotag()
+    Credential acquire callback:
 
-git_remote_connect()
+        resource callback(string $url,string $username_from_url,
+                    int $allowed_types,mixed $payload)
 
-git_remote_connected()
+            Returns git_cred resource
 
-git_remote_create()
+    Transport certificate check callback:
 
-git_remote_create_anonymous()
+        bool callback(array $cert,bool $valid,string $host,mixed $payload)
 
-git_remote_create_with_fetchspec()
+    Transfer progress callback:
 
-git_remote_default_branch()
+        Same as for git_indexer_new:
 
-git_remote_delete()
+                void callback(array $stats,mixed $payload)
 
-git_remote_disconnect()
+    Update tips callback:
 
-git_remote_download()
+        void callback(string $refname,string $a,string $b,mixed $payload)
 
-git_remote_dup()
+    Packbuilder progress callback:
 
-git_remote_fetch()
+        See git_packbuilder notes
 
-git_remote_free()
+        void callback(int $stage,int $current,int $total,mixed $payload)
 
-git_remote_get_fetch_refspecs()
+    Push transfer progress callback:
 
-git_remote_get_push_refspecs()
+        void callback(int $current,int $total,int $bytes,mixed $payload)
 
-git_remote_get_refspec()
+    Push update reference callback:
 
-git_remote_is_valid_name()
+        void callback(string $refname,string $status,mixed $payload)
 
-git_remote_list()
+    Push negotiation callback:
 
-git_remote_lookup()
+        void callback(array $updates,mixed $payload)
 
-git_remote_ls()
+    NOTE: the transport callback is not implemented at this time since we do not
+    yet implement custom transports.
 
-git_remote_name()
+git_remote_add_fetch(resource,string,string)
 
-git_remote_owner()
+git_remote_add_push(resource,string,string)
 
-git_remote_prune()
+git_remote_autotag(resource)
 
-git_remote_prune_refs()
+    Returns int
 
-git_remote_push()
+git_remote_connect(resource,int,array|null,array|null,array|null)
 
-git_remote_pushurl()
+git_remote_connected(resource)
 
-git_remote_refspec_count()
+    Returns bool
 
-git_remote_rename()
+git_remote_create(resource,string,string)
 
-git_remote_set_autotag()
+    Returns git_remote resource
 
-git_remote_set_pushurl()
+git_remote_create_anonymous(resource,string)
 
-git_remote_set_url()
+    Returns git_remote resource
 
-git_remote_stats()
+git_remote_create_with_fetchspec(resource,string,string,string)
 
-git_remote_stop()
+    Returns git_remote resource
 
-git_remote_update_tips()
+git_remote_default_branch(resource)
 
-git_remote_upload()
+    Returns string
 
-git_remote_url()
+git_remote_delete(resource,string)
+
+git_remote_disconnect(resource)
+
+git_remote_download(resource,null|array,array|null)
+
+git_remote_dup(resource)
+
+    Returns git_remote resource
+
+git_remote_fetch(resource,array|null,array|null,string|null)
+
+git_remote_free(resource)
+
+git_remote_get_fetch_refspecs(resource)
+
+    Returns array
+
+git_remote_get_push_refspecs(resource)
+
+    Returns array
+
+git_remote_get_refspec(resource)
+
+    Returns git_refspec resource
+
+git_remote_is_valid_name(string)
+
+    Returns bool
+
+git_remote_list(resource)
+
+    Returns array
+
+git_remote_lookup(resource,string)
+
+    Returns git_remote resource
+
+git_remote_ls(resource)
+
+    Returns array
+
+git_remote_name(resource)
+
+    Returns string
+
+git_remote_owner(resource)
+
+    Returns git_repository resource
+
+git_remote_prune(resource,array|null)
+
+git_remote_prune_refs(resource)
+
+git_remote_push(resource,array|null,array|null)
+
+git_remote_pushurl(resource)
+
+git_remote_refspec_count(resource)
+
+    Returns int
+
+git_remote_rename(resource,string,string)
+
+    Returns array
+
+git_remote_set_autotag(resource,string,int)
+
+git_remote_set_pushurl(resource,string,string)
+
+git_remote_set_url(resource,string,string)
+
+git_remote_stats(resource)
+
+    Returns array
+
+git_remote_stop(resource)
+
+git_remote_update_tips(resource,array|null,bool,int,string|null)
+
+git_remote_upload(resource,array|null,array|null)
+
+git_remote_url(resource)
+
+    Returns string
+
+----------------------------------------
+[git_refspec]
+----------------------------------------
+
+git_refspec_direction(resource)
+
+    Returns int
+
+git_refspec_dst(resource)
+
+    Returns string
+
+git_refspec_dst_matches(resource,string)
+
+    Returns bool
+
+git_refspec_force(resource)
+
+    Returns bool
+
+git_refspec_rtransform(resource,string)
+
+    Returns string
+
+git_refspec_src(resource)
+
+    Returns string
+
+git_refspec_src_matches(resource,string)
+
+    Returns bool
+
+git_refspec_string(resource)
+
+    Returns string
+
+git_refspec_transform(resource,string)
+
+    Returns string
 
 --------------------------------------------------------------------------------
 Class API Reference
