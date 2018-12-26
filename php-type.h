@@ -1226,6 +1226,7 @@ namespace php_git2
     using php_git_rebase = git2_resource<git_rebase>;
     using php_git_remote = git2_resource<git_remote>;
     using php_git_refspec = git2_resource<const git_refspec>;
+    using php_git_cred = git2_resource<git_cred>;
 
     // Enumerate nofree alternatives of certain resource types.
 

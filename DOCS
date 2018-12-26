@@ -62,6 +62,7 @@ purpose) are determined by the C++ compiler via 'typeid'.
     git_rebase
     git_remote
     git_refspec
+    git_cred
 
 The following structures are not represented as resources in the PHP
 API. Instead a scalar, array or object type is used:
@@ -2554,6 +2555,48 @@ git_refspec_string(resource)
 git_refspec_transform(resource,string)
 
     Returns string
+
+----------------------------------------
+[git_cred]
+----------------------------------------
+
+git_cred_default_new()
+
+    Returns git_cred resource
+
+git_cred_free(resource)
+
+git_cred_has_username(resource)
+
+    Returns bool
+
+git_cred_ssh_custom_new()
+
+    ** NOT IMPLEMENTED **
+
+git_cred_ssh_interactive_new()
+
+    ** NOT IMPLEMENTED **
+
+git_cred_ssh_key_from_agent(string)
+
+    Returns git_cred resource
+
+git_cred_ssh_key_memory_new(string,string,string,string)
+
+    Returns git_cred resource
+
+git_cred_ssh_key_new(string,string,string,string)
+
+    Returns git_cred resource
+
+git_cred_username_new(string)
+
+    Returns git_cred resource
+
+git_cred_userpass_plaintext_new(string,string)
+
+    Returns git_cred resource
 
 --------------------------------------------------------------------------------
 Class API Reference
