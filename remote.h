@@ -105,8 +105,11 @@ namespace php_git2
 
                 opts.payload = &info;
             }
+            else if (Z_TYPE_P(value) != IS_NULL) {
+                error("array",argno);
+            }
 
-            return nullptr;
+            return &opts;
         }
 
     private:

@@ -26,3 +26,4 @@ require_once 'test_ignore.php';
 require_once 'test_attr.php';
 require_once 'test_status.php';
 require_once 'test_refdb.php';
+require_once 'test_remote.php';
