@@ -1005,8 +1005,38 @@ int cred_acquire_callback::callback(git_cred** cred,
     result = params.call(cb->func,&retval);
 
     if (result == GIT_OK) {
-        // TODO Handle return value to return git_cred.
-        result = GIT_PASSTHROUGH;
+        if (Z_TYPE(retval) == IS_RESOURCE) {
+            php_git_cred* resource;
+            resource = (php_git_cred*)zend_fetch_resource(
+                NULL TSRMLS_CC,
+                Z_RESVAL(retval),
+                NULL,
+                NULL,
+                1,
+                php_git_cred::resource_le());
+
+            if (resource == nullptr) {
+                // NOTE: PHP prints warning if resource type didn't match.
+                giterr_set_str(GITERR_INVALID,"cred_acquire_callback: must return git_cred resource");
+                result = GIT_ERROR;
+            }
+            else if (!resource->is_owned()) {
+                // Check the ownership status for sanity's sake. All git_cred
+                // resources should be owned.
+                giterr_set_str(GITERR_INVALID,"cred_acquire_callback: cannot return non-owner resource");
+                result = GIT_ERROR;
+            }
+            else {
+                // Revoke ownership since it is now up to the library to manage
+                // the credential; then assign the credential to the output
+                // parameter.
+                resource->revoke_ownership();
+                *cred = resource->get_handle();
+            }
+        }
+        else {
+            result = GIT_PASSTHROUGH;
+        }
     }
 
     zval_dtor(&retval);

@@ -2363,7 +2363,7 @@ Callback signatures:
         resource callback(string $url,string $username_from_url,
                     int $allowed_types,mixed $payload)
 
-            Returns git_cred resource
+            Returns git_cred resource or NULL to passthrough
 
     Transport certificate check callback:
 
