@@ -56,8 +56,8 @@ int php_git2::php_git2_invoke_callback(zval* func,zval* ret,zend_uint paramCount
 
 // php_callback_base
 
-php_callback_base::php_callback_base():
-    func(nullptr), data(nullptr)
+php_callback_base::php_callback_base(TSRMLS_D):
+    php_zts_base(TSRMLS_C), func(nullptr), data(nullptr)
 {
 }
 
@@ -1376,6 +1376,82 @@ int proxy_transport_certificate_check_callback::callback(git_cert* cert,
     // Implement callback in terms of existing implementation.
 
     return transport_certificate_check_callback::callback(cert,valid,host,cb);
+}
+
+// remote_create_callback
+
+int remote_create_callback::callback(
+    git_remote** out,
+    git_repository* repo,
+    const char* name,
+    const char* url,
+    void* payload)
+{
+    php_callback_base* cb = reinterpret_cast<php_callback_base*>(payload);
+
+    if (Z_TYPE_P(cb->func) == IS_NULL) {
+        return GIT_OK;
+    }
+
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
+    int result;
+    zval retval;
+    zval_array<4> params ZTS_CTOR;
+    php_resource_ref<php_git_repository_nofree> repoResource;
+
+    repoResource.set_object(repo);
+    repoResource.ret(params[0]);
+    params.assign<1>(name,url,cb->data);
+    result = params.call(cb->func,&retval);
+
+    if (result == GIT_OK) {
+        if (Z_TYPE(retval) == IS_RESOURCE) {
+            php_git_remote* resource;
+            resource = (php_git_remote*)zend_fetch_resource(
+                NULL TSRMLS_CC,
+                Z_RESVAL(retval),
+                NULL,
+                NULL,
+                1,
+                php_git_remote::resource_le());
+
+            if (resource == nullptr) {
+                // NOTE: PHP prints warning if resource type didn't match.
+                giterr_set_str(GITERR_INVALID,"remote_create_callback: must return git_remote resource");
+                result = GIT_ERROR;
+            }
+            else if (!resource->is_owned()) {
+                // Check the ownership status for sanity's sake. All git_remote
+                // resources created by the callback should be owned.
+                giterr_set_str(GITERR_INVALID,"remote_create_callback: cannot return non-owner resource");
+                result = GIT_ERROR;
+            }
+            else {
+                // Revoke ownership since it is now up to the library to manage
+                // the remoteential; then assign the remoteential to the output
+                // parameter.
+                resource->revoke_ownership();
+                *out = resource->get_handle();
+            }
+        }
+        else {
+            convert_to_long(&retval);
+            if (Z_LVAL(retval) == 0) {
+                giterr_set_str(GITERR_INVALID,"remote_create_callback: invalid return value");
+                result = GIT_ERROR;
+            }
+            else {
+                result = Z_LVAL(retval);
+            }
+        }
+    }
+
+    zval_dtor(&retval);
+
+    return result;
 }
 
 /*

@@ -8,6 +8,7 @@
 #define PHPGIT2_CLONE_H
 
 #include "checkout.h"
+#include "remote.h"
 
 namespace php_git2
 {
@@ -25,21 +26,30 @@ namespace php_git2
         {
             if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
                 array_wrapper arr(value);
+                php_git_checkout_options checkoutOpts;
+                php_git_fetch_options fetchOpts;
 
                 GIT2_ARRAY_LOOKUP_LONG(arr,bare,opts);
                 GIT2_ARRAY_LOOKUP_LONG(arr,local,opts);
                 GIT2_ARRAY_LOOKUP_STRING_NULLABLE(arr,checkout_branch,opts);
                 GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(arr,checkoutOpts,checkout_opts,opts);
+                GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(arr,fetchOpts,fetch_opts,opts);
+
                 GIT2_ARRAY_LOOKUP_CALLBACK(
                     arr,
                     repository_create_callback,
-                    callback,
+                    repoCreateCallback,
                     repository_cb,
                     repository_cb_payload,
                     opts);
 
-                // TODO Handle fetch_opts property.
-                // TODO Handle remote_cb property.
+                GIT2_ARRAY_LOOKUP_CALLBACK(
+                    arr,
+                    remote_create_callback,
+                    remoteCreateCallback,
+                    remote_cb,
+                    remote_cb_payload,
+                    opts);
 
                 return &opts;
             }
@@ -49,8 +59,8 @@ namespace php_git2
 
     private:
         git_clone_options opts;
-        php_git_checkout_options checkoutOpts;
-        php_callback_sync callback;
+        php_callback_sync repoCreateCallback;
+        php_callback_sync remoteCreateCallback;
     };
 
 } // namespace php_git2

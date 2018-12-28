@@ -128,9 +128,10 @@ namespace php_git2
 
     // Provide a base class for callbacks.
 
-    struct php_callback_base
+    struct php_callback_base:
+        public php_zts_base
     {
-        php_callback_base();
+        php_callback_base(TSRMLS_D);
 
         zval* func;
         zval* data;
@@ -164,12 +165,11 @@ namespace php_git2
      */
 
     class php_callback_sync:
-        public php_zts_base,
         public php_callback_base
     {
     public:
         php_callback_sync(TSRMLS_D):
-            php_zts_base(TSRMLS_C), p(std::numeric_limits<unsigned>::max())
+            php_callback_base(TSRMLS_C), p(std::numeric_limits<unsigned>::max())
         {
         }
 
@@ -750,6 +750,17 @@ namespace php_git2
             git_cert* cert,
             int valid,
             const char* host,
+            void* payload);
+    };
+
+    struct remote_create_callback
+    {
+        typedef git_remote_create_cb type;
+        static int callback(
+            git_remote** out,
+            git_repository* repo,
+            const char* name,
+            const char* url,
             void* payload);
     };
 

@@ -26,7 +26,6 @@
 #include "annotated.h"
 #include "branch.h"
 #include "config-git2.h"
-#include "clone.h"
 #include "checkout.h"
 #include "tag.h"
 #include "diff.h"
@@ -49,6 +48,7 @@
 #include "remote.h"
 #include "refspec.h"
 #include "cred.h"
+#include "clone.h"
 
 // Exported extension functions defined in this unit.
 static PHP_FUNCTION(git_libgit2_version);
@@ -87,7 +87,6 @@ zend_function_entry php_git2::functions[] = {
     GIT_ANNOTATED_FE
     GIT_BRANCH_FE
     GIT_CONFIG_FE
-    GIT_CLONE_FE
     GIT_CHECKOUT_FE
     GIT_TAG_FE
     GIT_DIFF_FE
@@ -110,6 +109,7 @@ zend_function_entry php_git2::functions[] = {
     GIT_REMOTE_FE
     GIT_REFSPEC_FE
     GIT_CRED_FE
+    GIT_CLONE_FE
     PHP_FE_END
 };
 

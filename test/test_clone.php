@@ -8,9 +8,11 @@
 namespace Git2Test\Cloning;
 
 use PHPSQLiteODB;
+use PHPSQLiteStore;
 
 require_once 'test_base.php';
 require_once 'PHPSQLiteODB.php';
+require_once 'PHPSQLiteStore.php';
 
 function do_clone($path,array $opts) {
     testbed_remove_recursive($path);
@@ -18,7 +20,28 @@ function do_clone($path,array $opts) {
 }
 
 function test_clone() {
-    $opts = array(
+    $opts1 = array(
+        'base' => true,
+    );
+
+    $opts2 = array(
+        'base' => false,
+        'remote_cb' => function($repo,$name,$url,$payload) {
+            testbed_unit('remote_create_cb', [
+                'repo' => $repo,
+                'name' => $name,
+                'url' => $url,
+                'payload' => $payload,
+            ]);
+
+            $name = 'barg';
+
+            return git_remote_create($repo,$name,$url);
+        },
+        'remote_cb_payload' => 'REMOTE CREATE!',
+    );
+
+    $opts3 = array(
         'bare' => true,
         'repository_cb' => function($path,$bare,$payload) {
             testbed_unit('repository_create_cb', [
@@ -30,7 +53,9 @@ function test_clone() {
             $repo = git_repository_init($path,$bare);
             $odb = git_odb_new();
 
-            $backend = new PHPSQLiteODB("$path-odb.sqlite3");
+            $store = new PHPSQLiteStore("$path/odb.sqlite3",true);
+
+            $backend = new PHPSQLiteODB($store);
             git_odb_add_backend($odb,$backend,1);
             git_repository_set_odb($repo,$odb);
 
@@ -46,7 +71,8 @@ function test_clone() {
     //$repoA = git_clone("https://github.com/RogerGee/minecontrol.git","$basePath/minecontrol",$opts);
     //$repoB = git_clone("https://github.com/RogerGee/compile.git","$basePath/compile",$opts);
 
-    do_clone("$basePath/php-git2",$opts);
+    do_clone("$basePath/php-git2-1",$opts1);
+    do_clone("$basePath/php-git2-2",$opts2);
 }
 
 testbed_test('Cloning\test_clone','\Git2Test\Cloning\test_clone');

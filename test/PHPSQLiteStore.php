@@ -6,14 +6,31 @@ class PHPSQLiteStore {
     private $conn;
     private $createTables;
 
-    public function __construct($dbname) {
-        $this->createTables = !file_exists($dbname);
-        $this->conn = new SQLite3($dbname);
+    public function __construct($dbname,$globalPath = false) {
+        // Open SQLite database file.
 
+        if (!$globalPath) {
+            $sqlite3Path = testbed_path('SQLiteODBs');
+            $path = implode(DIRECTORY_SEPARATOR,$sqlite3Path,$dbname);
+        }
+        else {
+            $path = $dbname;
+        }
+
+        $this->conn = new SQLite3($path);
+
+        // Figure out if the database has any tables.
+
+        $result = $this->conn->query("SELECT name FROM sqlite_master
+                                      WHERE type='table'
+                                      ORDER BY name;");
+
+        $results = $result->fetchArray();
+        $this->createTables = $results === false;
     }
 
     public function getConnection() {
-        return $conn;
+        return $this->conn;
     }
 
     public function shouldCreateTables() {
