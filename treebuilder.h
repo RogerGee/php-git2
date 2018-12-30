@@ -129,6 +129,22 @@ static constexpr auto ZIF_GIT_TREEBUILDER_ENTRYCOUNT = zif_php_git2_function<
     0
     >;
 
+static constexpr auto ZIF_GIT_TREEBUILDER_FILTER = zif_php_git2_function_void<
+    php_git2::func_wrapper<
+        void,
+        git_treebuilder*,
+        git_treebuilder_filter_cb,
+        void*>::func<git_treebuilder_filter>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_treebuilder>,
+        php_git2::php_callback_handler<php_git2::treebuilder_filter_callback>,
+        php_git2::php_callback_sync
+        >,
+    php_git2::sequence<0,2,2>, // pass callback in twice for function and payload
+    php_git2::sequence<0,1,2>,
+    php_git2::sequence<0,1,2>
+    >;
+
 // PHP function entry macro for this module:
 
 #define GIT_TREEBUILDER_FE                                              \
@@ -139,7 +155,8 @@ static constexpr auto ZIF_GIT_TREEBUILDER_ENTRYCOUNT = zif_php_git2_function<
     PHP_GIT2_FE(git_treebuilder_get,ZIF_GIT_TREEBUILDER_GET,NULL)       \
     PHP_GIT2_FE(git_treebuilder_remove,ZIF_GIT_TREEBUILDER_REMOVE,NULL) \
     PHP_GIT2_FE(git_treebuilder_clear,ZIF_GIT_TREEBUILDER_CLEAR,NULL)   \
-    PHP_GIT2_FE(git_treebuilder_entrycount,ZIF_GIT_TREEBUILDER_ENTRYCOUNT,NULL)
+    PHP_GIT2_FE(git_treebuilder_entrycount,ZIF_GIT_TREEBUILDER_ENTRYCOUNT,NULL) \
+    PHP_GIT2_FE(git_treebuilder_filter,ZIF_GIT_TREEBUILDER_FILTER,NULL)
 
 #endif
 

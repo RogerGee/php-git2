@@ -225,7 +225,7 @@ treewalk_callback::callback(const char* root,const git_tree_entry* entry,void* p
     const php_resource_ref<php_git_tree_entry_nofree> res; // it cannot free
 
     params.assign<0>(root);
-    *res.byval_git2() = entry;
+    res.set_object(entry);
     res.ret(params[1]);
     params.assign<2>(std::forward<zval*>(cb->data));
 
@@ -1449,6 +1449,99 @@ int remote_create_callback::callback(
         }
     }
 
+    zval_dtor(&retval);
+
+    return result;
+}
+
+// repository_fetchhead_foreach_callback
+
+int repository_fetchhead_foreach_callback::callback(
+    const char* ref_name,
+    const char* remote_url,
+    const git_oid* oid,
+    unsigned int is_merge,
+    void* payload)
+{
+    php_callback_base* cb = reinterpret_cast<php_callback_base*>(payload);
+
+    if (Z_TYPE_P(cb->func) == IS_NULL) {
+        return GIT_OK;
+    }
+
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
+    int result;
+    zval retval;
+    zval_array<5> params ZTS_CTOR;
+
+    params.assign<0>(ref_name,remote_url);
+    convert_oid(params[2],oid);
+    params.assign<3>(static_cast<bool>(is_merge),cb->data);
+
+    result = params.call(cb->func,&retval);
+    zval_dtor(&retval);
+
+    return result;
+}
+
+// repository_mergehead_foreach_callback
+
+int repository_mergehead_foreach_callback::callback(
+    const git_oid* oid,
+    void* payload)
+{
+    php_callback_base* cb = reinterpret_cast<php_callback_base*>(payload);
+
+    if (Z_TYPE_P(cb->func) == IS_NULL) {
+        return GIT_OK;
+    }
+
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
+    int result;
+    zval retval;
+    zval_array<2> params ZTS_CTOR;
+
+    convert_oid(params[0],oid);
+    params.assign<1>(cb->data);
+
+    result = params.call(cb->func,&retval);
+    zval_dtor(&retval);
+
+    return result;
+}
+
+// treebuilder_filter_callback
+
+int treebuilder_filter_callback::callback(
+    const git_tree_entry* entry,
+    void* payload)
+{
+    php_callback_base* cb = reinterpret_cast<php_callback_base*>(payload);
+
+    if (Z_TYPE_P(cb->func) == IS_NULL) {
+        return GIT_OK;
+    }
+
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
+    int result;
+    zval retval;
+    zval_array<2> params ZTS_CTOR;
+    const php_resource_ref<php_git_tree_entry_nofree> res; // it cannot free
+
+    res.set_object(entry);
+    res.ret(params[0]);
+    params.assign<1>(cb->data);
+
+    result = params.call(cb->func,&retval);
     zval_dtor(&retval);
 
     return result;

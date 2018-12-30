@@ -479,13 +479,10 @@ namespace php_git2
 
     struct git_diff_callback_info
     {
-        // TODO Handle lifetime of callbacks. The php_callback_base currently
-        // leaves the callback+payload zvals allocated.
-
-        php_callback_base fileCallback;
-        php_callback_base binaryCallback;
-        php_callback_base hunkCallback;
-        php_callback_base lineCallback;
+        php_callback_sync fileCallback;
+        php_callback_sync binaryCallback;
+        php_callback_sync hunkCallback;
+        php_callback_sync lineCallback;
         zval* zpayload;
     };
 
@@ -761,6 +758,33 @@ namespace php_git2
             git_repository* repo,
             const char* name,
             const char* url,
+            void* payload);
+    };
+
+    struct repository_fetchhead_foreach_callback
+    {
+        typedef git_repository_fetchhead_foreach_cb type;
+        static int callback(
+            const char* ref_name,
+            const char* remote_url,
+            const git_oid* oid,
+            unsigned int is_merge,
+            void* payload);
+    };
+
+    struct repository_mergehead_foreach_callback
+    {
+        typedef git_repository_mergehead_foreach_cb type;
+        static int callback(
+            const git_oid* oid,
+            void* payload);
+    };
+
+    struct treebuilder_filter_callback
+    {
+        typedef git_treebuilder_filter_cb type;
+        static int callback(
+            const git_tree_entry* entry,
             void* payload);
     };
 

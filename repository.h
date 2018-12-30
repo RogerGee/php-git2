@@ -600,6 +600,40 @@ static constexpr auto ZIF_GIT_REPOSITORY_SET_REFDB = zif_php_git2_function_void<
         >
     >;
 
+static constexpr auto ZIF_GIT_REPOSITORY_FETCHHEAD_FOREACH = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_repository*,
+        git_repository_fetchhead_foreach_cb,
+        void*>::func<git_repository_fetchhead_foreach>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_repository>,
+        php_git2::php_callback_handler<php_git2::repository_fetchhead_foreach_callback>,
+        php_git2::php_callback_sync
+        >,
+    -1,
+    php_git2::sequence<0,2,2>, // pass callback in twice for function and payload
+    php_git2::sequence<0,1,2>,
+    php_git2::sequence<0,1,2>
+    >;
+
+static constexpr auto ZIF_GIT_REPOSITORY_MERGEHEAD_FOREACH = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_repository*,
+        git_repository_mergehead_foreach_cb,
+        void*>::func<git_repository_mergehead_foreach>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_repository>,
+        php_git2::php_callback_handler<php_git2::repository_mergehead_foreach_callback>,
+        php_git2::php_callback_sync
+        >,
+    -1,
+    php_git2::sequence<0,2,2>, // pass callback in twice for function and payload
+    php_git2::sequence<0,1,2>,
+    php_git2::sequence<0,1,2>
+    >;
+
 // Function Entries:
 
 #define GIT_REPOSITORY_FE                                               \
@@ -645,7 +679,9 @@ static constexpr auto ZIF_GIT_REPOSITORY_SET_REFDB = zif_php_git2_function_void<
     PHP_GIT2_FE(git_repository_index,ZIF_GIT_REPOSITORY_INDEX,NULL)     \
     PHP_GIT2_FE(git_repository_set_index,ZIF_GIT_REPOSITORY_SET_INDEX,NULL) \
     PHP_GIT2_FE(git_repository_refdb,ZIF_GIT_REPOSITORY_REFDB,NULL)     \
-    PHP_GIT2_FE(git_repository_set_refdb,ZIF_GIT_REPOSITORY_SET_REFDB,NULL)
+    PHP_GIT2_FE(git_repository_set_refdb,ZIF_GIT_REPOSITORY_SET_REFDB,NULL) \
+    PHP_GIT2_FE(git_repository_fetchhead_foreach,ZIF_GIT_REPOSITORY_FETCHHEAD_FOREACH,NULL) \
+    PHP_GIT2_FE(git_repository_mergehead_foreach,ZIF_GIT_REPOSITORY_MERGEHEAD_FOREACH,NULL)
 
 #endif
 

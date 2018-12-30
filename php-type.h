@@ -569,6 +569,16 @@ namespace php_git2
             rsrc->set_handle(obj);
         }
 
+        void set_object(typename GitResource::const_git2_type obj) const
+        {
+            // Create a resource backing instance if it does not already exist.
+            if (rsrc == nullptr) {
+                rsrc = php_git2_create_resource<GitResource>();
+            }
+
+            rsrc->set_handle(const_cast<typename GitResource::git2_type>(obj));
+        }
+
     private:
         mutable GitResource* rsrc;
     };
