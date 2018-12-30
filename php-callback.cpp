@@ -16,11 +16,6 @@ int php_git2::php_git2_invoke_callback(zval* func,zval* ret,zend_uint paramCount
     php_bailout_context ctx(bailer);
     int result = GIT_OK;
 
-    // We allow null callables, which do nothing.
-    if (Z_TYPE_P(func) == IS_NULL) {
-        return GIT_OK;
-    }
-
     INIT_ZVAL(*ret);
 
     if (BAILOUT_ENTER_REGION(ctx)) {
@@ -61,6 +56,15 @@ php_callback_base::php_callback_base(TSRMLS_D):
 {
 }
 
+bool php_callback_base::is_null() const
+{
+    if (func == nullptr || Z_TYPE_P(func) == IS_NULL) {
+        return true;
+    }
+
+    return false;
+}
+
 bool php_callback_base::is_callable() const
 {
     if (func != nullptr && Z_TYPE_P(func) != IS_NULL) {
@@ -74,10 +78,7 @@ bool php_callback_base::is_callable() const
         return retval;
     }
 
-    // NOTE: A null zval is considered a valid callable in this
-    // extension for any callback.
-
-    return true;
+    return false;
 }
 
 // packbuilder_foreach_callback
@@ -93,6 +94,7 @@ packbuilder_foreach_callback::callback(void* buf,size_t size,void* payload)
 
     // Special Case: if the callback is null but the payload is a stream, we
     // write directly to the stream.
+
     if (Z_TYPE_P(cb->func) == IS_NULL
         && cb->data != nullptr
         && Z_TYPE_P(cb->data) == IS_RESOURCE
@@ -109,7 +111,11 @@ packbuilder_foreach_callback::callback(void* buf,size_t size,void* payload)
         return GIT_ERROR;
     }
 
-    // Account for when callable is null and do nothing.
+    // Account for when callable is null and do nothing. We cannot anticipate
+    // that the callback handler is nullable so we have to handle it here. Since
+    // this function is read-only, all we have to do is quit with a success
+    // status.
+
     if (Z_TYPE_P(cb->func) == IS_NULL) {
         return GIT_OK;
     }
@@ -138,11 +144,6 @@ transfer_progress_callback::callback(const git_transfer_progress* stats,void* pa
 #ifdef ZTS
     TSRMLS_D = ZTS_MEMBER_PC(cb);
 #endif
-
-    // Account for when callable is null and do nothing.
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK;
-    }
 
     // Call the PHP userspace callback. We convert the git_transfer_progress
     // struct to a PHP array.

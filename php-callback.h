@@ -136,13 +136,16 @@ namespace php_git2
         zval* func;
         zval* data;
 
+        bool is_null() const;
         bool is_callable() const;
 
         void set_members(zval* zfunc,zval* zdata)
         {
             // Up reference count. This is really only needed for when this
             // class is wrapped by php_callback_async so that the PHP values
-            // will exist between function calls.
+            // will exist between function calls. It is up to a derived class to
+            // decrement the reference counts.
+
             Z_ADDREF_P(zfunc);
             Z_ADDREF_P(zdata);
 
@@ -203,9 +206,19 @@ namespace php_git2
 
         void* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
-            zval* first = func;
-            zval* second = data;
+            set_members_impl(func,data);
 
+            // Make sure the function zval is a callable.
+            if (!is_callable()) {
+                php_value_base::error("callable",argno);
+            }
+
+            return this;
+        }
+
+    protected:
+        void set_members_impl(zval* first,zval* second)
+        {
             // Figure out which parameters are which and swap as needed. Only
             // consider a swap if both were set (assume 'func' is always set).
             if (!p && second != nullptr) {
@@ -213,17 +226,31 @@ namespace php_git2
             }
 
             set_members(first,second);
+        }
 
-            // Make sure the function zval is a callable. We always allow the
-            // user to omit a callable if the zval is null.
-            if (!is_callable()) {
+    private:
+        unsigned p;
+    };
+
+    // Provide a variant that allows a NULL callback.
+
+    class php_callback_sync_nullable:
+        public php_callback_sync
+    {
+    public:
+        ZTS_CONSTRUCTOR_WITH_BASE(php_callback_sync_nullable,php_callback_sync)
+
+        void* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            set_members_impl(func,data);
+
+            // Make sure the function zval is a callable or null.
+            if (!is_null() && !is_callable()) {
                 php_value_base::error("callable",argno);
             }
 
             return this;
         }
-    private:
-        unsigned p;
     };
 
     /**
@@ -240,8 +267,22 @@ namespace php_git2
      * resource/object.
      */
 
-    template<typename GitResource>
-    class php_callback_async
+    template<typename CallbackSyncType = php_callback_sync>
+    class php_callback_async_base
+    {
+    public:
+        php_callback_base* get_base_callback() const
+        {
+            return cb;
+        }
+
+    protected:
+        CallbackSyncType* cb;
+    };
+
+    template<typename GitResource,typename CallbackSyncType = php_callback_sync>
+    class php_callback_async:
+        public php_callback_async_base<CallbackSyncType>
     {
     public:
         // Connect to an arbitrary resource type. It must be a newly created
@@ -252,7 +293,7 @@ namespace php_git2
         php_callback_async(connect_t& conn TSRMLS_DC)
         {
             // Allocate php_callback_sync object.
-            cb = new (emalloc(sizeof(php_callback_sync))) php_callback_sync(TSRMLS_C);
+            cb = new (emalloc(sizeof(CallbackSyncType))) CallbackSyncType(TSRMLS_C);
 
             // Assign php_callback_sync object to resource object. It must have
             // a member called 'cb' to which we have access.
@@ -270,41 +311,45 @@ namespace php_git2
         {
             return cb->byval_git2(argno);
         }
+
     private:
-        php_callback_sync* cb;
+        using php_callback_async_base<CallbackSyncType>::cb;
     };
 
     // This alternate form of php_callback_async works for a non-resource
     // type. This means it doesn't have to perform a lookup on an underlying
     // resource object. Instead it uses the connected object directly.
 
-    template<typename ConnectType>
-    class php_callback_async_ex
+    template<typename ConnectType,typename CallbackSyncType = php_callback_sync>
+    class php_callback_async_ex:
+        public php_callback_async_base<CallbackSyncType>
     {
     public:
-        using connect_t = ConnectType;
+        typedef ConnectType connect_t;
         typedef void* target_t;
 
-        php_callback_async_ex(connect_t& conn TSRMLS_DC):
-            stor(conn)
+        php_callback_async_ex(connect_t& conn TSRMLS_DC)
         {
-            // Allocate php_callback_sync object. Assign a new php_callback_sync
+            // Allocate CallbackSyncType object. Assign a new CallbackSyncType
             // object to the connected object. It must have a member called 'cb'
             // to which we have access.
-            conn.cb = new (emalloc(sizeof(php_callback_sync))) php_callback_sync(TSRMLS_C);
+
+            cb = new (emalloc(sizeof(CallbackSyncType))) CallbackSyncType(TSRMLS_C);
+            conn.cb = cb;
         }
 
         zval** byref_php(unsigned pos)
         {
-            return stor.cb->byref_php(pos);
+            return cb->byref_php(pos);
         }
 
         void* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
-            return stor.cb->byval_git2(argno);
+            return cb->byval_git2(argno);
         }
+
     private:
-        connect_t& stor;
+        using php_callback_async_base<CallbackSyncType>::cb;
     };
 
 
@@ -312,8 +357,9 @@ namespace php_git2
     // resource object at the end of its lifetime. This allows assignment to an
     // existing resource.
 
-    template<typename GitResource>
-    class php_callback_async_existing
+    template<typename GitResource,typename CallbackSyncType = php_callback_sync>
+    class php_callback_async_existing:
+        public php_callback_async_base<CallbackSyncType>
     {
     public:
         // Connect to an arbitrary resource type.
@@ -323,13 +369,13 @@ namespace php_git2
         php_callback_async_existing(connect_t& conn TSRMLS_DC):
             stor(conn)
         {
-            // Allocate php_callback_sync object.
-            cb = new (emalloc(sizeof(php_callback_sync))) php_callback_sync(TSRMLS_C);
+            // Allocate CallbackSyncType object.
+            cb = new (emalloc(sizeof(CallbackSyncType))) CallbackSyncType(TSRMLS_C);
         }
 
         ~php_callback_async_existing()
         {
-            // Assign php_callback_sync object to resource object. It must have
+            // Assign CallbackSyncType object to resource object. It must have
             // a member called 'cb' to which we have access. This is run here in
             // the destructor to allow the resource wrapper's zval to get
             // assigned properly so we can access the GitResource.
@@ -350,9 +396,10 @@ namespace php_git2
         {
             return cb->byval_git2(argno);
         }
+
     private:
         connect_t& stor;
-        php_callback_sync* cb;
+        using php_callback_async_base<CallbackSyncType>::cb;
     };
 
     // Define a type to represent a callback function handler. All this does is
@@ -369,6 +416,66 @@ namespace php_git2
             // Return the static address of the wrapped callback function.
             return &CallbackFunc::callback;
         }
+    };
+
+    // Create connector types that allows callback handlers to be nullable. The
+    // connector type connects to an object that accesses a php_callback_base
+    // object (either directly or indirectly).
+
+    template<typename CallbackFunc>
+    class php_callback_handler_nullable_connector:
+        public php_callback_handler<CallbackFunc>
+    {
+    public:
+        typedef php_callback_base connect_t;
+        using target_t = typename CallbackFunc::type;
+
+        php_callback_handler_nullable_connector(connect_t& obj TSRMLS_DC):
+            conn(obj)
+        {
+        }
+
+        typename CallbackFunc::type byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            // Return null if the callback zval is NULL.
+            if (Z_TYPE_P(conn.func) == IS_NULL) {
+                return nullptr;
+            }
+
+            return php_callback_handler<CallbackFunc>::byval_git2(argno);
+        }
+
+    private:
+        connect_t& conn;
+    };
+
+    template<typename CallbackFunc,typename CallbackAsyncType>
+    class php_callback_handler_nullable_connector_async:
+        public php_callback_handler<CallbackFunc>
+    {
+    public:
+        typedef CallbackAsyncType connect_t;
+        using target_t = typename CallbackFunc::type;
+
+        php_callback_handler_nullable_connector_async(connect_t& obj TSRMLS_DC):
+            conn(obj)
+        {
+        }
+
+        typename CallbackFunc::type byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            php_callback_base* cb = conn.get_base_callback();
+
+            // Return null if the callback zval is NULL.
+            if (Z_TYPE_P(cb->func) == IS_NULL) {
+                return nullptr;
+            }
+
+            return php_callback_handler<CallbackFunc>::byval_git2(argno);
+        }
+
+    private:
+        connect_t& conn;
     };
 
     // Here we define all the callbacks used by the library. Some are specific

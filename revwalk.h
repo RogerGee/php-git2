@@ -65,6 +65,7 @@ namespace php_git2
                 efree(cb);
             }
         }
+
     private:
         php_callback_sync* cb;
     };

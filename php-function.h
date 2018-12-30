@@ -7,6 +7,7 @@
 #ifndef PHPGIT2_FUNCTION_H
 #define PHPGIT2_FUNCTION_H
 #include "php-type.h"
+#include "php-callback.h"
 #include <limits>
 #include <utility>
 
@@ -512,6 +513,19 @@ namespace php_git2
         php_set_resource_dependency_impl(pack.template get<Ns>().get_object()...);
     }
 
+    // Synthesize commonly used connector types with connector_wrapper for
+    // convenience.
+
+    template<typename CallbackFunc>
+    using php_callback_handler_nullable = connector_wrapper<
+        php_callback_handler_nullable_connector<CallbackFunc>
+        >;
+
+    template<typename CallbackFunc,typename CallbackAsyncType>
+    using php_callback_handler_nullable_async = connector_wrapper_ex<
+        php_callback_handler_nullable_connector_async<CallbackFunc,CallbackAsyncType>
+        >;
+
 } // namespace php_git2
 
 // We need a function entry macro that supports naming the PHP userspace
@@ -618,7 +632,7 @@ static void zif_php_git2_function(INTERNAL_FUNCTION_PARAMETERS)
 //  1. return value from libgit2 function
 //  2. return_value zval from php function handler
 //  3. local variable pack
-// The function should return 'true' if it handled the return value,
+// The function should return 'true' if it handled the return value.
 
 template<
     typename FuncWrapper,

@@ -150,8 +150,14 @@ static constexpr auto ZIF_GIT_PACKBUILDER_FOREACH = zif_php_git2_function<
         void*>::func<git_packbuilder_foreach>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_packbuilder_with_callback>,
+
+        // NOTE: We allow a NULL callback (but not a null callback handler) to
+        // support a stream payload, which is a feature provided by this
+        // extension. If the payload isn't a stream, then the callback function
+        // is called with no PHP userspace interaction.
+
         php_git2::php_callback_handler<php_git2::packbuilder_foreach_callback>,
-        php_git2::php_callback_sync
+        php_git2::php_callback_sync_nullable
         >,
     -1,
     php_git2::sequence<0,2,2>, // pass callback in twice for function and payload

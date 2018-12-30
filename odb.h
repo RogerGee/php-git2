@@ -24,7 +24,13 @@ namespace php_git2
     }
 
     class php_git_odb_writepack;
-    using writepack_async_callback = php_callback_async_ex<php_git2::php_git_odb_writepack>;
+
+    // Simplify the typename for an ODB's writepack callback.
+
+    using writepack_async_callback = php_callback_async_ex<
+        php_git_odb_writepack,
+        php_callback_sync_nullable
+        >;
 
     // Provide a type which binds a git_odb_writepack along with a callback to a
     // PHP object instance of type GitODBWritepack.
@@ -287,14 +293,17 @@ static constexpr auto ZIF_GIT_ODB_WRITE_PACK = zif_php_git2_function<
         void*
         >::func<git_odb_write_pack>,
     php_git2::local_pack<
+        php_git2::php_callback_handler_nullable_async<
+            php_git2::transfer_progress_callback,
+            php_git2::writepack_async_callback
+            >,
         php_git2::connector_wrapper_ex<php_git2::writepack_async_callback>,
         php_git2::connector_wrapper<php_git2::php_git_odb_writepack>,
-        php_git2::php_resource<php_git2::php_git_odb>,
-        php_git2::php_callback_handler<php_git2::transfer_progress_callback>
+        php_git2::php_resource<php_git2::php_git_odb>
         >,
-    2,
-    php_git2::sequence<2,0,0>, // pass callback in twice for callback and payload
-    php_git2::sequence<1,2,3,0>,
+    3,
+    php_git2::sequence<3,1,1>, // pass callback in twice for callback and payload
+    php_git2::sequence<2,3,0,1>,
     php_git2::sequence<0,0,0,1>
     >;
 

@@ -6,7 +6,6 @@
 
 #include "php-git2.h"
 #include "php-function.h"
-#include "php-callback.h"
 #include "php-object.h"
 #include "php-rethandler.h"
 #include "repository.h"

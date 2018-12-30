@@ -552,24 +552,30 @@ PHP_METHOD(GitODBBackend_Internal,writepack)
     }
 
     git_odb_writepack* wp;
-    php_callback_sync* callback;
-    php_callback_handler<transfer_progress_callback> handler;
+    php_callback_sync_nullable* callback;
 
     // Allocate callback.
-    callback = new (emalloc(sizeof(php_callback_sync))) php_callback_sync(TSRMLS_C);
+    callback = new (emalloc(sizeof(php_callback_sync_nullable))) php_callback_sync_nullable(TSRMLS_C);
 
     if (zend_get_parameters(0,2,callback->byref_php(1),callback->byref_php(2)) == FAILURE) {
-        callback->~php_callback_sync();
+        callback->~php_callback_sync_nullable();
         efree(callback);
         php_error(E_ERROR,"GitODBBackend_Internal::writepack(): method expects 2 arguments");
         return;
     }
 
     try {
-        // Call the underlying function.
         int retval;
-        retval = object->backend->writepack(&wp,object->backend,object->backend->odb,
-            handler.byval_git2(),callback->byval_git2());
+        php_callback_handler_nullable_connector<transfer_progress_callback> handler(*callback);
+
+        // Call the underlying function.
+        retval = object->backend->writepack(
+            &wp,
+            object->backend,
+            object->backend->odb,
+            handler.byval_git2(),
+            callback->byval_git2());
+
         if (retval < 0) {
             php_git2::git_error(retval);
         }
@@ -584,6 +590,9 @@ PHP_METHOD(GitODBBackend_Internal,writepack)
         if (BAILOUT_ENTER_REGION(ctx)) {
             ex.handle();
         }
+
+        callback->~php_callback_sync_nullable();
+        efree(callback);
     }
 }
 
