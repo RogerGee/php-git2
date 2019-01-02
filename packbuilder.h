@@ -19,8 +19,10 @@ namespace php_git2
     class php_git_packbuilder_with_callback;
 
     // Define shortcut to packbuilder async type.
-    using packbuilder_async_callback_t =
-        php_git2::php_callback_async_existing<php_git2::php_git_packbuilder_with_callback>;
+    using packbuilder_async_callback_t = php_git2::php_callback_async_existing<
+        php_git2::php_git_packbuilder_with_callback,
+        php_git2::php_callback_sync_nullable
+        >;
 
     class php_git_packbuilder_with_callback:
         public php_git_packbuilder
@@ -184,13 +186,16 @@ static constexpr auto ZIF_GIT_PACKBUILDER_SET_CALLBACKS = zif_php_git2_function<
         git_packbuilder_progress,
         void*>::func<git_packbuilder_set_callbacks>,
     php_git2::local_pack<
+        php_git2::php_callback_handler_nullable_async<
+            php_git2::packbuilder_progress_callback,
+            php_git2::packbuilder_async_callback_t
+            >,
         php_git2::connector_wrapper<php_git2::packbuilder_async_callback_t>,
-        php_git2::php_resource<php_git2::php_git_packbuilder_with_callback>,
-        php_git2::php_callback_handler<php_git2::packbuilder_progress_callback>
+        php_git2::php_resource<php_git2::php_git_packbuilder_with_callback>
         >,
     -1,
-    php_git2::sequence<1,0,0>, // pass callback twice
-    php_git2::sequence<1,2,0>,
+    php_git2::sequence<2,1,1>, // pass callback twice
+    php_git2::sequence<2,0,1>,
     php_git2::sequence<0,0,1>
     >;
 

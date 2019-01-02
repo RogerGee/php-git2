@@ -261,7 +261,7 @@ static constexpr auto ZIF_GIT_PATCH_PRINT = zif_php_git2_function<
         void*>::func<git_patch_print>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_patch>,
-        php_git2::diff_line_callback_handler,
+        php_git2::php_callback_handler<php_git2::diff_line_callback>,
         php_git2::php_callback_sync
         >,
     -1,

@@ -42,6 +42,13 @@ function test_callbacks() {
 
     $pack = fopen(testbed_path('2.pack'),'w');
     git_packbuilder_foreach($build,null,$pack);
+
+    echo 'Setting callback to null...' . PHP_EOL;
+    $build = git_packbuilder_new($repo);
+    git_packbuilder_set_callbacks($build,null,null);
+    git_packbuilder_insert_recur($build,git_reference_target($ref),null);
+    $pack = fopen(testbed_path('2-1.pack'),'w');
+    git_packbuilder_foreach($build,null,$pack);
 }
 
 function test_write() {

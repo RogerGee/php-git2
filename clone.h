@@ -35,7 +35,7 @@ namespace php_git2
                 GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(arr,checkoutOpts,checkout_opts,opts);
                 GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(arr,fetchOpts,fetch_opts,opts);
 
-                GIT2_ARRAY_LOOKUP_CALLBACK(
+                GIT2_ARRAY_LOOKUP_CALLBACK_NULLABLE(
                     arr,
                     repository_create_callback,
                     repoCreateCallback,
@@ -43,7 +43,7 @@ namespace php_git2
                     repository_cb_payload,
                     opts);
 
-                GIT2_ARRAY_LOOKUP_CALLBACK(
+                GIT2_ARRAY_LOOKUP_CALLBACK_NULLABLE(
                     arr,
                     remote_create_callback,
                     remoteCreateCallback,

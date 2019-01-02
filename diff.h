@@ -44,14 +44,14 @@ namespace php_git2
                 GIT2_ARRAY_LOOKUP_STRING_NULLABLE(arr,old_prefix,opts);
                 GIT2_ARRAY_LOOKUP_STRING_NULLABLE(arr,new_prefix,opts);
                 GIT2_ARRAY_LOOKUP_SUBOBJECT(arr,strarray,pathspec,opts);
-                GIT2_ARRAY_LOOKUP_CALLBACK(
+                GIT2_ARRAY_LOOKUP_CALLBACK_NULLABLE(
                     arr,
                     diff_notify_callback,
                     callbacks.notifyCallback,
                     notify_cb,
                     payload,
                     opts);
-                GIT2_ARRAY_LOOKUP_CALLBACK(
+                GIT2_ARRAY_LOOKUP_CALLBACK_NULLABLE(
                     arr,
                     diff_progress_callback,
                     callbacks.progressCallback,
@@ -121,125 +121,134 @@ namespace php_git2
         git_diff_find_options opts;
     };
 
-    // Enumerate the callback handlers needed for generating git_diff functions.
-
-    using diff_file_callback_handler = php_callback_handler<diff_file_callback>;
-    using diff_binary_callback_handler = php_callback_handler<diff_binary_callback>;
-    using diff_hunk_callback_handler = php_callback_handler<diff_hunk_callback>;
-    using diff_line_callback_handler = php_callback_handler<diff_line_callback>;
-
     // Define types for grabbing callback functions. All callbacks target the
     // same git_diff_callback_info object which is obtained by chaining
     // connectors through a local pack. The types are specialized for each
-    // callback.
+    // callback. Each object is also used to obtain the underlying
+    // ptr-to-function for each callback if a valid PHP callback was obtained.
 
-    template<typename ConnectType>
+    template<typename ConnectType,typename CallbackType>
     class php_git_diff_callback_base
     {
     public:
         typedef ConnectType connect_t;
-        typedef void* target_t;
+        typedef typename CallbackType::type target_t;
 
         php_git_diff_callback_base(git_diff_callback_info& obj TSRMLS_DC):
            info(obj)
         {
         }
 
-        // NOTE: This member function is not used, but required to complete the
-        // connector type.
-        void* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
-        {
-            return nullptr;
-        }
-
         operator git_diff_callback_info&()
         {
             return this->info;
         }
+
     protected:
+        target_t get_cfunc(unsigned argno,const php_callback_base& cb)
+        {
+            if (cb.is_null()) {
+                return nullptr;
+            }
+
+            if (!cb.is_callable()) {
+                php_value_base::error("callable",argno);
+            }
+
+            return CallbackType::callback;
+        }
+
         git_diff_callback_info& info;
     };
 
-    template<typename ConnectType,typename CallbackHandlerType>
-    class php_git_diff_callback : public php_git_diff_callback_base<ConnectType> {};
+    template<typename ConnectType,typename CallbackType>
+    class php_git_diff_callback : public php_git_diff_callback_base<ConnectType,CallbackType> {};
 
     template<typename ConnectType>
-    class php_git_diff_callback<ConnectType,diff_file_callback_handler>:
-        public php_git_diff_callback_base<ConnectType>
+    class php_git_diff_callback<ConnectType,diff_file_callback>:
+        public php_git_diff_callback_base<ConnectType,diff_file_callback>
     {
     public:
-        using my_base = php_git_diff_callback_base<ConnectType>;
+        using my_base = php_git_diff_callback_base<ConnectType,diff_file_callback>;
         using typename my_base::connect_t;
         using typename my_base::target_t;
 
-        php_git_diff_callback(git_diff_callback_info& obj TSRMLS_DC):
-            my_base(obj)
-        {
-        }
+        using my_base::my_base;
 
         zval** byref_php(unsigned pos)
         {
             return &this->info.fileCallback.func;
         }
+
+        target_t byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            return this->get_cfunc(argno,this->info.fileCallback);
+        }
     };
 
     template<typename ConnectType>
-    class php_git_diff_callback<ConnectType,diff_binary_callback_handler>:
-        public php_git_diff_callback_base<ConnectType>
+    class php_git_diff_callback<ConnectType,diff_binary_callback>:
+        public php_git_diff_callback_base<ConnectType,diff_binary_callback>
     {
     public:
-        using my_base = php_git_diff_callback_base<ConnectType>;
+        using my_base = php_git_diff_callback_base<ConnectType,diff_binary_callback>;
         using typename my_base::connect_t;
         using typename my_base::target_t;
 
-        php_git_diff_callback(git_diff_callback_info& obj TSRMLS_DC):
-            my_base(obj)
-        {
-        }
+        using my_base::my_base;
 
         zval** byref_php(unsigned pos)
         {
             return &this->info.binaryCallback.func;
         }
+
+        target_t byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            return this->get_cfunc(argno,this->info.binaryCallback);
+        }
     };
 
     template<typename ConnectType>
-    class php_git_diff_callback<ConnectType,diff_hunk_callback_handler>:
-        public php_git_diff_callback_base<ConnectType>
+    class php_git_diff_callback<ConnectType,diff_hunk_callback>:
+        public php_git_diff_callback_base<ConnectType,diff_hunk_callback>
     {
     public:
-        using my_base = php_git_diff_callback_base<ConnectType>;
+        using my_base = php_git_diff_callback_base<ConnectType,diff_hunk_callback>;
         using typename my_base::connect_t;
         using typename my_base::target_t;
 
-        php_git_diff_callback(git_diff_callback_info& obj TSRMLS_DC):
-            my_base(obj)
-        {
-        }
+        using my_base::my_base;
 
         zval** byref_php(unsigned pos)
         {
             return &this->info.hunkCallback.func;
         }
+
+        target_t byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            return this->get_cfunc(argno,this->info.hunkCallback);
+        }
     };
 
     template<typename ConnectType>
-    class php_git_diff_callback<ConnectType,diff_line_callback_handler>:
-        public php_git_diff_callback_base<ConnectType>
+    class php_git_diff_callback<ConnectType,diff_line_callback>:
+        public php_git_diff_callback_base<ConnectType,diff_line_callback>
     {
     public:
-        using my_base = php_git_diff_callback_base<ConnectType>;
+        using my_base = php_git_diff_callback_base<ConnectType,diff_line_callback>;
         using typename my_base::connect_t;
         using typename my_base::target_t;
 
-        php_git_diff_callback(git_diff_callback_info& obj TSRMLS_DC):
-            my_base(obj)
-        {
-        }
+        using my_base::my_base;
 
         zval** byref_php(unsigned pos)
         {
             return &this->info.lineCallback.func;
+        }
+
+        target_t byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        {
+            return this->get_cfunc(argno,this->info.lineCallback);
         }
     };
 
@@ -255,20 +264,21 @@ namespace php_git2
 
         void* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
-            // Check types of all callbacks.
-            if (!info.fileCallback.is_callable()) {
+            // Check types of all callbacks. All callbacks are allowed to be
+            // null.
+            if (!info.fileCallback.is_null() && !info.fileCallback.is_callable()) {
                 php_value_base::error_custom("Expected 'callable' for file callback",
                     std::numeric_limits<unsigned>::max());
             }
-            if (!info.binaryCallback.is_callable()) {
+            if (!info.binaryCallback.is_null() && !info.binaryCallback.is_callable()) {
                 php_value_base::error_custom("Expected 'callable' for binary callback",
                     std::numeric_limits<unsigned>::max());
             }
-            if (!info.hunkCallback.is_callable()) {
+            if (!info.hunkCallback.is_null() && !info.hunkCallback.is_callable()) {
                 php_value_base::error_custom("Expected 'callable' for hunk callback",
                     std::numeric_limits<unsigned>::max());
             }
-            if (!info.lineCallback.is_callable()) {
+            if (!info.lineCallback.is_null() && !info.lineCallback.is_callable()) {
                 php_value_base::error_custom("Expected 'callable' for line callback",
                     std::numeric_limits<unsigned>::max());
             }
@@ -288,25 +298,25 @@ namespace php_git2
 
     using diff_line_callback_info = php_git_diff_callback<
         php_git_diff_callback_payload,
-        diff_line_callback_handler
+        diff_line_callback
         >;
     using diff_line_callback_connector = connector_wrapper<diff_line_callback_info>;
 
     using diff_hunk_callback_info = php_git_diff_callback<
         diff_line_callback_info,
-        diff_hunk_callback_handler
+        diff_hunk_callback
         >;
     using diff_hunk_callback_connector = connector_wrapper_ex<diff_hunk_callback_info>;
 
     using diff_binary_callback_info = php_git_diff_callback<
         diff_hunk_callback_info,
-        diff_binary_callback_handler
+        diff_binary_callback
         >;
     using diff_binary_callback_connector = connector_wrapper_ex<diff_binary_callback_info>;
 
     using diff_file_callback_info = php_git_diff_callback<
         diff_binary_callback_info,
-        diff_file_callback_handler
+        diff_file_callback
         >;
     using diff_file_callback_connector = connector_wrapper_ex<diff_file_callback_info>;
 
@@ -351,6 +361,7 @@ namespace php_git2
         {
             convert_diff_perfdata(return_value,&perfdata);
         }
+
     private:
         git_diff_perfdata perfdata;
     };
@@ -456,12 +467,6 @@ static constexpr auto ZIF_GIT_DIFF_BLOB_TO_BUFFER = zif_php_git2_function<
         php_git2::php_nullable_string,
         php_git2::php_git_diff_options,
 
-        // Callback handlers
-        php_git2::diff_file_callback_handler,
-        php_git2::diff_binary_callback_handler,
-        php_git2::diff_hunk_callback_handler,
-        php_git2::diff_line_callback_handler,
-
         // Callback info
         php_git2::diff_file_callback_connector,
         php_git2::diff_binary_callback_connector,
@@ -472,8 +477,8 @@ static constexpr auto ZIF_GIT_DIFF_BLOB_TO_BUFFER = zif_php_git2_function<
         php_git2::php_git_diff_callback_payload
         >,
     -1,
-    php_git2::sequence<0,1,3,4,5,10,11,12,13,14>,
-    php_git2::sequence<0,1,3,2,4,5,6,7,8,9,14>,
+    php_git2::sequence<0,1,3,4,5,6,7,8,9,10>,
+    php_git2::sequence<0,1,3,2,4,5,6,7,8,9,10>,
     php_git2::sequence<0,1,2,0,3,4,5,6,7,8,9>
     >;
 
@@ -497,12 +502,6 @@ static constexpr auto ZIF_GIT_DIFF_BLOBS = zif_php_git2_function<
         php_git2::php_nullable_string,
         php_git2::php_git_diff_options,
 
-        // Callback handlers
-        php_git2::diff_file_callback_handler,
-        php_git2::diff_binary_callback_handler,
-        php_git2::diff_hunk_callback_handler,
-        php_git2::diff_line_callback_handler,
-
         // Callback info
         php_git2::diff_file_callback_connector,
         php_git2::diff_binary_callback_connector,
@@ -511,11 +510,7 @@ static constexpr auto ZIF_GIT_DIFF_BLOBS = zif_php_git2_function<
 
         // Base callback info
         php_git2::php_git_diff_callback_payload
-        >,
-    -1,
-    php_git2::sequence<0,1,2,3,4,9,10,11,12,13>,
-    php_git2::sequence<0,1,2,3,4,5,6,7,8,13>,
-    php_git2::sequence<0,1,2,3,4,5,6,7,8,9>
+        >
     >;
 
 static constexpr auto ZIF_GIT_DIFF_BUFFERS = zif_php_git2_function<
@@ -542,12 +537,6 @@ static constexpr auto ZIF_GIT_DIFF_BUFFERS = zif_php_git2_function<
         php_git2::php_nullable_string,
         php_git2::php_git_diff_options,
 
-        // Callback handlers
-        php_git2::diff_file_callback_handler,
-        php_git2::diff_binary_callback_handler,
-        php_git2::diff_hunk_callback_handler,
-        php_git2::diff_line_callback_handler,
-
         // Callback info
         php_git2::diff_file_callback_connector,
         php_git2::diff_binary_callback_connector,
@@ -558,8 +547,8 @@ static constexpr auto ZIF_GIT_DIFF_BUFFERS = zif_php_git2_function<
         php_git2::php_git_diff_callback_payload
         >,
     -1,
-    php_git2::sequence<1,2,4,5,6,11,12,13,14,15>,
-    php_git2::sequence<1,0,2,4,3,5,6,7,8,9,10,15>,
+    php_git2::sequence<1,2,4,5,6,7,8,9,10,11>,
+    php_git2::sequence<1,0,2,4,3,5,6,7,8,9,10,11>,
     php_git2::sequence<0,0,1,0,2,3,4,5,6,7,8,9>
     >;
 
@@ -615,14 +604,9 @@ static constexpr auto ZIF_GIT_DIFF_PRINT = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_diff>,
         php_git2::php_long_cast<git_diff_format_t>,
-        php_git2::diff_line_callback_handler,
         php_git2::diff_line_callback_connector,
         php_git2::php_git_diff_callback_payload
-        >,
-    -1,
-    php_git2::sequence<0,1,3,4>,
-    php_git2::sequence<0,1,2,4>,
-    php_git2::sequence<0,1,2,3>
+        >
     >;
 
 static constexpr auto ZIF_GIT_DIFF_GET_DELTA = zif_php_git2_function_rethandler<
@@ -680,12 +664,6 @@ static constexpr auto ZIF_GIT_DIFF_FOREACH = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_diff>,
 
-        // Callback handlers
-        php_git2::diff_file_callback_handler,
-        php_git2::diff_binary_callback_handler,
-        php_git2::diff_hunk_callback_handler,
-        php_git2::diff_line_callback_handler,
-
         // Callback info
         php_git2::diff_file_callback_connector,
         php_git2::diff_binary_callback_connector,
@@ -694,11 +672,7 @@ static constexpr auto ZIF_GIT_DIFF_FOREACH = zif_php_git2_function<
 
         // Base callback info
         php_git2::php_git_diff_callback_payload
-        >,
-    -1,
-    php_git2::sequence<0,5,6,7,8,9>,
-    php_git2::sequence<0,1,2,3,4,9>,
-    php_git2::sequence<0,1,2,3,4,5>
+        >
     >;
 
 static constexpr auto ZIF_GIT_DIFF_MERGE = zif_php_git2_function<

@@ -515,7 +515,6 @@ PHP_METHOD(GitODBBackend_Internal,for_each)
 
     int retval;
     php_callback_sync callback;
-    php_callback_handler<odb_foreach_callback> handler;
 
     if (zend_get_parameters(0,2,callback.byref_php(1),callback.byref_php(2)) == FAILURE) {
         php_error(E_ERROR,"GitODBBackend_Internal::for_each(): method expects 2 arguments");
@@ -524,6 +523,8 @@ PHP_METHOD(GitODBBackend_Internal,for_each)
 
     // Call the underlying function.
     try {
+        php_callback_handler<odb_foreach_callback> handler;
+
         retval = object->backend->foreach(object->backend,
             handler.byval_git2(),callback.byval_git2());
 

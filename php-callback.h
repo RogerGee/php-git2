@@ -586,10 +586,10 @@ namespace php_git2
 
     struct git_diff_callback_info
     {
-        php_callback_sync fileCallback;
-        php_callback_sync binaryCallback;
-        php_callback_sync hunkCallback;
-        php_callback_sync lineCallback;
+        php_callback_base fileCallback;
+        php_callback_base binaryCallback;
+        php_callback_base hunkCallback;
+        php_callback_base lineCallback;
         zval* zpayload;
     };
 

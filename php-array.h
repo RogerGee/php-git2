@@ -178,6 +178,26 @@ namespace php_git2
         var.payloadName = (void*)&callbackObject;                       \
     }
 
+// NOTE: this variant assumes 'var' is already zeroed out or initialized in some
+// way.
+#define GIT2_ARRAY_LOOKUP_CALLBACK_NULLABLE(wrapper,callbackWrapper,callbackObject,funcName,payloadName,var) \
+    if (wrapper.query(#funcName,sizeof(#funcName))) {                   \
+        zval* zfunc, *zdata;                                            \
+        zfunc = wrapper.get_zval();                                     \
+        if (Z_TYPE_P(zfunc) != IS_NULL) {                               \
+            if (wrapper.query(#payloadName,sizeof(#payloadName))) {     \
+                zdata = wrapper.get_zval();                             \
+            }                                                           \
+            else {                                                      \
+                ALLOC_INIT_ZVAL(zdata);                                 \
+                Z_DELREF_P(zdata);                                      \
+            }                                                           \
+            callbackObject.set_members(zfunc,zdata);                    \
+            var.funcName = callbackWrapper::callback;                   \
+            var.payloadName = (void*)&callbackObject;                   \
+        }                                                               \
+    }
+
 #endif
 
 /*

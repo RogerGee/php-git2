@@ -181,13 +181,8 @@ odb_foreach_callback::callback(const git_oid* oid,void* payload)
     TSRMLS_D = ZTS_MEMBER_PC(cb);
 #endif
 
-    // Account for when callable is null and do nothing.
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK;
-    }
-
-    // Call the PHP userspace callback. We convert the git_oid struct to a
-    // PHP string.
+    // Call the PHP userspace callback. We convert the git_oid struct to a PHP
+    // string.
 
     int result;
     zval retval;
@@ -212,11 +207,6 @@ treewalk_callback::callback(const char* root,const git_tree_entry* entry,void* p
 #ifdef ZTS
     TSRMLS_D = ZTS_MEMBER_PC(cb);
 #endif
-
-    // Account for when callable is null and do nothing.
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK;
-    }
 
     // Call the userspace function.
 
@@ -247,11 +237,6 @@ commit_parent_callback::callback(size_t idx,void* payload)
 #ifdef ZTS
     TSRMLS_D = ZTS_MEMBER_PC(cb);
 #endif
-
-    // Account for when callable is null and finish immediately.
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return nullptr;
-    }
 
     int result;
     zval retval;
@@ -305,11 +290,6 @@ int reference_foreach_callback::callback(git_reference* ref,void* payload)
     TSRMLS_D = ZTS_MEMBER_PC(pc);
 #endif
 
-    // Account for when callable is null and do nothing.
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK;
-    }
-
     int result;
     zval retval;
     zval_array<2> params ZTS_CTOR;
@@ -337,11 +317,6 @@ int reference_foreach_name_callback::callback(const char* name,void* payload)
     TSRMLS_D = ZTS_MEMBER_PC(pc);
 #endif
 
-    // Account for when callable is null and do nothing.
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK;
-    }
-
     int result;
     zval retval;
     zval_array<2> params ZTS_CTOR;
@@ -365,11 +340,6 @@ int packbuilder_progress_callback::callback(int stage,uint32_t current,uint32_t 
 #ifdef ZTS
     TSRMLS_D = ZTS_MEMBER_PC(cb);
 #endif
-
-    // Account for when callable is null and do nothing.
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK;
-    }
 
     int result;
     zval retval;
@@ -398,11 +368,6 @@ int config_foreach_callback::callback(const git_config_entry* entry,void* payloa
 #ifdef ZTS
     TSRMLS_D = ZTS_MEMBER_PC(cb);
 #endif
-
-    // Account for when callable is null and do nothing.
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK;
-    }
 
     int result;
     bool returnValue;
@@ -441,11 +406,6 @@ int tag_foreach_callback::callback(const char* name,git_oid* oid,void* payload)
     TSRMLS_D = ZTS_MEMBER_PC(cb);
 #endif
 
-    // Account for when callable is null and do nothing.
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK;
-    }
-
     int result;
     zval retval;
     char buf[GIT_OID_HEXSZ+1];
@@ -469,11 +429,6 @@ int repository_create_callback::callback(git_repository** out,const char* path,i
 #ifdef ZTS
     TSRMLS_D = ZTS_MEMBER_PC(cb);
 #endif
-
-    // Account for when callable is null and do nothing.
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK;
-    }
 
     int result;
     zval retval;
@@ -1389,10 +1344,6 @@ int remote_create_callback::callback(
     void* payload)
 {
     php_callback_base* cb = reinterpret_cast<php_callback_base*>(payload);
-
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK;
-    }
 
 #ifdef ZTS
     TSRMLS_D = ZTS_MEMBER_PC(cb);
