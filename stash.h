@@ -28,7 +28,7 @@ namespace php_git2
 
                 GIT2_ARRAY_LOOKUP_LONG(arr,flags,opts);
                 GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(arr,checkoutOptions,checkout_options,opts);
-                GIT2_ARRAY_LOOKUP_CALLBACK(
+                GIT2_ARRAY_LOOKUP_CALLBACK_NULLABLE(
                     arr,
                     stash_apply_progress_callback,
                     callback,

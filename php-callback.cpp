@@ -501,9 +501,6 @@ int diff_notify_callback::callback(
     info = reinterpret_cast<git_diff_options_callback_info*>(payload);
 
     php_callback_base* cb = &info->notifyCallback;
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK;
-    }
 
     int result;
     zval retval;
@@ -548,9 +545,6 @@ int diff_progress_callback::callback(
     info = reinterpret_cast<git_diff_options_callback_info*>(payload);
 
     php_callback_base* cb = &info->progressCallback;
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK;
-    }
 
     int result;
     zval retval;
@@ -597,9 +591,6 @@ int diff_file_callback::callback(const git_diff_delta* delta,float progress,void
     info = reinterpret_cast<git_diff_callback_info*>(payload);
 
     php_callback_base* cb = &info->fileCallback;
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK;
-    }
 
     int result;
     zval retval;
@@ -623,9 +614,6 @@ int diff_binary_callback::callback(const git_diff_delta* delta,
     info = reinterpret_cast<git_diff_callback_info*>(payload);
 
     php_callback_base* cb = &info->binaryCallback;
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK;
-    }
 
     int result;
     zval retval;
@@ -650,9 +638,6 @@ int diff_hunk_callback::callback(const git_diff_delta* delta,
     info = reinterpret_cast<git_diff_callback_info*>(payload);
 
     php_callback_base* cb = &info->hunkCallback;
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK;
-    }
 
     int result;
     zval retval;
@@ -678,9 +663,6 @@ int diff_line_callback::callback(const git_diff_delta* delta,
     info = reinterpret_cast<git_diff_callback_info*>(payload);
 
     php_callback_base* cb = &info->lineCallback;
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK;
-    }
 
     int result;
     zval retval;
@@ -708,11 +690,6 @@ int index_matched_path_callback::callback(const char* path,
     TSRMLS_D = ZTS_MEMBER_PC(cb);
 #endif
 
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        // Normal behavior is to add the item.
-        return GIT_OK;
-    }
-
     int result;
     zval retval;
     zval_array<3> params ZTS_CTOR;
@@ -733,10 +710,6 @@ int revwalk_hide_callback::callback(const git_oid* commit_id,void* payload)
 #ifdef ZTS
     TSRMLS_D = ZTS_MEMBER_PC(cb);
 #endif
-
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK; // not hidden
-    }
 
     int result;
     zval retval;
@@ -781,11 +754,6 @@ int attr_foreach_callback::callback(const char* name,const char* value,void* pay
     TSRMLS_D = ZTS_MEMBER_PC(cb);
 #endif
 
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        // Return a non-zero value to stop looping.
-        return 1;
-    }
-
     int result;
     zval retval;
     zval_array<3> params ZTS_CTOR;
@@ -810,11 +778,6 @@ int status_callback::callback(const char* path,unsigned int status_flags,void* p
     TSRMLS_D = ZTS_MEMBER_PC(cb);
 #endif
 
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        // Return a non-zero value to stop looping.
-        return 1;
-    }
-
     int result;
     zval retval;
     zval_array<3> params ZTS_CTOR;
@@ -837,10 +800,6 @@ int note_foreach_callback::callback(const git_oid* blob_id,
 #ifdef ZTS
     TSRMLS_D = ZTS_MEMBER_PC(cb);
 #endif
-
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK;
-    }
 
     int result;
     zval retval;
@@ -871,10 +830,6 @@ int stash_callback::callback(size_t index,
 #ifdef ZTS
     TSRMLS_D = ZTS_MEMBER_PC(cb);
 #endif
-
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK;
-    }
 
     int result;
     zval retval;
@@ -912,10 +867,6 @@ int stash_apply_progress_callback::callback(
     TSRMLS_D = ZTS_MEMBER_PC(cb);
 #endif
 
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK;
-    }
-
     int result;
     zval retval;
     zval_array<2> params ZTS_CTOR;
@@ -948,10 +899,6 @@ int cred_acquire_callback::callback(git_cred** cred,
 #ifdef ZTS
     TSRMLS_D = ZTS_MEMBER_PC(cb);
 #endif
-
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK;
-    }
 
     int result;
     zval retval;
@@ -1013,10 +960,6 @@ int transport_certificate_check_callback::callback(git_cert* cert,
     TSRMLS_D = ZTS_MEMBER_PC(cb);
 #endif
 
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK;
-    }
-
     int result;
     zval retval;
     zval_array<4> params ZTS_CTOR;
@@ -1045,10 +988,6 @@ int remote_transport_message_callback::callback(const char* str,int len,void* pa
 #ifdef ZTS
     TSRMLS_D = ZTS_MEMBER_PC(cb);
 #endif
-
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK;
-    }
 
     int result;
     zval retval;
@@ -1081,10 +1020,6 @@ int remote_completion_callback::callback(
 #ifdef ZTS
     TSRMLS_D = ZTS_MEMBER_PC(cb);
 #endif
-
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK;
-    }
 
     int result;
     zval retval;
@@ -1159,10 +1094,6 @@ int remote_update_tips_callback::callback(
     TSRMLS_D = ZTS_MEMBER_PC(cb);
 #endif
 
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK;
-    }
-
     int result;
     zval retval;
     zval_array<4> params ZTS_CTOR;
@@ -1210,10 +1141,6 @@ int remote_push_transfer_progress_callback::callback(
     TSRMLS_D = ZTS_MEMBER_PC(cb);
 #endif
 
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK;
-    }
-
     int result;
     zval retval;
     zval_array<4> params ZTS_CTOR;
@@ -1244,10 +1171,6 @@ int remote_push_update_reference_callback::callback(
     TSRMLS_D = ZTS_MEMBER_PC(cb);
 #endif
 
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK;
-    }
-
     int result;
     zval retval;
     zval_array<3> params ZTS_CTOR;
@@ -1277,10 +1200,6 @@ int remote_push_negotiation_callback::callback(
 #ifdef ZTS
     TSRMLS_D = ZTS_MEMBER_PC(cb);
 #endif
-
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK;
-    }
 
     int result;
     zval retval;
@@ -1417,10 +1336,6 @@ int repository_fetchhead_foreach_callback::callback(
 {
     php_callback_base* cb = reinterpret_cast<php_callback_base*>(payload);
 
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK;
-    }
-
 #ifdef ZTS
     TSRMLS_D = ZTS_MEMBER_PC(cb);
 #endif
@@ -1447,10 +1362,6 @@ int repository_mergehead_foreach_callback::callback(
 {
     php_callback_base* cb = reinterpret_cast<php_callback_base*>(payload);
 
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK;
-    }
-
 #ifdef ZTS
     TSRMLS_D = ZTS_MEMBER_PC(cb);
 #endif
@@ -1475,10 +1386,6 @@ int treebuilder_filter_callback::callback(
     void* payload)
 {
     php_callback_base* cb = reinterpret_cast<php_callback_base*>(payload);
-
-    if (Z_TYPE_P(cb->func) == IS_NULL) {
-        return GIT_OK;
-    }
 
 #ifdef ZTS
     TSRMLS_D = ZTS_MEMBER_PC(cb);

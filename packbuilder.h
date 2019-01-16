@@ -20,8 +20,8 @@ namespace php_git2
 
     // Define shortcut to packbuilder async type.
     using packbuilder_async_callback_t = php_git2::php_callback_async_existing<
-        php_git2::php_git_packbuilder_with_callback,
-        php_git2::php_callback_sync_nullable
+        php_git_packbuilder_with_callback,
+        php_callback_sync_nullable
         >;
 
     class php_git_packbuilder_with_callback:

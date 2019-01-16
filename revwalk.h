@@ -53,6 +53,8 @@ namespace php_git2
         // instance if the user calls git_revwalk_add_hide_cb. Only one callback
         // is added at a time.
 
+        // TODO Support more than one callback at a time.
+
         php_git_revwalk_ex():
             cb(nullptr)
         {

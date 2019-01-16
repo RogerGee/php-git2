@@ -157,8 +157,8 @@ static constexpr auto ZIF_GIT_INDEX_ADD_ALL = zif_php_git2_function<
         php_git2::php_resource<php_git2::php_git_index>,
         php_git2::php_strarray_array,
         php_git2::php_long_cast<unsigned int>,
-        php_git2::php_callback_handler<php_git2::index_matched_path_callback>,
-        php_git2::php_callback_sync
+        php_git2::php_callback_handler_nullable<php_git2::index_matched_path_callback>,
+        php_git2::php_callback_sync_nullable
         >,
     -1,
     php_git2::sequence<0,1,2,4,4>,

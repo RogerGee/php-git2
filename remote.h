@@ -29,7 +29,7 @@ namespace php_git2
             if (Z_TYPE_P(value) == IS_ARRAY) {
                 array_wrapper arr(value);
 
-                GIT2_ARRAY_LOOKUP_CALLBACK(
+                GIT2_ARRAY_LOOKUP_CALLBACK_NULLABLE(
                     arr,
                     remote_transport_message_callback,
                     info.transportMessageCallback,
@@ -37,7 +37,7 @@ namespace php_git2
                     payload,
                     opts);
 
-                GIT2_ARRAY_LOOKUP_CALLBACK(
+                GIT2_ARRAY_LOOKUP_CALLBACK_NULLABLE(
                     arr,
                     remote_cred_acquire_callback,
                     info.credAcquireCallback,
@@ -45,7 +45,7 @@ namespace php_git2
                     payload,
                     opts);
 
-                GIT2_ARRAY_LOOKUP_CALLBACK(
+                GIT2_ARRAY_LOOKUP_CALLBACK_NULLABLE(
                     arr,
                     remote_transport_certificate_check_callback,
                     info.transportCertificateCheckCallback,
@@ -53,7 +53,7 @@ namespace php_git2
                     payload,
                     opts);
 
-                GIT2_ARRAY_LOOKUP_CALLBACK(
+                GIT2_ARRAY_LOOKUP_CALLBACK_NULLABLE(
                     arr,
                     remote_transfer_progress_callback,
                     info.transferProgressCallback,
@@ -61,7 +61,7 @@ namespace php_git2
                     payload,
                     opts);
 
-                GIT2_ARRAY_LOOKUP_CALLBACK(
+                GIT2_ARRAY_LOOKUP_CALLBACK_NULLABLE(
                     arr,
                     remote_update_tips_callback,
                     info.updateTipsCallback,
@@ -69,7 +69,7 @@ namespace php_git2
                     payload,
                     opts);
 
-                GIT2_ARRAY_LOOKUP_CALLBACK(
+                GIT2_ARRAY_LOOKUP_CALLBACK_NULLABLE(
                     arr,
                     remote_packbuilder_progress_callback,
                     info.packbuilderProgressCallback,
@@ -77,7 +77,7 @@ namespace php_git2
                     payload,
                     opts);
 
-                GIT2_ARRAY_LOOKUP_CALLBACK(
+                GIT2_ARRAY_LOOKUP_CALLBACK_NULLABLE(
                     arr,
                     remote_push_transfer_progress_callback,
                     info.pushTransferProgressCallback,
@@ -85,7 +85,7 @@ namespace php_git2
                     payload,
                     opts);
 
-                GIT2_ARRAY_LOOKUP_CALLBACK(
+                GIT2_ARRAY_LOOKUP_CALLBACK_NULLABLE(
                     arr,
                     remote_push_update_reference_callback,
                     info.pushUpdateReferenceCallback,
@@ -93,7 +93,7 @@ namespace php_git2
                     payload,
                     opts);
 
-                GIT2_ARRAY_LOOKUP_CALLBACK(
+                GIT2_ARRAY_LOOKUP_CALLBACK_NULLABLE(
                     arr,
                     remote_push_negotiation_callback,
                     info.pushNegotiationCallback,
@@ -135,7 +135,7 @@ namespace php_git2
                 GIT2_ARRAY_LOOKUP_LONG(arr,type,opts);
                 GIT2_ARRAY_LOOKUP_STRING(arr,url,opts);
 
-                GIT2_ARRAY_LOOKUP_CALLBACK(
+                GIT2_ARRAY_LOOKUP_CALLBACK_NULLABLE(
                     arr,
                     proxy_cred_acquire_callback,
                     info.credAcquireCallback,
@@ -143,7 +143,7 @@ namespace php_git2
                     payload,
                     opts);
 
-                GIT2_ARRAY_LOOKUP_CALLBACK(
+                GIT2_ARRAY_LOOKUP_CALLBACK_NULLABLE(
                     arr,
                     proxy_transport_certificate_check_callback,
                     info.transportCertificateCheckCallback,
