@@ -761,7 +761,7 @@ void php_git2::convert_push_update(zval* zv,const git_push_update* up)
     add_assoc_zval(zv,"dst",zoiddst);
 }
 
-void convert_push_head(zval* zv,const git_remote_head* head)
+void php_git2::convert_remote_head(zval* zv,const git_remote_head* head)
 {
     zval* zoid;
     zval* zloid;
