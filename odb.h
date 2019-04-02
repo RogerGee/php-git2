@@ -126,7 +126,7 @@ namespace php_git2
     };
 
     class php_git_odb_backend_byref:
-        private php_zts_base
+        protected php_zts_base
     {
     public:
         php_git_odb_backend_byref(TSRMLS_D):
@@ -245,6 +245,8 @@ namespace php_git2
     {
         using PackType = local_pack<php_resource<php_git_odb_object> >;
     public:
+        ZTS_CONSTRUCTOR(php_git_odb_object_data_rethandler)
+
         bool ret(const void* retval,zval* return_value,PackType& pack)
         {
             if (retval != nullptr) {

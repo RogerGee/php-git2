@@ -15,11 +15,11 @@ extern "C" {
 
 // Helper macros
 
-#define LOOKUP_OBJECT(type,val)                         \
+#define LOOKUP_OBJECT(type,val)                             \
     ((type*)zend_object_store_get_object(val TSRMLS_CC))
 
-#define is_subclass_of(a,b)                     \
-    (a == b || instanceof_function(a,b))
+#define is_subclass_of(a,b)                         \
+    (a == b || instanceof_function(a,b TSRMLS_CC))
 
 #define PHP_EMPTY_METHOD(C,M)                   \
     PHP_METHOD(C,M) { }
@@ -48,11 +48,13 @@ namespace php_git2
     // Define a type for wrapping method calls.
 
     template<typename ObjectType,typename BackingType>
-    class php_object_wrapper
+    class php_object_wrapper:
+        private php_zts_base
     {
     public:
-        php_object_wrapper(typename ObjectType::base_class* base):
-            wrapperObject(static_cast<ObjectType*>(base)), backingObject(nullptr)
+        php_object_wrapper(typename ObjectType::base_class* base TSRMLS_DC):
+            php_zts_base(TSRMLS_C), wrapperObject(static_cast<ObjectType*>(base)),
+            backingObject(nullptr)
         {
         }
 
@@ -133,11 +135,11 @@ namespace php_git2
                     result = GIT_EPHPFATAL;
                 }
                 else {
-                    php_exception_wrapper ex;
+                    php_exception_wrapper ex ZTS_CTOR;
 
                     // Handle case where PHP userspace threw an exception.
                     if (ex.has_exception()) {
-                        ex.set_giterr(TSRMLS_C);
+                        ex.set_giterr();
                         result = GIT_EPHPEXPROP;
                     }
                 }

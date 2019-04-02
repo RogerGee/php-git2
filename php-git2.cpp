@@ -59,7 +59,7 @@ PHP_GSHUTDOWN_FUNCTION(git2)
 
 PHP_MINIT_FUNCTION(git2)
 {
-    php_git2_globals_init();
+    php_git2_globals_init(TSRMLS_C);
 
     // Initialize git2 library.
     git_libgit2_init();
@@ -116,7 +116,7 @@ PHP_MINIT_FUNCTION(git2)
 
 PHP_RINIT_FUNCTION(git2)
 {
-    php_git2_globals_request_init();
+    php_git2_globals_request_init(TSRMLS_C);
 
     return SUCCESS;
 }
@@ -213,7 +213,7 @@ php_git2_fatal_exception::php_git2_fatal_exception(const char* format, ...)
 
 // php_exception_wrapper
 
-void php_exception_wrapper::set_giterr(TSRMLS_D) const
+void php_exception_wrapper::set_giterr() const
 {
     zval* zmessage;
 
@@ -341,7 +341,7 @@ void php_git2::php_git2_globals_dtor(zend_git2_globals* gbls TSRMLS_DC)
     UNUSED(gbls);
 }
 
-void php_git2::php_git2_globals_init()
+void php_git2::php_git2_globals_init(TSRMLS_D)
 {
 #ifdef ZTS
     ts_allocate_id(&git2_globals_id,
@@ -353,7 +353,7 @@ void php_git2::php_git2_globals_init()
 #endif
 }
 
-void php_git2::php_git2_globals_request_init()
+void php_git2::php_git2_globals_request_init(TSRMLS_D)
 {
     GIT2_G(propagateFatalError) = false;
 }

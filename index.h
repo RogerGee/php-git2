@@ -25,10 +25,12 @@ namespace php_git2
     // git_index_entry.
 
     class php_git_index_entry:
-        public php_value_base
+        public php_value_base,
+        private php_zts_base
     {
     public:
-        php_git_index_entry(TSRMLS_D)
+        php_git_index_entry(TSRMLS_D):
+            php_zts_base(TSRMLS_C)
         {
             memset(&ent,0,sizeof(git_index_entry));
         }
@@ -40,7 +42,7 @@ namespace php_git2
             }
 
             array_wrapper arr(value);
-            php_git_index_time tm;
+            php_git_index_time tm ZTS_CTOR;
 
             GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(arr,tm,ctime,ent);
             GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(arr,tm,mtime,ent);
@@ -124,6 +126,8 @@ namespace php_git2
     class php_git_index_entry_rethandler
     {
     public:
+        ZTS_CONSTRUCTOR(php_git_index_entry_rethandler)
+
         template<typename... Ts>
         bool ret(const git_index_entry* entry,zval* return_value,local_pack<Ts...>& pack)
         {

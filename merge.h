@@ -19,7 +19,8 @@ namespace php_git2
         public php_value_base
     {
     public:
-        php_git_merge_options(TSRMLS_D)
+        php_git_merge_options(TSRMLS_D):
+            strarray(TSRMLS_C)
         {
             git_merge_init_options(&opts,GIT_MERGE_OPTIONS_VERSION);
         }

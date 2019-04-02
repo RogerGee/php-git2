@@ -22,6 +22,8 @@ namespace php_git2
     {
         using PackType = local_pack<php_resource<php_git_blob> >;
     public:
+        ZTS_CONSTRUCTOR(php_git_blob_rawcontent_rethandler)
+
         bool ret(const void* retval,zval* return_value,PackType& pack)
         {
             if (retval != nullptr) {

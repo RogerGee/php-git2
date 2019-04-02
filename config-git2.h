@@ -31,7 +31,7 @@ namespace php_git2
     class php_git_config_entry
     {
     public:
-        php_git_config_entry():
+        php_git_config_entry(TSRMLS_D):
             entry(nullptr)
         {
         }
@@ -65,6 +65,8 @@ namespace php_git2
         public php_git_config_entry
     {
     public:
+        ZTS_CONSTRUCTOR_WITH_BASE(php_git_config_entry_freeing,php_git_config_entry)
+
         ~php_git_config_entry_freeing()
         {
             git_config_entry* ent = get_entry();
@@ -81,6 +83,8 @@ namespace php_git2
         public php_value_base
     {
     public:
+        ZTS_CONSTRUCTOR(php_git_cvar_map)
+
         git_cvar_map byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
             git_cvar_map result;
@@ -115,7 +119,7 @@ namespace php_git2
         typedef git_config_backend* target_t;
 
         php_git_config_backend(connect_t& conn TSRMLS_DC):
-            php_zts_base(TSRMLS_DC), ownerWrapper(conn)
+            php_zts_base(TSRMLS_C), ownerWrapper(conn)
         {
         }
 
@@ -159,6 +163,11 @@ namespace php_git2
         private php_zts_base
     {
     public:
+        php_git_config_backend_byval(TSRMLS_D):
+            php_zts_base(TSRMLS_C)
+        {
+        }
+
         git_config_backend* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
             // Make sure the zval is an object of or derived from class

@@ -26,7 +26,10 @@ namespace php_git2
         public php_value_base
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_diff_options)
+        php_git_diff_options(TSRMLS_D):
+            callbacks(TSRMLS_C), strarray(TSRMLS_C)
+        {
+        }
 
         const git_diff_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
@@ -255,7 +258,10 @@ namespace php_git2
     class php_git_diff_callback_payload
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_diff_callback_payload)
+        php_git_diff_callback_payload(TSRMLS_D):
+            info(TSRMLS_C)
+        {
+        }
 
         zval** byref_php(unsigned pos)
         {
@@ -334,6 +340,8 @@ namespace php_git2
     class php_git_diff_delta_rethandler
     {
     public:
+        ZTS_CONSTRUCTOR(php_git_diff_delta_rethandler)
+
         bool ret(const git_diff_delta* delta,zval* return_value,local_pack<Ts...>& pack)
         {
             if (delta == nullptr) {
@@ -374,7 +382,7 @@ namespace php_git2
     {
     public:
         php_git_diff_format_email_options(TSRMLS_D):
-            php_zts_base(TSRMLS_C), sig(nullptr)
+            php_zts_base(TSRMLS_C), oid(TSRMLS_C), sig(nullptr)
         {
             git_diff_format_email_init_options(&opts,GIT_DIFF_FORMAT_EMAIL_OPTIONS_VERSION);
         }
