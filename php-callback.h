@@ -895,6 +895,15 @@ namespace php_git2
             void* payload);
     };
 
+    struct submodule_foreach_callback
+    {
+        typedef git_submodule_cb type;
+        static int callback(
+            git_submodule* sm,
+            const char* name,
+            void* payload);
+    };
+
 } // namespace php_git2
 
 #endif

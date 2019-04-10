@@ -103,7 +103,8 @@ PHP_MINIT_FUNCTION(git2)
         git_rebase,
         git_remote,
         git_refspec,
-        git_cred >(module_number);
+        git_cred,
+        git_submodule >(module_number);
 
     // Register all classes provided by this extension.
     php_git2_register_classes(TSRMLS_C);

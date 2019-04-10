@@ -249,6 +249,28 @@ namespace php_git2
         }
     };
 
+    // Provide a rethandler that handles the GIT_EEXISTS error condition.
+
+    class php_boolean_exists_rethandler
+    {
+    public:
+        template<typename... Ts>
+        bool ret(int retval,zval* return_value,local_pack<Ts...>& pack)
+        {
+            if (retval != GIT_OK) {
+                if (retval == GIT_EEXISTS) {
+                    RETVAL_FALSE;
+                    return true;
+                }
+
+                return false;
+            }
+
+            RETVAL_TRUE;
+            return true;
+        }
+    };
+
     // Provide a rethandler that returns false when GIT_ITEROVER is
     // reached. The following variants are also provided:
     //  - variant for returning a value at 'Position' within the local pack

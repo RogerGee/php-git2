@@ -48,6 +48,7 @@
 #include "refspec.h"
 #include "cred.h"
 #include "clone.h"
+#include "submodule.h"
 
 // Exported extension functions defined in this unit.
 static PHP_FUNCTION(git_libgit2_version);
@@ -109,6 +110,7 @@ zend_function_entry php_git2::functions[] = {
     GIT_REFSPEC_FE
     GIT_CRED_FE
     GIT_CLONE_FE
+    GIT_SUBMODULE_FE
     PHP_FE_END
 };
 

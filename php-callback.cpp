@@ -1406,6 +1406,34 @@ int treebuilder_filter_callback::callback(
     return result;
 }
 
+int submodule_foreach_callback::callback(
+    git_submodule* sm,
+    const char* name,
+    void* payload)
+{
+    php_callback_sync* cb = reinterpret_cast<php_callback_sync*>(payload);
+
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(pc);
+#endif
+
+    int result;
+    zval retval;
+    zval_array<3> params ZTS_CTOR;
+    const php_resource_ref<php_git_submodule> res;
+
+    // Convert arguments to PHP values.
+    *res.byval_git2() = sm;
+    res.ret(params[0]);
+    params.assign<1>(name,cb->data);
+
+    // Call the userspace callback.
+    result = params.call(cb->func,&retval);
+    zval_dtor(&retval);
+
+    return result;
+}
+
 /*
  * Local Variables:
  * indent-tabs-mode:nil

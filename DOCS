@@ -63,6 +63,7 @@ purpose) are determined by the C++ compiler via 'typeid'.
     git_remote
     git_refspec
     git_cred
+    git_submodule
 
 The following structures are not represented as resources in the PHP
 API. Instead a scalar, array or object type is used:
@@ -2597,6 +2598,108 @@ git_cred_username_new(string)
 git_cred_userpass_plaintext_new(string,string)
 
     Returns git_cred resource
+
+----------------------------------------
+[git_submodule]
+----------------------------------------
+
+git_submodule_add_finalize(resource)
+
+git_submodule_add_setup(resource,string,string,bool)
+
+    Returns git_submodule resource
+
+git_submodule_add_to_index(resource,bool)
+
+git_submodule_branch(resource)
+
+    Returns string
+
+git_submodule_fetch_recurse_submodules(resource)
+
+    Returns int
+
+git_submodule_foreach(resource,callable,mixed)
+
+git_submodule_free(resource)
+
+git_submodule_head_id(resource)
+
+    Returns string
+
+git_submodule_ignore(resource)
+
+    Returns int
+
+git_submodule_index_id(resource)
+
+    Returns string
+
+git_submodule_init(resource,bool)
+
+git_submodule_location(resource,string)
+
+    Returns int
+
+git_submodule_lookup(resource,string)
+
+    Returns git_submodule resource
+
+git_submodule_name(resource)
+
+    Returns string
+
+git_submodule_open(resource)
+
+    Returns git_repository resource
+
+git_submodule_owner(resource)
+
+    Returns git_repository resource
+
+git_submodule_path(resource)
+
+    Returns string
+
+git_submodule_reload(resource,bool)
+
+git_submodule_repo_init(resource,bool)
+
+    Returns git_repository resource
+
+git_submodule_resolve_url(resource,string)
+
+    Returns string
+
+git_submodule_set_branch(resource,string,string)
+
+git_submodule_set_fetch_recurse_submodules(resource,string,int)
+
+git_submodule_set_ignore(resource,string,int)
+
+git_submodule_set_update(resource,string,int)
+
+git_submodule_set_url(resource,string,string)
+
+git_submodule_status(resource,string,int)
+
+    Returns int
+
+git_submodule_sync(resource)
+
+git_submodule_update(resource,bool,array|null)
+
+git_submodule_update_strategy(resource)
+
+    Returns int
+
+git_submodule_url(resource)
+
+    Returns string
+
+git_submodule_wd_id(resource)
+
+    Returns string
 
 --------------------------------------------------------------------------------
 Class API Reference
