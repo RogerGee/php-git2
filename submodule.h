@@ -356,8 +356,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_SET_UPDATE = zif_php_git2_function<
         php_git2::php_resource<php_git2::php_git_repository>,
         php_git2::php_string,
         php_git2::php_long_cast<git_submodule_update_t>
-        >,
-    -1
+        >
     >;
 
 static constexpr auto ZIF_GIT_SUBMODULE_SET_URL = zif_php_git2_function<
@@ -430,7 +429,8 @@ static constexpr auto ZIF_GIT_SUBMODULE_URL = zif_php_git2_function<
         git_submodule*>::func<git_submodule_url>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_submodule>
-        >
+        >,
+    0
     >;
 
 static constexpr auto ZIF_GIT_SUBMODULE_WD_ID = zif_php_git2_function<
@@ -439,7 +439,8 @@ static constexpr auto ZIF_GIT_SUBMODULE_WD_ID = zif_php_git2_function<
         git_submodule*>::func<git_submodule_wd_id>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_submodule>
-        >
+        >,
+    0
     >;
 
 // Function entry macro
