@@ -140,7 +140,7 @@ zval* odb_writepack_read_property(zval* obj,zval* prop,int type,const zend_liter
                 // Create GitODBBackend object instance to represent the
                 // git_odb_backend attached to the writepack. The object does not
                 // own the underlying backend object.
-                php_git2_make_odb_backend(ret,writepack->backend,wrapper->owner);
+                php_git2_make_odb_backend(ret,writepack->backend,wrapper->owner TSRMLS_CC);
 
                 Z_ADDREF_P(ret);
                 if (key != nullptr) {
@@ -196,7 +196,7 @@ void odb_writepack_write_property(zval* obj,zval* prop,zval* value,const zend_li
         php_error(E_ERROR,"Property '%s' of GitODBWritepack cannot be updated",str);
     }
     else {
-        (*std_object_handlers.write_property)(obj,prop,value,key);
+        (*std_object_handlers.write_property)(obj,prop,value,key TSRMLS_CC);
     }
 
     if (tmp_prop != nullptr) {
@@ -246,7 +246,7 @@ int odb_writepack_has_property(zval* obj,zval* prop,int chk_type,const zend_lite
 
 PHP_METHOD(GitODBWritepack,append)
 {
-    php_bailer bailer;
+    php_bailer bailer ZTS_CTOR;
     int result;
     char* buf;
     int amt;
@@ -264,17 +264,17 @@ PHP_METHOD(GitODBWritepack,append)
             php_git2::git_error(result);
         }
     } catch (php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer);
+        php_bailout_context ctx(bailer TSRMLS_CC);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle();
+            ex.handle(TSRMLS_C);
         }
     }
 }
 
 PHP_METHOD(GitODBWritepack,commit)
 {
-    php_bailer bailer;
+    php_bailer bailer ZTS_CTOR;
     int result;
     php_odb_writepack_object* object = LOOKUP_OBJECT(php_odb_writepack_object,getThis());
 
@@ -286,10 +286,10 @@ PHP_METHOD(GitODBWritepack,commit)
             php_git2::git_error(result);
         }
     } catch (php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer);
+        php_bailout_context ctx(bailer TSRMLS_CC);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle();
+            ex.handle(TSRMLS_C);
         }
     }
 }

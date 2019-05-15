@@ -49,11 +49,11 @@ namespace php_git2
 
     template<typename ObjectType,typename BackingType>
     class php_object_wrapper:
-        private php_zts_base
+        protected php_zts_base_fetched
     {
     public:
-        php_object_wrapper(typename ObjectType::base_class* base TSRMLS_DC):
-            php_zts_base(TSRMLS_C), wrapperObject(static_cast<ObjectType*>(base)),
+        php_object_wrapper(typename ObjectType::base_class* base):
+            wrapperObject(static_cast<ObjectType*>(base)),
             backingObject(nullptr)
         {
         }
@@ -95,6 +95,7 @@ namespace php_git2
     {
     public:
         using object_wrapper = php_object_wrapper<ObjectType,BackingType>;
+        using object_wrapper::TSRMLS_C;
 
         php_method_wrapper(const char* methodName,typename ObjectType::base_class* base):
             object_wrapper(base)
@@ -112,8 +113,8 @@ namespace php_git2
 
         int call(int nparams = 0,zval* params[] = nullptr)
         {
-            php_bailer bailer;
-            php_bailout_context ctx(bailer);
+            php_bailer bailer ZTS_CTOR;
+            php_bailout_context ctx(bailer TSRMLS_CC);
             int result = GIT_OK;
 #ifdef ZTS
             TSRMLS_D = ZTS_MEMBER_C(object_wrapper::backing()->zts);
@@ -191,7 +192,7 @@ namespace php_git2
         {
             typedef git_odb_backend base_class;
 
-            git_odb_backend_php(zval* zv);
+            git_odb_backend_php(zval* zv TSRMLS_DC);
             ~git_odb_backend_php();
 
             zval* thisobj;

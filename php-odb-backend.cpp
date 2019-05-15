@@ -97,7 +97,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 
     // Create custom backend. Custom backends are always passed off to git2, so
     // we are not responsible for calling its free function.
-    backend = new (emalloc(sizeof(git_odb_backend_php))) git_odb_backend_php(zobj);
+    backend = new (emalloc(sizeof(git_odb_backend_php))) git_odb_backend_php(zobj ZTS_MEMBER_CC(zts));
 
     // Assume new owner. It should be a non-null ODB resource pointer.
     owner = newOwner;
@@ -262,7 +262,6 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     MAKE_STD_ZVAL(zpayload);
     MAKE_STD_ZVAL(ztype);
 
-
     convert_oid(zoid,oid);
     ZVAL_STRINGL(zpayload,(const char*)data,size,1);
     ZVAL_LONG(ztype,type);
@@ -289,6 +288,8 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     zval* zsize;
     zval* ztype;
     method_wrapper method("writestream",backend);
+
+    ZTS_MEMBER_EXTRACT(method.backing()->zts);
 
     // Allocate/set zvals.
 
@@ -367,6 +368,8 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     int result;
     zval* zbuf;
     method_wrapper method("readstream",backend);
+
+    ZTS_MEMBER_EXTRACT(method.backing()->zts);
 
     // Allocate/set zvals.
 
@@ -547,9 +550,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 
     // Make sure ZTS stuff is in-scope for call to object_init_ex() and
     // zend_objects_get_address().
-#ifdef ZTS
-    TSRMLS_D = ZTS_MEMBER_C(method.backing()->zts);
-#endif
+    ZTS_MEMBER_EXTRACT(method.backing()->zts);
 
     // Set up the closure to call an internal function that will handle
     // calling the function and passing the payload.
@@ -594,6 +595,8 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 {
     method_wrapper::object_wrapper object(backend);
 
+    ZTS_MEMBER_EXTRACT(object.backing()->zts);
+
     // Make sure object buckets still exist to lookup object (in case the
     // destructor was already called). This happens when free() is called after
     // PHP has finished cleaning up all objects (but before all variables, which
@@ -614,7 +617,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
 // php_odb_backend_object::git_odb_backend_php
 
 php_odb_backend_object::
-git_odb_backend_php::git_odb_backend_php(zval* zv)
+git_odb_backend_php::git_odb_backend_php(zval* zv TSRMLS_DC)
 {
     // Blank out the base class (which is the structure defined in the git2
     // headers).
@@ -778,7 +781,7 @@ void odb_backend_write_property(zval* obj,zval* prop,zval* value,const zend_lite
         php_error(E_ERROR,"Property '%s' of GitODBBackend cannot be updated",str);
     }
     else {
-        (*std_object_handlers.write_property)(obj,prop,value,key);
+        (*std_object_handlers.write_property)(obj,prop,value,key TSRMLS_CC);
     }
 
     if (tmp_prop != nullptr) {

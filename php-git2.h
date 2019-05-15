@@ -67,6 +67,7 @@ ZEND_EXTERN_MODULE_GLOBALS(git2)
 #define ZTS_MEMBER_CC(obj) , obj.TSRMLS_C
 #define ZTS_MEMBER_PC(obj) obj->TSRMLS_C
 #define ZTS_MEMBER_PCC(obj) , obj->TSRMLS_C
+#define ZTS_MEMBER_EXTRACT(obj) TSRMLS_D = obj.TSRMLS_C
 
 // We provide a macro that allows us to optionally pass TSRMLS_C to a
 // constructor.
@@ -80,6 +81,7 @@ ZEND_EXTERN_MODULE_GLOBALS(git2)
 #define ZTS_MEMBER_CC(obj)
 #define ZTS_MEMBER_PC(obj)
 #define ZTS_MEMBER_PCC(obj)
+#define ZTS_MEMBER_EXTRACT(obj)
 
 // Make ZTS_CTOR insert nothing. It cannot be "( )" because C++ resolves
 // ambiguity in parsing 'T X()' in favor of a function declaration.
@@ -121,6 +123,21 @@ namespace php_git2
         php_zts_base(TSRMLS_D):
             TSRMLS_C(TSRMLS_C)
         {
+        }
+
+    public:
+        TSRMLS_D;
+#endif
+    };
+
+    class php_zts_base_fetched
+    {
+#ifdef ZTS
+    protected:
+        php_zts_base_fetched()
+        {
+            TSRMLS_FETCH();
+            this->TSRMLS_C = TSRMLS_C;
         }
 
     public:
