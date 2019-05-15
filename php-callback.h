@@ -10,7 +10,7 @@
 
 namespace php_git2
 {
-    int php_git2_invoke_callback(zval* func,zval* ret,zend_uint paramCount,zval* params[]);
+    int php_git2_invoke_callback(zval* func,zval* ret,zend_uint paramCount,zval* params[] TSRMLS_DC);
 
     // Provide a type that contains an array of zvals converted from primative
     // values.
@@ -115,7 +115,7 @@ namespace php_git2
 
         int call(zval* func,zval* ret)
         {
-            return php_git2_invoke_callback(func,ret,Count,params);
+            return php_git2_invoke_callback(func,ret,Count,params TSRMLS_CC);
         }
 
         zval* operator [](unsigned index)
