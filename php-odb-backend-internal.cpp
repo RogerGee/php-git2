@@ -91,7 +91,7 @@ php_odb_backend_internal_object::php_odb_backend_internal_object(zend_class_entr
 
 PHP_METHOD(GitODBBackend_Internal,read)
 {
-    php_bailer bailer;
+    php_bailer bailer ZTS_CTOR;
     zval* ztype;
     char* strOid;
     int strOidLen;
@@ -135,17 +135,17 @@ PHP_METHOD(GitODBBackend_Internal,read)
             free(data);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer);
+        php_bailout_context ctx(bailer TSRMLS_CC);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle();
+            ex.handle(TSRMLS_C);
         }
     }
 }
 
 PHP_METHOD(GitODBBackend_Internal,read_prefix)
 {
-    php_bailer bailer;
+    php_bailer bailer ZTS_CTOR;
     zval* zoid;
     zval* ztype;
     char* strOid;
@@ -193,17 +193,17 @@ PHP_METHOD(GitODBBackend_Internal,read_prefix)
             free(data);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer);
+        php_bailout_context ctx(bailer TSRMLS_CC);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle();
+            ex.handle(TSRMLS_C);
         }
     }
 }
 
 PHP_METHOD(GitODBBackend_Internal,read_header)
 {
-    php_bailer bailer;
+    php_bailer bailer ZTS_CTOR;
     zval* zsize;
     zval* ztype;
     char* strOid;
@@ -239,10 +239,10 @@ PHP_METHOD(GitODBBackend_Internal,read_header)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer);
+        php_bailout_context ctx(bailer TSRMLS_CC);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle();
+            ex.handle(TSRMLS_C);
         }
 
         return;
@@ -256,7 +256,7 @@ PHP_METHOD(GitODBBackend_Internal,read_header)
 
 PHP_METHOD(GitODBBackend_Internal,write)
 {
-    php_bailer bailer;
+    php_bailer bailer ZTS_CTOR;
     char* uoid;
     int uoidSize;
     char* data;
@@ -287,17 +287,17 @@ PHP_METHOD(GitODBBackend_Internal,write)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer);
+        php_bailout_context ctx(bailer TSRMLS_CC);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle();
+            ex.handle(TSRMLS_C);
         }
     }
 }
 
 PHP_METHOD(GitODBBackend_Internal,writestream)
 {
-    php_bailer bailer;
+    php_bailer bailer ZTS_CTOR;
     long offset;
     long objectType;
     git_odb_stream* outstream = nullptr;
@@ -327,17 +327,17 @@ PHP_METHOD(GitODBBackend_Internal,writestream)
             php_git2_make_odb_stream(return_value,outstream,nullptr TSRMLS_CC);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer);
+        php_bailout_context ctx(bailer TSRMLS_CC);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle();
+            ex.handle(TSRMLS_C);
         }
     }
 }
 
 PHP_METHOD(GitODBBackend_Internal,readstream)
 {
-    php_bailer bailer;
+    php_bailer bailer ZTS_CTOR;
     char* oidstr;
     int oidstr_len;
     git_oid oid;
@@ -368,17 +368,17 @@ PHP_METHOD(GitODBBackend_Internal,readstream)
             php_git2_make_odb_stream(return_value,outstream,nullptr TSRMLS_CC);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer);
+        php_bailout_context ctx(bailer TSRMLS_CC);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle();
+            ex.handle(TSRMLS_C);
         }
     }
 }
 
 PHP_METHOD(GitODBBackend_Internal,exists)
 {
-    php_bailer bailer;
+    php_bailer bailer ZTS_CTOR;
     int retval;
     char* uoid;
     int uoidSize;
@@ -405,10 +405,10 @@ PHP_METHOD(GitODBBackend_Internal,exists)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer);
+        php_bailout_context ctx(bailer TSRMLS_CC);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle();
+            ex.handle(TSRMLS_C);
         }
 
         return;
@@ -424,7 +424,7 @@ PHP_METHOD(GitODBBackend_Internal,exists)
 
 PHP_METHOD(GitODBBackend_Internal,exists_prefix)
 {
-    php_bailer bailer;
+    php_bailer bailer ZTS_CTOR;
     int retval;
     zval* zoid;
     char* uoid;
@@ -453,10 +453,10 @@ PHP_METHOD(GitODBBackend_Internal,exists_prefix)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer);
+        php_bailout_context ctx(bailer TSRMLS_CC);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle();
+            ex.handle(TSRMLS_C);
         }
 
         return;
@@ -477,7 +477,7 @@ PHP_METHOD(GitODBBackend_Internal,exists_prefix)
 
 PHP_METHOD(GitODBBackend_Internal,refresh)
 {
-    php_bailer bailer;
+    php_bailer bailer ZTS_CTOR;
     php_odb_backend_object* object = LOOKUP_OBJECT(php_odb_backend_object,getThis());
 
     // Backend must be created and the function must be implemented.
@@ -494,17 +494,17 @@ PHP_METHOD(GitODBBackend_Internal,refresh)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer);
+        php_bailout_context ctx(bailer TSRMLS_CC);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle();
+            ex.handle(TSRMLS_C);
         }
     }
 }
 
 PHP_METHOD(GitODBBackend_Internal,for_each)
 {
-    php_bailer bailer;
+    php_bailer bailer ZTS_CTOR;
     php_odb_backend_object* object = LOOKUP_OBJECT(php_odb_backend_object,getThis());
 
     // Backend must be created and the function must be implemented.
@@ -514,7 +514,7 @@ PHP_METHOD(GitODBBackend_Internal,for_each)
     }
 
     int retval;
-    php_callback_sync callback;
+    php_callback_sync callback ZTS_CTOR;
 
     if (zend_get_parameters(0,2,callback.byref_php(1),callback.byref_php(2)) == FAILURE) {
         php_error(E_ERROR,"GitODBBackend_Internal::for_each(): method expects 2 arguments");
@@ -523,7 +523,7 @@ PHP_METHOD(GitODBBackend_Internal,for_each)
 
     // Call the underlying function.
     try {
-        php_callback_handler<odb_foreach_callback> handler;
+        php_callback_handler<odb_foreach_callback> handler ZTS_CTOR;
 
         retval = object->backend->foreach(object->backend,
             handler.byval_git2(),callback.byval_git2());
@@ -532,17 +532,17 @@ PHP_METHOD(GitODBBackend_Internal,for_each)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer);
+        php_bailout_context ctx(bailer TSRMLS_CC);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle();
+            ex.handle(TSRMLS_C);
         }
     }
 }
 
 PHP_METHOD(GitODBBackend_Internal,writepack)
 {
-    php_bailer bailer;
+    php_bailer bailer ZTS_CTOR;
     zval* thisobj = getThis();
     php_odb_backend_object* object = LOOKUP_OBJECT(php_odb_backend_object,thisobj);
 
@@ -567,7 +567,7 @@ PHP_METHOD(GitODBBackend_Internal,writepack)
 
     try {
         int retval;
-        php_callback_handler_nullable_connector<transfer_progress_callback> handler(*callback);
+        php_callback_handler_nullable_connector<transfer_progress_callback> handler(*callback TSRMLS_CC);
 
         // Call the underlying function.
         retval = object->backend->writepack(
@@ -586,10 +586,10 @@ PHP_METHOD(GitODBBackend_Internal,writepack)
             php_git2_make_odb_writepack(return_value,wp,callback,thisobj,object->owner TSRMLS_CC);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer);
+        php_bailout_context ctx(bailer TSRMLS_CC);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle();
+            ex.handle(TSRMLS_C);
         }
 
         callback->~php_callback_sync_nullable();

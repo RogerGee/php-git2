@@ -273,7 +273,7 @@ namespace php_git2
         {
             typedef git_odb_stream base_class;
 
-            git_odb_stream_php(zval* zv,unsigned int mode);
+            git_odb_stream_php(zval* zv,unsigned int mode TSRMLS_DC);
             ~git_odb_stream_php();
 
             zval* thisobj;
@@ -377,7 +377,7 @@ namespace php_git2
         {
             typedef git_refdb_backend base_class;
 
-            git_refdb_backend_php(zval* zv);
+            git_refdb_backend_php(zval* zv TSRMLS_DC);
             ~git_refdb_backend_php();
 
             zval* thisobj;

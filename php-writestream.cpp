@@ -58,7 +58,7 @@ php_writestream_object::~php_writestream_object()
 
 PHP_METHOD(GitWritestream,write)
 {
-    php_bailer bailer;
+    php_bailer bailer ZTS_CTOR;
     int retval;
     char* buffer;
     int bufsz;
@@ -82,17 +82,17 @@ PHP_METHOD(GitWritestream,write)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer);
+        php_bailout_context ctx(bailer TSRMLS_CC);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle();
+            ex.handle(TSRMLS_C);
         }
     }
 }
 
 PHP_METHOD(GitWritestream,close)
 {
-    php_bailer bailer;
+    php_bailer bailer ZTS_CTOR;
     int retval;
     char* buffer;
     int bufsz;
@@ -116,10 +116,10 @@ PHP_METHOD(GitWritestream,close)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer);
+        php_bailout_context ctx(bailer TSRMLS_CC);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle();
+            ex.handle(TSRMLS_C);
         }
     }
 }

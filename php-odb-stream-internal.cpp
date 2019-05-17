@@ -68,7 +68,7 @@ PHP_METHOD(GitODBStream_Internal,read)
      * length of the allocated buffer.
      */
 
-    php_bailer bailer;
+    php_bailer bailer ZTS_CTOR;
     int retval;
     char* buffer;
     long bufsz;
@@ -99,17 +99,17 @@ PHP_METHOD(GitODBStream_Internal,read)
             RETVAL_STRINGL(buffer,bufsz,0);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer);
+        php_bailout_context ctx(bailer TSRMLS_CC);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle();
+            ex.handle(TSRMLS_C);
         }
     }
 }
 
 PHP_METHOD(GitODBStream_Internal,write)
 {
-    php_bailer bailer;
+    php_bailer bailer ZTS_CTOR;
     int retval;
     char* buffer;
     int bufsz;
@@ -133,17 +133,17 @@ PHP_METHOD(GitODBStream_Internal,write)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer);
+        php_bailout_context ctx(bailer TSRMLS_CC);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle();
+            ex.handle(TSRMLS_C);
         }
     }
 }
 
 PHP_METHOD(GitODBStream_Internal,finalize_write)
 {
-    php_bailer bailer;
+    php_bailer bailer ZTS_CTOR;
     int retval;
     char* input;
     int input_len;
@@ -171,10 +171,10 @@ PHP_METHOD(GitODBStream_Internal,finalize_write)
             php_git2::git_error(retval);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer);
+        php_bailout_context ctx(bailer TSRMLS_CC);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle();
+            ex.handle(TSRMLS_C);
         }
     }
 }
