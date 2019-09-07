@@ -860,7 +860,10 @@ namespace php_git2
     class php_strarray
     {
     public:
-        ZTS_CONSTRUCTOR(php_strarray)
+        php_strarray(TSRMLS_D)
+        {
+            memset(&arr,0,sizeof(git_strarray));
+        }
 
         ~php_strarray()
         {
@@ -890,7 +893,10 @@ namespace php_git2
     class php_oidarray
     {
     public:
-        ZTS_CONSTRUCTOR(php_oidarray)
+        php_oidarray(TSRMLS_D)
+        {
+            memset(&arr,0,sizeof(git_oidarray));
+        }
 
         ~php_oidarray()
         {
@@ -920,7 +926,10 @@ namespace php_git2
     class php_git_buf
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_buf)
+        php_git_buf(TSRMLS_D)
+        {
+            memset(&buf,0,sizeof(git_buf));
+        }
 
         ~php_git_buf()
         {
