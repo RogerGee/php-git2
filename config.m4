@@ -18,6 +18,13 @@ if test $PHP_GIT2 != "no"; then
     ],
     [])
 
+    # Add PHP_RPATHS to extension build via EXTRA_LDFLAGS.
+    if test $PHP_RPATHS != ""; then
+        PHP_UTILIZE_RPATHS()
+        EXTRA_LDFLAGS="$PHP_RPATHS"
+        PHP_SUBST([EXTRA_LDFLAGS])
+    fi
+
     PHP_SUBST([CXXFLAGS])
     PHP_SUBST([GIT2_SHARED_LIBADD])
 
