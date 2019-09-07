@@ -295,7 +295,7 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj,php_git_refdb* o
 
     // Create custom backend. Custom backends are always passed off to git2, so
     // we are not responsible for calling its free function.
-    backend = new (emalloc(sizeof(git_refdb_backend_php))) git_refdb_backend_php(zobj);
+    backend = new (emalloc(sizeof(git_refdb_backend_php))) git_refdb_backend_php(zobj ZTS_MEMBER_CC(zts));
 
     // Set the backend owner (may be null).
     owner = ownerRefdb;
@@ -438,6 +438,8 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj,php_git_refdb* o
     zval* zoldtarget;
     method_wrapper method("write",backend);
 
+    ZTS_MEMBER_EXTRACT(method.backing()->zts);
+
     MAKE_STD_ZVAL(zref);
     MAKE_STD_ZVAL(zforce);
     MAKE_STD_ZVAL(zwho);
@@ -446,7 +448,7 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj,php_git_refdb* o
     ALLOC_INIT_ZVAL(zoldtarget);
 
     try {
-        const php_resource_ref<php_git_reference_nofree> res;
+        const php_resource_ref<php_git_reference_nofree> res ZTS_CTOR;
         *res.byval_git2() = ref;
         res.ret(zref);
     } catch (php_git2_exception_base& ex) {
@@ -723,10 +725,12 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj,php_git_refdb* o
     zval* zreflog;
     method_wrapper method("reflog_write",backend);
 
+    ZTS_MEMBER_EXTRACT(method.backing()->zts);
+
     MAKE_STD_ZVAL(zreflog);
 
     try {
-        php_resource_ref<php_git_reflog_nofree> reflogResource;
+        php_resource_ref<php_git_reflog_nofree> reflogResource ZTS_CTOR;
         *reflogResource.byval_git2() = reflog;
         reflogResource.ret(zreflog);
     } catch (php_git2_exception_base& ex) {
@@ -851,6 +855,8 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj,php_git_refdb* o
     zval* zmessage;
     method_wrapper method("unlock",backend);
 
+    ZTS_MEMBER_EXTRACT(method.backing()->zts);
+
     MAKE_STD_ZVAL(zsuccess);
     MAKE_STD_ZVAL(zupdatereflog);
     MAKE_STD_ZVAL(zref);
@@ -867,7 +873,7 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj,php_git_refdb* o
     ZVAL_BOOL(zupdatereflog,update_reflog);
 
     try {
-        const php_resource_ref<php_git_reference_nofree> res;
+        const php_resource_ref<php_git_reference_nofree> res ZTS_CTOR;
 
         *res.byval_git2() = ref;
         res.ret(zref);
@@ -903,6 +909,8 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj,php_git_refdb* o
 {
     method_wrapper::object_wrapper object(backend);
 
+    ZTS_MEMBER_EXTRACT(object.backing()->zts);
+
     // Make sure object buckets still exist to lookup object (in case the
     // destructor was already called). This happens when free() is called after
     // PHP has finished cleaning up all objects (but before all variables, which
@@ -921,7 +929,7 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj,php_git_refdb* o
 
 // Implementation of php_refdb_backend_object::git_refdb_backend_php
 
-php_refdb_backend_object::git_refdb_backend_php::git_refdb_backend_php(zval* zv)
+php_refdb_backend_object::git_refdb_backend_php::git_refdb_backend_php(zval* zv TSRMLS_DC)
 {
     // Blank out the base class (which is the structure defined in the git2
     // headers).

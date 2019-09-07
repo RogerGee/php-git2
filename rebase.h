@@ -22,7 +22,10 @@ namespace php_git2
         public php_value_base
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_rebase_options)
+        php_git_rebase_options(TSRMLS_D):
+            mergeOpts(TSRMLS_C), checkoutOpts(TSRMLS_C)
+        {
+        }
 
         const git_rebase_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
@@ -69,13 +72,19 @@ namespace php_git2
         git_rebase_operation* operation;
     };
 
-    class php_git_rebase_operation_rethandler
+    class php_git_rebase_operation_rethandler:
+        private php_zts_base
     {
     public:
+        php_git_rebase_operation_rethandler(TSRMLS_D):
+            php_zts_base(TSRMLS_C)
+        {
+        }
+
         template<typename... Ts>
         bool ret(git_rebase_operation* retval,zval* return_value,local_pack<Ts...>& pack)
         {
-            php_git_rebase_operation oper;
+            php_git_rebase_operation oper ZTS_CTOR;
             *oper.byval_git2() = retval;
 
             oper.ret(return_value);
@@ -89,6 +98,8 @@ namespace php_git2
     class php_git_rebase_commit_rethandler
     {
     public:
+        ZTS_CONSTRUCTOR(php_git_rebase_commit_rethandler)
+
         template<typename... Ts>
         bool ret(int retval,zval* return_value,local_pack<Ts...>& pack)
         {

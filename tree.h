@@ -23,9 +23,15 @@ namespace php_git2
 
     // Provide rethandler for returning git_tree_entry.
     template<typename... Ts>
-    class php_git_tree_entry_rethandler
+    class php_git_tree_entry_rethandler:
+        private php_zts_base
     {
     public:
+        php_git_tree_entry_rethandler(TSRMLS_D):
+            php_zts_base(TSRMLS_C)
+        {
+        }
+
         bool ret(const git_tree_entry* retval,zval* return_value,local_pack<Ts...>& pack)
         {
             // The functions that target this return handler return NULL if the
@@ -37,7 +43,7 @@ namespace php_git2
             }
 
             auto&& tree = pack.template get<0>();
-            const php_resource_ref<php_git_tree_entry_nofree> entry;
+            const php_resource_ref<php_git_tree_entry_nofree> entry ZTS_CTOR;
 
             // Set return value. This will create a resource for the new
             // git_tree_entry handle.

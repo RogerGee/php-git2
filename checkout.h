@@ -11,10 +11,12 @@ namespace php_git2
 {
 
     class php_git_checkout_options:
-        public php_value_base
+        public php_value_base,
+        private php_zts_base
     {
     public:
-        php_git_checkout_options(TSRMLS_D)
+        php_git_checkout_options(TSRMLS_D):
+            php_zts_base(TSRMLS_C), strarray(TSRMLS_C)
         {
             git_checkout_init_options(&opts,GIT_CHECKOUT_OPTIONS_VERSION);
         }

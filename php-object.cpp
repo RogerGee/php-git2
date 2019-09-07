@@ -195,7 +195,7 @@ zend_function* php_git2::disallow_base_get_constructor(zval* object TSRMLS_DC)
 {
     zend_class_entry* ce = Z_OBJCE_P(object);
     if (!ce->parent) {
-        return not_allowed_get_constructor(object);
+        return not_allowed_get_constructor(object TSRMLS_CC);
     }
     return ce->constructor;
 }

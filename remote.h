@@ -19,7 +19,8 @@ namespace php_git2
         public php_value_base
     {
     public:
-        php_git_remote_callbacks(TSRMLS_D)
+        php_git_remote_callbacks(TSRMLS_D):
+            info(TSRMLS_C)
         {
             git_remote_init_callbacks(&opts,GIT_REMOTE_CALLBACKS_VERSION);
         }
@@ -121,7 +122,8 @@ namespace php_git2
         public php_value_base
     {
     public:
-        php_git_proxy_options()
+        php_git_proxy_options(TSRMLS_D):
+            info(TSRMLS_C)
         {
             git_proxy_init_options(&opts,GIT_PROXY_OPTIONS_VERSION);
         }
@@ -166,10 +168,12 @@ namespace php_git2
     };
 
     class php_git_fetch_options:
-        public php_value_base
+        public php_value_base,
+        private php_zts_base
     {
     public:
-        php_git_fetch_options()
+        php_git_fetch_options(TSRMLS_D):
+            php_zts_base(TSRMLS_C), custom_headers(TSRMLS_C)
         {
             git_fetch_init_options(&opts,GIT_FETCH_OPTIONS_VERSION);
         }
@@ -178,8 +182,8 @@ namespace php_git2
         {
             if (Z_TYPE_P(value) == IS_ARRAY) {
                 array_wrapper arr(value);
-                php_git_remote_callbacks callbacks;
-                php_git_proxy_options proxy_opts;
+                php_git_remote_callbacks callbacks ZTS_CTOR;
+                php_git_proxy_options proxy_opts ZTS_CTOR;
 
                 GIT2_ARRAY_LOOKUP_LONG(arr,version,opts);
                 GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(
@@ -217,10 +221,12 @@ namespace php_git2
     };
 
     class php_git_push_options:
-        public php_value_base
+        public php_value_base,
+        private php_zts_base
     {
     public:
-        php_git_push_options()
+        php_git_push_options(TSRMLS_D):
+            php_zts_base(TSRMLS_C), custom_headers(TSRMLS_C)
         {
             git_push_init_options(&opts,GIT_PUSH_OPTIONS_VERSION);
         }
@@ -229,8 +235,8 @@ namespace php_git2
         {
             if (Z_TYPE_P(value) == IS_ARRAY) {
                 array_wrapper arr(value);
-                php_git_remote_callbacks callbacks;
-                php_git_proxy_options proxy_opts;
+                php_git_remote_callbacks callbacks ZTS_CTOR;
+                php_git_proxy_options proxy_opts ZTS_CTOR;
 
                 GIT2_ARRAY_LOOKUP_LONG(arr,version,opts);
                 GIT2_ARRAY_LOOKUP_LONG(arr,pb_parallelism,opts);
@@ -302,9 +308,15 @@ namespace php_git2
         connect_t& conn;
     };
 
-    class php_refspec_rethandler
+    class php_refspec_rethandler:
+        private php_zts_base
     {
     public:
+        php_refspec_rethandler(TSRMLS_D):
+            php_zts_base(TSRMLS_C)
+        {
+        }
+
         template<typename... Ts>
         bool ret(const git_refspec* refspec,zval* return_value,local_pack<Ts...>&)
         {
@@ -313,7 +325,7 @@ namespace php_git2
                 return true;
             }
 
-            php_resource_ref<php_git_refspec> res;
+            php_resource_ref<php_git_refspec> res ZTS_CTOR;
 
             *res.byval_git2() = refspec;
             res.ret(return_value);
@@ -325,6 +337,8 @@ namespace php_git2
     class php_transfer_progress_rethandler
     {
     public:
+        ZTS_CONSTRUCTOR(php_transfer_progress_rethandler)
+
         template<typename... Ts>
         bool ret(const git_transfer_progress* stats,zval* return_value,local_pack<Ts...>&)
         {

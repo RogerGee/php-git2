@@ -20,6 +20,8 @@ namespace php_git2
     {
         using lpack = local_pack<php_git_oid,php_resource<php_git_revwalk> >;
 
+        ZTS_CONSTRUCTOR(revwalk_next_rethandler)
+
         bool ret(int retval,zval* return_value,lpack& pack)
         {
             if (retval == GIT_ITEROVER) {

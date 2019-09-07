@@ -10,7 +10,7 @@
 
 namespace php_git2
 {
-    int php_git2_invoke_callback(zval* func,zval* ret,zend_uint paramCount,zval* params[]);
+    int php_git2_invoke_callback(zval* func,zval* ret,zend_uint paramCount,zval* params[] TSRMLS_DC);
 
     // Provide a type that contains an array of zvals converted from primative
     // values.
@@ -115,7 +115,7 @@ namespace php_git2
 
         int call(zval* func,zval* ret)
         {
-            return php_git2_invoke_callback(func,ret,Count,params);
+            return php_git2_invoke_callback(func,ret,Count,params TSRMLS_CC);
         }
 
         zval* operator [](unsigned index)
@@ -431,7 +431,7 @@ namespace php_git2
         using target_t = typename CallbackFunc::type;
 
         php_callback_handler_nullable_connector(connect_t& obj TSRMLS_DC):
-            conn(obj)
+            php_callback_handler<CallbackFunc>(TSRMLS_C), conn(obj)
         {
         }
 
@@ -458,7 +458,7 @@ namespace php_git2
         using target_t = typename CallbackFunc::type;
 
         php_callback_handler_nullable_connector_async(connect_t& obj TSRMLS_DC):
-            conn(obj)
+            php_callback_handler<CallbackFunc>(TSRMLS_C), conn(obj)
         {
         }
 
@@ -560,6 +560,11 @@ namespace php_git2
 
     struct git_diff_options_callback_info
     {
+        git_diff_options_callback_info(TSRMLS_D):
+            notifyCallback(TSRMLS_C), progressCallback(TSRMLS_C)
+        {
+        }
+
         php_callback_base notifyCallback;
         php_callback_base progressCallback;
     };
@@ -586,6 +591,14 @@ namespace php_git2
 
     struct git_diff_callback_info
     {
+        git_diff_callback_info(TSRMLS_D):
+            fileCallback(TSRMLS_C),
+            binaryCallback(TSRMLS_C),
+            hunkCallback(TSRMLS_C),
+            lineCallback(TSRMLS_C)
+        {
+        }
+
         php_callback_base fileCallback;
         php_callback_base binaryCallback;
         php_callback_base hunkCallback;
@@ -720,6 +733,20 @@ namespace php_git2
 
     struct git_remote_callbacks_info
     {
+        git_remote_callbacks_info(TSRMLS_D):
+            transportMessageCallback(TSRMLS_C),
+            completionCallback(TSRMLS_C),
+            credAcquireCallback(TSRMLS_C),
+            transportCertificateCheckCallback(TSRMLS_C),
+            transferProgressCallback(TSRMLS_C),
+            updateTipsCallback(TSRMLS_C),
+            packbuilderProgressCallback(TSRMLS_C),
+            pushTransferProgressCallback(TSRMLS_C),
+            pushUpdateReferenceCallback(TSRMLS_C),
+            pushNegotiationCallback(TSRMLS_C)
+        {
+        }
+
         // TODO Handle lifetime of callbacks. The php_callback_base currently
         // leaves the callback+payload zvals allocated.
 
@@ -832,6 +859,12 @@ namespace php_git2
 
     struct git_proxy_callbacks_info
     {
+        git_proxy_callbacks_info(TSRMLS_D):
+            credAcquireCallback(TSRMLS_C),
+            transportCertificateCheckCallback(TSRMLS_C)
+        {
+        }
+
         php_callback_sync credAcquireCallback;
         php_callback_sync transportCertificateCheckCallback;
     };

@@ -365,6 +365,8 @@ namespace php_git2
         public php_long_ref<IntType>
     {
     public:
+        ZTS_CONSTRUCTOR_WITH_BASE(php_bool_ref,php_long_ref<IntType>)
+
         void ret(zval* return_value)
         {
             RETVAL_BOOL(get_value());
@@ -393,34 +395,6 @@ namespace php_git2
         }
     private:
         IntType n;
-    };
-
-    // Provide a class to manage passing copies of ZTS handles around.
-
-    class php_zts_base
-    {
-#ifdef ZTS
-    protected:
-        php_zts_base(TSRMLS_D):
-            TSRMLS_C(TSRMLS_C)
-        {
-        }
-
-    public:
-        TSRMLS_D;
-#endif
-    };
-
-    class php_zts_member:
-        public php_zts_base
-    {
-#ifdef ZTS
-    public:
-        php_zts_member(void*** zts):
-            php_zts_base(zts)
-        {
-        }
-#endif
     };
 
     // Provide generic resource types for libgit2 objects. The parameter should
@@ -650,7 +624,7 @@ namespace php_git2
         public php_resource_ref<GitResource>
     {
     public:
-        ZTS_CONSTRUCTOR_WITH_BASE(php_resource_ref_out,php_resource_ref)
+        ZTS_CONSTRUCTOR_WITH_BASE(php_resource_ref_out,php_resource_ref<GitResource>)
 
         ~php_resource_ref_out()
         {
@@ -669,7 +643,7 @@ namespace php_git2
         public php_resource_nullable_ref<GitResource>
     {
     public:
-        ZTS_CONSTRUCTOR_WITH_BASE(php_resource_nullable_ref_out,php_resource_nullable_ref)
+        ZTS_CONSTRUCTOR_WITH_BASE(php_resource_nullable_ref_out,php_resource_nullable_ref<GitResource>)
 
         ~php_resource_nullable_ref_out()
         {
@@ -792,6 +766,7 @@ namespace php_git2
 
     protected:
         using php_resource<GitResource>::value;
+        using php_resource<GitResource>::TSRMLS_C;
     };
 
     class php_git_oid
@@ -838,6 +813,8 @@ namespace php_git2
         public php_git_oid_fromstr
     {
     public:
+        ZTS_CONSTRUCTOR_WITH_BASE(php_git_oid_byval_fromstr,php_git_oid_fromstr)
+
         git_oid byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
             return *php_git_oid_fromstr::byval_git2(argno);
@@ -868,7 +845,7 @@ namespace php_git2
         public php_value_base
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_oid_out)
+        ZTS_CONSTRUCTOR_WITH_BASE(php_git_oid_out,php_git_oid)
 
         ~php_git_oid_out()
         {
@@ -883,7 +860,10 @@ namespace php_git2
     class php_strarray
     {
     public:
-        ZTS_CONSTRUCTOR(php_strarray)
+        php_strarray(TSRMLS_D)
+        {
+            memset(&arr,0,sizeof(git_strarray));
+        }
 
         ~php_strarray()
         {
@@ -913,7 +893,10 @@ namespace php_git2
     class php_oidarray
     {
     public:
-        ZTS_CONSTRUCTOR(php_oidarray)
+        php_oidarray(TSRMLS_D)
+        {
+            memset(&arr,0,sizeof(git_oidarray));
+        }
 
         ~php_oidarray()
         {
@@ -943,7 +926,10 @@ namespace php_git2
     class php_git_buf
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_buf)
+        php_git_buf(TSRMLS_D)
+        {
+            memset(&buf,0,sizeof(git_buf));
+        }
 
         ~php_git_buf()
         {
@@ -1007,6 +993,8 @@ namespace php_git2
     class php_constant
     {
     public:
+        ZTS_CONSTRUCTOR(php_constant)
+
         ConstantType byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
             return Value;
@@ -1148,7 +1136,8 @@ namespace php_git2
         public php_string_array
     {
     public:
-        php_strarray_array()
+        php_strarray_array(TSRMLS_D):
+            php_string_array(TSRMLS_C)
         {
             memset(&arr,0,sizeof(git_strarray));
         }
@@ -1185,7 +1174,7 @@ namespace php_git2
         public php_strarray_array
     {
     public:
-        ZTS_CONSTRUCTOR(php_strarray_array_nullable);
+        ZTS_CONSTRUCTOR_WITH_BASE(php_strarray_array_nullable,php_strarray_array);
 
         git_strarray* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
@@ -1202,6 +1191,8 @@ namespace php_git2
         public php_strarray_array
     {
     public:
+        ZTS_CONSTRUCTOR_WITH_BASE(php_strarray_byval_array,php_strarray_array)
+
         git_strarray byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
         {
             // Return structure by value. This is still a shallow copy of the

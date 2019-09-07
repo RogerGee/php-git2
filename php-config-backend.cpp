@@ -498,6 +498,8 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
     int result;
     method_wrapper method("snapshot",cfg);
 
+    ZTS_MEMBER_EXTRACT(method.backing()->zts);
+
     // Call userspace method implementation corresponding to config backend
     // operation.
 
@@ -604,6 +606,8 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
     // memory that holds the custom backend.
 
     method_wrapper::object_wrapper object(cfg);
+
+    ZTS_MEMBER_EXTRACT(object.backing()->zts);
 
     // Make sure object buckets still exist to lookup object (in case the
     // destructor was already called).

@@ -10,10 +10,10 @@
 #include "php-callback.h"
 using namespace php_git2;
 
-int php_git2::php_git2_invoke_callback(zval* func,zval* ret,zend_uint paramCount,zval* params[])
+int php_git2::php_git2_invoke_callback(zval* func,zval* ret,zend_uint paramCount,zval* params[] TSRMLS_DC)
 {
-    php_bailer bailer;
-    php_bailout_context ctx(bailer);
+    php_bailer bailer ZTS_CTOR;
+    php_bailout_context ctx(bailer TSRMLS_CC);
     int result = GIT_OK;
 
     INIT_ZVAL(*ret);
@@ -27,11 +27,11 @@ int php_git2::php_git2_invoke_callback(zval* func,zval* ret,zend_uint paramCount
             result = GIT_EPHPFATAL;
         }
         else {
-            php_exception_wrapper ex;
+            php_exception_wrapper ex ZTS_CTOR;
 
             // Handle case where PHP userspace threw an exception.
             if (ex.has_exception()) {
-                ex.set_giterr(TSRMLS_C);
+                ex.set_giterr();
                 result = GIT_EPHPEXPROP;
             }
         }
@@ -213,7 +213,7 @@ treewalk_callback::callback(const char* root,const git_tree_entry* entry,void* p
     int result;
     zval retval;
     zval_array<3> params ZTS_CTOR;
-    const php_resource_ref<php_git_tree_entry_nofree> res; // it cannot free
+    const php_resource_ref<php_git_tree_entry_nofree> res ZTS_CTOR; // it cannot free
 
     params.assign<0>(root);
     res.set_object(entry);
@@ -287,13 +287,13 @@ int reference_foreach_callback::callback(git_reference* ref,void* payload)
     php_callback_sync* cb = reinterpret_cast<php_callback_sync*>(payload);
 
 #ifdef ZTS
-    TSRMLS_D = ZTS_MEMBER_PC(pc);
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
 #endif
 
     int result;
     zval retval;
     zval_array<2> params ZTS_CTOR;
-    const php_resource_ref<php_git_reference> res;
+    const php_resource_ref<php_git_reference> res ZTS_CTOR;
 
     // Convert arguments to PHP values.
     *res.byval_git2() = ref;
@@ -314,7 +314,7 @@ int reference_foreach_name_callback::callback(const char* name,void* payload)
     php_callback_sync* cb = reinterpret_cast<php_callback_sync*>(payload);
 
 #ifdef ZTS
-    TSRMLS_D = ZTS_MEMBER_PC(pc);
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
 #endif
 
     int result;
@@ -502,10 +502,14 @@ int diff_notify_callback::callback(
 
     php_callback_base* cb = &info->notifyCallback;
 
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
     int result;
     zval retval;
     zval_array<4> params ZTS_CTOR;
-    const php_resource_ref<php_git_diff_nofree> diffRes;
+    const php_resource_ref<php_git_diff_nofree> diffRes ZTS_CTOR;
 
     *diffRes.byval_git2() = diff_so_far;
     diffRes.ret(params[0]);
@@ -546,10 +550,14 @@ int diff_progress_callback::callback(
 
     php_callback_base* cb = &info->progressCallback;
 
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
     int result;
     zval retval;
-    zval_array<4> params;
-    const php_resource_ref<php_git_diff_nofree> diffRes;
+    zval_array<4> params ZTS_CTOR;
+    const php_resource_ref<php_git_diff_nofree> diffRes ZTS_CTOR;
 
     *diffRes.byval_git2() = diff_so_far;
     diffRes.ret(params[0]);
@@ -592,9 +600,13 @@ int diff_file_callback::callback(const git_diff_delta* delta,float progress,void
 
     php_callback_base* cb = &info->fileCallback;
 
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
     int result;
     zval retval;
-    zval_array<3> params;
+    zval_array<3> params ZTS_CTOR;
 
     convert_diff_delta(params[0],delta);
     params.assign<1>(progress,info->zpayload);
@@ -615,9 +627,13 @@ int diff_binary_callback::callback(const git_diff_delta* delta,
 
     php_callback_base* cb = &info->binaryCallback;
 
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
     int result;
     zval retval;
-    zval_array<3> params;
+    zval_array<3> params ZTS_CTOR;
 
     convert_diff_delta(params[0],delta);
     convert_diff_binary(params[1],binary);
@@ -639,9 +655,13 @@ int diff_hunk_callback::callback(const git_diff_delta* delta,
 
     php_callback_base* cb = &info->hunkCallback;
 
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
     int result;
     zval retval;
-    zval_array<3> params;
+    zval_array<3> params ZTS_CTOR;
 
     convert_diff_delta(params[0],delta);
     convert_diff_hunk(params[1],hunk);
@@ -664,9 +684,13 @@ int diff_line_callback::callback(const git_diff_delta* delta,
 
     php_callback_base* cb = &info->lineCallback;
 
+#ifdef ZTS
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
+#endif
+
     int result;
     zval retval;
-    zval_array<4> params;
+    zval_array<4> params ZTS_CTOR;
 
     convert_diff_delta(params[0],delta);
     convert_diff_hunk(params[1],hunk);
@@ -1271,7 +1295,7 @@ int remote_create_callback::callback(
     int result;
     zval retval;
     zval_array<4> params ZTS_CTOR;
-    php_resource_ref<php_git_repository_nofree> repoResource;
+    php_resource_ref<php_git_repository_nofree> repoResource ZTS_CTOR;
 
     repoResource.set_object(repo);
     repoResource.ret(params[0]);
@@ -1394,7 +1418,7 @@ int treebuilder_filter_callback::callback(
     int result;
     zval retval;
     zval_array<2> params ZTS_CTOR;
-    const php_resource_ref<php_git_tree_entry_nofree> res; // it cannot free
+    const php_resource_ref<php_git_tree_entry_nofree> res ZTS_CTOR; // it cannot free
 
     res.set_object(entry);
     res.ret(params[0]);

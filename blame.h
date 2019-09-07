@@ -24,7 +24,7 @@ namespace php_git2
         public php_value_base
     {
     public:
-        php_git2_blame_options()
+        php_git2_blame_options(TSRMLS_D)
         {
             git_blame_init_options(&opts,GIT_BLAME_OPTIONS_VERSION);
         }
@@ -54,6 +54,8 @@ namespace php_git2
     class php_git_blame_hunk_rethandler
     {
     public:
+        ZTS_CONSTRUCTOR(php_git_blame_hunk_rethandler)
+
         bool ret(const git_blame_hunk* hunk,zval* return_value,local_pack<Ts...>& pack)
         {
             if (hunk == nullptr) {

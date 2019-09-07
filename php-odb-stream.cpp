@@ -89,7 +89,7 @@ void php_odb_stream_object::create_custom_stream(zval* zobj,unsigned int mode,zv
 
     // Create new custom stream. Assume the stream has no owner (this is our
     // only use case really).
-    stream = new (emalloc(sizeof(git_odb_stream_php))) git_odb_stream_php(zobj,mode);
+    stream = new (emalloc(sizeof(git_odb_stream_php))) git_odb_stream_php(zobj,mode ZTS_MEMBER_CC(zts));
     owner = nullptr;
     if (zodbBackend != nullptr) {
         Z_ADDREF_P(zodbBackend);
@@ -194,6 +194,8 @@ void php_odb_stream_object::create_custom_stream(zval* zobj,unsigned int mode,zv
 {
     method_wrapper::object_wrapper object(stream);
 
+    ZTS_MEMBER_EXTRACT(object.backing()->zts);
+
     // Make sure object buckets still exist to lookup object (in case the
     // destructor was already called).
 
@@ -209,7 +211,7 @@ void php_odb_stream_object::create_custom_stream(zval* zobj,unsigned int mode,zv
 // php_odb_stream::git_odb_stream_php
 
 php_odb_stream_object::
-git_odb_stream_php::git_odb_stream_php(zval* zv,unsigned int newMode)
+git_odb_stream_php::git_odb_stream_php(zval* zv,unsigned int newMode TSRMLS_DC)
 {
     // Blank out the base class (which is the structure defined in the git2
     // headers).
@@ -310,7 +312,7 @@ zval* odb_stream_read_property(zval* obj,zval* prop,int type,const zend_literal*
             ALLOC_INIT_ZVAL(ret);
             if (stream->backend != nullptr) {
                 // Create backend object to return to userspace.
-                php_git2_make_odb_backend(ret,stream->backend,streamWrapper->owner);
+                php_git2_make_odb_backend(ret,stream->backend,streamWrapper->owner TSRMLS_CC);
 
                 // Assign the object zval to internal storage for possible
                 // lookup later on. Leave the refcount at 1 so we can hold a
@@ -361,7 +363,7 @@ void odb_stream_write_property(zval* obj,zval* prop,zval* value,const zend_liter
         php_error(E_ERROR,"Property '%s' of GitODBStream cannot be updated",str);
     }
     else {
-        (*std_object_handlers.write_property)(obj,prop,value,key);
+        (*std_object_handlers.write_property)(obj,prop,value,key TSRMLS_CC);
     }
 
     if (tmp_prop != nullptr) {

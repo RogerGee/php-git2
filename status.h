@@ -24,7 +24,8 @@ namespace php_git2
         public php_value_base
     {
     public:
-        php_git_status_options()
+        php_git_status_options(TSRMLS_D):
+            strarray(TSRMLS_C)
         {
             git_status_init_options(&opts,GIT_STATUS_OPTIONS_VERSION);
         }
@@ -53,6 +54,8 @@ namespace php_git2
     class php_git_status_entry_rethandler
     {
     public:
+        ZTS_CONSTRUCTOR(php_git_status_entry_rethandler)
+
         bool ret(const git_status_entry* ent,zval* return_value,local_pack<Ts...>& pack)
         {
             if (ent == nullptr) {
@@ -76,6 +79,8 @@ namespace php_git2
             php_resource<php_git_repository>,
             php_string
             >;
+
+        ZTS_CONSTRUCTOR(php_git_status_file_rethandler)
 
         bool ret(int result,zval* return_value,pack_type& pack)
         {

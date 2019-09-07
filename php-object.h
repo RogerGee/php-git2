@@ -15,11 +15,11 @@ extern "C" {
 
 // Helper macros
 
-#define LOOKUP_OBJECT(type,val)                         \
+#define LOOKUP_OBJECT(type,val)                             \
     ((type*)zend_object_store_get_object(val TSRMLS_CC))
 
-#define is_subclass_of(a,b)                     \
-    (a == b || instanceof_function(a,b))
+#define is_subclass_of(a,b)                         \
+    (a == b || instanceof_function(a,b TSRMLS_CC))
 
 #define PHP_EMPTY_METHOD(C,M)                   \
     PHP_METHOD(C,M) { }
@@ -48,11 +48,13 @@ namespace php_git2
     // Define a type for wrapping method calls.
 
     template<typename ObjectType,typename BackingType>
-    class php_object_wrapper
+    class php_object_wrapper:
+        protected php_zts_base_fetched
     {
     public:
         php_object_wrapper(typename ObjectType::base_class* base):
-            wrapperObject(static_cast<ObjectType*>(base)), backingObject(nullptr)
+            wrapperObject(static_cast<ObjectType*>(base)),
+            backingObject(nullptr)
         {
         }
 
@@ -93,6 +95,7 @@ namespace php_git2
     {
     public:
         using object_wrapper = php_object_wrapper<ObjectType,BackingType>;
+        using object_wrapper::TSRMLS_C;
 
         php_method_wrapper(const char* methodName,typename ObjectType::base_class* base):
             object_wrapper(base)
@@ -110,8 +113,8 @@ namespace php_git2
 
         int call(int nparams = 0,zval* params[] = nullptr)
         {
-            php_bailer bailer;
-            php_bailout_context ctx(bailer);
+            php_bailer bailer ZTS_CTOR;
+            php_bailout_context ctx(bailer TSRMLS_CC);
             int result = GIT_OK;
 #ifdef ZTS
             TSRMLS_D = ZTS_MEMBER_C(object_wrapper::backing()->zts);
@@ -133,11 +136,11 @@ namespace php_git2
                     result = GIT_EPHPFATAL;
                 }
                 else {
-                    php_exception_wrapper ex;
+                    php_exception_wrapper ex ZTS_CTOR;
 
                     // Handle case where PHP userspace threw an exception.
                     if (ex.has_exception()) {
-                        ex.set_giterr(TSRMLS_C);
+                        ex.set_giterr();
                         result = GIT_EPHPEXPROP;
                     }
                 }
@@ -189,7 +192,7 @@ namespace php_git2
         {
             typedef git_odb_backend base_class;
 
-            git_odb_backend_php(zval* zv);
+            git_odb_backend_php(zval* zv TSRMLS_DC);
             ~git_odb_backend_php();
 
             zval* thisobj;
@@ -270,7 +273,7 @@ namespace php_git2
         {
             typedef git_odb_stream base_class;
 
-            git_odb_stream_php(zval* zv,unsigned int mode);
+            git_odb_stream_php(zval* zv,unsigned int mode TSRMLS_DC);
             ~git_odb_stream_php();
 
             zval* thisobj;
@@ -374,7 +377,7 @@ namespace php_git2
         {
             typedef git_refdb_backend base_class;
 
-            git_refdb_backend_php(zval* zv);
+            git_refdb_backend_php(zval* zv TSRMLS_DC);
             ~git_refdb_backend_php();
 
             zval* thisobj;

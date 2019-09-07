@@ -19,6 +19,8 @@ namespace php_git2
     class php_numeric_rethandler
     {
     public:
+        ZTS_CONSTRUCTOR(php_numeric_rethandler)
+
         template<typename... Ts>
         bool ret(Numeric retval,zval* return_value,local_pack<Ts...>& pack)
         {
@@ -31,6 +33,8 @@ namespace php_git2
     class php_boolean_rethandler
     {
     public:
+        ZTS_CONSTRUCTOR(php_boolean_rethandler)
+
         template<typename... Ts>
         bool ret(Numeric retval,zval* return_value,local_pack<Ts...>& pack)
         {
@@ -45,6 +49,8 @@ namespace php_git2
     class php_convert_boolean_rethandler
     {
     public:
+        ZTS_CONSTRUCTOR(php_convert_boolean_rethandler)
+
         template<typename T,typename... Ts>
         bool ret(T retval,zval* return_value,local_pack<Ts...>& pack)
         {
@@ -63,6 +69,8 @@ namespace php_git2
     {
     public:
         using pack_type = local_pack<php_resource<T>,php_resource_ref<php_git_repository_nofree> >;
+
+        ZTS_CONSTRUCTOR(php_owner_rethandler)
 
         bool ret(git_repository* owner,zval* return_value,pack_type& pack)
         {
@@ -87,9 +95,15 @@ namespace php_git2
     // Provide a rethandler for returning a resource.
 
     template<typename ResourceType,typename Git2Type,unsigned Position = 0>
-    class php_resource_rethandler
+    class php_resource_rethandler:
+        private php_zts_base
     {
     public:
+        php_resource_rethandler(TSRMLS_D):
+            php_zts_base(TSRMLS_C)
+        {
+        }
+
         template<typename... Ts>
         bool ret(Git2Type* handle,zval* return_value,local_pack<Ts...>& pack)
         {
@@ -98,7 +112,7 @@ namespace php_git2
             }
 
             auto&& obj = pack.template get<Position>();
-            const php_resource_ref<ResourceType> resource;
+            const php_resource_ref<ResourceType> resource ZTS_CTOR;
 
             *resource.byval_git2() = handle;
             resource.ret(return_value);
@@ -112,9 +126,15 @@ namespace php_git2
     };
 
     template<typename ResourceType,typename Git2Type,unsigned Position = 0>
-    class php_resource_nullable_rethandler
+    class php_resource_nullable_rethandler:
+        private php_zts_base
     {
     public:
+        php_resource_nullable_rethandler(TSRMLS_D):
+            php_zts_base(TSRMLS_C)
+        {
+        }
+
         template<typename... Ts>
         bool ret(Git2Type* handle,zval* return_value,local_pack<Ts...>& pack)
         {
@@ -124,7 +144,7 @@ namespace php_git2
             }
 
             auto&& obj = pack.template get<Position>();
-            const php_resource_ref<ResourceType> resource;
+            const php_resource_ref<ResourceType> resource ZTS_CTOR;
 
             *resource.byval_git2() = handle;
             resource.ret(return_value);
@@ -138,9 +158,15 @@ namespace php_git2
     };
 
     template<typename ResourceType,typename Git2Type>
-    class php_resource_nodeps_rethandler
+    class php_resource_nodeps_rethandler:
+        private php_zts_base
     {
     public:
+        php_resource_nodeps_rethandler(TSRMLS_D):
+            php_zts_base(TSRMLS_C)
+        {
+        }
+
         template<typename... Ts>
         bool ret(Git2Type* handle,zval* return_value,local_pack<Ts...>& pack)
         {
@@ -148,7 +174,7 @@ namespace php_git2
                 return false;
             }
 
-            const php_resource_ref<ResourceType> resource;
+            const php_resource_ref<ResourceType> resource ZTS_CTOR;
             *resource.byval_git2() = handle;
             resource.ret(return_value);
 
@@ -164,6 +190,8 @@ namespace php_git2
     class php_boolean_notfound_rethandler
     {
     public:
+        ZTS_CONSTRUCTOR(php_boolean_notfound_rethandler)
+
         template<typename... Ts>
         bool ret(int retval,zval* return_value,local_pack<Ts...>& pack)
         {
@@ -185,6 +213,8 @@ namespace php_git2
     class php_notfound_rethandler
     {
     public:
+        ZTS_CONSTRUCTOR(php_notfound_rethandler)
+
         template<typename... Ts>
         bool ret(int retval,zval* return_value,local_pack<Ts...>& pack)
         {
@@ -207,6 +237,8 @@ namespace php_git2
     class php_notfound_retval_rethandler
     {
     public:
+        ZTS_CONSTRUCTOR(php_notfound_retval_rethandler)
+
         template<typename... Ts>
         bool ret(int retval,zval* return_value,local_pack<Ts...>& pack)
         {
@@ -229,6 +261,8 @@ namespace php_git2
     class php_resource_notfound_rethandler
     {
     public:
+        ZTS_CONSTRUCTOR(php_resource_notfound_rethandler)
+
         template<typename... Ts>
         bool ret(int retval,zval* return_value,local_pack<Ts...>& pack)
         {
@@ -284,6 +318,8 @@ namespace php_git2
     class php_iterover_rethandler
     {
     public:
+        ZTS_CONSTRUCTOR(php_iterover_rethandler)
+
         template<typename... Ts>
         bool ret(int retval,zval* return_value,local_pack<Ts...>& pack)
         {
@@ -307,6 +343,8 @@ namespace php_git2
     class php_resource_iterover_rethandler
     {
     public:
+        ZTS_CONSTRUCTOR(php_resource_iterover_rethandler)
+
         template<typename... Ts>
         bool ret(int retval,zval* return_value,local_pack<Ts...>& pack)
         {
@@ -330,6 +368,8 @@ namespace php_git2
     class php_boolean_iterover_rethandler
     {
     public:
+        ZTS_CONSTRUCTOR(php_boolean_iterover_rethandler)
+
         template<typename... Ts>
         bool ret(int retval,zval* return_value,local_pack<Ts...>&)
         {

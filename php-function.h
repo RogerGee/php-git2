@@ -587,8 +587,8 @@ template<
     typename AllParams = php_git2::make_seq<FuncWrapper::arg_count()> >
 static void zif_php_git2_function(INTERNAL_FUNCTION_PARAMETERS)
 {
-    php_git2::php_bailer bailer;
-    php_git2::php_bailout_context ctx(bailer);
+    php_git2::php_bailer bailer ZTS_CTOR;
+    php_git2::php_bailout_context ctx(bailer TSRMLS_CC);
 
     // Create a local_pack object that houses all the variables we need for the
     // call. The constructors take care of any initialization.
@@ -615,7 +615,7 @@ static void zif_php_git2_function(INTERNAL_FUNCTION_PARAMETERS)
             }
 
         } catch (php_git2::php_git2_exception_base& ex) {
-            php_git2::php_bailout_context ctx2(bailer);
+            php_git2::php_bailout_context ctx2(bailer TSRMLS_CC);
 
             if (BAILOUT_ENTER_REGION(ctx2)) {
                 ex.handle(TSRMLS_C);
@@ -644,8 +644,8 @@ template<
     >
 static void zif_php_git2_function_rethandler(INTERNAL_FUNCTION_PARAMETERS)
 {
-    php_git2::php_bailer bailer;
-    php_git2::php_bailout_context ctx(bailer);
+    php_git2::php_bailer bailer ZTS_CTOR;
+    php_git2::php_bailout_context ctx(bailer TSRMLS_CC);
 
     // Create a local_pack object that houses all the variables we need for the
     // call. The constructors take care of any initialization.
@@ -662,13 +662,13 @@ static void zif_php_git2_function_rethandler(INTERNAL_FUNCTION_PARAMETERS)
             retval = php_git2::library_call(FuncWrapper(),vars,GitForward(),AllParams());
 
             // Instantiate a return value handler to handle the return value.
-            ReturnHandler rethandler;
+            ReturnHandler rethandler ZTS_CTOR;
             if (!rethandler.ret(retval,return_value,vars)) {
                 // Throw error with formatted message from git2.
                 php_git2::git_error(retval);
             }
         } catch (php_git2::php_git2_exception_base& ex) {
-            php_git2::php_bailout_context ctx2(bailer);
+            php_git2::php_bailout_context ctx2(bailer TSRMLS_CC);
 
             if (BAILOUT_ENTER_REGION(ctx2)) {
                 ex.handle(TSRMLS_C);
@@ -689,8 +689,8 @@ template<
     >
 static void zif_php_git2_function_void(INTERNAL_FUNCTION_PARAMETERS)
 {
-    php_git2::php_bailer bailer;
-    php_git2::php_bailout_context ctx(bailer);
+    php_git2::php_bailer bailer ZTS_CTOR;
+    php_git2::php_bailout_context ctx(bailer TSRMLS_CC);
 
     // Create a local_pack object that houses all the variables we need for
     // the call. The constructors take care of any initialization.
@@ -702,7 +702,7 @@ static void zif_php_git2_function_void(INTERNAL_FUNCTION_PARAMETERS)
             php_git2::php_extract_args(vars,PHPForward());
             php_git2::library_call(FuncWrapper(),vars,GitForward(),AllParams());
         } catch (php_git2::php_git2_exception_base& ex) {
-            php_git2::php_bailout_context ctx2(bailer);
+            php_git2::php_bailout_context ctx2(bailer TSRMLS_CC);
 
             if (BAILOUT_ENTER_REGION(ctx2)) {
                 ex.handle(TSRMLS_C);
@@ -729,8 +729,8 @@ template<
     >
 static void zif_php_git2_function_setdeps(INTERNAL_FUNCTION_PARAMETERS)
 {
-    php_git2::php_bailer bailer;
-    php_git2::php_bailout_context ctx(bailer);
+    php_git2::php_bailer bailer ZTS_CTOR;
+    php_git2::php_bailout_context ctx(bailer TSRMLS_CC);
 
     // Create a local_pack object that houses all the variables we need for the
     // call. The constructors take care of any initialization.
@@ -760,7 +760,7 @@ static void zif_php_git2_function_setdeps(INTERNAL_FUNCTION_PARAMETERS)
                 php_git2::git_error(retval);
             }
         } catch (php_git2::php_git2_exception_base& ex) {
-            php_git2::php_bailout_context ctx2(bailer);
+            php_git2::php_bailout_context ctx2(bailer TSRMLS_CC);
 
             if (BAILOUT_ENTER_REGION(ctx2)) {
                 ex.handle(TSRMLS_C);
@@ -781,8 +781,8 @@ template<
     >
 static void zif_php_git2_function_setdeps2(INTERNAL_FUNCTION_PARAMETERS)
 {
-    php_git2::php_bailer bailer;
-    php_git2::php_bailout_context ctx(bailer);
+    php_git2::php_bailer bailer ZTS_CTOR;
+    php_git2::php_bailout_context ctx(bailer TSRMLS_CC);
 
     // Create a local_pack object that houses all the variables we need for the
     // call. The constructors take care of any initialization.
@@ -813,7 +813,7 @@ static void zif_php_git2_function_setdeps2(INTERNAL_FUNCTION_PARAMETERS)
                 php_git2::git_error(retval);
             }
         } catch (php_git2::php_git2_exception_base& ex) {
-            php_git2::php_bailout_context ctx2(bailer);
+            php_git2::php_bailout_context ctx2(bailer TSRMLS_CC);
 
             if (BAILOUT_ENTER_REGION(ctx2)) {
                 ex.handle(TSRMLS_C);
@@ -832,8 +832,8 @@ template<
     >
 static void zif_php_git2_function_setdeps_void(INTERNAL_FUNCTION_PARAMETERS)
 {
-    php_git2::php_bailer bailer;
-    php_git2::php_bailout_context ctx(bailer);
+    php_git2::php_bailer bailer ZTS_CTOR;
+    php_git2::php_bailout_context ctx(bailer TSRMLS_CC);
 
     // Create a local_pack object that houses all the variables we need for the
     // call. The constructors take care of any initialization.
@@ -851,7 +851,7 @@ static void zif_php_git2_function_setdeps_void(INTERNAL_FUNCTION_PARAMETERS)
             // Call function to set resource dependency.
             php_git2::php_set_resource_dependency(vars,ResourceDeps());
         } catch (php_git2::php_git2_exception_base& ex) {
-            php_git2::php_bailout_context ctx2(bailer);
+            php_git2::php_bailout_context ctx2(bailer TSRMLS_CC);
 
             if (BAILOUT_ENTER_REGION(ctx2)) {
                 ex.handle(TSRMLS_C);
@@ -870,8 +870,8 @@ template<
     >
 static void zif_php_git2_function_free(INTERNAL_FUNCTION_PARAMETERS)
 {
-    php_git2::php_bailer bailer;
-    php_git2::php_bailout_context ctx(bailer);
+    php_git2::php_bailer bailer ZTS_CTOR;
+    php_git2::php_bailout_context ctx(bailer TSRMLS_CC);
 
     // Create a local_pack object that houses all the variables we need for the
     // call. The constructors take care of any initialization.
@@ -888,7 +888,7 @@ static void zif_php_git2_function_free(INTERNAL_FUNCTION_PARAMETERS)
             // handles freeing instead.
             vars.template get<0>().byval_git2(1);
         } catch (php_git2::php_git2_exception_base& ex) {
-            php_git2::php_bailout_context ctx2(bailer);
+            php_git2::php_bailout_context ctx2(bailer TSRMLS_CC);
 
             if (BAILOUT_ENTER_REGION(ctx2)) {
                 ex.handle(TSRMLS_C);
