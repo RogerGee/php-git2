@@ -766,7 +766,9 @@ namespace php_git2
 
     protected:
         using php_resource<GitResource>::value;
+#ifdef ZTS
         using php_resource<GitResource>::TSRMLS_C;
+#endif
     };
 
     class php_git_oid

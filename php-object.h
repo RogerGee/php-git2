@@ -95,7 +95,9 @@ namespace php_git2
     {
     public:
         using object_wrapper = php_object_wrapper<ObjectType,BackingType>;
+#ifdef ZTS
         using object_wrapper::TSRMLS_C;
+#endif
 
         php_method_wrapper(const char* methodName,typename ObjectType::base_class* base):
             object_wrapper(base)
