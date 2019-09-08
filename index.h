@@ -131,6 +131,11 @@ namespace php_git2
         template<typename... Ts>
         bool ret(const git_index_entry* entry,zval* return_value,local_pack<Ts...>& pack)
         {
+            if (entry == nullptr) {
+                RETVAL_FALSE;
+                return true;
+            }
+
             php_git2::convert_index_entry(return_value,entry);
             return true;
         }
