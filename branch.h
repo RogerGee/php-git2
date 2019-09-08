@@ -209,7 +209,7 @@ static constexpr auto ZIF_GIT_BRANCH_UPSTREAM = zif_php_git2_function_rethandler
     php_git2::sequence<0,0>
     >;
 
-static constexpr auto ZIF_GIT_BRANCH_UPSTREAM_NAME = zif_php_git2_function<
+static constexpr auto ZIF_GIT_BRANCH_UPSTREAM_NAME = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         git_buf*,
@@ -220,7 +220,7 @@ static constexpr auto ZIF_GIT_BRANCH_UPSTREAM_NAME = zif_php_git2_function<
         php_git2::php_resource<php_git2::php_git_repository>,
         php_git2::php_string
         >,
-    1,
+    php_git2::php_notfound_rethandler<0>,
     php_git2::sequence<1,2>,
     php_git2::sequence<0,1,2>,
     php_git2::sequence<0,0,1>
