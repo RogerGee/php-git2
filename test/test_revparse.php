@@ -7,7 +7,7 @@ require_once 'test_base.php';
 function test_revparse() {
     $repo = git_repository_open_bare(testbed_get_repo_path());
 
-    $one = git_revparse($repo,'master');
+    $one = git_revparse($repo,'test/testbed');
     var_dump($one);
     if (isset($one['from'])) {
         var_dump(git_object_id($one['from']));
@@ -16,7 +16,7 @@ function test_revparse() {
         var_dump(git_object_id($one['to']));
     }
 
-    $two = git_revparse($repo,'master~10..master');
+    $two = git_revparse($repo,'test/testbed~10..test/testbed');
     var_dump($two);
     if (isset($two['from'])) {
         var_dump(git_object_id($two['from']));
@@ -37,8 +37,8 @@ function test_single() {
 function test_ext() {
     $repo = git_repository_open_bare(testbed_get_repo_path());
 
-    // This revision will have a reference (i.e. refs/heads/master).
-    $commitish = 'master';
+    // This revision will have a reference (i.e. refs/heads/test/testbed).
+    $commitish = 'test/testbed';
     echo "revparse: $commitish\n";
     $obj = git_revparse_ext($ref,$repo,$commitish);
     echo '  '; var_dump($obj);
@@ -50,7 +50,7 @@ function test_ext() {
 
     // This revision may not have a reference (i.e. does not necessarily have a
     // reference).
-    $commitish = 'master~10';
+    $commitish = 'test/testbed~10';
     echo "revparse: $commitish\n";
     $obj = git_revparse_ext($ref,$repo,$commitish);
     echo '  '; var_dump($obj);

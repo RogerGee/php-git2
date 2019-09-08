@@ -52,16 +52,25 @@ function test_iterate() {
 
 function test_upstream() {
     $repo = git_repository_open(testbed_get_localrepo_path());
-    $branch = git_branch_lookup($repo,"master",GIT_BRANCH_ALL);
+    $branch = git_branch_lookup($repo,"test/testbed",GIT_BRANCH_ALL);
 
-    $name = git_branch_upstream_name($repo,"refs/heads/master");
+    // Test looking up initial upstream (i.e. tracking branch). It should be
+    // empty (i.e. return FALSE).
+    var_dump(git_branch_upstream($branch));
+    $name = git_branch_upstream_name($repo,"refs/heads/test/testbed");
     var_dump($name);
 
+    // Apply tracking branch and print to verify.
+    git_branch_set_upstream($branch,"origin/test/testbed");
+    $name = git_branch_upstream_name($repo,"refs/heads/test/testbed");
+    var_dump($name);
+    $name = git_branch_upstream_remote($repo,"refs/heads/test/testbed");
+    var_dump($name);
+
+    // Unset remote tracking and print to verify.
     git_branch_set_upstream($branch,null);
-    git_branch_set_upstream($branch,"master");
-    $name = git_branch_upstream_name($repo,"refs/heads/master");
-    var_dump($name);
-    $name = git_branch_upstream_remote($repo,"refs/heads/master");
+    var_dump(git_branch_upstream($branch));
+    $name = git_branch_upstream_name($repo,"refs/heads/test/testbed");
     var_dump($name);
 }
 

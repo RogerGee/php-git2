@@ -38,6 +38,17 @@ function testbed_path($suffix,$ensure = false) {
     return $path;
 }
 
+function testbed_create_clone_remote($repo,$name,$url,$payload) {
+    $fetchspec = '+refs/heads/test/*:refs/remotes/origin/test/*';
+    $remote = git_remote_create_with_fetchspec(
+        $repo,
+        $name,
+        $url,
+        $fetchspec);
+
+    return $remote;
+}
+
 function testbed_get_repo_path() {
     $path = testbed_path('test-repo.git');
     if (!file_exists($path)) {
@@ -45,6 +56,8 @@ function testbed_get_repo_path() {
 
         $opts = array(
             'bare' => true,
+            'checkout_branch' => 'test/testbed',
+            'remote_cb' => 'testbed_create_clone_remote',
         );
         $repo = git_clone("file://$reposrc",$path,$opts);
     }
@@ -58,6 +71,8 @@ function testbed_get_localrepo_path() {
 
         $opts = array(
             'bare' => false,
+            'checkout_branch' => 'test/testbed',
+            'remote_cb' => 'testbed_create_clone_remote',
         );
         $repo = git_clone("file://$reposrc",$path,$opts);
     }

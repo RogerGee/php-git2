@@ -1304,7 +1304,7 @@ git_branch_upstream(resource)
 
 git_branch_upstream_name(resource,string)
 
-    Returns string
+    Returns string if found, false otherwise
 
 git_branch_upstream_remote(resource,string)
 
@@ -1824,11 +1824,11 @@ git_index_free(resource)
 
 git_index_get_byindex(resource,int)
 
-    Returns array (git_index_entry)
+    Returns git_index_entry array, or false if out of bounds
 
 git_index_get_bypath(resource,string,int)
 
-    Returns git_index_entry resource
+    Returns git_index_entry array, or false if does not exist
 
 git_index_has_conflicts(resource)
 

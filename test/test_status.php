@@ -8,7 +8,7 @@ function test_status() {
     $repo = git_repository_open(testbed_get_localrepo_path());
     $index = git_repository_index($repo);
 
-    $entry = git_index_get_bypath($index,'README.md',0);
+    $entry = git_index_get_bypath($index,'README',0);
     testbed_unit('Modifying Entry',$entry);
 
     $status = git_status_file($repo,$entry['path']);
@@ -21,7 +21,7 @@ function test_status() {
 
     $opts = array(
         'checkout_strategy' => GIT_CHECKOUT_FORCE,
-        'paths' => ['README.md'],
+        'paths' => ['README'],
     );
     git_checkout_index($repo,null,$opts);
 }
@@ -29,7 +29,7 @@ function test_status() {
 function test_foreach() {
     $repo = git_repository_open(testbed_get_localrepo_path());
 
-    testbed_modify_file($repo,'README.md');
+    testbed_modify_file($repo,'README');
     testbed_modify_file($repo,'php-git2.cpp');
 
     $lambda = function($path,$flags,$payload) {
@@ -44,7 +44,7 @@ function test_foreach() {
 
     $opts = array(
         'checkout_strategy' => GIT_CHECKOUT_FORCE,
-        'paths' => ['README.md', 'php-git2.cpp'],
+        'paths' => ['README', 'php-git2.cpp'],
     );
     git_checkout_index($repo,null,$opts);
 }

@@ -36,7 +36,7 @@ function test_foreach() {
 function test_free() {
     $lambda = function () {
         $repo = git_repository_open_bare(testbed_get_repo_path());
-        $ref = git_reference_lookup($repo,'refs/heads/master');
+        $ref = git_reference_lookup($repo,'refs/heads/test/testbed');
 
         git_repository_free($repo);
 
@@ -54,7 +54,7 @@ function test_misc() {
 
     $ref = git_reference__alloc('name',str_repeat('0',40),null);
 
-    $ref = git_reference_lookup($repo,'refs/heads/master');
+    $ref = git_reference_lookup($repo,'refs/heads/test/testbed');
     $cpy = git_reference_resolve($ref);
     var_dump($cpy);
 }

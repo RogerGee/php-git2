@@ -28,6 +28,7 @@ function test_create() {
     $submodule = lookup_test_submodule($repo);
 
     testbed_unit('test_create',$submodule);
+    testbed_unit('test_url',git_submodule_url($submodule));
 
     git_submodule_free($submodule);
 }

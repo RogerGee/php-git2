@@ -12,7 +12,7 @@ function test_builtin() {
     $refdb = git_repository_refdb($repo);
     $backend = git_refdb_backend_fs($repo);
 
-    $ref = $backend->lookup('refs/heads/master');
+    $ref = $backend->lookup('refs/heads/test/testbed');
     testbed_unit('lookup.name',git_reference_name($ref));
     testbed_unit('lookup.oid',git_reference_target($ref));
 }
