@@ -412,7 +412,7 @@ void php_git2::convert_transfer_progress(zval* zv,const git_transfer_progress* s
     add_assoc_long_ex(zv,"indexed_objects",sizeof("indexed_objects"),stats->indexed_objects);
     add_assoc_long_ex(zv,"received_objects",sizeof("received_objects"),stats->received_objects);
     add_assoc_long_ex(zv,"local_objects",sizeof("local_objects"),stats->local_objects);
-    add_assoc_long_ex(zv,"total_objects",sizeof("total_objects"),stats->total_objects);
+    add_assoc_long_ex(zv,"total_deltas",sizeof("total_deltas"),stats->total_deltas);
     add_assoc_long_ex(zv,"indexed_deltas",sizeof("indexed_deltas"),stats->indexed_deltas);
     add_assoc_long_ex(zv,"received_bytes",sizeof("received_bytes"),stats->received_bytes);
 }
@@ -828,6 +828,48 @@ git_signature* php_git2::convert_signature(zval* zv)
     }
 
     return sig;
+}
+
+int php_git2::convert_transfer_progress(git_transfer_progress& stats,zval* zv)
+{
+    array_wrapper arr(zv);
+
+    if (!arr.query("total_objects",sizeof("total_objects"))) {
+        return GIT_ERROR;
+    }
+    stats.total_objects = static_cast<int>(arr.get_long());
+
+    if (!arr.query("indexed_objects",sizeof("indexed_objects"))) {
+        return GIT_ERROR;
+    }
+    stats.indexed_objects = static_cast<int>(arr.get_long());
+
+    if (!arr.query("received_objects",sizeof("received_objects"))) {
+        return GIT_ERROR;
+    }
+    stats.received_objects = static_cast<int>(arr.get_long());
+
+    if (!arr.query("local_objects",sizeof("local_objects"))) {
+        return GIT_ERROR;
+    }
+    stats.local_objects = static_cast<int>(arr.get_long());
+
+    if (!arr.query("total_deltas",sizeof("total_deltas"))) {
+        return GIT_ERROR;
+    }
+    stats.total_deltas = static_cast<int>(arr.get_long());
+
+    if (!arr.query("indexed_deltas",sizeof("indexed_deltas"))) {
+        return GIT_ERROR;
+    }
+    stats.indexed_deltas = static_cast<int>(arr.get_long());
+
+    if (!arr.query("received_bytes",sizeof("received_bytes"))) {
+        return GIT_ERROR;
+    }
+    stats.received_bytes = static_cast<int>(arr.get_long());
+
+    return GIT_OK;
 }
 
 /*

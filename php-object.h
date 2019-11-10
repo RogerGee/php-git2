@@ -250,6 +250,8 @@ namespace php_git2
         php_git_odb* owner;
         php_zts_member zts;
 
+        void create_custom_writepack(zval* zobj,php_git_odb* owner);
+
         static zend_object_handlers handlers;
         static void init(zend_class_entry* ce);
     };

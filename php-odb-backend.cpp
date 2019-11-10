@@ -27,7 +27,14 @@ struct foreach_callback_info
     void* payload;
 };
 
+struct transfer_progress_callback_info
+{
+    git_transfer_progress_cb callback;
+    void* payload;
+};
+
 static ZEND_FUNCTION(backend_foreach_callback);
+static ZEND_FUNCTION(backend_transfer_progress_callback);
 
 // Class method entries
 
@@ -585,8 +592,109 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
     void* progress_payload)
 {
     int result = GIT_OK;
+    zval* zodb;
+    zval* zclosure;
+    zval* zpayload;
+    method_wrapper method("writepack",backend);
 
-    // TODO
+    ZTS_MEMBER_EXTRACT(method.backing()->zts);
+
+    // Create zvals. The payload zval is unused and will remain null. (Note that
+    // the payload will be passed to the underlying callback but not converted
+    // for use in userspace.)
+
+    MAKE_STD_ZVAL(zodb);
+    MAKE_STD_ZVAL(zclosure);
+    ALLOC_INIT_ZVAL(zpayload);
+
+    {
+        php_resource_ref<php_git_odb_nofree> resourceWrapper;
+        resourceWrapper.set_object(odb);
+        resourceWrapper.ret(zodb);
+    }
+
+    // Set up the closure to call an internal function that will handle calling
+    // the function and passing the payload.
+
+    php_closure_object* closureInfo;
+    transfer_progress_callback_info callbackInfo = { progress_cb, progress_payload };
+
+    object_init_ex(zclosure,php_git2::class_entry[php_git2_closure_obj]);
+    closureInfo = reinterpret_cast<php_closure_object*>
+        (zend_objects_get_address(zclosure TSRMLS_CC));
+    closureInfo->func.type = ZEND_INTERNAL_FUNCTION;
+    closureInfo->func.common.function_name = "php-git2 transfer progress internal callback";
+    closureInfo->func.common.fn_flags |= ZEND_ACC_CLOSURE;
+    closureInfo->func.common.num_args = 2;
+    closureInfo->func.common.required_num_args = 2;
+    closureInfo->func.common.scope = php_git2::class_entry[php_git2_closure_obj];
+    closureInfo->func.internal_function.handler = ZEND_FN(backend_transfer_progress_callback);
+    closureInfo->hasPayload = true;
+    closureInfo->payload = &callbackInfo;
+
+    // Invoke method on odb_backend.
+
+    zval* params[] = { zodb, zclosure, zpayload };
+
+    result = method.call(3,params);
+    if (result == GIT_OK) {
+        zval* retval = method.retval();
+
+        // Make sure returned zval is an object derived from GitODBWritepack.
+        if (Z_TYPE_P(retval) != IS_OBJECT
+            || !is_subclass_of(Z_OBJCE_P(retval),class_entry[php_git2_odb_writepack_obj]))
+        {
+            php_git2_giterr_set(
+                GITERR_ODB,
+                "GitODBBackend::readstream(): return value must be an object "
+                "derived from GitODBWritepack");
+
+            result = GIT_EPHPFATAL;
+        }
+        else {
+            // Copy the return value zval.
+            zval* zobj;
+            MAKE_STD_ZVAL(zobj);
+            ZVAL_ZVAL(zobj,retval,1,0);
+
+            try {
+                // Now create the custom writepack backing. The writepack tracks
+                // this object (via the backendWrapper's owner) and will keep it
+                // alive.
+                php_odb_writepack_object* sobj;
+                php_odb_backend_object* backendWrapper;
+
+                sobj = LOOKUP_OBJECT(php_odb_writepack_object,retval);
+                backendWrapper = LOOKUP_OBJECT(php_odb_backend_object,method.object()->thisobj);
+                sobj->create_custom_writepack(zobj,backendWrapper->owner);
+
+                // Help out the implementation by providing a reference to the
+                // ODB backend.
+                sobj->writepack->backend = backend;
+
+                // Assign the git_odb_stream to the out parameter. This is safe
+                // since the instance holds its own zval that references the
+                // object backing, meaning the returned object will survive
+                // until the free() function is called on the git_odb_stream.
+                *writepackp = sobj->writepack;
+            } catch (php_git2_fatal_exception& ex) {
+                const char* msg = ex.what();
+                if (msg == nullptr) {
+                    msg = "GitODBBackend::readstream(): failed to generate the readstream";
+                }
+                php_git2_giterr_set(GITERR_ODB,msg);
+
+                result = GIT_EPHPFATAL;
+            }
+
+            zval_ptr_dtor(&zobj);
+        }
+    }
+
+    // Do cleanup.
+    zval_ptr_dtor(&zodb);
+    zval_ptr_dtor(&zclosure);
+    zval_ptr_dtor(&zpayload);
 
     return result;
 }
@@ -852,6 +960,35 @@ ZEND_FUNCTION(backend_foreach_callback)
     // Invoke callback. The return value is important so we'll pass it along.
     retval = (*info->callback)(&oid,info->payload);
 
+    RETVAL_LONG(static_cast<long>(retval));
+}
+
+ZEND_FUNCTION(backend_transfer_progress_callback)
+{
+    int retval;
+    zval* zstats = nullptr;
+    git_transfer_progress stats;
+    zval* zdummyPayload = nullptr;
+    php_closure_object* object = LOOKUP_OBJECT(php_closure_object,getThis());
+    const transfer_progress_callback_info* info
+        = reinterpret_cast<const transfer_progress_callback_info*>(object->payload);
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"a|z",&zstats,&zdummyPayload) == FAILURE) {
+        return;
+    }
+
+    // Convert parameters to libgit2 values.
+    retval = convert_transfer_progress(stats,zstats);
+    if (retval == GIT_ERROR) {
+        // Generate exception. The returned stats array was malformed.
+
+        return;
+    }
+
+    // Invoke the payload and return the result to user space. The payload
+    // passed here is the payload from the libgit2 calling context (not
+    // userspace).
+    retval = (*info->callback)(&stats,info->payload);
     RETVAL_LONG(static_cast<long>(retval));
 }
 

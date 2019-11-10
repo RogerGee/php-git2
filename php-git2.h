@@ -466,6 +466,7 @@ namespace php_git2
     // Helper functions for converting PHP values to git2 values.
 
     git_signature* convert_signature(zval* zv);
+    int convert_transfer_progress(git_transfer_progress& stats,zval* zv);
 
 } // namespace php_git2
 
