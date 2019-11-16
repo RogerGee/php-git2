@@ -96,11 +96,9 @@ php_odb_backend_object::~php_odb_backend_object()
 
 void php_odb_backend_object::create_custom_backend(zval* zobj)
 {
-    // NOTE: the zval should be any zval that points to an object with 'this' as
-    // its backing (i.e. result of zend_objects_get_address()). This is used by
-    // the implementation to obtain class entry info for the class that was used
-    // to create the object AND to keep the PHP object alive while it is being
-    // used by git2.
+    // NOTE: 'zobj' should be any zval that dereferences to 'this'
+    // zend_object. This zval will be used to keep the object alive while
+    // employed as a custom backend.
 
     // Make sure object doesn't already have a backing. This would imply it is
     // in use already in an ODB.
@@ -135,6 +133,18 @@ void php_odb_backend_object::assign_owner(php_git_odb* newOwner)
     if (owner != nullptr) {
         owner->up_ref();
     }
+}
+
+void php_odb_backend_object::unset_backend(zval* zobj)
+{
+    // NOTE: 'zobj' should be any zval that dereferences to 'this' zend_object.
+
+    // Unset 'odb' property.
+    zend_unset_property(Z_OBJCE_P(zobj),zobj,"odb",sizeof("odb")-1 ZTS_MEMBER_CC(zts));
+
+    // Unset backend reference.
+    backend = nullptr;
+    kind = unset;
 }
 
 /*static*/ void php_odb_backend_object::init(zend_class_entry* ce)
@@ -689,10 +699,8 @@ void php_odb_backend_object::assign_owner(php_git_odb* newOwner)
                 // this object (via the backendWrapper's owner) and will keep it
                 // alive.
                 php_odb_writepack_object* sobj;
-                php_odb_backend_object* backendWrapper;
 
                 sobj = LOOKUP_OBJECT(php_odb_writepack_object,retval);
-                backendWrapper = LOOKUP_OBJECT(php_odb_backend_object,method.object()->thisobj);
                 sobj->create_custom_writepack(zobj,method.object()->thisobj);
 
                 // Help out the implementation by providing a reference to the
@@ -738,8 +746,10 @@ void php_odb_backend_object::assign_owner(php_git_odb* newOwner)
     // may have references to git2 objects that reference this PHP object).
 
     if (EG(objects_store).object_buckets != nullptr) {
-        // Unassign backend from the object since it is about to get destroyed.
-        object.backing()->backend = nullptr;
+        // Unassign backend from the object since it is about to get
+        // destroyed. This also ensures no references remain to any ODB since
+        // the ODB is (presumably) in the process of freeing right now.
+        object.backing()->unset_backend(object.thisobj());
     }
 
     // Explicitly call the destructor on the custom backend. Then free the block

@@ -210,6 +210,8 @@ function make_custom_repo($name) {
     git_odb_add_backend($odb,$backend,1);
     git_repository_set_odb($repo,$odb);
 
+    testbed_unit('PHPSerializedODB:odb',$backend->odb);
+
     return $repo;
 }
 
@@ -255,6 +257,7 @@ function test_lifetime_backend() {
     $backend = git_odb_get_backend($odb,0);
 
     testbed_unit('repo:odb:backend',$backend);
+    testbed_unit('backend:odb',$backend->odb);
 }
 
 testbed_test('Custom ODB/Copy (Default Stream)','Git2Test\ODBCustom\test_session_backend');

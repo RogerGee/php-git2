@@ -21,6 +21,8 @@ class PHPSerializedODB extends GitODBBackend {
     }
 
     public function __destruct() {
+        assert(!isset($this->odb));
+
         file_put_contents($this->path,serialize($this->vars));
         unset($this->vars);
     }

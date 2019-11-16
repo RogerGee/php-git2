@@ -229,7 +229,7 @@ void php_odb_stream_object::assign_owner(php_git_odb* newOwner)
 
     if (EG(objects_store).object_buckets != nullptr) {
         // Unassign stream from the object since it is about to get destroyed.
-        object.backing()->stream = nullptr;
+        object.backing()->unset_stream();
     }
 
     object.object()->~git_odb_stream_php();
@@ -270,7 +270,8 @@ git_odb_stream_php::git_odb_stream_php(zval* zv,unsigned int newMode TSRMLS_DC)
         }
     }
 
-    // Every custom stream must have all the functions available.
+    // Every custom stream must provide all the functions even if they are not
+    // all implemented.
     read = php_odb_stream_object::read;
     write = php_odb_stream_object::write;
     finalize_write = php_odb_stream_object::finalize_write;

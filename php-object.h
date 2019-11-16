@@ -199,6 +199,7 @@ namespace php_git2
             kind = conventional;
         }
         void assign_owner(php_git_odb* newOwner);
+        void unset_backend(zval* zobj);
 
         static zend_object_handlers handlers;
         static void init(zend_class_entry* ce);
@@ -304,6 +305,11 @@ namespace php_git2
 
         void create_custom_stream(zval* zobj,zval* zbackendObject,unsigned int mode);
         void assign_owner(php_git_odb* owner);
+        void unset_stream()
+        {
+            stream = nullptr;
+            kind = unset;
+        }
 
         static zend_object_handlers handlers;
         static void init(zend_class_entry* ce);
