@@ -693,7 +693,7 @@ void php_odb_backend_object::assign_owner(php_git_odb* newOwner)
 
                 sobj = LOOKUP_OBJECT(php_odb_writepack_object,retval);
                 backendWrapper = LOOKUP_OBJECT(php_odb_backend_object,method.object()->thisobj);
-                sobj->create_custom_writepack(zobj,backendWrapper->owner);
+                sobj->create_custom_writepack(zobj,method.object()->thisobj);
 
                 // Help out the implementation by providing a reference to the
                 // ODB backend.

@@ -32,9 +32,10 @@ namespace php_git2
 
     enum php_git2_object_t
     {
-        php_git2_odb_writepack_obj,
         php_git2_odb_backend_obj,
         php_git2_odb_backend_internal_obj,
+        php_git2_odb_writepack_obj,
+        php_git2_odb_writepack_internal_obj,
         php_git2_odb_stream_obj,
         php_git2_odb_stream_internal_obj,
         php_git2_writestream_obj,
@@ -265,7 +266,18 @@ namespace php_git2
         php_git_odb* owner;
         php_zts_member zts;
 
-        void create_custom_writepack(zval* zobj,php_git_odb* owner);
+        void create_custom_writepack(zval* zobj,zval* zbackendObject);
+        void assign_owner(php_git_odb* owner);
+
+        static zend_object_handlers handlers;
+        static void init(zend_class_entry* ce);
+    private:
+
+    };
+
+    struct php_odb_writepack_internal_object : php_odb_writepack_object
+    {
+        php_odb_writepack_internal_object(zend_class_entry* ce TSRMLS_DC);
 
         static zend_object_handlers handlers;
         static void init(zend_class_entry* ce);
@@ -509,9 +521,10 @@ namespace php_git2
 
     // Extern variables in this namespace.
     extern zend_class_entry* class_entry[];
-    extern zend_function_entry odb_writepack_methods[];
     extern zend_function_entry odb_backend_methods[];
     extern zend_function_entry odb_backend_internal_methods[];
+    extern zend_function_entry odb_writepack_methods[];
+    extern zend_function_entry odb_writepack_internal_methods[];
     extern zend_function_entry odb_stream_methods[];
     extern zend_function_entry odb_stream_internal_methods[];
     extern zend_function_entry writestream_methods[];

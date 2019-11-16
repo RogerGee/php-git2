@@ -18,43 +18,11 @@ static int odb_writepack_has_property(zval* obj,zval* prop,int chk_type,const ze
 
 // Class method entries
 
-static PHP_METHOD(GitODBWritepack,append);
-static PHP_METHOD(GitODBWritepack,commit);
 zend_function_entry php_git2::odb_writepack_methods[] = {
-    PHP_ME(GitODBWritepack,append,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitODBWritepack,commit,NULL,ZEND_ACC_PUBLIC)
+    PHP_ABSTRACT_ME(GitODBWritepack,append,NULL)
+    PHP_ABSTRACT_ME(GitODBWritepack,commit,NULL)
     PHP_FE_END
 };
-
-// Make function implementation
-
-void php_git2::php_git2_make_odb_writepack(zval* zp,git_odb_writepack* writepack,
-    php_callback_sync* cb,zval* zbackend,php_git_odb* owner TSRMLS_DC)
-{
-    php_odb_writepack_object* obj;
-    zend_class_entry* ce = php_git2::class_entry[php_git2_odb_writepack_obj];
-
-    object_init_ex(zp,ce);
-    obj = reinterpret_cast<php_odb_writepack_object*>(zend_objects_get_address(zp TSRMLS_CC));
-
-    // Assign the writepack and callback. The callback is merely along for the
-    // ride so it can be destroyed at the proper time.
-    obj->writepack = writepack;
-    obj->cb = cb;
-    obj->owner = owner;
-
-    // Increment owner refcount if set. This will prevent the ODB from freeing
-    // while the backend is in use.
-    if (obj->owner != nullptr) {
-        obj->owner->up_ref();
-    }
-
-    // Assign backend property if we have a backend specified.
-    if (zbackend != nullptr) {
-        Z_ADDREF_P(zbackend);
-        zend_hash_add(Z_OBJPROP_P(zp),"backend",sizeof("backend"),&zbackend,sizeof(zval*),NULL);
-    }
-}
 
 // Implementation of php_odb_writepack_object
 
@@ -86,6 +54,19 @@ php_odb_writepack_object::~php_odb_writepack_object()
     }
 
     zend_object_std_dtor(this ZTS_MEMBER_CC(this->zts));
+}
+
+void php_odb_writepack_object::create_custom_writepack(zval* zobj,zval* zbackendObject)
+{
+    // NOTE: this member function should be called under the php-git2 standard
+    // exception handler.
+
+    // Make sure the writepack does not already exist.
+    if (writepack != nullptr) {
+        throw php_git2_fatal_exception("cannot create custom ODB writepack - object already in use");
+    }
+
+    // TODO
 }
 
 /*static*/ void php_odb_writepack_object::init(zend_class_entry* ce)
@@ -136,10 +117,13 @@ zval* odb_writepack_read_property(zval* obj,zval* prop,int type,const zend_liter
         if (ret == nullptr) {
             ALLOC_INIT_ZVAL(ret);
 
-            if (writepack->backend != nullptr) {
+            // NOTE: We can only safely create a backend object if an owner is
+            // set on the writepack.
+
+            if (writepack->backend != nullptr && wrapper->owner != nullptr) {
                 // Create GitODBBackend object instance to represent the
-                // git_odb_backend attached to the writepack. The object does not
-                // own the underlying backend object.
+                // git_odb_backend attached to the writepack. The object does
+                // not own the underlying backend object since we pass an owner.
                 php_git2_make_odb_backend(ret,writepack->backend,wrapper->owner TSRMLS_CC);
 
                 Z_ADDREF_P(ret);
@@ -240,58 +224,6 @@ int odb_writepack_has_property(zval* obj,zval* prop,int chk_type,const zend_lite
     }
 
     return result;
-}
-
-// Implementation of object methods
-
-PHP_METHOD(GitODBWritepack,append)
-{
-    php_bailer bailer ZTS_CTOR;
-    int result;
-    char* buf;
-    int amt;
-    php_odb_writepack_object* object = LOOKUP_OBJECT(php_odb_writepack_object,getThis());
-
-    assert(object->writepack != nullptr);
-
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&buf,&amt) != SUCCESS) {
-        return;
-    }
-
-    try {
-        result = object->writepack->append(object->writepack,buf,amt,&object->prog);
-        if (result < 0) {
-            php_git2::git_error(result);
-        }
-    } catch (php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer TSRMLS_CC);
-
-        if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle(TSRMLS_C);
-        }
-    }
-}
-
-PHP_METHOD(GitODBWritepack,commit)
-{
-    php_bailer bailer ZTS_CTOR;
-    int result;
-    php_odb_writepack_object* object = LOOKUP_OBJECT(php_odb_writepack_object,getThis());
-
-    assert(object->writepack != nullptr);
-
-    try {
-        result = object->writepack->commit(object->writepack,&object->prog);
-        if (result < 0) {
-            php_git2::git_error(result);
-        }
-    } catch (php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer TSRMLS_CC);
-
-        if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle(TSRMLS_C);
-        }
-    }
 }
 
 /*

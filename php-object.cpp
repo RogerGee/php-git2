@@ -56,15 +56,6 @@ void php_git2::php_git2_register_classes(TSRMLS_D)
     zend_object_handlers* stdhandlers = zend_get_std_object_handlers();
     zend_class_entry ce, *pce;
 
-    // final class GitODBWritepack
-    INIT_CLASS_ENTRY(ce,"GitODBWritepack",odb_writepack_methods);
-    pce = zend_register_internal_class(&ce TSRMLS_CC);
-    php_git2::class_entry[php_git2_odb_writepack_obj] = pce;
-    pce->ce_flags |= ZEND_ACC_FINAL_CLASS;
-    memcpy(&php_odb_writepack_object::handlers,stdhandlers,sizeof(zend_object_handlers));
-    pce->create_object = php_create_object_handler<php_odb_writepack_object>;
-    php_odb_writepack_object::init(pce);
-
     // abstract class GitODBBackend
     INIT_CLASS_ENTRY(ce,"GitODBBackend",odb_backend_methods);
     pce = zend_register_internal_class(&ce TSRMLS_CC);
@@ -87,6 +78,29 @@ void php_git2::php_git2_register_classes(TSRMLS_D)
         sizeof(zend_object_handlers));
     pce->create_object = php_create_object_handler<php_odb_backend_internal_object>;
     php_odb_backend_internal_object::init(pce);
+
+    // abstract class GitODBWritepack
+    INIT_CLASS_ENTRY(ce,"GitODBWritepack",odb_writepack_methods);
+    pce = zend_register_internal_class(&ce TSRMLS_CC);
+    php_git2::class_entry[php_git2_odb_writepack_obj] = pce;
+    pce->ce_flags |= ZEND_ACC_FINAL_CLASS;
+    memcpy(&php_odb_writepack_object::handlers,stdhandlers,sizeof(zend_object_handlers));
+    pce->create_object = php_create_object_handler<php_odb_writepack_object>;
+    php_odb_writepack_object::init(pce);
+
+    // final class GitODBWritepack_Internal extends GitODBWritepack
+    INIT_CLASS_ENTRY(ce,"GitODBWritepack_Internal",odb_writepack_internal_methods);
+    pce = zend_register_internal_class_ex(
+        &ce,
+        php_git2::class_entry[php_git2_odb_writepack_obj],
+        nullptr TSRMLS_CC);
+    php_git2::class_entry[php_git2_odb_writepack_internal_obj] = pce;
+    pce->ce_flags |= ZEND_ACC_FINAL_CLASS;
+    memcpy(&php_odb_writepack_internal_object::handlers,
+        &php_odb_writepack_object::handlers,
+        sizeof(zend_object_handlers));
+    pce->create_object = php_create_object_handler<php_odb_writepack_internal_object>;
+    php_odb_writepack_internal_object::init(pce);
 
     // abstract class GitODBStream
     INIT_CLASS_ENTRY(ce,"GitODBStream",odb_stream_methods);
