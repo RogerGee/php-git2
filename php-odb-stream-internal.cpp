@@ -33,12 +33,17 @@ void php_git2::php_git2_make_odb_stream(zval* zp,git_odb_stream* stream,php_git_
 
     // Assign the stream handle.
     obj->stream = stream;
-    obj->owner = owner;
 
-    // Increment owner refcount if set. This will prevent the ODB from freeing
-    // while the writestream is in use.
+    // Assign owner. (This increments the owner refcount if set to prevent the
+    // ODB from freeing while the stream is in use.)
+    obj->assign_owner(owner);
+
+    // Assign the kind based on whether the owner was set.
     if (obj->owner != nullptr) {
-        obj->owner->up_ref();
+        obj->kind = php_odb_stream_object::conventional; // stream freed via git_odb_stream_free()
+    }
+    else {
+        obj->kind = php_odb_stream_object::user; // stream freed via $stream->free()
     }
 }
 

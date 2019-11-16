@@ -66,10 +66,20 @@ void php_git2::php_git2_make_odb_backend(zval* zp,git_odb_backend* backend,php_g
     object_init_ex(zp,ce);
     obj = reinterpret_cast<php_odb_backend_object*>(zend_objects_get_address(zp TSRMLS_CC));
 
-    // Assign the git2 odb_backend object and owner. We assume the owner manages
-    // the lifetime of the backend.
+    // Assign the git2 odb_backend object.
     obj->backend = backend;
-    obj->owner = owner;
+
+    // Assign owner. (If set, this increments owner refcount to prevent the ODB
+    // from freeing while the backend object is in use.)
+    obj->assign_owner(owner);
+
+    // Assign kind based on if owner set.
+    if (owner != nullptr) {
+        obj->kind = php_odb_backend_object::conventional;
+    }
+    else {
+        obj->kind = php_odb_backend_object::user;
+    }
 }
 
 // Implementation of php_odb_backend_internal_object
@@ -323,7 +333,9 @@ PHP_METHOD(GitODBBackend_Internal,writestream)
             php_git2::git_error(retval);
         }
         else if (outstream != nullptr) {
-            // Create GitODBStream object to wrap git_odb_stream.
+            // Create GitODBStream object to wrap git_odb_stream. Do NOT set an
+            // owner since we want the GitODBStream object to free the stream
+            // using its free() function.
             php_git2_make_odb_stream(return_value,outstream,nullptr TSRMLS_CC);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
@@ -364,7 +376,9 @@ PHP_METHOD(GitODBBackend_Internal,readstream)
             php_git2::git_error(retval);
         }
         else if (outstream != nullptr) {
-            // Create GitODBStream object to wrap git_odb_stream.
+            // Create GitODBStream object to wrap git_odb_stream. Do NOT set an
+            // owner since we want the GitODBStream object to free the stream
+            // using its free() function.
             php_git2_make_odb_stream(return_value,outstream,nullptr TSRMLS_CC);
         }
     } catch (php_git2::php_git2_exception_base& ex) {

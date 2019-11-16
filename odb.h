@@ -77,6 +77,9 @@ namespace php_git2
     // of type GitODBBackend. One class handles existing objects, and the other
     // class handles creating new ones.
 
+    // Extracts a git_odb_backend from a GitODBBackend PHP value. The
+    // GitODBBackend object is updated with a custom backing if none is
+    // set. (Thus, this operation is not idempotent.)
     class php_git_odb_backend_byval:
         public php_value_base,
         private php_zts_base
@@ -109,14 +112,23 @@ namespace php_git2
 
             // If the object doesn't have a backing, then we create a custom
             // one.
-            if (object->backend == nullptr) {
-                object->create_custom_backend(value,ownerWrapper.get_object());
+            if (object->kind == php_odb_backend_object::unset) {
+                object->create_custom_backend(value);
             }
-            else if (object->owner != nullptr) {
-                throw php_git2_exception("The ODB backend is already owned by an ODB");
+
+            // If the object is a custom backing then it already is (presumably)
+            // set on an ODB backend. (The same is true if the owner is already
+            // set.)
+            else if (object->kind != php_odb_backend_object::user
+                || object->owner != nullptr)
+            {
+                throw php_git2_exception("The ODB backend is already set on an ODB");
             }
+
+            // Otherwise the object is a user backend and we make it into a
+            // conventional backend.
             else {
-                object->owner = ownerWrapper.get_object();
+                object->create_conventional_backend(ownerWrapper.get_object());
             }
 
             return object->backend;
@@ -125,6 +137,8 @@ namespace php_git2
         connect_t& ownerWrapper;
     };
 
+    // Returns a git_odb_backend as a GitODBBackend PHP value. The owner ODB is
+    // NOT set on the backend object.
     class php_git_odb_backend_byref:
         protected php_zts_base
     {
@@ -153,8 +167,8 @@ namespace php_git2
         git_odb_backend* backend;
     };
 
-    // Provide a variant that sets the owner ODB when creating the backend.
-
+    // Returns a git_odb_backend as a GitODBBackend PHP value. The owner ODB is
+    // set when creating the backend object.
     class php_git_odb_backend_byref_owned:
         public php_git_odb_backend_byref
     {
@@ -184,6 +198,7 @@ namespace php_git2
     // object of type GitODBStream. One class handles existing objects and the
     // other handles creating new ones.
 
+    // Extracts a git_odb_stream from a GitODBStream PHP value.
     class php_git_odb_stream_byval:
         public php_value_base,
         private php_zts_base
@@ -211,6 +226,7 @@ namespace php_git2
         }
     };
 
+    // Binds a git_odb_stream
     class php_git_odb_stream_byref:
         private php_zts_base
     {

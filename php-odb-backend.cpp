@@ -69,7 +69,7 @@ zend_function_entry php_git2::odb_backend_methods[] = {
 
 /*static*/ zend_object_handlers php_odb_backend_object::handlers;
 php_odb_backend_object::php_odb_backend_object(zend_class_entry* ce TSRMLS_DC):
-    backend(nullptr), owner(nullptr), zts(TSRMLS_C)
+    backend(nullptr), kind(unset), owner(nullptr), zts(TSRMLS_C)
 {
     zend_object_std_init(this,ce TSRMLS_CC);
     object_properties_init(this,ce);
@@ -78,17 +78,23 @@ php_odb_backend_object::php_odb_backend_object(zend_class_entry* ce TSRMLS_DC):
 php_odb_backend_object::~php_odb_backend_object()
 {
     // AFAIK we never call the free() function on git_odb_backend objects that
-    // were returned from a call that referenced a git_odb. This is the case if
-    // 'owner' is set.
+    // were returned from a call that referenced a git_odb NOR those applied to
+    // a git_odb's list of backends. This is the case when kind is either
+    // 'conventional' or 'custom'.
 
-    if (owner == nullptr && backend != nullptr) {
+    if (kind == user) {
         backend->free(backend);
+    }
+
+    // Free owner ODB in case it is referenced.
+    if (owner != nullptr) {
+        git2_resource_base::free_recursive(owner);
     }
 
     zend_object_std_dtor(this ZTS_MEMBER_CC(this->zts));
 }
 
-void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOwner)
+void php_odb_backend_object::create_custom_backend(zval* zobj)
 {
     // NOTE: the zval should be any zval that points to an object with 'this' as
     // its backing (i.e. result of zend_objects_get_address()). This is used by
@@ -102,12 +108,33 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
         throw php_git2_fatal_exception("Cannot create custom ODB backend: object already in use");
     }
 
+    // Set kind to 'custom'.
+    kind = custom;
+
     // Create custom backend. Custom backends are always passed off to git2, so
     // we are not responsible for calling its free function.
     backend = new (emalloc(sizeof(git_odb_backend_php))) git_odb_backend_php(zobj ZTS_MEMBER_CC(zts));
 
-    // Assume new owner. It should be a non-null ODB resource pointer.
+    // Custom ODB backends never have a direct owner. We always assume the
+    // would-be owner is kept alive circularly since the custom backen stores a
+    // reference to this object.
+    assign_owner(nullptr);
+}
+
+void php_odb_backend_object::assign_owner(php_git_odb* newOwner)
+{
+    // Free existing owner (if any).
+    if (owner != nullptr) {
+        git2_resource_base::free_recursive(owner);
+    }
+
     owner = newOwner;
+
+    // Increment owner refcount to prevent the ODB from freeing while the
+    // backend object is in use.
+    if (owner != nullptr) {
+        owner->up_ref();
+    }
 }
 
 /*static*/ void php_odb_backend_object::init(zend_class_entry* ce)
@@ -336,7 +363,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
                 // object to keep it alive and provide access to the
                 // GitODBBackend derivation.
                 php_odb_stream_object* sobj = LOOKUP_OBJECT(php_odb_stream_object,retval);
-                sobj->create_custom_stream(zobj,GIT_STREAM_WRONLY,method.thisobj());
+                sobj->create_custom_stream(zobj,method.thisobj(),GIT_STREAM_WRONLY);
 
                 // The libgit2 implementation expects the custom backing to
                 // provide a reference to the ODB backend.
@@ -414,7 +441,7 @@ void php_odb_backend_object::create_custom_backend(zval* zobj,php_git_odb* newOw
                 // object to keep it alive and provide access to the
                 // GitODBBackend derivation.
                 php_odb_stream_object* sobj = LOOKUP_OBJECT(php_odb_stream_object,retval);
-                sobj->create_custom_stream(zobj,GIT_STREAM_RDONLY,method.thisobj());
+                sobj->create_custom_stream(zobj,method.thisobj(),GIT_STREAM_RDONLY);
 
                 // Help out the implementation by providing a reference to the
                 // ODB backend.
@@ -837,7 +864,8 @@ zval* odb_backend_read_property(zval* obj,zval* prop,int type,const zend_literal
                 }
                 else {
                     // Use owner resource. We must increment the refcount so the
-                    // resource remains valid for the user.
+                    // resource remains valid for the user. (The resource
+                    // destructor will handle the decrement.)
                     rsrc = backendWrapper->owner;
                     rsrc->up_ref();
                 }

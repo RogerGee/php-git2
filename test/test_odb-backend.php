@@ -144,8 +144,30 @@ function test_writepack2() {
     testbed_unit('wp->commit()',$wp->commit());
 }
 
+function make_backend_for_lifetime_test() {
+    $path = testbed_get_repo_path();
+    $repo = git_repository_open($path);
+    $odb = git_repository_odb($repo);
+
+    testbed_unit('odb:before',$odb);
+
+    $backend = git_odb_get_backend($odb,0);
+
+    git_odb_free($odb);
+    testbed_unit('odb:before:free)',$odb);
+
+    return $backend;
+}
+
+function test_lifetime() {
+    $backend = make_backend_for_lifetime_test();
+    testbed_unit('backend',$backend);
+    testbed_unit('backend:odb:after',$backend->odb);
+}
+
 testbed_test('ODB Backend read object','Git2Test\ODBBackend\test_read');
 testbed_test('ODB Backend write object','Git2Test\ODBBackend\test_write');
 testbed_test('ODB Backend foreach','Git2Test\ODBBackend\test_foreach');
 testbed_test('ODB Backend writepack','Git2Test\ODBBackend\test_writepack');
 testbed_test('ODB Backend writepack/alt','Git2Test\ODBBackend\test_writepack2');
+testbed_test('ODB Backend lifetime','Git2Test\ODBBackend\test_lifetime');

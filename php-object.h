@@ -175,14 +175,29 @@ namespace php_git2
 
     struct php_odb_backend_object : zend_object
     {
+        enum backend_kind
+        {
+            unset,
+            conventional,
+            user,
+            custom
+        };
+
         php_odb_backend_object(zend_class_entry* ce TSRMLS_DC);
         ~php_odb_backend_object();
 
         git_odb_backend* backend;
+        backend_kind kind;
         php_git_odb* owner;
         php_zts_member zts;
 
-        void create_custom_backend(zval* zobj,php_git_odb* newOwner);
+        void create_custom_backend(zval* zobj);
+        void create_conventional_backend(php_git_odb* newOwner)
+        {
+            assign_owner(newOwner);
+            kind = conventional;
+        }
+        void assign_owner(php_git_odb* newOwner);
 
         static zend_object_handlers handlers;
         static void init(zend_class_entry* ce);
@@ -258,15 +273,25 @@ namespace php_git2
 
     struct php_odb_stream_object : zend_object
     {
+        enum stream_kind
+        {
+            unset,
+            conventional,
+            user,
+            custom
+        };
+
         php_odb_stream_object(zend_class_entry* ce TSRMLS_DC);
         ~php_odb_stream_object();
 
         git_odb_stream* stream;
+        stream_kind kind;
         php_git_odb* owner;
         zval* zbackend;
         php_zts_member zts;
 
-        void create_custom_stream(zval* zobj,unsigned int mode,zval* zodbBackend = nullptr);
+        void create_custom_stream(zval* zobj,zval* zbackendObject,unsigned int mode);
+        void assign_owner(php_git_odb* owner);
 
         static zend_object_handlers handlers;
         static void init(zend_class_entry* ce);

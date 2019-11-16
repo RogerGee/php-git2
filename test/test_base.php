@@ -142,7 +142,8 @@ function testbed_unit($section,$mixed) {
         $text = var_export($mixed,true);
     }
     else {
-        $text = 'Resource of type "' . get_resource_type($mixed) . '"' . PHP_EOL;
+        $id = intval($mixed);
+        $text = 'Resource of type "' . get_resource_type($mixed) . '"' . " (ID=$id)" . PHP_EOL;
     }
 
     echo "$tab => ";

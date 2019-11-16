@@ -30,7 +30,7 @@ zend_function_entry php_git2::odb_stream_methods[] = {
 
 /*static*/ zend_object_handlers php_odb_stream_object::handlers;
 php_odb_stream_object::php_odb_stream_object(zend_class_entry* ce TSRMLS_DC):
-    stream(nullptr), owner(nullptr), zbackend(nullptr), zts(TSRMLS_C)
+    stream(nullptr), kind(unset), owner(nullptr), zbackend(nullptr), zts(TSRMLS_C)
 {
     zend_object_std_init(this,ce TSRMLS_CC);
     object_properties_init(this,ce);
@@ -39,26 +39,32 @@ php_odb_stream_object::php_odb_stream_object(zend_class_entry* ce TSRMLS_DC):
 php_odb_stream_object::~php_odb_stream_object()
 {
     if (stream != nullptr) {
-        // If the stream has an owner, then it was created conventionally using
-        // the higher-level functions. To prevent memory leaks we must call the
-        // high-level git_odb_stream_free(). This will call stream->free() at
-        // some point.
+        if (kind == conventional) {
+            // If the stream was created conventionally using the higher-level
+            // functions, free via git_odb_stream_free(). To prevent memory
+            // leaks we must call this function. Note: this does call
+            // stream->free() at some point.
 
-        if (owner != nullptr) {
             git_odb_stream_free(stream);
-            git2_resource_base::free_recursive(owner);
         }
-        else {
-            // Otherwise we assume the object was created outside of the
-            // standard way and should not be freed using the higher-level
-            // function. This is the case when PHP userspace creates a
-            // git_odb_stream via the GitODBBackend's stream methods.
+        else if (kind == user) {
+            // If the stream was created in PHP userspace (e.g. via the
+            // GitODBBackend's stream methods), then free directly using the
+            // stream's bound free() function.
 
             stream->free(stream);
         }
+
+        // NOTE: When kind == custom, the libgit2 library is responsible for
+        // freeing the stream, and we do not free it here.
     }
 
-    // Free backend object zval (if any).
+    // Free owner ODB if set. This is typically set when kind == conventional.
+    if (owner != nullptr) {
+        git2_resource_base::free_recursive(owner);
+    }
+
+    // Free backend zval (if any). This is typically set when kind == custom.
     if (zbackend != nullptr) {
         zval_ptr_dtor(&zbackend);
     }
@@ -66,12 +72,12 @@ php_odb_stream_object::~php_odb_stream_object()
     zend_object_std_dtor(this ZTS_MEMBER_CC(zts));
 }
 
-void php_odb_stream_object::create_custom_stream(zval* zobj,unsigned int mode,zval* zodbBackend)
+void php_odb_stream_object::create_custom_stream(zval* zobj,zval* zbackendObject,unsigned int mode)
 {
     // NOTE: this member function should be called under the php-git2 standard
     // exception handler.
 
-    // NOTE: the zval should be any zval that points to an object with 'this' as
+    // NOTE: 'zobj' should be any zval that points to an object with 'this' as
     // its backing (i.e. result of zend_objects_get_address()). This is really
     // only used by the implementation to obtain class entry info for the class
     // that was used to create the object AND to keep the PHP object alive while
@@ -82,18 +88,40 @@ void php_odb_stream_object::create_custom_stream(zval* zobj,unsigned int mode,zv
         throw php_git2_fatal_exception("cannot create custom ODB stream - object already in use");
     }
 
+    // The stream wrapper is now considered custom.
+    kind = custom;
+
     // Free existing zbackend (just in case).
     if (zbackend != nullptr) {
         zval_ptr_dtor(&zbackend);
     }
 
-    // Create new custom stream. Assume the stream has no owner (this is our
-    // only use case really).
+    // Assign backend and increment reference count. This keeps the
+    // GitODBBackend alive while our GitODBStream is alive.
+    zbackend = zbackendObject;
+    Z_ADDREF_P(zbackend);
+
+    // Create new custom stream.
     stream = new (emalloc(sizeof(git_odb_stream_php))) git_odb_stream_php(zobj,mode ZTS_MEMBER_CC(zts));
-    owner = nullptr;
-    if (zodbBackend != nullptr) {
-        Z_ADDREF_P(zodbBackend);
-        zbackend = zodbBackend;
+
+    // Custom ODB streams never require an ODB owner. (The zbackend is the owner
+    // in this case.)
+    assign_owner(nullptr);
+}
+
+void php_odb_stream_object::assign_owner(php_git_odb* newOwner)
+{
+    // Free existing owner (just in case).
+    if (owner != nullptr) {
+        git2_resource_base::free_recursive(owner);
+    }
+
+    owner = newOwner;
+
+    // Increment owner refcount to prevent the ODB from freeing while the stream
+    // object is in use.
+    if (owner != nullptr) {
+        owner->up_ref();
     }
 }
 
@@ -306,18 +334,21 @@ zval* odb_stream_read_property(zval* obj,zval* prop,int type,const zend_literal*
             // backends overriding the write/readpack methods since
             // create_custom_stream() should be called in every use case to set
             // the zbackend in internal storage. However it will get called for
-            // internal backends/backends that employ the default "fake" ODB
+            // internal backends or backends that employ the default "fake" ODB
             // streams.
 
+            // NOTE: We can only safely create a backend if an owner is set on
+            // the stream.
+
             ALLOC_INIT_ZVAL(ret);
-            if (stream->backend != nullptr) {
+            if (stream->backend != nullptr && streamWrapper->owner != nullptr) {
                 // Create backend object to return to userspace.
                 php_git2_make_odb_backend(ret,stream->backend,streamWrapper->owner TSRMLS_CC);
 
-                // Assign the object zval to internal storage for possible
+                // Cache the property zval to internal storage for possible
                 // lookup later on. Leave the refcount at 1 so we can hold a
                 // reference in our 'streamWrapper'. PHP will grab its own
-                // reference later on.
+                // reference later on for userspace.
                 streamWrapper->zbackend = ret;
             }
             else {
