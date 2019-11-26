@@ -28,23 +28,19 @@ zend_function_entry php_git2::odb_writepack_methods[] = {
 
 /*static*/ zend_object_handlers php_odb_writepack_object::handlers;
 php_odb_writepack_object::php_odb_writepack_object(zend_class_entry* ce TSRMLS_DC):
-    writepack(nullptr), cb(nullptr), owner(nullptr), zts(TSRMLS_C)
+    writepack(nullptr), owner(nullptr), zts(TSRMLS_C)
 {
     zend_object_std_init(this,ce TSRMLS_CC);
     object_properties_init(this,ce);
-    memset(&prog,0,sizeof(git_transfer_progress));
 }
 
 php_odb_writepack_object::~php_odb_writepack_object()
 {
-    // Writepack could have become null if user freed it.
+    // Free the writepack. Note: we always are responsible for freeing the
+    // writepack. However it may be null if never set or if a custom free()
+    // function unset it.
     if (writepack != nullptr) {
         writepack->free(writepack);
-    }
-
-    if (cb != nullptr) {
-        cb->~php_callback_sync();
-        efree(cb);
     }
 
     // Attempt to free the owner resource. This only really frees the owner if
@@ -56,7 +52,7 @@ php_odb_writepack_object::~php_odb_writepack_object()
     zend_object_std_dtor(this ZTS_MEMBER_CC(this->zts));
 }
 
-void php_odb_writepack_object::create_custom_writepack(zval* zobj,zval* zbackendObject)
+void php_odb_writepack_object::create_custom_writepack(zval* zobj,zval* zbackend)
 {
     // NOTE: this member function should be called under the php-git2 standard
     // exception handler.
@@ -66,7 +62,37 @@ void php_odb_writepack_object::create_custom_writepack(zval* zobj,zval* zbackend
         throw php_git2_fatal_exception("cannot create custom ODB writepack - object already in use");
     }
 
-    // TODO
+    // Unset any previous 'zbackend' property.
+    zend_unset_property(Z_OBJCE_P(zobj),zobj,"backend",sizeof("backend")-1 ZTS_MEMBER_CC(zts));
+
+    // Assign 'zbackend' property. This will prevent the parent backend from
+    // freeing while the writepack is in use.
+    Z_ADDREF_P(zbackend);
+    zend_hash_add(Z_OBJPROP_P(zobj),"backend",sizeof("backend"),&zbackend,sizeof(zval*),nullptr);
+
+    // Create new custom writepack.
+    writepack = new (emalloc(sizeof(git_odb_writepack_php))) git_odb_writepack_php(zobj ZTS_MEMBER_CC(zts));
+
+    // Reset owner (in case it is set). We do not need to maintain a direct
+    // owner reference since we are maintaining a reference to the backend in
+    // the object's properties hashtable.
+    assign_owner(nullptr);
+}
+
+void php_odb_writepack_object::assign_owner(php_git_odb* newOwner)
+{
+    // Free previous owner if any.
+    if (owner != nullptr) {
+        git2_resource_base::free_recursive(owner);
+    }
+
+    owner = newOwner;
+
+    // Increment reference count (if set). This keeps the ODB alive while the
+    // writepack is in use.
+    if (owner != nullptr) {
+        owner->up_ref();
+    }
 }
 
 /*static*/ void php_odb_writepack_object::init(zend_class_entry* ce)
@@ -77,6 +103,116 @@ void php_odb_writepack_object::create_custom_writepack(zval* zobj,zval* zbackend
     handlers.get_constructor = php_git2::not_allowed_get_constructor;
 
     UNUSED(ce);
+}
+
+/*static*/ int php_odb_writepack_object::append(
+    git_odb_writepack* writepack,
+    const void* data,
+    size_t length,
+    git_transfer_progress* prog)
+{
+    int result;
+    method_wrapper method("append",writepack);
+
+    zval* zdata;
+    zval* zprogress;
+
+    MAKE_STD_ZVAL(zdata);
+    MAKE_STD_ZVAL(zprogress);
+
+    ZVAL_STRINGL(zdata,reinterpret_cast<const char*>(data),length,1);
+    convert_transfer_progress(zprogress,prog);
+
+    zval* params[] = { zdata, zprogress };
+
+    result = method.call(2,params);
+    if (result == GIT_OK) {
+        // Write back transfer progress to library structure.
+        convert_transfer_progress(*prog,zprogress);
+    }
+
+    zval_ptr_dtor(&zdata);
+    zval_ptr_dtor(&zprogress);
+
+    return result;
+}
+
+/*static*/ int php_odb_writepack_object::commit(
+    git_odb_writepack* writepack,
+    git_transfer_progress* prog)
+{
+    int result;
+    method_wrapper method("commit",writepack);
+
+    zval* zprogress;
+
+    MAKE_STD_ZVAL(zprogress);
+
+    convert_transfer_progress(zprogress,prog);
+
+    zval* params[] = { zprogress };
+
+    result = method.call(1,params);
+    if (result == GIT_OK) {
+        // Write back transfer progress to library structure.
+        convert_transfer_progress(*prog,zprogress);
+    }
+
+    zval_ptr_dtor(&zprogress);
+
+    return result;
+}
+
+/*static*/ void php_odb_writepack_object::free(git_odb_writepack* writepack)
+{
+    method_wrapper::object_wrapper object(writepack);
+
+    ZTS_MEMBER_EXTRACT(object.backing()->zts);
+
+    // Make sure object buckets still exist to lookup object (in case the
+    // destructor was already called). This happens when free() is called after
+    // PHP has finished cleaning up all objects (but before all variables, which
+    // may have references to git2 objects that reference this PHP object).
+
+    if (EG(objects_store).object_buckets != nullptr) {
+        // Unassign writepack from the object since it is about to get
+        // destroyed.
+        object.backing()->unset_writepack();
+    }
+
+    // Explicitly call the destructor on the custom writepack. Then free the block
+    // of memory that holds the custom writepack.
+
+    object.object()->~git_odb_writepack_php();
+    efree(writepack);
+}
+
+// Implementation of custom git_odb_writepack
+
+php_odb_writepack_object::
+git_odb_writepack_php::git_odb_writepack_php(zval* zv TSRMLS_DC)
+{
+    // Blank out the base class (which is the structure defined in the git2
+    // headers).
+    memset(this,0,sizeof(struct git_odb_backend));
+
+    // Assign zval to keep object alive while backend is in use in the library.
+    Z_ADDREF_P(zv);
+    thisobj = zv;
+
+    // Assign functions that will invoke the PHP methods in the userspace
+    // class. Note that the methods are necessarily overridden since they are
+    // abstract in the base class.
+    append = php_odb_writepack_object::append;
+    commit = php_odb_writepack_object::commit;
+    free = php_odb_writepack_object::free;
+}
+
+php_odb_writepack_object::
+git_odb_writepack_php::~git_odb_writepack_php()
+{
+    // Free object zval.
+    zval_ptr_dtor(&thisobj);
 }
 
 // Implementation of custom object handlers
@@ -135,16 +271,8 @@ zval* odb_writepack_read_property(zval* obj,zval* prop,int type,const zend_liter
                     zend_hash_add(Z_OBJPROP_P(obj),"backend",sizeof("backend"),&ret,sizeof(zval*),NULL);
                 }
             }
-            else {
-                Z_DELREF_P(ret);
-            }
+            Z_DELREF_P(ret);
         }
-    }
-    else if (strcmp(str,"progress") == 0) {
-        // NOTE: We create a new zval every time since this property is readonly
-        // and the value may change.
-        MAKE_STD_ZVAL(ret);
-        php_git2::convert_transfer_progress(ret,&wrapper->prog);
     }
     else {
         ret = (*std_object_handlers.read_property)(obj,prop,type,key TSRMLS_CC);
@@ -176,7 +304,7 @@ void odb_writepack_write_property(zval* obj,zval* prop,zval* value,const zend_li
     }
 
     str = Z_STRVAL_P(prop);
-    if (strcmp(str,"backend") == 0 || strcmp(str,"progress") == 0) {
+    if (strcmp(str,"backend") == 0) {
         php_error(E_ERROR,"Property '%s' of GitODBWritepack cannot be updated",str);
     }
     else {

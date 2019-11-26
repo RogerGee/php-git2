@@ -262,23 +262,51 @@ namespace php_git2
         ~php_odb_writepack_object();
 
         git_odb_writepack* writepack;
-        git_transfer_progress prog;
-        php_callback_sync* cb;
         php_git_odb* owner;
         php_zts_member zts;
 
-        void create_custom_writepack(zval* zobj,zval* zbackendObject);
-        void assign_owner(php_git_odb* owner);
+        void create_custom_writepack(zval* zobj,zval* zbackend);
+        void assign_owner(php_git_odb* newOwner);
+        void unset_writepack()
+        {
+            writepack = nullptr;
+        }
 
         static zend_object_handlers handlers;
         static void init(zend_class_entry* ce);
     private:
+        // Provide a custom derivation to handle subclasses.
+        struct git_odb_writepack_php:
+            git_odb_writepack
+        {
+            typedef git_odb_writepack base_class;
 
+            git_odb_writepack_php(zval* zv TSRMLS_DC);
+            ~git_odb_writepack_php();
+
+            zval* thisobj;
+        };
+
+        using method_wrapper = php_method_wrapper<
+            php_odb_writepack_object::git_odb_writepack_php,
+            php_odb_writepack_object
+            >;
+
+        static int append(git_odb_writepack* writepack,
+            const void* data,
+            size_t length,
+            git_transfer_progress* prog);
+        static int commit(git_odb_writepack* writepack,git_transfer_progress* prog);
+        static void free(git_odb_writepack* writepack);
     };
 
     struct php_odb_writepack_internal_object : php_odb_writepack_object
     {
         php_odb_writepack_internal_object(zend_class_entry* ce TSRMLS_DC);
+        ~php_odb_writepack_internal_object();
+
+        git_transfer_progress prog;
+        php_callback_sync* cb;
 
         static zend_object_handlers handlers;
         static void init(zend_class_entry* ce);

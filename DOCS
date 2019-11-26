@@ -662,7 +662,7 @@ git_odb_write_pack(resource,callable,mixed)
 
     ** The 3rd parameter may be null. **
 
-    Returns object instance of type GitODBWritepack
+    Returns object instance of type GitODBWritepack_Internal
 
 git_odb_backend_pack(string)
 
@@ -2789,15 +2789,38 @@ abstract class GitODBBackend:
             If the callack returns less than zero, the transfer should be
             canceled.
 
+            NOTE: If this is called from GitODBBackend_Internal, then the object
+            will be of type GitODBWritepack_Internal.
+
 final class GitODBBackend_Internal extends GitODBBackend
 
     This class is used to represent internal ODB backends. It cannot be
     instantiated directly.
 
-final class GitODBWritepack:
+abstract class GitODBWritepack:
 
     This class has properties/methods that align with the git_odb_writepack
     structure.
+
+    properties:
+
+        GitODBBackend $backend
+
+    methods:
+
+        NOTE: Use the following method signatures when creating/using a custom
+              subclass of GitODBWritepack. If you are using an instance of type
+              GitODBWritepack_Internal, then use the method signatures
+              documented for GitODBWritepack_Internal.
+
+        void append(string,&array)
+
+        void commit(&array)
+
+final class GitODBWritepack_Internal extends GitODBBackend
+
+    This class is used to represent an internal ODB writepack. It cannot be
+    instantiated directly.
 
     NOTE: This object maintains its own git_transfer_progress structure
           internally. This object is implicitly passed to the append() and
@@ -2806,11 +2829,15 @@ final class GitODBWritepack:
 
     properties:
 
-        GitODBBackend $backend
+        (inherited)
 
         array $progress
 
     methods:
+
+        NOTE: In this class, the signature for the append() and commit() methods
+              is different since you do not have to pass in the
+              git_transfer_progress.
 
         void append(string)
 

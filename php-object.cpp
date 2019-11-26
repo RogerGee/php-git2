@@ -83,7 +83,7 @@ void php_git2::php_git2_register_classes(TSRMLS_D)
     INIT_CLASS_ENTRY(ce,"GitODBWritepack",odb_writepack_methods);
     pce = zend_register_internal_class(&ce TSRMLS_CC);
     php_git2::class_entry[php_git2_odb_writepack_obj] = pce;
-    pce->ce_flags |= ZEND_ACC_FINAL_CLASS;
+    pce->ce_flags |= ZEND_ACC_EXPLICIT_ABSTRACT_CLASS;
     memcpy(&php_odb_writepack_object::handlers,stdhandlers,sizeof(zend_object_handlers));
     pce->create_object = php_create_object_handler<php_odb_writepack_object>;
     php_odb_writepack_object::init(pce);

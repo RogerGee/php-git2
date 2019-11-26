@@ -596,7 +596,7 @@ PHP_METHOD(GitODBBackend_Internal,writepack)
         }
         else {
             // Create return value out of the writepack and callback. The
-            // callback will be managed by the GitODBWritepack object.
+            // callback will be managed by the GitODBWritepack_Internal object.
             php_git2_make_odb_writepack(return_value,wp,callback,thisobj,object->owner TSRMLS_CC);
         }
     } catch (php_git2::php_git2_exception_base& ex) {
