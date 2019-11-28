@@ -12,7 +12,7 @@ require_once 'test_base.php';
 require_once 'PHPSerializedODB.php';
 require_once 'PHPEmptyODB.php';
 
-function test_session_backend() {
+function test_custom_backend() {
     // Create custom backend. NOTE: This backend does not implement its own
     // writestream() method so we get a fake wstream when calling
     // git_odb_open_wstream().
@@ -59,7 +59,7 @@ EOF;
     echo 'Custom ODB has ' . $backend->count() . " entries.\n";
 }
 
-function test_session_backend_with_stream() {
+function test_custom_backend_with_stream() {
     // Create custom backend. NOTE: This backend implements its own
     // writestream().
     $backend = new PHPSerializedODB_WithStream('test2');
@@ -260,8 +260,8 @@ function test_lifetime_backend() {
     testbed_unit('backend:odb',$backend->odb);
 }
 
-testbed_test('Custom ODB/Copy (Default Stream)','Git2Test\ODBCustom\test_session_backend');
-testbed_test('Custom ODB/Copy (Custom Stream)','Git2Test\ODBCustom\test_session_backend_with_stream');
+testbed_test('Custom ODB/Copy (Default Stream)','Git2Test\ODBCustom\test_custom_backend');
+testbed_test('Custom ODB/Copy (Custom Stream)','Git2Test\ODBCustom\test_custom_backend_with_stream');
 testbed_test('Custom ODB/Default Writestream','Git2Test\ODBCustom\test_default_writestream');
 testbed_test('Custom ODB/Read Object','Git2Test\ODBCustom\test_read_object');
 testbed_test('Custom ODB/Foreach','Git2Test\ODBCustom\test_foreach');

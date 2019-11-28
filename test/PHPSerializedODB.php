@@ -55,32 +55,21 @@ class PHPSerializedODB extends GitODBBackend {
 }
 
 /**
- * Extend custom ODB backend with its own writestream implementation.
+ * Extend custom ODB backend to use custom stream implementation.
  */
 class PHPSerializedODB_WithStream extends PHPSerializedODB {
     public function writestream($size,$type) {
-        return new TestWritestream($size,$type);
+        require_once 'PHPTestWritestream.php';
+        return new PHPTestWritestream($size,$type);
     }
 }
 
 /**
- * Create a custom GitODBStream for writing.
+ * Extend custom ODB backend to use custom writepack implementation.
  */
-class TestWritestream extends GitODBStream {
-    private $filebuf;
-    private $type;
-
-    public function __construct($size,$type) {
-        $this->filebuf = tmpfile();
-        $this->type = $type;
-    }
-
-    public function write($buf) {
-        fwrite($this->filebuf,$buf);
-    }
-
-    public function finalize_write($oid) {
-        fseek($this->filebuf,0);
-        $this->backend->write($oid,stream_get_contents($this->filebuf),$this->type);
+class PHPSerializedODB_WithWritepack extends PHPSerializedODB {
+    public function writepack($odb,$callback,$payload) {
+        require_once 'PHPTestWritepack.php';
+        return new PHPTestWritepack($odb,$callback,$payload);
     }
 }

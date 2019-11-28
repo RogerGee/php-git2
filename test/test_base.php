@@ -33,7 +33,7 @@ function testbed_get_root() {
 function testbed_path($suffix,$ensure = false) {
     $path = testbed_get_root() . '/' . $suffix;
     if ($ensure && !is_dir($path)) {
-        mkdir($path);
+        mkdir($path,0755,true);
     }
     return $path;
 }
