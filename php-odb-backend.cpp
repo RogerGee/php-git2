@@ -13,6 +13,13 @@
 #include <new>
 using namespace php_git2;
 
+// Wrapper for efree since it's a macro.
+
+static void efree_wrapper(void* d)
+{
+    efree(d);
+}
+
 // Custom class handlers
 
 static zval* odb_backend_read_property(zval* obj,zval* prop,int type,const zend_literal* key TSRMLS_DC);
@@ -654,7 +661,11 @@ void php_odb_backend_object::unset_backend(zval* zobj)
     // the function and passing the payload.
 
     php_closure_object* closureInfo;
-    transfer_progress_callback_info callbackInfo = { progress_cb, progress_payload };
+    transfer_progress_callback_info* callbackInfo;
+
+    callbackInfo = reinterpret_cast<transfer_progress_callback_info*>(emalloc(sizeof(transfer_progress_callback_info)));
+    callbackInfo->callback = progress_cb;
+    callbackInfo->payload = progress_payload;
 
     object_init_ex(zclosure,php_git2::class_entry[php_git2_closure_obj]);
     closureInfo = reinterpret_cast<php_closure_object*>
@@ -667,7 +678,8 @@ void php_odb_backend_object::unset_backend(zval* zobj)
     closureInfo->func.common.scope = php_git2::class_entry[php_git2_closure_obj];
     closureInfo->func.internal_function.handler = ZEND_FN(backend_transfer_progress_callback);
     closureInfo->hasPayload = true;
-    closureInfo->payload = &callbackInfo;
+    closureInfo->payload = callbackInfo;
+    closureInfo->payloadDestructor = efree_wrapper;
 
     // Invoke method on odb_backend.
 
