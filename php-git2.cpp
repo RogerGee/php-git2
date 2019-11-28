@@ -155,6 +155,8 @@ PHP_MSHUTDOWN_FUNCTION(git2)
 
 PHP_RSHUTDOWN_FUNCTION(git2)
 {
+    php_git2_globals_request_shutdown(TSRMLS_C);
+
     return SUCCESS;
 }
 
@@ -357,6 +359,17 @@ void php_git2::php_git2_globals_init(TSRMLS_D)
 void php_git2::php_git2_globals_request_init(TSRMLS_D)
 {
     GIT2_G(propagateFatalError) = false;
+    GIT2_G(requestActive) = true;
+}
+
+void php_git2::php_git2_globals_request_shutdown(TSRMLS_D)
+{
+    // NOTE: this function does not touch all globals since the state of some
+    // globals MAY be important at this stage.
+
+    // Toggle request active flag. This allows code (typically destructors) to
+    // understand their execution context.
+    GIT2_G(requestActive) = false;
 }
 
 // Helpers

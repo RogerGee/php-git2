@@ -48,6 +48,7 @@ extern "C" {
 
 ZEND_BEGIN_MODULE_GLOBALS(git2)
   bool propagateFatalError;
+  bool requestActive;
 ZEND_END_MODULE_GLOBALS(git2)
 ZEND_EXTERN_MODULE_GLOBALS(git2)
 
@@ -110,7 +111,6 @@ ZEND_EXTERN_MODULE_GLOBALS(git2)
 
 namespace php_git2
 {
-
     // List of all functions provided in the php-git2-fe compilation unit.
     extern zend_function_entry functions[];
 
@@ -435,6 +435,7 @@ namespace php_git2
     void php_git2_globals_dtor(zend_git2_globals* gbls TSRMLS_DC);
     void php_git2_globals_init(TSRMLS_D);
     void php_git2_globals_request_init(TSRMLS_D);
+    void php_git2_globals_request_shutdown(TSRMLS_D);
 
     // Helper functions for converting git2 values to PHP values.
 
