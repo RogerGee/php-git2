@@ -832,42 +832,62 @@ git_signature* php_git2::convert_signature(zval* zv)
 
 int php_git2::convert_transfer_progress(git_transfer_progress& stats,zval* zv)
 {
+    bool failure = false;
     array_wrapper arr(zv);
 
-    if (!arr.query("total_objects",sizeof("total_objects"))) {
-        return GIT_ERROR;
+    if (arr.query("total_objects",sizeof("total_objects"))) {
+        stats.total_objects = static_cast<int>(arr.get_long());
     }
-    stats.total_objects = static_cast<int>(arr.get_long());
+    else {
+        failure = true;
+    }
 
-    if (!arr.query("indexed_objects",sizeof("indexed_objects"))) {
-        return GIT_ERROR;
+    if (arr.query("indexed_objects",sizeof("indexed_objects"))) {
+        stats.indexed_objects = static_cast<int>(arr.get_long());
     }
-    stats.indexed_objects = static_cast<int>(arr.get_long());
+    else {
+        failure = true;
+    }
 
-    if (!arr.query("received_objects",sizeof("received_objects"))) {
-        return GIT_ERROR;
+    if (arr.query("received_objects",sizeof("received_objects"))) {
+        stats.received_objects = static_cast<int>(arr.get_long());
     }
-    stats.received_objects = static_cast<int>(arr.get_long());
+    else {
+        failure = true;
+    }
 
-    if (!arr.query("local_objects",sizeof("local_objects"))) {
-        return GIT_ERROR;
+    if (arr.query("local_objects",sizeof("local_objects"))) {
+        stats.local_objects = static_cast<int>(arr.get_long());
     }
-    stats.local_objects = static_cast<int>(arr.get_long());
+    else {
+        failure = true;
+    }
 
-    if (!arr.query("total_deltas",sizeof("total_deltas"))) {
-        return GIT_ERROR;
+    if (arr.query("total_deltas",sizeof("total_deltas"))) {
+        stats.total_deltas = static_cast<int>(arr.get_long());
     }
-    stats.total_deltas = static_cast<int>(arr.get_long());
+    else {
+        failure = true;
+    }
 
-    if (!arr.query("indexed_deltas",sizeof("indexed_deltas"))) {
-        return GIT_ERROR;
+    if (arr.query("indexed_deltas",sizeof("indexed_deltas"))) {
+        stats.indexed_deltas = static_cast<int>(arr.get_long());
     }
-    stats.indexed_deltas = static_cast<int>(arr.get_long());
+    else {
+        failure = true;
+    }
 
-    if (!arr.query("received_bytes",sizeof("received_bytes"))) {
+    if (arr.query("received_bytes",sizeof("received_bytes"))) {
+        stats.received_bytes = static_cast<int>(arr.get_long());
+    }
+    else {
+        failure = true;
+    }
+
+    if (failure) {
+        php_git2::php_git2_giterr_set(GITERR_INVALID,"Transfer progress array is malformed");
         return GIT_ERROR;
     }
-    stats.received_bytes = static_cast<int>(arr.get_long());
 
     return GIT_OK;
 }

@@ -992,54 +992,77 @@ int odb_backend_has_property(zval* obj,zval* prop,int chk_type,const zend_litera
 
 ZEND_FUNCTION(backend_foreach_callback)
 {
-    int retval;
+    php_bailer bailer ZTS_CTOR;
     char* strOID;
     int strOIDSize;
     git_oid oid;
     zval* zdummyPayload = nullptr;
-    php_closure_object* object = LOOKUP_OBJECT(php_closure_object,getThis());
-    const foreach_callback_info* info = reinterpret_cast<const foreach_callback_info*>(object->payload);
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s|z",&strOID,&strOIDSize,&zdummyPayload) == FAILURE) {
         return;
     }
 
-    // Convert string representation to git2 OID struct.
-    convert_oid_fromstr(&oid,strOID,strOIDSize);
+    try {
+        int result;
+        php_closure_object* object = LOOKUP_OBJECT(php_closure_object,getThis());
+        const foreach_callback_info* info;
+        info = reinterpret_cast<const foreach_callback_info*>(object->payload);
 
-    // Invoke callback. The return value is important so we'll pass it along.
-    retval = (*info->callback)(&oid,info->payload);
+        // Convert string representation to git2 OID struct.
+        php_git2::convert_oid_fromstr(&oid,strOID,strOIDSize);
 
-    RETVAL_LONG(static_cast<long>(retval));
+        // Invoke callback.
+        result = (*info->callback)(&oid,info->payload);
+        if (result != GIT_OK) {
+            php_git2::git_error(result);
+        }
+    } catch (php_git2_exception_base& ex) {
+        php_bailout_context ctx(bailer TSRMLS_CC);
+
+        if (BAILOUT_ENTER_REGION(ctx)) {
+            ex.handle(TSRMLS_C);
+        }
+    }
 }
 
 ZEND_FUNCTION(backend_transfer_progress_callback)
 {
-    int retval;
+    php_bailer bailer ZTS_CTOR;
     zval* zstats = nullptr;
-    git_transfer_progress stats;
     zval* zdummyPayload = nullptr;
-    php_closure_object* object = LOOKUP_OBJECT(php_closure_object,getThis());
-    const transfer_progress_callback_info* info
-        = reinterpret_cast<const transfer_progress_callback_info*>(object->payload);
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"a|z",&zstats,&zdummyPayload) == FAILURE) {
         return;
     }
 
-    // Convert parameters to libgit2 values.
-    retval = convert_transfer_progress(stats,zstats);
-    if (retval == GIT_ERROR) {
-        // Generate exception. The returned stats array was malformed.
+    try {
+        int result;
+        git_transfer_progress stats;
 
-        return;
+        // Convert parameters to libgit2 values.
+        result = php_git2::convert_transfer_progress(stats,zstats);
+        if (result == GIT_ERROR) {
+            php_git2::git_error(result);
+        }
+
+        php_closure_object* object = LOOKUP_OBJECT(php_closure_object,getThis());
+        const transfer_progress_callback_info* info;
+        info = reinterpret_cast<const transfer_progress_callback_info*>(object->payload);
+
+        // Invoke the payload and return the result to user space. The payload
+        // passed here is the payload from the libgit2 calling context (not
+        // userspace).
+        result = (*info->callback)(&stats,info->payload);
+        if (result != GIT_OK) {
+            php_git2::git_error(result);
+        }
+    } catch (php_git2_exception_base& ex) {
+        php_bailout_context ctx(bailer TSRMLS_CC);
+
+        if (BAILOUT_ENTER_REGION(ctx)) {
+            ex.handle(TSRMLS_C);
+        }
     }
-
-    // Invoke the payload and return the result to user space. The payload
-    // passed here is the payload from the libgit2 calling context (not
-    // userspace).
-    retval = (*info->callback)(&stats,info->payload);
-    RETVAL_LONG(static_cast<long>(retval));
 }
 
 /*

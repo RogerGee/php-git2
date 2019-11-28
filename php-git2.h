@@ -231,7 +231,6 @@ namespace php_git2
 
         JMP_BUF* original;
         JMP_BUF current;
-        bool jumpResult;
         php_bailer& bailer;
     };
 
