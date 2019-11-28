@@ -36,13 +36,6 @@ php_odb_writepack_object::php_odb_writepack_object(zend_class_entry* ce TSRMLS_D
 
 php_odb_writepack_object::~php_odb_writepack_object()
 {
-    // Free the writepack. Note: we always are responsible for freeing the
-    // writepack. However it may be null if never set or if a custom free()
-    // function unset it.
-    if (writepack != nullptr) {
-        writepack->free(writepack);
-    }
-
     // Attempt to free the owner resource. This only really frees the owner if
     // its refcount reaches zero.
     if (owner != nullptr) {
@@ -166,19 +159,6 @@ void php_odb_writepack_object::assign_owner(php_git_odb* newOwner)
 {
     method_wrapper::object_wrapper object(writepack);
 
-    ZTS_MEMBER_EXTRACT(object.backing()->zts);
-
-    // Make sure object buckets still exist to lookup object (in case the
-    // destructor was already called). This happens when free() is called after
-    // PHP has finished cleaning up all objects (but before all variables, which
-    // may have references to git2 objects that reference this PHP object).
-
-    if (EG(objects_store).object_buckets != nullptr) {
-        // Unassign writepack from the object since it is about to get
-        // destroyed.
-        object.backing()->unset_writepack();
-    }
-
     // Explicitly call the destructor on the custom writepack. Then free the block
     // of memory that holds the custom writepack.
 
@@ -193,7 +173,7 @@ git_odb_writepack_php::git_odb_writepack_php(zval* zv TSRMLS_DC)
 {
     // Blank out the base class (which is the structure defined in the git2
     // headers).
-    memset(this,0,sizeof(struct git_odb_backend));
+    memset(this,0,sizeof(struct git_odb_writepack));
 
     // Assign zval to keep object alive while backend is in use in the library.
     Z_ADDREF_P(zv);

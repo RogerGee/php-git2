@@ -61,6 +61,12 @@ php_odb_writepack_internal_object::php_odb_writepack_internal_object(zend_class_
 
 php_odb_writepack_internal_object::~php_odb_writepack_internal_object()
 {
+    // Free the writepack. Note: we always are responsible for freeing the
+    // writepack from an internal object.
+    if (writepack != nullptr) {
+        writepack->free(writepack);
+    }
+
     // Destroy any associated callback.
     if (cb != nullptr) {
         cb->~php_callback_sync();

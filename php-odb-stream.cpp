@@ -222,15 +222,8 @@ void php_odb_stream_object::assign_owner(php_git_odb* newOwner)
 {
     method_wrapper::object_wrapper object(stream);
 
-    ZTS_MEMBER_EXTRACT(object.backing()->zts);
-
-    // Make sure object buckets still exist to lookup object (in case the
-    // destructor was already called).
-
-    if (EG(objects_store).object_buckets != nullptr) {
-        // Unassign stream from the object since it is about to get destroyed.
-        object.backing()->unset_stream();
-    }
+    // Explicitly call the destructor on the custom stream. Then free the block
+    // of memory that holds the custom stream.
 
     object.object()->~git_odb_stream_php();
     efree(stream);
