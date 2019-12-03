@@ -440,21 +440,28 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj,php_git_refdb* o
 
     ZTS_MEMBER_EXTRACT(method.backing()->zts);
 
-    MAKE_STD_ZVAL(zref);
+    try {
+        const php_resource_ref<php_git_reference_nofree> res ZTS_CTOR;
+
+        *res.byval_git2() = ref;
+        MAKE_STD_ZVAL(zref);
+        res.ret(zref);
+    } catch (php_git2_exception_base& ex) {
+        zval_ptr_dtor(&zref);
+
+        php_git2_giterr_set(
+            GITERR_INVALID,
+            "GitRefDBBackend::write(): Failed to convert git_reflog resource: %s",
+            ex.what());
+
+        return GIT_EPHPFATAL;
+    }
+
     MAKE_STD_ZVAL(zforce);
     MAKE_STD_ZVAL(zwho);
     ALLOC_INIT_ZVAL(zmessage);
     ALLOC_INIT_ZVAL(zold);
     ALLOC_INIT_ZVAL(zoldtarget);
-
-    try {
-        const php_resource_ref<php_git_reference_nofree> res ZTS_CTOR;
-        *res.byval_git2() = ref;
-        res.ret(zref);
-    } catch (php_git2_exception_base& ex) {
-        // TODO Handle external exception.
-
-    }
 
     ZVAL_BOOL(zforce,force);
     convert_signature(zwho,who);
@@ -727,15 +734,21 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj,php_git_refdb* o
 
     ZTS_MEMBER_EXTRACT(method.backing()->zts);
 
-    MAKE_STD_ZVAL(zreflog);
-
     try {
         php_resource_ref<php_git_reflog_nofree> reflogResource ZTS_CTOR;
+
         *reflogResource.byval_git2() = reflog;
+        MAKE_STD_ZVAL(zreflog);
         reflogResource.ret(zreflog);
     } catch (php_git2_exception_base& ex) {
-        // TODO Handle exception
+        zval_ptr_dtor(&zreflog);
 
+        php_git2_giterr_set(
+            GITERR_INVALID,
+            "GitRefDBBackend::reflog_write(): Failed to convert git_reflog resource: %s",
+            ex.what());
+
+        return GIT_EPHPFATAL;
     }
 
     // Call userspace method implementation corresponding to refdb operation.
@@ -857,9 +870,25 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj,php_git_refdb* o
 
     ZTS_MEMBER_EXTRACT(method.backing()->zts);
 
+    try {
+        const php_resource_ref<php_git_reference_nofree> res ZTS_CTOR;
+
+        *res.byval_git2() = ref;
+        MAKE_STD_ZVAL(zref);
+        res.ret(zref);
+    } catch (php_git2_exception_base& ex) {
+        zval_ptr_dtor(&zref);
+
+        php_git2_giterr_set(
+            GITERR_INVALID,
+            "GitRefDBBackend::unlock(): Failed to convert git_reference resource: %s",
+            ex.what());
+
+        return GIT_EPHPFATAL;
+    }
+
     MAKE_STD_ZVAL(zsuccess);
     MAKE_STD_ZVAL(zupdatereflog);
-    MAKE_STD_ZVAL(zref);
     MAKE_STD_ZVAL(zsig);
     ALLOC_INIT_ZVAL(zmessage);
 
@@ -871,16 +900,6 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj,php_git_refdb* o
     }
     ZVAL_BOOL(zsuccess,success);
     ZVAL_BOOL(zupdatereflog,update_reflog);
-
-    try {
-        const php_resource_ref<php_git_reference_nofree> res ZTS_CTOR;
-
-        *res.byval_git2() = ref;
-        res.ret(zref);
-    } catch (php_git2_exception_base& ex) {
-        // TODO Handle exception
-
-    }
 
     convert_signature(zsig,sig);
     if (message != nullptr) {
