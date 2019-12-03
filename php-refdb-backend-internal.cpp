@@ -53,7 +53,7 @@ zend_function_entry php_git2::refdb_backend_internal_methods[] = {
 
 // Make function implementation
 
-void php_git2::php_git2_make_refdb_backend(zval* zp,git_refdb_backend* backend,php_git_refdb* ownerRefdb TSRMLS_DC)
+void php_git2::php_git2_make_refdb_backend(zval* zp,git_refdb_backend* backend,php_git_refdb* owner TSRMLS_DC)
 {
     php_refdb_backend_object* obj;
     zend_class_entry* ce = php_git2::class_entry[php_git2_refdb_backend_internal_obj];
@@ -62,9 +62,20 @@ void php_git2::php_git2_make_refdb_backend(zval* zp,git_refdb_backend* backend,p
     object_init_ex(zp,ce);
     obj = reinterpret_cast<php_refdb_backend_object*>(zend_objects_get_address(zp TSRMLS_CC));
 
-    // Assign the backend and (optionally) the owner.
+    // Assign the backend.
     obj->backend = backend;
-    obj->owner = ownerRefdb;
+
+    // Assign owner. (If set, this increments owner refcount to prevent the
+    // refdb from freeing while the backend object is in use.)
+    obj->assign_owner(owner);
+
+    // Set kind depending on if owner was provided.
+    if (owner != nullptr) {
+        obj->kind = php_refdb_backend_object::conventional;
+    }
+    else {
+        obj->kind = php_refdb_backend_object::user;
+    }
 }
 
 // Implementation of php_refdb_backend_internal_object

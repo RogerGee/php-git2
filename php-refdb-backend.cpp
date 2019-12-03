@@ -266,7 +266,7 @@ int refdb_backend_has_property(zval* obj,zval* prop,int chk_type,const zend_lite
 // Implementation of php_refdb_backend_object
 
 php_refdb_backend_object::php_refdb_backend_object(zend_class_entry* ce TSRMLS_DC):
-    backend(nullptr), owner(nullptr), zts(TSRMLS_C)
+    backend(nullptr), kind(unset), owner(nullptr), zts(TSRMLS_C)
 {
     zend_object_std_init(this,ce TSRMLS_CC);
     object_properties_init(this,ce);
@@ -275,14 +275,18 @@ php_refdb_backend_object::php_refdb_backend_object(zend_class_entry* ce TSRMLS_D
 php_refdb_backend_object::~php_refdb_backend_object()
 {
     // Free the object if we do not have an owner.
-    if (owner == nullptr && backend != nullptr) {
+    if (kind == user) {
         backend->free(backend);
+    }
+
+    if (owner != nullptr) {
+        git2_resource_base::free_recursive(owner);
     }
 
     zend_object_std_dtor(this ZTS_MEMBER_CC(this->zts));
 }
 
-void php_refdb_backend_object::create_custom_backend(zval* zobj,php_git_refdb* ownerRefdb)
+void php_refdb_backend_object::create_custom_backend(zval* zobj)
 {
     // NOTE: 'zobj' is the zval to the outer object that wraps this custom
     // zend_object derivation.
@@ -293,12 +297,33 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj,php_git_refdb* o
         throw php_git2_fatal_exception("Cannot create custom refdb backend: object already in use");
     }
 
+    // Set kind to 'custom'.
+    kind = custom;
+
     // Create custom backend. Custom backends are always passed off to git2, so
     // we are not responsible for calling its free function.
     backend = new (emalloc(sizeof(git_refdb_backend_php))) git_refdb_backend_php(zobj ZTS_MEMBER_CC(zts));
 
-    // Set the backend owner (may be null).
-    owner = ownerRefdb;
+    // Set backend owner to NULL. Custom ref backends never have a direct
+    // owner. We always assume the would-be owner is kept alive circularly since
+    // the custom backend stores a reference to this object.
+    assign_owner(nullptr);
+}
+
+void php_refdb_backend_object::assign_owner(php_git_refdb* newOwner)
+{
+    // Free existing owner (if any).
+    if (owner != nullptr) {
+        git2_resource_base::free_recursive(owner);
+    }
+
+    owner = newOwner;
+
+    // Increment owner refcount to prevent the ODB from freeing while the
+    // backend object is in use.
+    if (owner != nullptr) {
+        owner->up_ref();
+    }
 }
 
 /*static*/ zend_object_handlers php_refdb_backend_object::handlers;

@@ -51,13 +51,22 @@ namespace php_git2
             // If the object doesn't have a backing, then we create a custom
             // one.
             if (object->backend == nullptr) {
-                object->create_custom_backend(value,ownerWrapper.get_object());
+                object->create_custom_backend(value);
             }
-            else if (object->owner != nullptr) {
-                throw php_git2_exception("The refdb backend is already owned by a refdb");
+
+            // If the object has a custom backing then it is (presumably)
+            // already set on a refdb. (The same is true if the owner is already
+            // set.)
+            else if (object->kind != php_refdb_backend_object::user
+                || object->owner != nullptr)
+            {
+                throw php_git2_exception("The refdb backend is already set on a refdb");
             }
+
+            // Otherwise the object is a user backend and we make it into a
+            // conventional backend.
             else {
-                object->owner = ownerWrapper.get_object();
+                object->create_conventional_backend(ownerWrapper.get_object());
             }
 
             return object->backend;

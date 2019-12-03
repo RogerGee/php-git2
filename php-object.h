@@ -435,14 +435,29 @@ namespace php_git2
 
     struct php_refdb_backend_object : zend_object
     {
+        enum backend_kind
+        {
+            unset,
+            conventional,
+            user,
+            custom
+        };
+
         php_refdb_backend_object(zend_class_entry* ce TSRMLS_DC);
         ~php_refdb_backend_object();
 
         git_refdb_backend* backend;
+        backend_kind kind;
         php_git_refdb* owner;
         php_zts_member zts;
 
-        void create_custom_backend(zval* zobj,php_git_refdb* owner = nullptr);
+        void create_custom_backend(zval* zobj);
+        void create_conventional_backend(php_git_refdb* newOwner)
+        {
+            assign_owner(newOwner);
+            kind = conventional;
+        }
+        void assign_owner(php_git_refdb* owner);
 
         static zend_object_handlers handlers;
         static void init(zend_class_entry* ce);
