@@ -16,21 +16,21 @@ The following table details the versions of `libgit2` required by `php-git2`:
 
 | `php-git2` | `libgit2` |
 | -------- | ------- |
-| `v1.0.x`  | `v0.25.1` |
+| `v1.x.x`  | `v0.25.1` |
 
 We have chosen to require a particular `libgit2` minor version for a particular range of `php-git2` versions. The entries in the table above denote the _first_ in a range of `php-git2` versions to utilize the specified `libgit2` version. Note that `libgit2` updates along minor versions (since its API is currently unstable). Any patch version should work with the extension; however the exact, listed version is what is used in development and testing (and may be retroactively updated if upgraded during development).
 
-A new minor version of `php-git2` is released whenever new API bindings are implemented, new helper functions are added or when internal classes are updated. Bug fixes may be included in minor version releases if they accompany new feature additions; otherwise pure bug fix releases increment the patch version.
+A new major version of `php-git2` is released whenever the extension interface changes to where a previous release would be backwards-incompatible.  A minor version is released whenever new API bindings are implemented or new helper functions, classes or class methods are added. A minor version only expands the interface; it does not deprecate it. Bug fixes may be included in minor version releases if they accompany new feature additions; otherwise pure bug fix releases increment the patch version.
 
-The major version will only change if the extension undergoes a major interface change (or if `libgit2` drastically changes its API).
+Note: A new minor version release of `libgit2` may result in a new major version of `php-git2` if the interface changes.
 
 ## Branches
 
 This project maintains multiple branches for different major versions of PHP. Look for a branch named `phpX/master` for PHP version `X`. Branch `master` will point to the latest `phpX/master` that is supported.
 
-Maintenance and development branches are organized by major version (e.g. `php5/devel`). If changes apply to multiple major branches, then they may be performed either on a universal maintenance branch or on separate maintenance branches depending on how the changes merge.
+Maintenance and development branches are organized by major version (e.g. `php5/develop`). If changes apply to multiple major branches, then they may be performed either on a universal maintenance branch or on separate maintenance branches depending on how the changes merge.
 
-A release is issued for each major version separately. Look for tags organized by major version (e.g. `php5/v1.0.0`). A release branch may exist for extended maintenance on a particular release. ZTS/non-ZTS versions are part of the extension configuration when it is built, so they exist under the same release. The following releases are supported at this time:
+A release is issued for each PHP version separately. Look for tags organized under PHP version (e.g. `php5/v1.0.0`). A release branch may exist for extended maintenance on a particular major version release (e.g. `php5/1.0.0`). ZTS/non-ZTS versions are part of the extension configuration when it is built, so they exist under the same release. The following releases are supported at this time:
 
 | PHP | non-ZTS | ZTS
 |--|--| -- |
