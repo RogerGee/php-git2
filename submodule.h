@@ -21,10 +21,12 @@ namespace php_git2
     // Create type to wrap git_submodule_update_options.
 
     class php_git_submodule_update_options:
-        public php_value_base
+        public php_value_base,
+        private php_zts_base
     {
     public:
-        php_git_submodule_update_options(TSRMLS_D)
+        php_git_submodule_update_options(TSRMLS_D):
+            php_zts_base(TSRMLS_C)
         {
             git_submodule_update_init_options(&opts,GIT_SUBMODULE_UPDATE_OPTIONS_VERSION);
         }
@@ -33,8 +35,8 @@ namespace php_git2
         {
             if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
                 array_wrapper arr(value);
-                php_git_checkout_options checkoutOpts;
-                php_git_fetch_options fetchOpts;
+                php_git_checkout_options checkoutOpts ZTS_CTOR;
+                php_git_fetch_options fetchOpts ZTS_CTOR;
 
                 GIT2_ARRAY_LOOKUP_LONG(arr,version,opts);
                 GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(arr,checkoutOpts,checkout_opts,opts);

@@ -1438,13 +1438,13 @@ int submodule_foreach_callback::callback(
     php_callback_sync* cb = reinterpret_cast<php_callback_sync*>(payload);
 
 #ifdef ZTS
-    TSRMLS_D = ZTS_MEMBER_PC(pc);
+    TSRMLS_D = ZTS_MEMBER_PC(cb);
 #endif
 
     int result;
     zval retval;
     zval_array<3> params ZTS_CTOR;
-    const php_resource_ref<php_git_submodule> res;
+    const php_resource_ref<php_git_submodule> res ZTS_CTOR;
 
     // Convert arguments to PHP values.
     *res.byval_git2() = sm;

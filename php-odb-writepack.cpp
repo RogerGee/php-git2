@@ -55,8 +55,10 @@ void php_odb_writepack_object::create_custom_writepack(zval* zobj,zval* zbackend
         throw php_git2_fatal_exception("cannot create custom ODB writepack - object already in use");
     }
 
+    ZTS_MEMBER_EXTRACT(this->zts);
+
     // Unset any previous 'zbackend' property.
-    zend_unset_property(Z_OBJCE_P(zobj),zobj,"backend",sizeof("backend")-1 ZTS_MEMBER_CC(zts));
+    zend_unset_property(Z_OBJCE_P(zobj),zobj,"backend",sizeof("backend")-1 TSRMLS_CC);
 
     // Assign 'zbackend' property. This will prevent the parent backend from
     // freeing while the writepack is in use.
@@ -64,7 +66,7 @@ void php_odb_writepack_object::create_custom_writepack(zval* zobj,zval* zbackend
     zend_hash_add(Z_OBJPROP_P(zobj),"backend",sizeof("backend"),&zbackend,sizeof(zval*),nullptr);
 
     // Create new custom writepack.
-    writepack = new (emalloc(sizeof(git_odb_writepack_php))) git_odb_writepack_php(zobj ZTS_MEMBER_CC(zts));
+    writepack = new (emalloc(sizeof(git_odb_writepack_php))) git_odb_writepack_php(zobj TSRMLS_CC);
 
     // Reset owner (in case it is set). We do not need to maintain a direct
     // owner reference since we are maintaining a reference to the backend in

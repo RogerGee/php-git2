@@ -146,8 +146,10 @@ void php_odb_backend_object::unset_backend(zval* zobj)
 {
     // NOTE: 'zobj' should be any zval that dereferences to 'this' zend_object.
 
+    ZTS_MEMBER_EXTRACT(this->zts);
+
     // Unset 'odb' property.
-    zend_unset_property(Z_OBJCE_P(zobj),zobj,"odb",sizeof("odb")-1 ZTS_MEMBER_CC(zts));
+    zend_unset_property(Z_OBJCE_P(zobj),zobj,"odb",sizeof("odb")-1 TSRMLS_CC);
 
     // Unset backend reference.
     backend = nullptr;
@@ -652,7 +654,7 @@ void php_odb_backend_object::unset_backend(zval* zobj)
     ALLOC_INIT_ZVAL(zpayload);
 
     {
-        php_resource_ref<php_git_odb_nofree> resourceWrapper;
+        php_resource_ref<php_git_odb_nofree> resourceWrapper ZTS_CTOR;
         resourceWrapper.set_object(odb);
         resourceWrapper.ret(zodb);
     }
