@@ -13,7 +13,6 @@
 
 namespace php_git2
 {
-
     // Here we provide a type to contain the local variables used in a php-git2
     // wrapper function.
 
@@ -122,7 +121,7 @@ namespace php_git2
         }
 
         typename T::target_t
-        byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        byval_git2(unsigned argno = ARGNO_MAX)
         {
             return connector.byval_git2(argno);
         }
@@ -304,7 +303,7 @@ namespace php_git2
     // Provide a special case for when N wraps around to 0-1. This will become
     // the max unsigned integer. We need this to generate an empty sequence.
     template<>
-    struct gen_seq<std::numeric_limits<unsigned>::max()>
+    struct gen_seq<ARGNO_MAX>
     {
         using type = sequence<>;
     };
@@ -314,26 +313,17 @@ namespace php_git2
 
     // Provide a function that extracts zvals into a local pack.
 
-    template<typename... Ts,unsigned... Ns,unsigned... Ps>
-    inline void php_extract_args_impl(local_pack<Ts...>& pack,
-        sequence<Ns...>&& seq,
-        sequence<Ps...>&& pos)
-    {
-        if (zend_get_parameters(0,int(sizeof...(Ns)),
-                pack.template get<Ns>().byref_php(Ps)...) == FAILURE)
-        {
-            php_error(E_ERROR,"Incorrect number of arguments passed to function");
-        }
-    }
+    void php_extract_args_impl(int nargs,zval* args,php_value* dest);
 
     template<typename... Ts,unsigned... Ns>
     inline void php_extract_args(local_pack<Ts...>& pack,sequence<Ns...>&& seq)
     {
-        // Produce a meta-construct that contains the position parameters.
-        php_extract_args_impl(pack,
-            std::forward<sequence<Ns...> >(seq),
-            std::forward<make_seq<sizeof...(Ns)> >(
-                make_seq<sizeof...(Ns)>()));
+        constexpr int NARGS = sizeof...(Ns);
+
+        zval args[NARGS];
+        php_value* dest[] = { pack.template get<Ns>()... };
+
+        php_extract_args_impl(NARGS,args,dest);
     }
 
     template<typename... Ts>
