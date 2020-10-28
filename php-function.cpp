@@ -15,7 +15,7 @@ void php_git2::php_extract_args_impl(int nargs,zval* args,php_value* dest)
     for (int i = 0;i < nargs;++i) {
         php_value* val = dest[i];
 
-        val->init(args[i],i+1);
+        val->parse(args[i],i+1);
     }
 
     if (result == FAILURE) {

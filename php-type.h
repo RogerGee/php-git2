@@ -11,6 +11,8 @@
 #include <new>
 #include <limits>
 
+#define ARGNO_MAX std::numeric_limits<unsigned>::max()
+
 namespace php_git2
 {
 
@@ -21,29 +23,36 @@ namespace php_git2
     class php_value_base
     {
     public:
-        php_value_base():
-            value(nullptr)
+        php_value_base()
         {
+            ZVAL_UNDEF(&value);
         }
 
-        zval** byref_php(unsigned argno = std::numeric_limits<unsigned>::max())
+        ~php_value_base()
+        {
+            zval_dtor(&value);
+        }
+
+        zval* get_value()
         {
             return &value;
         }
 
-        zval* byval_php(unsigned argno = std::numeric_limits<unsigned>::max()) const
+        void parse(zval* zv,int argno)
         {
-            return value;
+            // NOTE: Parse assumes 'value' is empty.
+            parse_impl(zv,argno);
         }
 
         void set_zval(zval* zv)
         {
-            value = zv;
+            zval_dtor(&value);
+            ZVAL_COPY(&value,zv);
         }
 
         static inline void error(const char* typeName,unsigned argno)
         {
-            if (argno != std::numeric_limits<unsigned>::max()) {
+            if (argno != ARGNO_MAX) {
                 throw php_git2_fatal_exception(
                     "Expected '%s' for argument at position %d",
                     typeName,
@@ -55,38 +64,49 @@ namespace php_git2
 
         static inline void error_custom(const char* message,unsigned argno)
         {
-            if (argno != std::numeric_limits<unsigned>::max()) {
-                throw php_git2_fatal_exception("%s for argument at position %d",message,argno);
+            if (argno != ARGNO_MAX) {
+                throw php_git2_fatal_exception(
+                    "%s for argument at position %d",
+                    message,
+                    argno);
             }
 
             throw php_git2_fatal_exception("%s",message);
         }
 
     protected:
-        zval* value;
+        zval value;
+
+    private:
+        virtual void parse_impl(unsigned argno) = 0;
     };
 
     template<typename T>
     class php_value;
 
     template<>
-    class php_value<long>:
+    class php_value<zend_long>:
         public php_value_base
     {
     public:
         ZTS_CONSTRUCTOR(php_value)
 
-        long byval_git2(unsigned argno = std::numeric_limits<unsigned>::max()) const
+        zend_long byval_git2(unsigned argno = ARGNO_MAX) const
         {
-            if (Z_TYPE_P(value) != IS_LONG) {
-                error("long",argno);
-            }
-            return Z_LVAL_P(value);
+            return Z_LVAL(value);
         }
 
         void ret(zval* return_value) const
         {
-            RETVAL_LONG(Z_LVAL_P(value));
+            RETVAL_LONG(Z_LVAL(value));
+        }
+
+    private:
+        virtual void parse_impl(zval* zv,int argno)
+        {
+            zend_long l;
+            zend_parse_parameter(0,argno,zv,"l",&l);
+            ZVAL_LONG(value,l);
         }
     };
 
@@ -97,17 +117,26 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR(php_value)
 
-        bool byval_git2(unsigned argno = std::numeric_limits<unsigned>::max()) const
+        bool byval_git2(unsigned argno = ARGNO_MAX) const
         {
-            if (Z_TYPE_P(value) != IS_BOOL) {
-                error("bool",argno);
-            }
-            return Z_BVAL_P(value);
+            return Z_LVAL(value) ? true : false;
         }
 
         void ret(zval* return_value) const
         {
-            RETVAL_BOOL(Z_BVAL_P(value));
+            if (Z_LVAL(value)) {
+                RETURN_TRUE
+            }
+
+            RETURN_FALSE
+        }
+
+    private:
+        virtual void parse_impl(zval* zv,int argno)
+        {
+            zend_bool b;
+            zend_parse_parameter(0,argno,zv,"b",&b);
+            ZVAL_BOOL(value,b);
         }
     };
 
@@ -118,17 +147,22 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR(php_value)
 
-        double byval_git2(unsigned argno = std::numeric_limits<unsigned>::max()) const
+        double byval_git2(unsigned argno = ARGNO_MAX) const
         {
-            if (Z_TYPE_P(value) != IS_DOUBLE) {
-                error("double",argno);
-            }
-            return Z_DVAL_P(value);
+            return Z_DVAL(value);
         }
 
         void ret(zval* return_value) const
         {
-            RETVAL_DOUBLE(Z_DVAL_P(value));
+            RETVAL_DOUBLE(Z_DVAL(value));
+        }
+
+    private:
+        virtual void parse_impl(zval* zv,int argno)
+        {
+            double d;
+            zend_parse_parameter(0,argno,zv,"d",&d);
+            ZVAL_DOUBLE(value,d);
         }
     };
 
@@ -139,42 +173,61 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR(php_value)
 
-        char* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max()) const
+        char* byval_git2(unsigned argno = ARGNO_MAX) const
         {
-            if (Z_TYPE_P(value) != IS_STRING) {
-                error("string",argno);
-            }
-            return Z_STRVAL_P(value);
+            return Z_STRVAL(value);
         }
 
         void ret(zval* return_value) const
         {
             // This will copy the string buffer (i.e. duplicate it).
-            RETVAL_STRING(Z_STRVAL_P(value),1);
+            RETVAL_STRING(Z_STRVAL(value));
+        }
+
+    private:
+        virtual void parse_impl(zval* zv,int argno)
+        {
+            char* s;
+            size_t l;
+
+            zend_parse_parameter(0,argno,zv,"s",&s,&l);
+            ZVAL_COPY(&value,zv);
         }
     };
 
     // Provide basic type definitions for the core types.
 
     using php_bool = php_value<bool>;
-    using php_long = php_value<long>;
+    using php_long = php_value<zend_long>;
     using php_double = php_value<double>;
     using php_string = php_value<char*>;
 
     // Provide a nullable string type.
 
-    class php_nullable_string:
+    class php_string_nullable:
         public php_string
     {
     public:
-        ZTS_CONSTRUCTOR_WITH_BASE(php_nullable_string,php_string)
+        ZTS_CONSTRUCTOR_WITH_BASE(php_string_nullable,php_string)
 
-        char* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max()) const
+        char* byval_git2(unsigned argno = ARGNO_MAX) const
         {
-            if (Z_TYPE_P(value) == IS_NULL) {
+            if (Z_TYPE(value) == IS_NULL) {
                 return nullptr;
             }
+
             return php_string::byval_git2(argno);
+        }
+
+    private:
+        virtual void parse_impl(zval* zv,int argno)
+        {
+            if (Z_TYPE_P(zv) == IS_NULL) {
+                ZVAL_NULL(value);
+                return;
+            }
+
+            php_string::parse_impl(zv,argno);
         }
     };
 
@@ -188,7 +241,7 @@ namespace php_git2
         {
         }
 
-        const char** byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        const char** byval_git2(unsigned argno = ARGNO_MAX)
         {
             return &ptr;
         }
@@ -196,12 +249,13 @@ namespace php_git2
         void ret(zval* return_value)
         {
             if (ptr != NULL) {
-                RETVAL_STRING(ptr,1);
+                RETVAL_STRING(ptr);
                 return;
             }
 
             ZVAL_NULL(return_value);
         }
+
     private:
         const char* ptr;
     };
@@ -209,7 +263,7 @@ namespace php_git2
     // Provide a string type that can be returned through an out parameter.
 
     class php_string_out:
-        public php_value_base
+        public php_string
     {
     public:
         php_string_out(TSRMLS_D):
@@ -223,14 +277,15 @@ namespace php_git2
                 ZVAL_NULL(value);
             }
             else {
-                ZVAL_STRING(value,ptr,1);
+                ZVAL_STRING(value,ptr);
             }
         }
 
-        const char** byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        const char** byval_git2(unsigned argno = ARGNO_MAX)
         {
             return &ptr;
         }
+
     private:
         const char* ptr;
     };
@@ -251,14 +306,14 @@ namespace php_git2
 
         target_t byval_git2(unsigned p)
         {
-            return Z_STRLEN_P(conn.byval_php(p));
+            return static_cast<IntType>(Z_STRLEN_P(conn.get_value()));
         }
 
     protected:
         connect_t& conn;
     };
 
-    template<typename IntType,typename StringType = php_nullable_string>
+    template<typename IntType,typename StringType = php_string_nullable>
     class php_string_length_connector_null:
         public php_string_length_connector<IntType,StringType>
     {
@@ -274,13 +329,13 @@ namespace php_git2
 
         target_t byval_git2(unsigned p)
         {
-            zval* zv = base_type::conn.byval_php(p);
+            zval* zv = base_type::conn.get_value();
 
             if (Z_TYPE_P(zv) != IS_STRING) {
                 return 0;
             }
 
-            return Z_STRLEN_P(zv);
+            return static_cast<IntType>(Z_STRLEN_P(zv));
         }
     };
 
@@ -296,8 +351,13 @@ namespace php_git2
 
         php_string_buffer_connector(connect_t& obj TSRMLS_DC)
         {
-            bufsz = (size_t)obj.byval_git2();
-            buffer = (char*)emalloc(bufsz);
+            bufsz = static_cast<size_t>(obj.byval_git2());
+            buffer = static_cast<char*>(emalloc(bufsz));
+        }
+
+        ~php_string_buffer_connector()
+        {
+            efree(buffer);
         }
 
         target_t byval_git2(unsigned p)
@@ -307,9 +367,7 @@ namespace php_git2
 
         void ret(zval* return_value)
         {
-            // Return a string. We'll pass the buffer along to the return_value
-            // zval.
-            RETVAL_STRINGL(buffer,bufsz,0);
+            RETVAL_STRINGL(buffer,bufsz);
         }
     private:
         char* buffer;
@@ -325,9 +383,9 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR_WITH_BASE(php_long_cast,php_long)
 
-        IntType byval_git2(unsigned argno = std::numeric_limits<unsigned>::max()) const
+        IntType byval_git2(unsigned argno = ARGNO_MAX) const
         {
-            return (IntType)php_long::byval_git2(argno);
+            return static_cast<IntType>(php_long::byval_git2(argno));
         }
     };
 
@@ -346,7 +404,7 @@ namespace php_git2
 
         void ret(zval* return_value)
         {
-            RETVAL_LONG(static_cast<long>(n));
+            RETVAL_LONG(static_cast<zend_long>(n));
         }
 
         IntType get_value() const
@@ -369,7 +427,11 @@ namespace php_git2
 
         void ret(zval* return_value)
         {
-            RETVAL_BOOL(get_value());
+            if (get_value()) {
+                RETURN_TRUE
+            }
+
+            RETURN_FALSE
         }
     protected:
         using php_long_ref<IntType>::get_value;
@@ -379,17 +441,17 @@ namespace php_git2
 
     template<typename IntType>
     class php_long_out:
-        public php_value_base
+        public php_long
     {
     public:
         ZTS_CONSTRUCTOR(php_long_out)
 
         ~php_long_out()
         {
-            ZVAL_LONG(value,(long)n);
+            ZVAL_LONG(value,static_cast<zend_long>(n));
         }
 
-        IntType* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        IntType* byval_git2(unsigned argno = ARGNO_MAX)
         {
             return &n;
         }
@@ -417,40 +479,47 @@ namespace php_git2
         }
 
         typename GitResource::git2_type
-        byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        byval_git2(unsigned argno = ARGNO_MAX)
         {
-            lookup(argno);
-            return rsrc->get_handle();
+            return lookup()->get_handle();
         }
 
         // This member function is used to retrieve the resource object. We must
         // make sure it has been fetched from the resource value.
-        GitResource* get_object(unsigned argno = std::numeric_limits<unsigned>::max())
+        GitResource* get_object(unsigned argno = ARGNO_MAX)
         {
-            lookup(argno);
-            return rsrc;
+            return lookup();
         }
+
     private:
-        void lookup(unsigned argno)
+        // Store the resource object.
+        GitResource* rsrc;
+
+        GitResource* lookup()
         {
             if (rsrc == nullptr) {
-                // Make sure this is a resource zval.
-                if (Z_TYPE_P(value) != IS_RESOURCE) {
-                    error("resource",argno);
-                }
-
                 // Fetch the resource handle. Zend will perform error checking
                 // on the resource type.
-                rsrc = (GitResource*)zend_fetch_resource(&value TSRMLS_CC,-1,
-                    GitResource::resource_name(),NULL,1,GitResource::resource_le());
+                rsrc = static_cast<GitResource*>(
+                    zend_fetch_resource(Z_RESVAL(value),
+                        GitResource::resource_name(),
+                        GitResource::resource_le())
+                    );
+
                 if (rsrc == nullptr) {
                     throw php_git2_exception("The specified resource is invalid");
                 }
             }
+
+            return rsrc;
         }
 
-        // Store the resource object.
-        GitResource* rsrc;
+        virtual void parse_impl(zval* zv,int argno)
+        {
+            zval* dummy;
+            zend_parse_parameters(0,argno,zv,"r",&dummy);
+            ZVAL_COPY(&value,zv);
+        }
     };
 
     template<typename GitResource>
@@ -464,7 +533,7 @@ namespace php_git2
         }
 
         typename GitResource::git2_type
-        byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        byval_git2(unsigned argno = ARGNO_MAX)
         {
             GitResource* res = php_resource<GitResource>::get_object(argno);
 
@@ -489,7 +558,7 @@ namespace php_git2
         }
 
         typename GitResource::git2_type*
-        byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        byval_git2(unsigned argno = ARGNO_MAX)
         {
             // Create a resource backing instance if it does not already exist.
             if (rsrc == nullptr) {
@@ -502,7 +571,7 @@ namespace php_git2
         }
 
         typename GitResource::const_git2_type*
-        byval_git2(unsigned argno = std::numeric_limits<unsigned>::max()) const
+        byval_git2(unsigned argno = ARGNO_MAX) const
         {
             // Create a resource backing instance if it does not already exist.
             if (rsrc == nullptr) {
@@ -523,7 +592,7 @@ namespace php_git2
             zend_register_resource(return_value,rsrc,GitResource::resource_le() TSRMLS_CC);
         }
 
-        GitResource* get_object(unsigned argno = std::numeric_limits<unsigned>::max()) const
+        GitResource* get_object(unsigned argno = ARGNO_MAX) const
         {
             // Retrieve the resource object, creating it if it does not exist.
             if (rsrc == nullptr) {
@@ -571,7 +640,7 @@ namespace php_git2
         }
 
         typename GitResource::git2_type*
-        byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        byval_git2(unsigned argno = ARGNO_MAX)
         {
             // Just return the handle. Delay creating the resource backing until
             // later and after we know the return value is not NULL.
@@ -594,7 +663,7 @@ namespace php_git2
             }
         }
 
-        GitResource* get_object(unsigned argno = std::numeric_limits<unsigned>::max())
+        GitResource* get_object(unsigned argno = ARGNO_MAX)
         {
             // Return the resource backing if the handle was non-NULL. Otherwise
             // return NULL.
@@ -610,6 +679,7 @@ namespace php_git2
 
             return nullptr;
         }
+
     private:
         GitResource* rsrc;
         typename GitResource::git2_type handle;
@@ -620,7 +690,7 @@ namespace php_git2
 
     template<typename GitResource>
     class php_resource_ref_out:
-        public php_value_base,
+        public php_resource<GitResource>,
         public php_resource_ref<GitResource>
     {
     public:
@@ -631,19 +701,20 @@ namespace php_git2
             php_resource_ref<GitResource>::ret(value);
         }
 
-        zval** byref_php(unsigned argno = std::numeric_limits<unsigned>::max()) const
+        zval* get_value() const
         {
-            return const_cast<zval**>(&value);
+            return const_cast<zval*>(&value);
         }
     };
 
     template<typename GitResource>
     class php_resource_nullable_ref_out:
-        public php_value_base,
+        public php_resource<GitResource>,
         public php_resource_nullable_ref<GitResource>
     {
     public:
-        ZTS_CONSTRUCTOR_WITH_BASE(php_resource_nullable_ref_out,php_resource_nullable_ref<GitResource>)
+        ZTS_CONSTRUCTOR_WITH_BASE(php_resource_nullable_ref_out,
+            php_resource_nullable_ref<GitResource>)
 
         ~php_resource_nullable_ref_out()
         {
@@ -655,44 +726,51 @@ namespace php_git2
     // be null).
 
     template<typename GitResource>
-    class php_resource_null:
-        public php_value_base,
-        private php_zts_base
+    class php_resource_nullable:
+        public php_resource<GitResource>
     {
     public:
-        php_resource_null(TSRMLS_D):
-            php_zts_base(TSRMLS_C)
-        {
-        }
+        ZTS_CONSTRUCTOR_WITH_BASE(php_resource_nullable,php_resource<GitResource>)
 
         typename GitResource::git2_type
-        byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        byval_git2(unsigned argno = ARGNO_MAX)
         {
             GitResource* rsrc;
 
             // Resource may be null.
-            if (Z_TYPE_P(value) == IS_NULL) {
+            if (Z_TYPE(value) == IS_NULL) {
                 return nullptr;
-            }
-
-            // Make sure this is a resource zval.
-            if (Z_TYPE_P(value) != IS_RESOURCE) {
-                error("resource or null",argno);
             }
 
             // Fetch the resource handle. Zend will perform error checking on
             // the resource type.
-            rsrc = (GitResource*)zend_fetch_resource(&value TSRMLS_CC,-1,
-                GitResource::resource_name(),NULL,1,GitResource::resource_le());
+            rsrc = static_cast<GitResource*>(
+                zend_fetch_resource(ZEND_RESVAL(value),
+                    GitResource::resource_name(),
+                    GitResource::resource_le())
+                );
+
             if (rsrc == nullptr) {
                 throw php_git2_exception("Fetched resource is invalid");
             }
+
             return rsrc->get_handle();
         }
 
         GitResource* get_object()
         {
             return nullptr;
+        }
+
+    private:
+        virtual void parse_impl(zval* zv,int argno)
+        {
+            if (Z_TYPE_P(zv) == IS_NULL) {
+                ZVAL_NULL(value);
+                return;
+            }
+
+            php_resource<GitResource>::parse_impl(zv,argno);
         }
     };
 
@@ -710,18 +788,17 @@ namespace php_git2
         }
 
         typename GitResource::git2_type
-        byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        byval_git2(unsigned argno = ARGNO_MAX)
         {
             GitResource* rsrc;
 
-            // Make sure this is a resource zval.
-            if (Z_TYPE_P(value) != IS_RESOURCE) {
-                php_value_base::error("resource",argno);
-            }
-
             // Fetch the resource handle.
-            rsrc = (GitResource*)zend_fetch_resource(&value TSRMLS_CC,-1,
-                GitResource::resource_name(),NULL,1,GitResource::resource_le());
+            rsrc = static_cast<GitResource*>(
+                zend_fetch_resource(Z_RESVAL(value),
+                    GitResource::resource_name(),
+                    GitResource::resource_le())
+                );
+
             if (rsrc == nullptr) {
                 throw php_git2_exception("Fetched resource is invalid");
             }
@@ -730,18 +807,16 @@ namespace php_git2
             // invalidated across any zvals that reference it, and the
             // underlying handle will be destroyed (if it has no more
             // references).
-            zend_hash_index_del(&EG(regular_list),Z_RESVAL_P(value));
+            zend_hash_index_del(&EG(regular_list),Z_RESVAL(value));
             value = nullptr;
 
             // The return value should not be used. We do not attempt frees
             // directly from user space.
             return nullptr;
         }
+
     protected:
         using php_resource<GitResource>::value;
-#ifdef ZTS
-        using php_resource<GitResource>::TSRMLS_C;
-#endif
     };
 
     template<typename GitResource>
@@ -760,7 +835,7 @@ namespace php_git2
             // invalidated across any zvals that reference it, and the
             // underlying handle will be destroyed (if it has no more
             // references).
-            zend_hash_index_del(&EG(regular_list),Z_RESVAL_P(value));
+            zend_hash_index_del(&EG(regular_list),Z_RESVAL(value));
             value = nullptr;
         }
 
@@ -776,7 +851,7 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR(php_git_oid)
 
-        git_oid* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_oid* byval_git2(unsigned argno = ARGNO_MAX)
         {
             return &oid;
         }
@@ -785,30 +860,42 @@ namespace php_git2
         {
             char buf[GIT_OID_HEXSZ + 1];
             git_oid_tostr(buf,sizeof(buf),&oid);
-            RETVAL_STRING(buf,1);
+            RETVAL_STRING(buf);
         }
     private:
         git_oid oid;
     };
 
     class php_git_oid_fromstr:
-        public php_value_base
+        public php_string
     {
     public:
         ZTS_CONSTRUCTOR(php_git_oid_fromstr)
 
-        git_oid* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_oid* byval_git2(unsigned argno = ARGNO_MAX)
         {
-            if (Z_TYPE_P(value) != IS_STRING) {
-                error("string",argno);
-            }
-
             // Convert PHP string to git_oid.
-            convert_oid_fromstr(&oid,Z_STRVAL_P(value),Z_STRLEN_P(value));
+            convert_oid_fromstr(&oid,Z_STRVAL(value),Z_STRLEN(value));
             return &oid;
         }
+
     private:
         git_oid oid;
+    };
+
+    class php_git_oid_fromstr_nullable:
+        virtual public php_string_nullable,
+        virtual public php_git_oid_fromstr
+    {
+    public:
+        ZTS_CONSTRUCTOR(php_git_oid_fromstr_nullable)
+
+        using php_git_oid_fromstr::byval_git2;
+
+    private:
+        git_oid oid;
+
+        using php_string_nullable::parse_impl;
     };
 
     class php_git_oid_byval_fromstr:
@@ -817,26 +904,9 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR_WITH_BASE(php_git_oid_byval_fromstr,php_git_oid_fromstr)
 
-        git_oid byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_oid byval_git2(unsigned argno = ARGNO_MAX)
         {
             return *php_git_oid_fromstr::byval_git2(argno);
-        }
-    };
-
-    class php_git_oid_fromstr_nullable:
-        public php_git_oid_fromstr
-    {
-    public:
-        ZTS_CONSTRUCTOR_WITH_BASE(php_git_oid_fromstr_nullable,php_git_oid_fromstr)
-
-        git_oid* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
-        {
-            // Allow the value to be null.
-            if (Z_TYPE_P(value) == IS_NULL) {
-                return nullptr;
-            }
-
-            return php_git_oid_fromstr::byval_git2(argno);
         }
     };
 
@@ -844,7 +914,7 @@ namespace php_git2
 
     class php_git_oid_out:
         public php_git_oid,
-        public php_value_base
+        public php_string
     {
     public:
         ZTS_CONSTRUCTOR_WITH_BASE(php_git_oid_out,php_git_oid)
@@ -872,7 +942,7 @@ namespace php_git2
             git_strarray_free(&arr);
         }
 
-        git_strarray* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_strarray* byval_git2(unsigned argno = ARGNO_MAX)
         {
             return &arr;
         }
@@ -882,7 +952,7 @@ namespace php_git2
             // Convert the strarray to a PHP array.
             array_init(return_value);
             for (size_t i = 0;i < arr.count;++i) {
-                add_next_index_string(return_value,arr.strings[i],1);
+                add_next_index_string(return_value,arr.strings[i]);
             }
         }
     private:
@@ -905,7 +975,7 @@ namespace php_git2
             git_oidarray_free(&arr);
         }
 
-        git_oidarray* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_oidarray* byval_git2(unsigned argno = ARGNO_MAX)
         {
             return &arr;
         }
@@ -938,7 +1008,7 @@ namespace php_git2
             git_buf_free(&buf);
         }
 
-        git_buf* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_buf* byval_git2(unsigned argno = ARGNO_MAX)
         {
             return &buf;
         }
@@ -957,7 +1027,7 @@ namespace php_git2
 
     class php_git_buf_out:
         public php_git_buf,
-        public php_value_base
+        public php_string
     {
     public:
         ZTS_CONSTRUCTOR_WITH_BASE(php_git_buf_out,php_git_buf)
@@ -976,7 +1046,7 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR(php_fixed_buffer)
 
-        char* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        char* byval_git2(unsigned argno = ARGNO_MAX)
         {
             return buffer;
         }
@@ -997,7 +1067,7 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR(php_constant)
 
-        ConstantType byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        ConstantType byval_git2(unsigned argno = ARGNO_MAX)
         {
             return Value;
         }
@@ -1037,17 +1107,15 @@ namespace php_git2
             }
         }
 
-        ConvertType* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        ConvertType* byval_git2(unsigned argno = ARGNO_MAX)
         {
-            long i;
+            size_t i;
+            HashTable* ht;
             HashPosition pos;
-            zval** element;
+            zval* element;
 
-            // Make sure the zval is an array.
-            if (Z_TYPE_P(value) != IS_ARRAY) {
-                error("array",argno);
-            }
-            cnt = zend_hash_num_elements(Z_ARRVAL_P(value));
+            ht = Z_ARRVAL(value);
+            cnt = zend_hash_num_elements(ht);
 
             // Allocate an array to hold the source objects. We need to call the
             // constructor on each object.
@@ -1062,11 +1130,11 @@ namespace php_git2
             // Walk the array, using the corresponding SourceType object to
             // convert each element.
             i = 0;
-            for (zend_hash_internal_pointer_reset_ex(Z_ARRVAL_P(value),&pos);
-                 zend_hash_get_current_data_ex(Z_ARRVAL_P(value),(void**)&element,&pos) == SUCCESS;
-                 zend_hash_move_forward_ex(Z_ARRVAL_P(value),&pos))
+            for (zend_hash_internal_pointer_reset_ex(ht,&pos);
+                 (element = zend_hash_get_current_data_ex(ht,&pos)) != nullptr;
+                 zend_hash_move_forward_ex(ht,&pos))
             {
-                sources[i].set_zval(*element);
+                sources[i].set_zval(element);
                 data[i] = sources[i].byval_git2();
                 i += 1;
             }
@@ -1082,6 +1150,13 @@ namespace php_git2
         long cnt;
         SourceType* sources;
         ConvertType* data;
+
+        virtual void parse_impl(zval* zv,int argno)
+        {
+            zval* dummy;
+            zend_parse_parameter(0,argno,zv,"a",&dummy);
+            ZVAL_COPY(&value,zv);
+        }
     };
 
     // Provide an array connector that returns the array length.
@@ -1100,12 +1175,12 @@ namespace php_git2
 
         target_t byval_git2(unsigned p)
         {
-            zval* zv = conn.byval_php(p);
+            zval* zv = conn.get_value();
             if (Z_TYPE_P(zv) != IS_ARRAY) {
                 return IntType();
             }
 
-            return zend_hash_num_elements(Z_ARRVAL_P(conn.byval_php(p)));
+            return zend_hash_num_elements(Z_ARRVAL_P(conn.get_value()));
         }
     private:
         connect_t& conn;
@@ -1154,7 +1229,7 @@ namespace php_git2
             }
         }
 
-        git_strarray* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_strarray* byval_git2(unsigned argno = ARGNO_MAX)
         {
             const char** lines = php_string_array::byval_git2(argno);
 
@@ -1178,9 +1253,9 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR_WITH_BASE(php_strarray_array_nullable,php_strarray_array);
 
-        git_strarray* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_strarray* byval_git2(unsigned argno = ARGNO_MAX)
         {
-            if (Z_TYPE_P(value) == IS_NULL) {
+            if (Z_TYPE(value) == IS_NULL) {
                 return nullptr;
             }
 
@@ -1195,7 +1270,7 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR_WITH_BASE(php_strarray_byval_array,php_strarray_array)
 
-        git_strarray byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_strarray byval_git2(unsigned argno = ARGNO_MAX)
         {
             // Return structure by value. This is still a shallow copy of the
             // data.
