@@ -1,7 +1,7 @@
 /*
  * submodule.h
  *
- * This file is a part of php-git2.
+ * Copyright (C) Roger P. Gee
  */
 
 #ifndef PHPGIT2_SUBMODULE_H

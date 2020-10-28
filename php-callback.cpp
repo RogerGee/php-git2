@@ -1,7 +1,7 @@
 /*
  * php-callback.cpp
  *
- * This file is a part of php-git2.
+ * Copyright (C) Roger P. Gee
  *
  * This unit provides the out-of-line implementations of the various callback
  * routines used by php-git2.

@@ -1,7 +1,7 @@
 /*
  * php-git2-fe.cpp
  *
- * This file is a part of php-git2.
+ * Copyright (C) Roger P. Gee
  */
 
 #include "php-git2.h"

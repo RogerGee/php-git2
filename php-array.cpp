@@ -1,7 +1,7 @@
 /*
  * php-array.cpp
  *
- * This file is a part of php-git2.
+ * Copyright (C) Roger P. Gee
  */
 
 #include "php-array.h"

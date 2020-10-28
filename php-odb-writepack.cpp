@@ -1,7 +1,7 @@
 /*
  * php-odb-writepack.cpp
  *
- * This file is a part of php-git2.
+ * Copyright (C) Roger P. Gee
  *
  * This unit provides the out-of-line implementation for the GitODBWritepack
  * class.

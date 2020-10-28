@@ -1,7 +1,7 @@
 /*
  * php-git2.cpp
  *
- * This file is a part of php-git2.
+ * Copyright (C) Roger P. Gee
  */
 
 #include "php-git2.h"
@@ -23,9 +23,7 @@ static PHP_RSHUTDOWN_FUNCTION(git2);
 
 // Module entry table.
 zend_module_entry git2_module_entry = {
-#if ZEND_MODULE_API_NO >= 20010901
     STANDARD_MODULE_HEADER,
-#endif
     PHP_GIT2_EXTNAME,
     php_git2::functions,
     PHP_MINIT(git2),
@@ -33,9 +31,7 @@ zend_module_entry git2_module_entry = {
     PHP_RINIT(git2),
     PHP_RSHUTDOWN(git2),
     PHP_MINFO(git2),
-#if ZEND_MODULE_API_NO >= 20010901
     PHP_GIT2_EXTVER,
-#endif
     PHP_MODULE_GLOBALS(git2),
     PHP_GINIT(git2),
     PHP_GSHUTDOWN(git2),
