@@ -76,8 +76,7 @@ static constexpr auto ZIF_GIT_NOTE_CREATE = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3,4,5,6,7>,
-    php_git2::sequence<0,1,2,3,4,5,6,7>,
-    php_git2::sequence<0,0,1,2,3,4,5,6>
+    php_git2::sequence<0,1,2,3,4,5,6,7>
     >;
 
 static constexpr auto ZIF_GIT_NOTE_FOREACH = zif_php_git2_function<
@@ -95,7 +94,6 @@ static constexpr auto ZIF_GIT_NOTE_FOREACH = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<0,1,3,3>, // pass callback in twice for function and payload
-    php_git2::sequence<0,1,2,3>,
     php_git2::sequence<0,1,2,3>
     >;
 
@@ -134,8 +132,7 @@ static constexpr auto ZIF_GIT_NOTE_ITERATOR_NEW = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_NOTE_MESSAGE = zif_php_git2_function<
@@ -161,8 +158,7 @@ static constexpr auto ZIF_GIT_NOTE_NEXT = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 ZEND_BEGIN_ARG_INFO_EX(git_note_next_arginfo,0,0,2)
     ZEND_ARG_PASS_INFO(1)
@@ -183,8 +179,7 @@ static constexpr auto ZIF_GIT_NOTE_READ = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_NOTE_REMOVE = zif_php_git2_function<

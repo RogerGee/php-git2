@@ -22,7 +22,7 @@ namespace php_git2
             git_revert_init_options(&opts,GIT_REVERT_OPTIONS_VERSION);
         }
 
-        const git_revert_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        const git_revert_options* byval_git2()
         {
             if (value != nullptr && Z_TYPE_P(value)) {
                 array_wrapper arr(value);
@@ -77,8 +77,7 @@ static constexpr auto ZIF_GIT_REVERT_COMMIT = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3,4,5>,
-    php_git2::sequence<0,1,2,3,4,5>,
-    php_git2::sequence<0,0,1,2,3,4>
+    php_git2::sequence<0,1,2,3,4,5>
     >;
 
 #define GIT_REVERT_FE                                           \

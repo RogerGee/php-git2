@@ -52,9 +52,14 @@ namespace php_git2
         }
 
         git_transfer_progress* get_stats()
-        { return &stats; }
+        {
+            return &stats;
+        }
         const git_transfer_progress* get_stats() const
-        { return &stats; }
+        {
+            return &stats;
+        }
+
     private:
         git_transfer_progress stats;
         php_callback_sync* cb;
@@ -71,10 +76,11 @@ namespace php_git2
         {
         }
 
-        target_t byval_git2(unsigned argno)
+        target_t byval_git2()
         {
-            return &conn.get_object(argno)->stats;
+            return &conn.get_object()->stats;
         }
+
     private:
         connect_t& conn;
     };
@@ -106,8 +112,7 @@ static constexpr auto ZIF_GIT_INDEXER_NEW = zif_php_git2_function_setdeps<
     php_git2::sequence<2,5>,
     3,
     php_git2::sequence<3,4,5,1,1>, // pass callback in twice
-    php_git2::sequence<2,3,4,5,0,1>,
-    php_git2::sequence<0,0,1,2,3,4>
+    php_git2::sequence<2,3,4,5,0,1>
     >;
 
 static constexpr auto ZIF_GIT_INDEXER_HASH = zif_php_git2_function<
@@ -135,8 +140,7 @@ static constexpr auto ZIF_GIT_INDEXER_APPEND = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<1,3>,
-    php_git2::sequence<1,3,2,0>,
-    php_git2::sequence<0,0,1,0>
+    php_git2::sequence<1,3,2,0>
     >;
 
 static constexpr auto ZIF_GIT_INDEXER_COMMIT = zif_php_git2_function<
@@ -150,8 +154,7 @@ static constexpr auto ZIF_GIT_INDEXER_COMMIT = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<1>,
-    php_git2::sequence<1,0>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<1,0>
     >;
 
 static constexpr auto ZIF_GIT_INDEXER_FREE = zif_php_git2_function_free<
@@ -173,9 +176,12 @@ static PHP_FUNCTION(git2_indexer_stats)
         php_git2::php_bailout_context ctx(bailer TSRMLS_CC);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"z",indexer.byref_php()) == FAILURE) {
+            zval* zvp;
+            if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"z",&zvp) == FAILURE) {
                 return;
             }
+
+            indexer.parse(zvp,1);
 
             try {
                 stats = indexer.get_object(1)->get_stats();

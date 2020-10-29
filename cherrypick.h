@@ -25,7 +25,7 @@ namespace php_git2
             git_cherrypick_init_options(&opts,GIT_CHERRYPICK_OPTIONS_VERSION);
         }
 
-        git_cherrypick_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_cherrypick_options* byval_git2()
         {
             if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
                 array_wrapper arr(value);
@@ -80,8 +80,7 @@ static constexpr auto ZIF_GIT_CHERRYPICK_COMMIT = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3,4,5>,
-    php_git2::sequence<0,1,2,3,4,5>,
-    php_git2::sequence<0,0,1,2,3,4>
+    php_git2::sequence<0,1,2,3,4,5>
     >;
 
 #define GIT_CHERRYPICK_FE                                               \

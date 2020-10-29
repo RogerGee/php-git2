@@ -23,7 +23,7 @@ namespace php_git2
             memset(&revspec,0,sizeof(git_revspec));
         }
 
-        git_revspec* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_revspec* byval_git2()
         {
             return &revspec;
         }
@@ -87,8 +87,7 @@ static constexpr auto ZIF_GIT_REVPARSE = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_REVPARSE_EXT = zif_php_git2_function_setdeps2<
@@ -108,8 +107,7 @@ static constexpr auto ZIF_GIT_REVPARSE_EXT = zif_php_git2_function_setdeps2<
     php_git2::sequence<1,2>, // Make the reference dependent on the repository.
     1,
     php_git2::sequence<1,2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 ZEND_BEGIN_ARG_INFO_EX(git_revparse_ext_arginfo,0,0,2)
     ZEND_ARG_PASS_INFO(1)
@@ -129,8 +127,7 @@ static constexpr auto ZIF_GIT_REVPARSE_SINGLE = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>, // Make the object dependent on the repository.
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 // Function Entries:

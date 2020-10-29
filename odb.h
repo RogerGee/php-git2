@@ -50,7 +50,7 @@ namespace php_git2
         {
         }
 
-        git_odb_writepack** byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_odb_writepack** byval_git2()
         {
             return &writepack;
         }
@@ -95,7 +95,7 @@ namespace php_git2
         {
         }
 
-        git_odb_backend* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_odb_backend* byval_git2()
         {
             // Make sure the zval is an object of or derived from class
             // GitODBBackend.
@@ -148,7 +148,7 @@ namespace php_git2
         {
         }
 
-        git_odb_backend** byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_odb_backend** byval_git2()
         {
             return &backend;
         }
@@ -209,7 +209,7 @@ namespace php_git2
         {
         }
 
-        git_odb_stream* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_odb_stream* byval_git2()
         {
             // Make sure the zval is an object of or derived from class GitODBStream
             if (Z_TYPE_P(value) != IS_OBJECT
@@ -241,7 +241,7 @@ namespace php_git2
         {
         }
 
-        git_odb_stream** byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_odb_stream** byval_git2()
         {
             return &stream;
         }
@@ -321,8 +321,7 @@ static constexpr auto ZIF_GIT_ODB_WRITE_PACK = zif_php_git2_function<
         >,
     3,
     php_git2::sequence<3,1,1>, // pass callback in twice for callback and payload
-    php_git2::sequence<2,3,0,1>,
-    php_git2::sequence<0,0,0,1>
+    php_git2::sequence<2,3,0,1>
     >;
 
 static constexpr auto ZIF_GIT_ODB_OPEN = zif_php_git2_function<
@@ -337,8 +336,7 @@ static constexpr auto ZIF_GIT_ODB_OPEN = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_ODB_WRITE = zif_php_git2_function<
@@ -360,8 +358,7 @@ static constexpr auto ZIF_GIT_ODB_WRITE = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,3,4>,
-    php_git2::sequence<0,1,3,2,4>,
-    php_git2::sequence<0,0,1,0,2>
+    php_git2::sequence<0,1,3,2,4>
     >;
 
 static constexpr auto ZIF_GIT_ODB_READ = zif_php_git2_function_setdeps<
@@ -379,8 +376,7 @@ static constexpr auto ZIF_GIT_ODB_READ = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_ODB_READ_HEADER = zif_php_git2_function<
@@ -399,8 +395,7 @@ static constexpr auto ZIF_GIT_ODB_READ_HEADER = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 ZEND_BEGIN_ARG_INFO_EX(git_odb_read_header_arginfo,0,0,3)
     ZEND_ARG_PASS_INFO(1)
@@ -424,8 +419,7 @@ static constexpr auto ZIF_GIT_ODB_READ_PREFIX = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,3>,
-    php_git2::sequence<0,1,3,2>,
-    php_git2::sequence<0,0,1,0>
+    php_git2::sequence<0,1,3,2>
     >;
 
 static constexpr auto ZIF_GIT_ODB_OBJECT_FREE = zif_php_git2_function_free<
@@ -491,8 +485,7 @@ static constexpr auto ZIF_GIT_ODB_OBJECT_DUP = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_ODB_BACKEND_PACK = zif_php_git2_function<
@@ -506,8 +499,7 @@ static constexpr auto ZIF_GIT_ODB_BACKEND_PACK = zif_php_git2_function<
         php_git2::php_string>,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_ODB_BACKEND_LOOSE = zif_php_git2_function<
@@ -529,8 +521,7 @@ static constexpr auto ZIF_GIT_ODB_BACKEND_LOOSE = zif_php_git2_function<
         php_git2::php_long>,
     1,
     php_git2::sequence<1,2,3,4,5>,
-    php_git2::sequence<0,1,2,3,4,5>,
-    php_git2::sequence<0,0,1,2,3,4>
+    php_git2::sequence<0,1,2,3,4,5>
     >;
 
 static constexpr auto ZIF_GIT_ODB_BACKEND_ONE_PACK = zif_php_git2_function<
@@ -544,8 +535,7 @@ static constexpr auto ZIF_GIT_ODB_BACKEND_ONE_PACK = zif_php_git2_function<
         php_git2::php_string>,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_ODB_OPEN_RSTREAM = zif_php_git2_function<
@@ -561,8 +551,7 @@ static constexpr auto ZIF_GIT_ODB_OPEN_RSTREAM = zif_php_git2_function<
         php_git2::php_git_oid_fromstr>,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_ODB_OPEN_WSTREAM = zif_php_git2_function<
@@ -580,8 +569,7 @@ static constexpr auto ZIF_GIT_ODB_OPEN_WSTREAM = zif_php_git2_function<
         php_git2::php_long_cast<git_otype> >,
     1,
     php_git2::sequence<1,2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_ODB_STREAM_READ = zif_php_git2_function<
@@ -597,8 +585,7 @@ static constexpr auto ZIF_GIT_ODB_STREAM_READ = zif_php_git2_function<
         php_git2::php_long_cast<size_t> >,
     2,
     php_git2::sequence<0,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_ODB_STREAM_WRITE = zif_php_git2_function<
@@ -614,8 +601,7 @@ static constexpr auto ZIF_GIT_ODB_STREAM_WRITE = zif_php_git2_function<
         php_git2::php_string>,
     -1,
     php_git2::sequence<0,2>,
-    php_git2::sequence<0,2,1>,
-    php_git2::sequence<0,1,0>
+    php_git2::sequence<0,2,1>
     >;
 
 static constexpr auto ZIF_GIT_ODB_STREAM_FINALIZE_WRITE = zif_php_git2_function<
@@ -630,8 +616,7 @@ static constexpr auto ZIF_GIT_ODB_STREAM_FINALIZE_WRITE = zif_php_git2_function<
         >,
     2,
     php_git2::sequence<0>,
-    php_git2::sequence<1,0>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<1,0>
     >;
 
 static constexpr auto ZIF_GIT_ODB_ADD_ALTERNATE = zif_php_git2_function<
@@ -647,7 +632,6 @@ static constexpr auto ZIF_GIT_ODB_ADD_ALTERNATE = zif_php_git2_function<
         php_git2::php_long
         >,
     -1,
-    php_git2::sequence<1,0,2>,
     php_git2::sequence<1,0,2>,
     php_git2::sequence<1,0,2>
     >;
@@ -678,7 +662,6 @@ static constexpr auto ZIF_GIT_ODB_ADD_BACKEND = zif_php_git2_function<
         php_git2::php_long
         >,
     -1,
-    php_git2::sequence<1,0,2>,
     php_git2::sequence<1,0,2>,
     php_git2::sequence<1,0,2>
     >;
@@ -713,8 +696,7 @@ static constexpr auto ZIF_GIT_ODB_EXISTS_PREFIX = zif_php_git2_function<
         >,
     0,
     php_git2::sequence<0,1,3>,
-    php_git2::sequence<0,1,3,2>,
-    php_git2::sequence<0,1,2,0>
+    php_git2::sequence<0,1,3,2>
     >;
 ZEND_BEGIN_ARG_INFO_EX(git_odb_exists_prefix_arginfo,0,0,3)
     ZEND_ARG_PASS_INFO(1)
@@ -734,8 +716,7 @@ static constexpr auto ZIF_GIT_ODB_FOREACH = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<0,2,2>, // pass callback in for both callable and payload
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_ODB_REFRESH = zif_php_git2_function<
@@ -762,8 +743,7 @@ static constexpr auto ZIF_GIT_ODB_GET_BACKEND = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_ODB_NUM_BACKENDS = zif_php_git2_function<
@@ -794,8 +774,7 @@ static constexpr auto ZIF_GIT_ODB_HASH = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<2,3>,
-    php_git2::sequence<0,2,1,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,2,1,3>
     >;
 
 static constexpr auto ZIF_GIT_ODB_HASHFILE = zif_php_git2_function<

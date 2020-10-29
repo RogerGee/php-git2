@@ -15,10 +15,9 @@
 
 namespace php_git2
 {
-
-    // Provide a specializations of a template type for all PHP primative data
-    // types. We always wrap a pointer to a zval. Each specialization will
-    // extract the correct value and do type checking.
+    // Provide a base class for managing PHP values. The purpose of this class
+    // is to provide a read-only view of the zval. The class does NOT manage the
+    // lifecycle of the wrapped zval.
 
     class php_value_base
     {
@@ -28,57 +27,27 @@ namespace php_git2
             ZVAL_UNDEF(&value);
         }
 
-        ~php_value_base()
-        {
-            zval_dtor(&value);
-        }
-
         zval* get_value()
         {
             return &value;
         }
 
-        void parse(zval* zv,int argno)
+        void parse(zval* zvp,int argno)
         {
             // NOTE: Parse assumes 'value' is empty.
-            parse_impl(zv,argno);
+            parse_impl(zvp,argno);
         }
 
-        void set_zval(zval* zv)
+        void set_zval(zval* zvp)
         {
-            zval_dtor(&value);
-            ZVAL_COPY(&value,zv);
-        }
-
-        static inline void error(const char* typeName,unsigned argno)
-        {
-            if (argno != ARGNO_MAX) {
-                throw php_git2_fatal_exception(
-                    "Expected '%s' for argument at position %d",
-                    typeName,
-                    argno);
-            }
-
-            throw php_git2_fatal_exception("Expected '%s' for argument",typeName);
-        }
-
-        static inline void error_custom(const char* message,unsigned argno)
-        {
-            if (argno != ARGNO_MAX) {
-                throw php_git2_fatal_exception(
-                    "%s for argument at position %d",
-                    message,
-                    argno);
-            }
-
-            throw php_git2_fatal_exception("%s",message);
+            ZVAL_COPY_VALUE(&value,zvp);
         }
 
     protected:
         zval value;
 
     private:
-        virtual void parse_impl(unsigned argno) = 0;
+        virtual void parse_impl(zval* zvp,int argno) = 0;
     };
 
     template<typename T>
@@ -91,7 +60,7 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR(php_value)
 
-        zend_long byval_git2(unsigned argno = ARGNO_MAX) const
+        zend_long byval_git2() const
         {
             return Z_LVAL(value);
         }
@@ -102,11 +71,12 @@ namespace php_git2
         }
 
     private:
-        virtual void parse_impl(zval* zv,int argno)
+        virtual void parse_impl(zval* zvp,int argno)
         {
-            zend_long l;
-            zend_parse_parameter(0,argno,zv,"l",&l);
-            ZVAL_LONG(value,l);
+            zend_long dummy;
+            zend_parse_parameter(0,argno,zvp,"l",&dummy);
+
+            ZVAL_COPY_VALUE(&value,zvp);
         }
     };
 
@@ -117,7 +87,7 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR(php_value)
 
-        bool byval_git2(unsigned argno = ARGNO_MAX) const
+        bool byval_git2() const
         {
             return Z_LVAL(value) ? true : false;
         }
@@ -132,11 +102,12 @@ namespace php_git2
         }
 
     private:
-        virtual void parse_impl(zval* zv,int argno)
+        virtual void parse_impl(zval* zvp,int argno)
         {
-            zend_bool b;
-            zend_parse_parameter(0,argno,zv,"b",&b);
-            ZVAL_BOOL(value,b);
+            zend_bool dummy;
+            zend_parse_parameter(0,argno,zvp,"b",&dummy);
+
+            ZVAL_COPY_VALUE(&value,zvp);
         }
     };
 
@@ -147,7 +118,7 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR(php_value)
 
-        double byval_git2(unsigned argno = ARGNO_MAX) const
+        double byval_git2() const
         {
             return Z_DVAL(value);
         }
@@ -158,22 +129,23 @@ namespace php_git2
         }
 
     private:
-        virtual void parse_impl(zval* zv,int argno)
+        virtual void parse_impl(zval* zvp,int argno)
         {
-            double d;
-            zend_parse_parameter(0,argno,zv,"d",&d);
-            ZVAL_DOUBLE(value,d);
+            double dummy;
+            zend_parse_parameter(0,argno,zvp,"d",&dummy);
+
+            ZVAL_COPY_VALUE(&value,zvp);
         }
     };
 
     template<>
-    class php_value<char*>:
+    class php_value<const char*>:
         public php_value_base
     {
     public:
         ZTS_CONSTRUCTOR(php_value)
 
-        char* byval_git2(unsigned argno = ARGNO_MAX) const
+        const char* byval_git2() const
         {
             return Z_STRVAL(value);
         }
@@ -185,13 +157,13 @@ namespace php_git2
         }
 
     private:
-        virtual void parse_impl(zval* zv,int argno)
+        virtual void parse_impl(zval* zvp,int argno)
         {
             char* s;
             size_t l;
+            zend_parse_parameter(0,argno,zvp,"s",&s,&l);
 
-            zend_parse_parameter(0,argno,zv,"s",&s,&l);
-            ZVAL_COPY(&value,zv);
+            ZVAL_COPY_VALUE(&value,zvp);
         }
     };
 
@@ -200,7 +172,7 @@ namespace php_git2
     using php_bool = php_value<bool>;
     using php_long = php_value<zend_long>;
     using php_double = php_value<double>;
-    using php_string = php_value<char*>;
+    using php_string = php_value<const char*>;
 
     // Provide a nullable string type.
 
@@ -210,24 +182,24 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR_WITH_BASE(php_string_nullable,php_string)
 
-        char* byval_git2(unsigned argno = ARGNO_MAX) const
+        const char* byval_git2() const
         {
             if (Z_TYPE(value) == IS_NULL) {
                 return nullptr;
             }
 
-            return php_string::byval_git2(argno);
+            return php_string::byval_git2();
         }
 
     private:
-        virtual void parse_impl(zval* zv,int argno)
+        virtual void parse_impl(zval* zvp,int argno)
         {
-            if (Z_TYPE_P(zv) == IS_NULL) {
+            if (Z_TYPE_P(zvp) == IS_NULL) {
                 ZVAL_NULL(value);
                 return;
             }
 
-            php_string::parse_impl(zv,argno);
+            php_string::parse_impl(zvp,argno);
         }
     };
 
@@ -241,7 +213,7 @@ namespace php_git2
         {
         }
 
-        const char** byval_git2(unsigned argno = ARGNO_MAX)
+        const char** byval_git2()
         {
             return &ptr;
         }
@@ -281,7 +253,7 @@ namespace php_git2
             }
         }
 
-        const char** byval_git2(unsigned argno = ARGNO_MAX)
+        const char** byval_git2()
         {
             return &ptr;
         }
@@ -304,7 +276,7 @@ namespace php_git2
         {
         }
 
-        target_t byval_git2(unsigned p)
+        target_t byval_git2()
         {
             return static_cast<IntType>(Z_STRLEN_P(conn.get_value()));
         }
@@ -327,15 +299,15 @@ namespace php_git2
         {
         }
 
-        target_t byval_git2(unsigned p)
+        target_t byval_git2()
         {
-            zval* zv = base_type::conn.get_value();
+            zval* zvp = base_type::conn.get_value();
 
-            if (Z_TYPE_P(zv) != IS_STRING) {
+            if (Z_TYPE_P(zvp) != IS_STRING) {
                 return 0;
             }
 
-            return static_cast<IntType>(Z_STRLEN_P(zv));
+            return static_cast<IntType>(Z_STRLEN_P(zvp));
         }
     };
 
@@ -360,7 +332,7 @@ namespace php_git2
             efree(buffer);
         }
 
-        target_t byval_git2(unsigned p)
+        target_t byval_git2()
         {
             return buffer;
         }
@@ -383,9 +355,9 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR_WITH_BASE(php_long_cast,php_long)
 
-        IntType byval_git2(unsigned argno = ARGNO_MAX) const
+        IntType byval_git2() const
         {
-            return static_cast<IntType>(php_long::byval_git2(argno));
+            return static_cast<IntType>(php_long::byval_git2());
         }
     };
 
@@ -397,7 +369,7 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR(php_long_ref)
 
-        IntType* byval_git2(unsigned p)
+        IntType* byval_git2()
         {
             return &n;
         }
@@ -451,7 +423,7 @@ namespace php_git2
             ZVAL_LONG(value,static_cast<zend_long>(n));
         }
 
-        IntType* byval_git2(unsigned argno = ARGNO_MAX)
+        IntType* byval_git2()
         {
             return &n;
         }
@@ -479,7 +451,7 @@ namespace php_git2
         }
 
         typename GitResource::git2_type
-        byval_git2(unsigned argno = ARGNO_MAX)
+        byval_git2()
         {
             return lookup()->get_handle();
         }
@@ -514,11 +486,12 @@ namespace php_git2
             return rsrc;
         }
 
-        virtual void parse_impl(zval* zv,int argno)
+        virtual void parse_impl(zval* zvp,int argno)
         {
             zval* dummy;
-            zend_parse_parameters(0,argno,zv,"r",&dummy);
-            ZVAL_COPY(&value,zv);
+            zend_parse_parameters(0,argno,zvp,"r",&dummy);
+
+            ZVAL_COPY_VALUE(&value,zvp);
         }
     };
 
@@ -533,7 +506,7 @@ namespace php_git2
         }
 
         typename GitResource::git2_type
-        byval_git2(unsigned argno = ARGNO_MAX)
+        byval_git2()
         {
             GitResource* res = php_resource<GitResource>::get_object(argno);
 
@@ -558,7 +531,7 @@ namespace php_git2
         }
 
         typename GitResource::git2_type*
-        byval_git2(unsigned argno = ARGNO_MAX)
+        byval_git2()
         {
             // Create a resource backing instance if it does not already exist.
             if (rsrc == nullptr) {
@@ -571,7 +544,7 @@ namespace php_git2
         }
 
         typename GitResource::const_git2_type*
-        byval_git2(unsigned argno = ARGNO_MAX) const
+        byval_git2() const
         {
             // Create a resource backing instance if it does not already exist.
             if (rsrc == nullptr) {
@@ -640,7 +613,7 @@ namespace php_git2
         }
 
         typename GitResource::git2_type*
-        byval_git2(unsigned argno = ARGNO_MAX)
+        byval_git2()
         {
             // Just return the handle. Delay creating the resource backing until
             // later and after we know the return value is not NULL.
@@ -733,7 +706,7 @@ namespace php_git2
         ZTS_CONSTRUCTOR_WITH_BASE(php_resource_nullable,php_resource<GitResource>)
 
         typename GitResource::git2_type
-        byval_git2(unsigned argno = ARGNO_MAX)
+        byval_git2()
         {
             GitResource* rsrc;
 
@@ -763,14 +736,14 @@ namespace php_git2
         }
 
     private:
-        virtual void parse_impl(zval* zv,int argno)
+        virtual void parse_impl(zval* zvp,int argno)
         {
-            if (Z_TYPE_P(zv) == IS_NULL) {
+            if (Z_TYPE_P(zvp) == IS_NULL) {
                 ZVAL_NULL(value);
                 return;
             }
 
-            php_resource<GitResource>::parse_impl(zv,argno);
+            php_resource<GitResource>::parse_impl(zvp,argno);
         }
     };
 
@@ -788,7 +761,7 @@ namespace php_git2
         }
 
         typename GitResource::git2_type
-        byval_git2(unsigned argno = ARGNO_MAX)
+        byval_git2()
         {
             GitResource* rsrc;
 
@@ -851,7 +824,7 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR(php_git_oid)
 
-        git_oid* byval_git2(unsigned argno = ARGNO_MAX)
+        git_oid* byval_git2()
         {
             return &oid;
         }
@@ -872,7 +845,7 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR(php_git_oid_fromstr)
 
-        git_oid* byval_git2(unsigned argno = ARGNO_MAX)
+        git_oid* byval_git2()
         {
             // Convert PHP string to git_oid.
             convert_oid_fromstr(&oid,Z_STRVAL(value),Z_STRLEN(value));
@@ -904,9 +877,9 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR_WITH_BASE(php_git_oid_byval_fromstr,php_git_oid_fromstr)
 
-        git_oid byval_git2(unsigned argno = ARGNO_MAX)
+        git_oid byval_git2()
         {
-            return *php_git_oid_fromstr::byval_git2(argno);
+            return *php_git_oid_fromstr::byval_git2();
         }
     };
 
@@ -942,7 +915,7 @@ namespace php_git2
             git_strarray_free(&arr);
         }
 
-        git_strarray* byval_git2(unsigned argno = ARGNO_MAX)
+        git_strarray* byval_git2()
         {
             return &arr;
         }
@@ -975,7 +948,7 @@ namespace php_git2
             git_oidarray_free(&arr);
         }
 
-        git_oidarray* byval_git2(unsigned argno = ARGNO_MAX)
+        git_oidarray* byval_git2()
         {
             return &arr;
         }
@@ -1008,7 +981,7 @@ namespace php_git2
             git_buf_free(&buf);
         }
 
-        git_buf* byval_git2(unsigned argno = ARGNO_MAX)
+        git_buf* byval_git2()
         {
             return &buf;
         }
@@ -1046,7 +1019,7 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR(php_fixed_buffer)
 
-        char* byval_git2(unsigned argno = ARGNO_MAX)
+        char* byval_git2()
         {
             return buffer;
         }
@@ -1067,7 +1040,7 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR(php_constant)
 
-        ConstantType byval_git2(unsigned argno = ARGNO_MAX)
+        ConstantType byval_git2()
         {
             return Value;
         }
@@ -1107,7 +1080,7 @@ namespace php_git2
             }
         }
 
-        ConvertType* byval_git2(unsigned argno = ARGNO_MAX)
+        ConvertType* byval_git2()
         {
             size_t i;
             HashTable* ht;
@@ -1151,11 +1124,12 @@ namespace php_git2
         SourceType* sources;
         ConvertType* data;
 
-        virtual void parse_impl(zval* zv,int argno)
+        virtual void parse_impl(zval* zvp,int argno)
         {
             zval* dummy;
-            zend_parse_parameter(0,argno,zv,"a",&dummy);
-            ZVAL_COPY(&value,zv);
+            zend_parse_parameter(0,argno,zvp,"a",&dummy);
+
+            ZVAL_COPY_VALUE(&value,zvp);
         }
     };
 
@@ -1173,10 +1147,10 @@ namespace php_git2
         {
         }
 
-        target_t byval_git2(unsigned p)
+        target_t byval_git2()
         {
-            zval* zv = conn.get_value();
-            if (Z_TYPE_P(zv) != IS_ARRAY) {
+            zval* zvp = conn.get_value();
+            if (Z_TYPE_P(zvp) != IS_ARRAY) {
                 return IntType();
             }
 
@@ -1229,9 +1203,9 @@ namespace php_git2
             }
         }
 
-        git_strarray* byval_git2(unsigned argno = ARGNO_MAX)
+        git_strarray* byval_git2()
         {
-            const char** lines = php_string_array::byval_git2(argno);
+            const char** lines = php_string_array::byval_git2();
 
             // Copy lines into git_strarray structure.
             arr.count = get_count();
@@ -1253,13 +1227,13 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR_WITH_BASE(php_strarray_array_nullable,php_strarray_array);
 
-        git_strarray* byval_git2(unsigned argno = ARGNO_MAX)
+        git_strarray* byval_git2()
         {
             if (Z_TYPE(value) == IS_NULL) {
                 return nullptr;
             }
 
-            return php_strarray_array::byval_git2(argno);
+            return php_strarray_array::byval_git2();
         }
 
     };
@@ -1270,11 +1244,11 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR_WITH_BASE(php_strarray_byval_array,php_strarray_array)
 
-        git_strarray byval_git2(unsigned argno = ARGNO_MAX)
+        git_strarray byval_git2()
         {
             // Return structure by value. This is still a shallow copy of the
             // data.
-            return *php_strarray_array::byval_git2(argno);
+            return *php_strarray_array::byval_git2();
         }
     };
 

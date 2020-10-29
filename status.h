@@ -30,7 +30,7 @@ namespace php_git2
             git_status_init_options(&opts,GIT_STATUS_OPTIONS_VERSION);
         }
 
-        git_status_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_status_options* byval_git2()
         {
             if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
                 array_wrapper arr(value);
@@ -126,8 +126,7 @@ static constexpr auto ZIF_GIT_STATUS_FILE = zif_php_git2_function_rethandler<
     php_git2::php_git_status_file_rethandler::pack_type,
     php_git2::php_git_status_file_rethandler,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_STATUS_FOREACH = zif_php_git2_function<
@@ -143,8 +142,7 @@ static constexpr auto ZIF_GIT_STATUS_FOREACH = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<0,2,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,2>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_STATUS_FOREACH_EXT = zif_php_git2_function<
@@ -162,8 +160,7 @@ static constexpr auto ZIF_GIT_STATUS_FOREACH_EXT = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<0,1,3,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,1,0,3>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_STATUS_LIST_ENTRYCOUNT = zif_php_git2_function<
@@ -193,8 +190,7 @@ static constexpr auto ZIF_GIT_STATUS_LIST_GET_PERFDATA = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_STATUS_LIST_NEW = zif_php_git2_function<
@@ -210,8 +206,7 @@ static constexpr auto ZIF_GIT_STATUS_LIST_NEW = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_STATUS_SHOULD_IGNORE = zif_php_git2_function<
@@ -227,8 +222,7 @@ static constexpr auto ZIF_GIT_STATUS_SHOULD_IGNORE = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 #define GIT_STATUS_FE                                           \

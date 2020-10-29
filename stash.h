@@ -10,7 +10,6 @@
 
 namespace php_git2
 {
-
     class php_git_stash_apply_options:
         public php_value_base,
         private php_zts_base
@@ -22,7 +21,7 @@ namespace php_git2
             git_stash_apply_init_options(&opts,GIT_STASH_APPLY_OPTIONS_VERSION);
         }
 
-        const git_stash_apply_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        const git_stash_apply_options* byval_git2()
         {
             if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
                 array_wrapper arr(value);
@@ -88,7 +87,6 @@ static constexpr auto ZIF_GIT_STASH_FOREACH = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<0,2,2>, // pass callback in twice for function and payload
-    php_git2::sequence<0,1,2>,
     php_git2::sequence<0,1,2>
     >;
 
@@ -122,8 +120,7 @@ static constexpr auto ZIF_GIT_STASH_SAVE = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3,4>,
-    php_git2::sequence<0,1,2,3,4>,
-    php_git2::sequence<0,0,1,2,3>
+    php_git2::sequence<0,1,2,3,4>
     >;
 
 #define GIT_STASH_FE                                            \

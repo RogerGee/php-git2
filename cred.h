@@ -26,7 +26,6 @@ static constexpr auto ZIF_GIT_CRED_DEFAULT_NEW = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<>,
-    php_git2::sequence<0>,
     php_git2::sequence<0>
     >;
 
@@ -56,7 +55,6 @@ static constexpr auto ZIF_GIT_CRED_SSH_CUSTOM_NEW = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<>,
-    php_git2::sequence<>,
     php_git2::sequence<>
     >;
 
@@ -68,7 +66,6 @@ static constexpr auto ZIF_GIT_CRED_SSH_INTERACTIVE_NEW = zif_php_git2_function<
 
         >,
     -1,
-    php_git2::sequence<>,
     php_git2::sequence<>,
     php_git2::sequence<>
     >;
@@ -85,8 +82,7 @@ static constexpr auto ZIF_GIT_CRED_SSH_KEY_FROM_AGENT = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_CRED_SSH_KEY_MEMORY_NEW = zif_php_git2_function<
@@ -106,8 +102,7 @@ static constexpr auto ZIF_GIT_CRED_SSH_KEY_MEMORY_NEW = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3,4>,
-    php_git2::sequence<0,1,2,3,4>,
-    php_git2::sequence<0,0,1,2,3>
+    php_git2::sequence<0,1,2,3,4>
     >;
 
 static constexpr auto ZIF_GIT_CRED_SSH_KEY_NEW = zif_php_git2_function<
@@ -127,8 +122,7 @@ static constexpr auto ZIF_GIT_CRED_SSH_KEY_NEW = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3,4>,
-    php_git2::sequence<0,1,2,3,4>,
-    php_git2::sequence<0,0,1,2,3>
+    php_git2::sequence<0,1,2,3,4>
     >;
 
 static constexpr auto ZIF_GIT_CRED_USERNAME_NEW = zif_php_git2_function<
@@ -142,8 +136,7 @@ static constexpr auto ZIF_GIT_CRED_USERNAME_NEW = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_CRED_USERPASS_PLAINTEXT_NEW = zif_php_git2_function<
@@ -159,8 +152,7 @@ static constexpr auto ZIF_GIT_CRED_USERPASS_PLAINTEXT_NEW = zif_php_git2_functio
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 #define GIT_CRED_FE                                                     \

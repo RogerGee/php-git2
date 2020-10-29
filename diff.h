@@ -31,7 +31,7 @@ namespace php_git2
         {
         }
 
-        const git_diff_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        const git_diff_options* byval_git2()
         {
             if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
                 array_wrapper arr(value);
@@ -97,7 +97,7 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR(php_git_diff_find_options)
 
-        const git_diff_find_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        const git_diff_find_options* byval_git2()
         {
             if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
                 array_wrapper arr(value);
@@ -178,12 +178,12 @@ namespace php_git2
 
         using my_base::my_base;
 
-        zval** byref_php(unsigned pos)
+        zval* get_value()
         {
-            return &this->info.fileCallback.func;
+            return this->info.fileCallback.func;
         }
 
-        target_t byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        target_t byval_git2()
         {
             return this->get_cfunc(argno,this->info.fileCallback);
         }
@@ -200,12 +200,12 @@ namespace php_git2
 
         using my_base::my_base;
 
-        zval** byref_php(unsigned pos)
+        zval* get_value()
         {
-            return &this->info.binaryCallback.func;
+            return this->info.binaryCallback.func;
         }
 
-        target_t byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        target_t byval_git2()
         {
             return this->get_cfunc(argno,this->info.binaryCallback);
         }
@@ -222,12 +222,12 @@ namespace php_git2
 
         using my_base::my_base;
 
-        zval** byref_php(unsigned pos)
+        zval* get_value()
         {
-            return &this->info.hunkCallback.func;
+            return this->info.hunkCallback.func;
         }
 
-        target_t byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        target_t byval_git2()
         {
             return this->get_cfunc(argno,this->info.hunkCallback);
         }
@@ -244,12 +244,12 @@ namespace php_git2
 
         using my_base::my_base;
 
-        zval** byref_php(unsigned pos)
+        zval* get_value()
         {
-            return &this->info.lineCallback.func;
+            return this->info.lineCallback.func;
         }
 
-        target_t byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        target_t byval_git2()
         {
             return this->get_cfunc(argno,this->info.lineCallback);
         }
@@ -263,30 +263,30 @@ namespace php_git2
         {
         }
 
-        zval** byref_php(unsigned pos)
+        zval* get_value()
         {
-            return &info.zpayload;
+            return info.zpayload;
         }
 
-        void* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        void* byval_git2()
         {
             // Check types of all callbacks. All callbacks are allowed to be
             // null.
             if (!info.fileCallback.is_null() && !info.fileCallback.is_callable()) {
                 php_value_base::error_custom("Expected 'callable' for file callback",
-                    std::numeric_limits<unsigned>::max());
+                    ARGNO_MAX);
             }
             if (!info.binaryCallback.is_null() && !info.binaryCallback.is_callable()) {
                 php_value_base::error_custom("Expected 'callable' for binary callback",
-                    std::numeric_limits<unsigned>::max());
+                    ARGNO_MAX);
             }
             if (!info.hunkCallback.is_null() && !info.hunkCallback.is_callable()) {
                 php_value_base::error_custom("Expected 'callable' for hunk callback",
-                    std::numeric_limits<unsigned>::max());
+                    ARGNO_MAX);
             }
             if (!info.lineCallback.is_null() && !info.lineCallback.is_callable()) {
                 php_value_base::error_custom("Expected 'callable' for line callback",
-                    std::numeric_limits<unsigned>::max());
+                    ARGNO_MAX);
             }
 
             return reinterpret_cast<void*>(&info);
@@ -360,7 +360,7 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR(php_git_diff_perfdata)
 
-        git_diff_perfdata* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_diff_perfdata* byval_git2()
         {
             return &perfdata;
         }
@@ -394,7 +394,7 @@ namespace php_git2
             }
         }
 
-        const git_diff_format_email_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        const git_diff_format_email_options* byval_git2()
         {
             if (Z_TYPE_P(value) != IS_ARRAY) {
                 error("array",argno);
@@ -486,8 +486,7 @@ static constexpr auto ZIF_GIT_DIFF_BLOB_TO_BUFFER = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<0,1,3,4,5,6,7,8,9,10>,
-    php_git2::sequence<0,1,3,2,4,5,6,7,8,9,10>,
-    php_git2::sequence<0,1,2,0,3,4,5,6,7,8,9>
+    php_git2::sequence<0,1,3,2,4,5,6,7,8,9,10>
     >;
 
 static constexpr auto ZIF_GIT_DIFF_BLOBS = zif_php_git2_function<
@@ -556,8 +555,7 @@ static constexpr auto ZIF_GIT_DIFF_BUFFERS = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<1,2,4,5,6,7,8,9,10,11>,
-    php_git2::sequence<1,0,2,4,3,5,6,7,8,9,10,11>,
-    php_git2::sequence<0,0,1,0,2,3,4,5,6,7,8,9>
+    php_git2::sequence<1,0,2,4,3,5,6,7,8,9,10,11>
     >;
 
 static constexpr auto ZIF_GIT_DIFF_COMMIT_AS_EMAIL = zif_php_git2_function<
@@ -581,8 +579,7 @@ static constexpr auto ZIF_GIT_DIFF_COMMIT_AS_EMAIL = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3,4,5,6>,
-    php_git2::sequence<0,1,2,3,4,5,6>,
-    php_git2::sequence<0,0,1,2,3,4,5>
+    php_git2::sequence<0,1,2,3,4,5,6>
     >;
 
 static constexpr auto ZIF_GIT_DIFF_FROM_BUFFER = zif_php_git2_function<
@@ -598,8 +595,7 @@ static constexpr auto ZIF_GIT_DIFF_FROM_BUFFER = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<2>,
-    php_git2::sequence<0,2,1>,
-    php_git2::sequence<0,0,0>
+    php_git2::sequence<0,2,1>
     >;
 
 static constexpr auto ZIF_GIT_DIFF_PRINT = zif_php_git2_function<
@@ -631,7 +627,6 @@ static constexpr auto ZIF_GIT_DIFF_GET_DELTA = zif_php_git2_function_rethandler<
         php_git2::php_long_cast<size_t>
         >,
     php_git2::sequence<0,1>,
-    php_git2::sequence<0,1>,
     php_git2::sequence<0,1>
     >;
 
@@ -646,8 +641,7 @@ static constexpr auto ZIF_GIT_DIFF_GET_PERFDATA = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_DIFF_IS_SORTED_ICASE = zif_php_git2_function_rethandler<
@@ -708,8 +702,7 @@ static constexpr auto ZIF_GIT_DIFF_TO_BUF = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_DIFF_TREE_TO_TREE = zif_php_git2_function_setdeps<
@@ -730,8 +723,7 @@ static constexpr auto ZIF_GIT_DIFF_TREE_TO_TREE = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>, // Make the git_diff dependent on the git_repository
     1,
     php_git2::sequence<1,2,3,4>,
-    php_git2::sequence<0,1,2,3,4>,
-    php_git2::sequence<0,0,1,2,3>
+    php_git2::sequence<0,1,2,3,4>
     >;
 
 static constexpr auto ZIF_GIT_DIFF_TREE_TO_WORKDIR = zif_php_git2_function_setdeps<
@@ -750,8 +742,7 @@ static constexpr auto ZIF_GIT_DIFF_TREE_TO_WORKDIR = zif_php_git2_function_setde
     php_git2::sequence<0,1>, // Make the git_diff dependent on the git_repository
     1,
     php_git2::sequence<1,2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_DIFF_TREE_TO_WORKDIR_WITH_INDEX = zif_php_git2_function_setdeps<
@@ -770,8 +761,7 @@ static constexpr auto ZIF_GIT_DIFF_TREE_TO_WORKDIR_WITH_INDEX = zif_php_git2_fun
     php_git2::sequence<0,1>, // Make the git_diff dependent on the git_repository
     1,
     php_git2::sequence<1,2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_DIFF_STATUS_CHAR = zif_php_git2_function<
@@ -828,8 +818,7 @@ static constexpr auto ZIF_GIT_DIFF_GET_STATS = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_DIFF_STATS_FREE = zif_php_git2_function_free<
@@ -883,8 +872,7 @@ static constexpr auto ZIF_GIT_DIFF_STATS_TO_BUF = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_DIFF_FORMAT_EMAIL = zif_php_git2_function<
@@ -900,8 +888,7 @@ static constexpr auto ZIF_GIT_DIFF_FORMAT_EMAIL = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_DIFF_INDEX_TO_INDEX = zif_php_git2_function_setdeps<
@@ -922,8 +909,7 @@ static constexpr auto ZIF_GIT_DIFF_INDEX_TO_INDEX = zif_php_git2_function_setdep
     php_git2::sequence<0,1>, // Make the git_diff dependent on the git_repository
     1,
     php_git2::sequence<1,2,3,4>,
-    php_git2::sequence<0,1,2,3,4>,
-    php_git2::sequence<0,0,1,2,3>
+    php_git2::sequence<0,1,2,3,4>
     >;
 
 static constexpr auto ZIF_GIT_DIFF_TREE_TO_INDEX = zif_php_git2_function_setdeps<
@@ -944,8 +930,7 @@ static constexpr auto ZIF_GIT_DIFF_TREE_TO_INDEX = zif_php_git2_function_setdeps
     php_git2::sequence<0,1>, // Make the git_diff dependent on the git_repository
     1,
     php_git2::sequence<1,2,3,4>,
-    php_git2::sequence<0,1,2,3,4>,
-    php_git2::sequence<0,0,1,2,3>
+    php_git2::sequence<0,1,2,3,4>
     >;
 
 static constexpr auto ZIF_GIT_DIFF_INDEX_TO_WORKDIR = zif_php_git2_function_setdeps<
@@ -964,8 +949,7 @@ static constexpr auto ZIF_GIT_DIFF_INDEX_TO_WORKDIR = zif_php_git2_function_setd
     php_git2::sequence<0,1>, // Make the git_diff dependent on the git_repository
     1,
     php_git2::sequence<1,2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 
 // Function Entries:

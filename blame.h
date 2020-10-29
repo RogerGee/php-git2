@@ -29,7 +29,7 @@ namespace php_git2
             git_blame_init_options(&opts,GIT_BLAME_OPTIONS_VERSION);
         }
 
-        git_blame_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_blame_options* byval_git2()
         {
             if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
                 array_wrapper arr(value);
@@ -44,6 +44,7 @@ namespace php_git2
 
             return &opts;
         }
+
     private:
         git_blame_options opts;
     };
@@ -89,8 +90,7 @@ static constexpr auto ZIF_GIT_BLAME_FILE = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_BLAME_GET_HUNK_BYINDEX = zif_php_git2_function_rethandler<
@@ -151,8 +151,7 @@ static constexpr auto ZIF_GIT_BLAME_BUFFER = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,3>,
-    php_git2::sequence<0,1,3,2>,
-    php_git2::sequence<0,0,1,0>
+    php_git2::sequence<0,1,3,2>
     >;
 
 static constexpr auto ZIF_GIT_BLAME_FREE = zif_php_git2_function_free<

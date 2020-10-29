@@ -33,7 +33,7 @@ namespace php_git2
         {
         }
 
-        git_refdb_backend* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_refdb_backend* byval_git2()
         {
             // Make sure the zval is an object of or derived from class
             // GitRefDBBackend.
@@ -85,7 +85,7 @@ namespace php_git2
         {
         }
 
-        git_refdb_backend** byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_refdb_backend** byval_git2()
         {
             return &backend;
         }
@@ -116,8 +116,7 @@ static constexpr auto ZIF_GIT_REFDB_BACKEND_FS = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_REFDB_COMPRESS = zif_php_git2_function<
@@ -147,8 +146,7 @@ static constexpr auto ZIF_GIT_REFDB_NEW = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>, // Make the git_refdb dependent on the repository.
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_REFDB_OPEN = zif_php_git2_function_setdeps<
@@ -163,8 +161,7 @@ static constexpr auto ZIF_GIT_REFDB_OPEN = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>, // Make the git_refdb dependent on the repository.
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_REFDB_SET_BACKEND = zif_php_git2_function<
@@ -177,7 +174,6 @@ static constexpr auto ZIF_GIT_REFDB_SET_BACKEND = zif_php_git2_function<
         php_git2::php_resource<php_git2::php_git_refdb>
         >,
     -1,
-    php_git2::sequence<1,0>,
     php_git2::sequence<1,0>,
     php_git2::sequence<1,0>
     >;

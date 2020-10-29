@@ -121,9 +121,9 @@ namespace php_git2
         }
 
         typename T::target_t
-        byval_git2(unsigned argno = ARGNO_MAX)
+        byval_git2()
         {
-            return connector.byval_git2(argno);
+            return connector.byval_git2();
         }
 
         void ret(zval* return_value)
@@ -359,15 +359,14 @@ namespace php_git2
 
     template<typename FuncWrapper,
         typename... Ts,
-        unsigned... Ns,
-        unsigned... Ps>
+        unsigned... Ns
+        >
     inline typename FuncWrapper::return_type library_call(
         FuncWrapper&& wrapper,
         local_pack<Ts...>& pack,
-        sequence<Ns...>&& seq,
-        sequence<Ps...>&& pos)
+        sequence<Ns...>&& seq)
     {
-        return FuncWrapper::name(pack.template get<Ns>().byval_git2(Ps+1)...);
+        return FuncWrapper::name(pack.template get<Ns>().byval_git2()...);
     }
 
     // Provide template function overloads to handle return values. We enable
@@ -561,20 +560,14 @@ template<
     // integer in this case).
     int ReturnPos = -1,
 
-    // The sequence used to forward the local pack variables into the
+    // The sequence used to forward the local pack variables to the
     // zend_get_arguments() call.
     typename PHPForward = php_git2::make_seq<LocalVars::size()>,
 
-    // The sequence used to forward the local pack variables into the call to
-    // the wrapped libgit2 function.
-    typename GitForward = php_git2::make_seq<LocalVars::size()>,
-
-    // The sequence that describes the position of the arguments in the
-    // GitForward set relative to the PHP function call. This pack must be the
-    // same length as GitForward. For example, if GitForward is <2> and
-    // AllParams is <0> then this means that the third pack variable was the
-    // first argument to the PHP function.
-    typename AllParams = php_git2::make_seq<FuncWrapper::arg_count()> >
+    // The sequence used to forward the local pack variables to the wrapped
+    // libgit2 function call.
+    typename GitForward = php_git2::make_seq<LocalVars::size()>
+    >
 static void zif_php_git2_function(INTERNAL_FUNCTION_PARAMETERS)
 {
     php_git2::php_bailer bailer ZTS_CTOR;
@@ -592,7 +585,7 @@ static void zif_php_git2_function(INTERNAL_FUNCTION_PARAMETERS)
             php_git2::php_extract_args(vars,PHPForward());
 
             // Call wrapped function.
-            retval = php_git2::library_call(FuncWrapper(),vars,GitForward(),AllParams());
+            retval = php_git2::library_call(FuncWrapper(),vars,GitForward());
 
             // Check for errors (when return value is less than zero).
             if (php_git2::check_return(retval)) {
@@ -629,8 +622,7 @@ template<
     typename LocalVars,
     typename ReturnHandler,
     typename PHPForward = php_git2::make_seq<LocalVars::size()>,
-    typename GitForward = php_git2::make_seq<LocalVars::size()>,
-    typename AllParams = php_git2::make_seq<FuncWrapper::arg_count()>
+    typename GitForward = php_git2::make_seq<LocalVars::size()>
     >
 static void zif_php_git2_function_rethandler(INTERNAL_FUNCTION_PARAMETERS)
 {
@@ -649,7 +641,7 @@ static void zif_php_git2_function_rethandler(INTERNAL_FUNCTION_PARAMETERS)
             php_git2::php_extract_args(vars,PHPForward());
 
             // Call wrapped function.
-            retval = php_git2::library_call(FuncWrapper(),vars,GitForward(),AllParams());
+            retval = php_git2::library_call(FuncWrapper(),vars,GitForward());
 
             // Instantiate a return value handler to handle the return value.
             ReturnHandler rethandler ZTS_CTOR;
@@ -674,8 +666,7 @@ template<
     typename FuncWrapper,
     typename LocalVars,
     typename PHPForward = php_git2::make_seq<LocalVars::size()>,
-    typename GitForward = php_git2::make_seq<LocalVars::size()>,
-    typename AllParams = php_git2::make_seq<FuncWrapper::arg_count()>
+    typename GitForward = php_git2::make_seq<LocalVars::size()>
     >
 static void zif_php_git2_function_void(INTERNAL_FUNCTION_PARAMETERS)
 {
@@ -690,7 +681,7 @@ static void zif_php_git2_function_void(INTERNAL_FUNCTION_PARAMETERS)
     if (BAILOUT_ENTER_REGION(ctx)) {
         try {
             php_git2::php_extract_args(vars,PHPForward());
-            php_git2::library_call(FuncWrapper(),vars,GitForward(),AllParams());
+            php_git2::library_call(FuncWrapper(),vars,GitForward());
         } catch (php_git2::php_git2_exception_base& ex) {
             php_git2::php_bailout_context ctx2(bailer TSRMLS_CC);
 
@@ -714,8 +705,7 @@ template<
     typename ResourceDeps,
     int ReturnPos = -1,
     typename PHPForward = php_git2::make_seq<LocalVars::size()>,
-    typename GitForward = php_git2::make_seq<LocalVars::size()>,
-    typename AllParams = php_git2::make_seq<FuncWrapper::arg_count()>
+    typename GitForward = php_git2::make_seq<LocalVars::size()>
     >
 static void zif_php_git2_function_setdeps(INTERNAL_FUNCTION_PARAMETERS)
 {
@@ -734,7 +724,7 @@ static void zif_php_git2_function_setdeps(INTERNAL_FUNCTION_PARAMETERS)
             php_git2::php_extract_args(vars,PHPForward());
 
             // Call wrapped function.
-            retval = php_git2::library_call(FuncWrapper(),vars,GitForward(),AllParams());
+            retval = php_git2::library_call(FuncWrapper(),vars,GitForward());
 
             // Check for errors (when return value is less than zero).
             if (php_git2::check_return(retval)) {
@@ -766,8 +756,7 @@ template<
     typename ResourceDeps2,
     int ReturnPos = -1,
     typename PHPForward = php_git2::make_seq<LocalVars::size()>,
-    typename GitForward = php_git2::make_seq<LocalVars::size()>,
-    typename AllParams = php_git2::make_seq<FuncWrapper::arg_count()>
+    typename GitForward = php_git2::make_seq<LocalVars::size()>
     >
 static void zif_php_git2_function_setdeps2(INTERNAL_FUNCTION_PARAMETERS)
 {
@@ -786,7 +775,7 @@ static void zif_php_git2_function_setdeps2(INTERNAL_FUNCTION_PARAMETERS)
             php_git2::php_extract_args(vars,PHPForward());
 
             // Call wrapped function.
-            retval = php_git2::library_call(FuncWrapper(),vars,GitForward(),AllParams());
+            retval = php_git2::library_call(FuncWrapper(),vars,GitForward());
 
             // Check for errors (when return value is less than zero).
             if (php_git2::check_return(retval)) {
@@ -817,8 +806,7 @@ template<
     typename LocalVars,
     typename ResourceDeps,
     typename PHPForward = php_git2::make_seq<LocalVars::size()>,
-    typename GitForward = php_git2::make_seq<LocalVars::size()>,
-    typename AllParams = php_git2::make_seq<FuncWrapper::arg_count()>
+    typename GitForward = php_git2::make_seq<LocalVars::size()>
     >
 static void zif_php_git2_function_setdeps_void(INTERNAL_FUNCTION_PARAMETERS)
 {
@@ -836,7 +824,7 @@ static void zif_php_git2_function_setdeps_void(INTERNAL_FUNCTION_PARAMETERS)
             php_git2::php_extract_args(vars,PHPForward());
 
             // Make call to underlying git2 function.
-            php_git2::library_call(FuncWrapper(),vars,GitForward(),AllParams());
+            php_git2::library_call(FuncWrapper(),vars,GitForward());
 
             // Call function to set resource dependency.
             php_git2::php_set_resource_dependency(vars,ResourceDeps());
@@ -876,7 +864,7 @@ static void zif_php_git2_function_free(INTERNAL_FUNCTION_PARAMETERS)
             // byval_git2() member function to cause it to be freed. We never
             // call the library function directly since the resource handler
             // handles freeing instead.
-            vars.template get<0>().byval_git2(1);
+            vars.template get<0>().byval_git2();
         } catch (php_git2::php_git2_exception_base& ex) {
             php_git2::php_bailout_context ctx2(bailer TSRMLS_CC);
 

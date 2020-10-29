@@ -91,8 +91,7 @@ static constexpr auto ZIF_GIT_REVWALK_NEW = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_REVWALK_PUSH = zif_php_git2_function<
@@ -117,8 +116,7 @@ static constexpr auto ZIF_GIT_REVWALK_NEXT = zif_php_git2_function_rethandler<
         >,
     php_git2::revwalk_next_rethandler,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_REVWALK_HIDE = zif_php_git2_function<
@@ -171,8 +169,7 @@ static constexpr auto ZIF_GIT_REVWALK_ADD_HIDE_CB = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<1,0,0>,
-    php_git2::sequence<1,2,0>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<1,2,0>
     >;
 
 static constexpr auto ZIF_GIT_REVWALK_HIDE_GLOB = zif_php_git2_function<
@@ -257,7 +254,6 @@ static constexpr auto ZIF_GIT_REVWALK_REPOSITORY = zif_php_git2_function_rethand
         php_git2::php_resource_ref<php_git2::php_git_repository_nofree>
         >,
     php_git2::php_owner_rethandler<php_git2::php_git_revwalk>,
-    php_git2::sequence<0>,
     php_git2::sequence<0>,
     php_git2::sequence<0>
     >;

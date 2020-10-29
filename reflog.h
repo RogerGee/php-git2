@@ -123,8 +123,7 @@ static constexpr auto ZIF_GIT_REFLOG_READ = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_REFLOG_RENAME = zif_php_git2_function<

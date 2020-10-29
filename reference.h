@@ -40,8 +40,8 @@ static constexpr auto ZIF_GIT_REFERENCE_LIST = zif_php_git2_function<
         php_git2::php_resource<php_git2::php_git_repository> >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0> >;
+    php_git2::sequence<0,1>
+    >;
 
 static constexpr auto ZIF_GIT_REFERENCE_LOOKUP = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
@@ -56,8 +56,8 @@ static constexpr auto ZIF_GIT_REFERENCE_LOOKUP = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1> >;
+    php_git2::sequence<0,1,2>
+    >;
 
 static constexpr auto ZIF_GIT_REFERENCE_FREE = zif_php_git2_function_free<
     php_git2::local_pack<
@@ -76,8 +76,8 @@ static constexpr auto ZIF_GIT_REFERENCE_PEEL = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1> >;
+    php_git2::sequence<0,1,2>
+    >;
 
 static constexpr auto ZIF_GIT_REFERENCE_NAME_TO_ID = zif_php_git2_function<
     php_git2::func_wrapper<
@@ -91,8 +91,8 @@ static constexpr auto ZIF_GIT_REFERENCE_NAME_TO_ID = zif_php_git2_function<
         php_git2::php_string>,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1> >;
+    php_git2::sequence<0,1,2>
+    >;
 
 static constexpr auto ZIF_GIT_REFERENCE_CREATE = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
@@ -115,8 +115,7 @@ static constexpr auto ZIF_GIT_REFERENCE_CREATE = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,2,3,4,5>,
-    php_git2::sequence<0,1,2,3,4,5>,
-    php_git2::sequence<0,0,1,2,3,4>
+    php_git2::sequence<0,1,2,3,4,5>
     >;
 
 static constexpr auto ZIF_GIT_REFERENCE_CREATE_MATCHING = zif_php_git2_function_setdeps<
@@ -142,8 +141,7 @@ static constexpr auto ZIF_GIT_REFERENCE_CREATE_MATCHING = zif_php_git2_function_
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,2,3,4,5,6>,
-    php_git2::sequence<0,1,2,3,4,5,6>,
-    php_git2::sequence<0,0,1,2,3,4,5>
+    php_git2::sequence<0,1,2,3,4,5,6>
     >;
 
 static constexpr auto ZIF_GIT_REFERENCE_TARGET = zif_php_git2_function<
@@ -152,7 +150,8 @@ static constexpr auto ZIF_GIT_REFERENCE_TARGET = zif_php_git2_function<
         const git_reference*>::func<git_reference_target>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_reference> >,
-    0>;
+    0
+    >;
 
 static constexpr auto ZIF_GIT_REFERENCE_TARGET_PEEL = zif_php_git2_function<
     php_git2::func_wrapper<
@@ -160,7 +159,8 @@ static constexpr auto ZIF_GIT_REFERENCE_TARGET_PEEL = zif_php_git2_function<
         const git_reference*>::func<git_reference_target_peel>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_reference> >,
-    0>;
+    0
+    >;
 
 static constexpr auto ZIF_GIT_REFERENCE_NAME = zif_php_git2_function<
     php_git2::func_wrapper<
@@ -168,7 +168,8 @@ static constexpr auto ZIF_GIT_REFERENCE_NAME = zif_php_git2_function<
         const git_reference*>::func<git_reference_name>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_reference> >,
-    0>;
+    0
+    >;
 
 static constexpr auto ZIF_GIT_REFERENCE_CMP = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
@@ -236,8 +237,7 @@ static constexpr auto ZIF_GIT_REFERENCE_DUP = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_REFERENCE_DWIM = zif_php_git2_function_setdeps<
@@ -254,8 +254,7 @@ static constexpr auto ZIF_GIT_REFERENCE_DWIM = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_REFERENCE_ENSURE_LOG = zif_php_git2_function<
@@ -343,8 +342,7 @@ static constexpr auto ZIF_GIT_REFERENCE_ITERATOR_NEW = zif_php_git2_function_set
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_REFERENCE_ITERATOR_GLOB_NEW = zif_php_git2_function_setdeps<
@@ -361,8 +359,7 @@ static constexpr auto ZIF_GIT_REFERENCE_ITERATOR_GLOB_NEW = zif_php_git2_functio
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_REFERENCE_ITERATOR_FREE = zif_php_git2_function_free<
@@ -382,8 +379,7 @@ static constexpr auto ZIF_GIT_REFERENCE_NEXT = zif_php_git2_function_rethandler<
         >,
     php_git2::php_resource_iterover_rethandler<0,php_git2::sequence<0,1> >,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_REFERENCE_NEXT_NAME = zif_php_git2_function_rethandler<
@@ -397,8 +393,7 @@ static constexpr auto ZIF_GIT_REFERENCE_NEXT_NAME = zif_php_git2_function_rethan
         >,
     php_git2::php_iterover_rethandler<0>,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_REFERENCE_NORMALIZE_NAME = zif_php_git2_function<
@@ -416,8 +411,7 @@ static constexpr auto ZIF_GIT_REFERENCE_NORMALIZE_NAME = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_REFERENCE_OWNER = zif_php_git2_function_rethandler<
@@ -429,7 +423,6 @@ static constexpr auto ZIF_GIT_REFERENCE_OWNER = zif_php_git2_function_rethandler
         php_git2::php_resource_ref<php_git2::php_git_repository_nofree>
         >,
     php_git2::php_owner_rethandler<php_git2::php_git_reference>,
-    php_git2::sequence<0>,
     php_git2::sequence<0>,
     php_git2::sequence<0>
     >;
@@ -463,8 +456,7 @@ static constexpr auto ZIF_GIT_REFERENCE_RENAME = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,2,3,4>,
-    php_git2::sequence<0,1,2,3,4>,
-    php_git2::sequence<0,0,1,2,3>
+    php_git2::sequence<0,1,2,3,4>
     >;
 
 static constexpr auto ZIF_GIT_REFERENCE_RESOLVE = zif_php_git2_function_setdeps<
@@ -479,8 +471,7 @@ static constexpr auto ZIF_GIT_REFERENCE_RESOLVE = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_REFERENCE_SET_TARGET = zif_php_git2_function_setdeps<
@@ -499,8 +490,7 @@ static constexpr auto ZIF_GIT_REFERENCE_SET_TARGET = zif_php_git2_function_setde
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_REFERENCE_SHORTHAND = zif_php_git2_function<
@@ -536,7 +526,6 @@ static constexpr auto ZIF_GIT_REFERENCE_FOREACH = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<0,2,2>, // pass callback in twice for function and payload
-    php_git2::sequence<0,1,2>,
     php_git2::sequence<0,1,2>
     >;
 
@@ -572,7 +561,6 @@ static constexpr auto ZIF_GIT_REFERENCE_FOREACH_GLOB = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<0,1,3,3>, // pass callback in twice for function and payload
-    php_git2::sequence<0,1,2,3>,
     php_git2::sequence<0,1,2,3>
     >;
 
@@ -596,8 +584,7 @@ static constexpr auto ZIF_GIT_REFERENCE_SYMBOLIC_CREATE = zif_php_git2_function_
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,2,3,4,5>,
-    php_git2::sequence<0,1,2,3,4,5>,
-    php_git2::sequence<0,0,1,2,3,4>
+    php_git2::sequence<0,1,2,3,4,5>
     >;
 
 static constexpr auto ZIF_GIT_REFERENCE_SYMBOLIC_CREATE_MATCHING = zif_php_git2_function_setdeps<
@@ -622,8 +609,7 @@ static constexpr auto ZIF_GIT_REFERENCE_SYMBOLIC_CREATE_MATCHING = zif_php_git2_
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,2,3,4,5,6>,
-    php_git2::sequence<0,1,2,3,4,5,6>,
-    php_git2::sequence<0,0,1,2,3,4,5>
+    php_git2::sequence<0,1,2,3,4,5,6>
     >;
 
 static constexpr auto ZIF_GIT_REFERENCE_SYMBOLIC_SET_TARGET = zif_php_git2_function_setdeps<
@@ -642,8 +628,7 @@ static constexpr auto ZIF_GIT_REFERENCE_SYMBOLIC_SET_TARGET = zif_php_git2_funct
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_REFERENCE_SYMBOLIC_TARGET = zif_php_git2_function<

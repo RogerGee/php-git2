@@ -27,7 +27,7 @@ namespace php_git2
         {
         }
 
-        const git_rebase_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        const git_rebase_options* byval_git2()
         {
             if (Z_TYPE_P(value) == IS_ARRAY) {
                 array_wrapper arr(value);
@@ -58,7 +58,7 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR(php_git_rebase_operation)
 
-        git_rebase_operation** byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_rebase_operation** byval_git2()
         {
             return &operation;
         }
@@ -183,8 +183,7 @@ static constexpr auto ZIF_GIT_REBASE_INIT = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3,4,5>,
-    php_git2::sequence<0,1,2,3,4,5>,
-    php_git2::sequence<0,0,1,2,3,4>
+    php_git2::sequence<0,1,2,3,4,5>
     >;
 
 static constexpr auto ZIF_GIT_REBASE_INMEMORY_INDEX = zif_php_git2_function<
@@ -198,8 +197,7 @@ static constexpr auto ZIF_GIT_REBASE_INMEMORY_INDEX = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_REBASE_NEXT = zif_php_git2_function<
@@ -213,8 +211,7 @@ static constexpr auto ZIF_GIT_REBASE_NEXT = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_REBASE_OPEN = zif_php_git2_function<
@@ -230,8 +227,7 @@ static constexpr auto ZIF_GIT_REBASE_OPEN = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_REBASE_OPERATION_BYINDEX = zif_php_git2_function_rethandler<

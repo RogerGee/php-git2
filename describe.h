@@ -24,7 +24,7 @@ namespace php_git2
             git_describe_init_options(&opts,GIT_DESCRIBE_OPTIONS_VERSION);
         }
 
-        /*const*/ git_describe_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        /*const*/ git_describe_options* byval_git2()
         {
             if (Z_TYPE_P(value) == IS_ARRAY) {
                 array_wrapper arr(value);
@@ -56,7 +56,7 @@ namespace php_git2
             git_describe_init_format_options(&opts,GIT_DESCRIBE_FORMAT_OPTIONS_VERSION);
         }
 
-        const git_describe_format_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        const git_describe_format_options* byval_git2()
         {
             if (Z_TYPE_P(value) == IS_ARRAY) {
                 array_wrapper arr(value);
@@ -92,8 +92,7 @@ static constexpr auto ZIF_GIT_DESCRIBE_COMMIT = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_DESCRIBE_FORMAT = zif_php_git2_function<
@@ -109,8 +108,7 @@ static constexpr auto ZIF_GIT_DESCRIBE_FORMAT = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_DESCRIBE_RESULT_FREE = zif_php_git2_function_free<
@@ -132,8 +130,7 @@ static constexpr auto ZIF_GIT_DESCRIBE_WORKDIR = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 #define GIT_DESCRIBE_FE                                           \

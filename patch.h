@@ -23,7 +23,7 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR(php_git_diff_hunk)
 
-        const git_diff_hunk** byval_git2(unsigned p = std::numeric_limits<unsigned>::max())
+        const git_diff_hunk** byval_git2()
         {
             return &hunk;
         }
@@ -43,7 +43,7 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR(php_git_diff_line)
 
-        const git_diff_line** byval_git2(unsigned p = std::numeric_limits<unsigned>::max())
+        const git_diff_line** byval_git2()
         {
             return &line;
         }
@@ -88,8 +88,7 @@ static constexpr auto ZIF_GIT_PATCH_FROM_BLOB_AND_BUFFER = zif_php_git2_function
         >,
     1,
     php_git2::sequence<1,2,3,4,5,6>,
-    php_git2::sequence<0,1,2,3,4,5,6>,
-    php_git2::sequence<0,0,1,2,3,4,5>
+    php_git2::sequence<0,1,2,3,4,5,6>
     >;
 
 static constexpr auto ZIF_GIT_PATCH_FROM_BLOBS = zif_php_git2_function<
@@ -111,8 +110,7 @@ static constexpr auto ZIF_GIT_PATCH_FROM_BLOBS = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3,4,5>,
-    php_git2::sequence<0,1,2,3,4,5>,
-    php_git2::sequence<0,0,1,2,3,4>
+    php_git2::sequence<0,1,2,3,4,5>
     >;
 
 static constexpr auto ZIF_GIT_PATCH_FROM_BUFFERS = zif_php_git2_function<
@@ -138,8 +136,7 @@ static constexpr auto ZIF_GIT_PATCH_FROM_BUFFERS = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<2,3,5,6,7>,
-    php_git2::sequence<0,2,1,3,5,4,6,7>,
-    php_git2::sequence<0,0,0,1,2,2,3,4>
+    php_git2::sequence<0,2,1,3,5,4,6,7>
     >;
 
 static constexpr auto ZIF_GIT_PATCH_FROM_DIFF = zif_php_git2_function<
@@ -155,8 +152,7 @@ static constexpr auto ZIF_GIT_PATCH_FROM_DIFF = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_PATCH_GET_DELTA = zif_php_git2_function_rethandler<
@@ -186,8 +182,7 @@ static constexpr auto ZIF_GIT_PATCH_GET_HUNK = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 ZEND_BEGIN_ARG_INFO_EX(git_patch_get_hunk_arginfo,0,0,3)
     ZEND_ARG_PASS_INFO(1)
@@ -208,8 +203,7 @@ static constexpr auto ZIF_GIT_PATCH_GET_LINE_IN_HUNK = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_PATCH_LINE_STATS = zif_php_git2_function<
@@ -227,8 +221,7 @@ static constexpr auto ZIF_GIT_PATCH_LINE_STATS = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 ZEND_BEGIN_ARG_INFO_EX(git_patch_line_stats_arginfo,0,0,3)
     ZEND_ARG_PASS_INFO(1)
@@ -270,7 +263,6 @@ static constexpr auto ZIF_GIT_PATCH_PRINT = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<0,2,2>, // pass callback in twice for function and payload
-    php_git2::sequence<0,1,2>,
     php_git2::sequence<0,1,2>
     >;
 
@@ -301,8 +293,7 @@ static constexpr auto ZIF_GIT_PATCH_TO_BUF = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 // Function Entries

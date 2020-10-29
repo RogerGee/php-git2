@@ -31,7 +31,7 @@ namespace php_git2
             git_submodule_update_init_options(&opts,GIT_SUBMODULE_UPDATE_OPTIONS_VERSION);
         }
 
-        git_submodule_update_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_submodule_update_options* byval_git2()
         {
             if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
                 array_wrapper arr(value);
@@ -84,8 +84,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_ADD_SETUP = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3,4>,
-    php_git2::sequence<0,1,2,3,4>,
-    php_git2::sequence<0,0,1,2,3>
+    php_git2::sequence<0,1,2,3,4>
     >;
 
 static constexpr auto ZIF_GIT_SUBMODULE_ADD_TO_INDEX = zif_php_git2_function<
@@ -132,7 +131,6 @@ static constexpr auto ZIF_GIT_SUBMODULE_FOREACH = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<0,2,2>, // pass callback in twice for function and payload
-    php_git2::sequence<0,1,2>,
     php_git2::sequence<0,1,2>
     >;
 
@@ -194,8 +192,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_LOCATION = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_SUBMODULE_LOOKUP = zif_php_git2_function<
@@ -211,8 +208,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_LOOKUP = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_SUBMODULE_NAME = zif_php_git2_function<
@@ -236,8 +232,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_OPEN = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_SUBMODULE_OWNER = zif_php_git2_function_rethandler<
@@ -249,7 +244,6 @@ static constexpr auto ZIF_GIT_SUBMODULE_OWNER = zif_php_git2_function_rethandler
         php_git2::php_resource_ref<php_git2::php_git_repository_nofree>
         >,
     php_git2::php_owner_rethandler<php_git2::php_git_submodule>,
-    php_git2::sequence<0>,
     php_git2::sequence<0>,
     php_git2::sequence<0>
     >;
@@ -288,8 +282,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_REPO_INIT = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_SUBMODULE_RESOLVE_URL = zif_php_git2_function<
@@ -305,8 +298,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_RESOLVE_URL = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_SUBMODULE_SET_BRANCH = zif_php_git2_function<
@@ -389,8 +381,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_STATUS = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_SUBMODULE_SYNC = zif_php_git2_function<

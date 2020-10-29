@@ -25,7 +25,7 @@ namespace php_git2
             git_merge_init_options(&opts,GIT_MERGE_OPTIONS_VERSION);
         }
 
-        git_merge_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_merge_options* byval_git2()
         {
             if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
                 array_wrapper arr(value);
@@ -61,7 +61,7 @@ namespace php_git2
             git_merge_file_init_options(&opts,GIT_MERGE_FILE_OPTIONS_VERSION);
         }
 
-        const git_merge_file_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        const git_merge_file_options* byval_git2()
         {
             if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
                 array_wrapper arr(value);
@@ -92,7 +92,7 @@ namespace php_git2
             git_merge_file_init_input(&input,GIT_MERGE_FILE_INPUT_VERSION);
         }
 
-        const git_merge_file_input* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        const git_merge_file_input* byval_git2()
         {
             if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
                 array_wrapper arr(value);
@@ -122,7 +122,7 @@ namespace php_git2
             git_merge_file_result_free(&result);
         }
 
-        git_merge_file_result* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_merge_file_result* byval_git2()
         {
             return &result;
         }
@@ -169,8 +169,7 @@ static constexpr auto ZIF_GIT_MERGE = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<0,2,3,4>,
-    php_git2::sequence<0,2,1,3,4>,
-    php_git2::sequence<0,1,0,2,3>
+    php_git2::sequence<0,2,1,3,4>
     >;
 
 static constexpr auto ZIF_GIT_MERGE_ANALYSIS = zif_php_git2_function<
@@ -190,8 +189,7 @@ static constexpr auto ZIF_GIT_MERGE_ANALYSIS = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,4>,
-    php_git2::sequence<0,1,2,4,3>,
-    php_git2::sequence<0,0,1,2,0>
+    php_git2::sequence<0,1,2,4,3>
     >;
 ZEND_BEGIN_ARG_INFO_EX(git_merge_analysis_arginfo,0,0,3)
     ZEND_ARG_PASS_INFO(1)
@@ -212,8 +210,7 @@ static constexpr auto ZIF_GIT_MERGE_BASE = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_MERGE_BASE_MANY = zif_php_git2_function<
@@ -236,8 +233,7 @@ static constexpr auto ZIF_GIT_MERGE_BASE_MANY = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,0,1>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_MERGE_BASE_OCTOPUS = zif_php_git2_function<
@@ -260,8 +256,7 @@ static constexpr auto ZIF_GIT_MERGE_BASE_OCTOPUS = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,0,1>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_MERGE_BASES = zif_php_git2_function<
@@ -279,8 +274,7 @@ static constexpr auto ZIF_GIT_MERGE_BASES = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_MERGE_BASES_MANY = zif_php_git2_function<
@@ -303,8 +297,7 @@ static constexpr auto ZIF_GIT_MERGE_BASES_MANY = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,0,1>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_MERGE_COMMITS = zif_php_git2_function<
@@ -324,8 +317,7 @@ static constexpr auto ZIF_GIT_MERGE_COMMITS = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3,4>,
-    php_git2::sequence<0,1,2,3,4>,
-    php_git2::sequence<0,0,1,2,3>
+    php_git2::sequence<0,1,2,3,4>
     >;
 
 /*static constexpr auto ZIF_GIT_MERGE_DRIVER_LOOKUP = zif_php_git2_function<
@@ -336,7 +328,6 @@ static constexpr auto ZIF_GIT_MERGE_COMMITS = zif_php_git2_function<
 
         >,
     -1,
-    php_git2::sequence<>,
     php_git2::sequence<>,
     php_git2::sequence<>
     >;
@@ -350,7 +341,6 @@ static constexpr auto ZIF_GIT_MERGE_DRIVER_REGISTER = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<>,
-    php_git2::sequence<>,
     php_git2::sequence<>
     >;
 
@@ -362,7 +352,6 @@ static constexpr auto ZIF_GIT_MERGE_DRIVER_SOURCE_ANCESTOR = zif_php_git2_functi
 
         >,
     -1,
-    php_git2::sequence<>,
     php_git2::sequence<>,
     php_git2::sequence<>
     >;
@@ -376,7 +365,6 @@ static constexpr auto ZIF_GIT_MERGE_DRIVER_SOURCE_FILE_OPTIONS = zif_php_git2_fu
         >,
     -1,
     php_git2::sequence<>,
-    php_git2::sequence<>,
     php_git2::sequence<>
     >;
 
@@ -388,7 +376,6 @@ static constexpr auto ZIF_GIT_MERGE_DRIVER_SOURCE_OURS = zif_php_git2_function<
 
         >,
     -1,
-    php_git2::sequence<>,
     php_git2::sequence<>,
     php_git2::sequence<>
     >;
@@ -402,7 +389,6 @@ static constexpr auto ZIF_GIT_MERGE_DRIVER_SOURCE_REPO = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<>,
-    php_git2::sequence<>,
     php_git2::sequence<>
     >;
 
@@ -415,7 +401,6 @@ static constexpr auto ZIF_GIT_MERGE_DRIVER_SOURCE_THEIRS = zif_php_git2_function
         >,
     -1,
     php_git2::sequence<>,
-    php_git2::sequence<>,
     php_git2::sequence<>
     >;
 
@@ -427,7 +412,6 @@ static constexpr auto ZIF_GIT_MERGE_DRIVER_UNREGISTER = zif_php_git2_function<
 
         >,
     -1,
-    php_git2::sequence<>,
     php_git2::sequence<>,
     php_git2::sequence<>
     >;
@@ -449,8 +433,7 @@ static constexpr auto ZIF_GIT_MERGE_FILE = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3,4>,
-    php_git2::sequence<0,1,2,3,4>,
-    php_git2::sequence<0,0,1,2,3>
+    php_git2::sequence<0,1,2,3,4>
     >;
 
 static constexpr auto ZIF_GIT_MERGE_FILE_FROM_INDEX = zif_php_git2_function<
@@ -472,8 +455,7 @@ static constexpr auto ZIF_GIT_MERGE_FILE_FROM_INDEX = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3,4,5>,
-    php_git2::sequence<0,1,2,3,4,5>,
-    php_git2::sequence<0,0,1,2,3,4>
+    php_git2::sequence<0,1,2,3,4,5>
     >;
 
 static constexpr auto ZIF_GIT_MERGE_TREES = zif_php_git2_function<
@@ -495,8 +477,7 @@ static constexpr auto ZIF_GIT_MERGE_TREES = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3,4,5>,
-    php_git2::sequence<0,1,2,3,4,5>,
-    php_git2::sequence<0,0,1,2,3,4>
+    php_git2::sequence<0,1,2,3,4,5>
     >;
 
 #define GIT_MERGE_FE                                                    \

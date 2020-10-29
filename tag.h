@@ -39,8 +39,7 @@ static constexpr auto ZIF_GIT_TAG_ANNOTATION_CREATE = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3,4,5>,
-    php_git2::sequence<0,1,2,3,4,5>,
-    php_git2::sequence<0,0,1,2,3,4>
+    php_git2::sequence<0,1,2,3,4,5>
     >;
 
 static constexpr auto ZIF_GIT_TAG_CREATE = zif_php_git2_function<
@@ -64,8 +63,7 @@ static constexpr auto ZIF_GIT_TAG_CREATE = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3,4,5,6>,
-    php_git2::sequence<0,1,2,3,4,5,6>,
-    php_git2::sequence<0,0,1,2,3,4,5>
+    php_git2::sequence<0,1,2,3,4,5,6>
     >;
 
 static constexpr auto ZIF_GIT_TAG_CREATE_FROMBUFFER = zif_php_git2_function<
@@ -83,8 +81,7 @@ static constexpr auto ZIF_GIT_TAG_CREATE_FROMBUFFER = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_TAG_CREATE_LIGHTWEIGHT = zif_php_git2_function<
@@ -104,8 +101,7 @@ static constexpr auto ZIF_GIT_TAG_CREATE_LIGHTWEIGHT = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3,4>,
-    php_git2::sequence<0,1,2,3,4>,
-    php_git2::sequence<0,0,1,2,3>
+    php_git2::sequence<0,1,2,3,4>
     >;
 
 static constexpr auto ZIF_GIT_TAG_LOOKUP = zif_php_git2_function_setdeps<
@@ -122,8 +118,7 @@ static constexpr auto ZIF_GIT_TAG_LOOKUP = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_TAG_LOOKUP_PREFIX = zif_php_git2_function_setdeps<
@@ -143,8 +138,7 @@ static constexpr auto ZIF_GIT_TAG_LOOKUP_PREFIX = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,3>,
-    php_git2::sequence<0,1,3,2>,
-    php_git2::sequence<0,0,1,0>
+    php_git2::sequence<0,1,3,2>
     >;
 
 static constexpr auto ZIF_GIT_TAG_FREE = zif_php_git2_function_free<
@@ -203,7 +197,6 @@ static constexpr auto ZIF_GIT_TAG_OWNER = zif_php_git2_function_rethandler<
         >,
     php_git2::php_owner_rethandler<php_git2::php_git_tag>,
     php_git2::sequence<0>,
-    php_git2::sequence<0>,
     php_git2::sequence<0>
     >;
 
@@ -219,8 +212,7 @@ static constexpr auto ZIF_GIT_TAG_PEEL = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_TAG_TARGET = zif_php_git2_function_setdeps<
@@ -235,8 +227,7 @@ static constexpr auto ZIF_GIT_TAG_TARGET = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_TAG_TAGGER = zif_php_git2_function_rethandler<
@@ -285,8 +276,7 @@ static constexpr auto ZIF_GIT_TAG_DUP = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_TAG_LIST = zif_php_git2_function<
@@ -300,8 +290,7 @@ static constexpr auto ZIF_GIT_TAG_LIST = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_TAG_LIST_MATCH = zif_php_git2_function<
@@ -317,8 +306,7 @@ static constexpr auto ZIF_GIT_TAG_LIST_MATCH = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_TAG_FOREACH = zif_php_git2_function<
@@ -334,7 +322,6 @@ static constexpr auto ZIF_GIT_TAG_FOREACH = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<0,2,2>, // pass callback in twice for function and payload
-    php_git2::sequence<0,1,2>,
     php_git2::sequence<0,1,2>
     >;
 
