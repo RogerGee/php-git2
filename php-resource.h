@@ -1,5 +1,5 @@
 /*
- * git2-resource.h
+ * php-resource.h
  *
  * Copyright (C) Roger P. Gee
  */
@@ -47,6 +47,7 @@ namespace php_git2
                 efree(self);
             }
         }
+
     protected:
         git2_resource_base():
             ref(1), parent(nullptr)
@@ -57,6 +58,7 @@ namespace php_git2
         {
             return (--ref <= 0);
         }
+
     private:
         virtual bool free_handle() = 0;
 
@@ -129,7 +131,10 @@ namespace php_git2
         static void define_resource_type(int moduleNumber)
         {
             le = zend_register_list_destructors_ex(
-                destroy_resource, nullptr, typeid(git2_type).name(), moduleNumber);
+                destroy_resource,
+                nullptr,
+                resource_name(),
+                moduleNumber);
         }
 
         static int resource_le()
@@ -141,6 +146,7 @@ namespace php_git2
         {
             return typeid(git2_type).name();
         }
+
     private:
         static int le;
 
@@ -165,6 +171,7 @@ namespace php_git2
                 handle = nullptr;
                 return true;
             }
+
             return false;
         }
 

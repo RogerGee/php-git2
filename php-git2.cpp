@@ -5,7 +5,7 @@
  */
 
 #include "php-git2.h"
-#include "git2-resource.h"
+#include "php-resource.h"
 #include "php-object.h"
 using namespace std;
 using namespace php_git2;

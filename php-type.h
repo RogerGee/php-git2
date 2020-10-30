@@ -7,7 +7,7 @@
 #ifndef PHPGIT2_TYPE_H
 #define PHPGIT2_TYPE_H
 #include "php-array.h"
-#include "git2-resource.h"
+#include "php-resource.h"
 #include <new>
 #include <limits>
 
