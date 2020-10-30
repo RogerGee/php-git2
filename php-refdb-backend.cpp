@@ -59,21 +59,21 @@ static int reflog_entry_from_array(git_reflog_entry** out,zval* zarr)
 
     array_wrapper arr(zarr);
 
-    if (!arr.query("oid_old",sizeof("oid_old"))) {
+    if (!arr.query("oid_old",sizeof("oid_old")-1)) {
         giterr_set_str(GIT_EINVALID,"Reflog entry must have 'oid_old' member");
         return GIT_ERROR;
     }
     oid_old = arr.get_string();
     oid_old_len = arr.get_string_length();
 
-    if (!arr.query("oid_cur",sizeof("oid_cur"))) {
+    if (!arr.query("oid_cur",sizeof("oid_cur")-1)) {
         giterr_set_str(GIT_EINVALID,"Reflog entry must have 'oid_cur' member");
         return GIT_ERROR;
     }
     oid_cur = arr.get_string();
     oid_cur_len = arr.get_string_length();
 
-    if (!arr.query("committer",sizeof("committer"))) {
+    if (!arr.query("committer",sizeof("committer")-1)) {
         giterr_set_str(GIT_EINVALID,"Reflog entry must have 'committer' member");
         return GIT_ERROR;
     }
@@ -83,7 +83,7 @@ static int reflog_entry_from_array(git_reflog_entry** out,zval* zarr)
         return GIT_ERROR;
     }
 
-    if (!arr.query("msg",sizeof("msg"))) {
+    if (!arr.query("msg",sizeof("msg")-1)) {
         giterr_set_str(GIT_EINVALID,"Reflog entry must have 'msg' member");
         return GIT_ERROR;
     }

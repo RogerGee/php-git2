@@ -92,7 +92,7 @@ ZEND_EXTERN_MODULE_GLOBALS(git2)
 #define UNUSED(var) ((void)var)
 
 #define add_assoc_const_string(zv,key,str)                  \
-    add_assoc_string_ex(zv,key,sizeof(key),(char*)str,1)
+    add_assoc_string_ex(zv,key,sizeof(key),(char*)str)
 
 // Create a macro for managing bailout context regions.
 
@@ -367,32 +367,33 @@ namespace php_git2
 
     // Provide a type to facilitate converting PHP exceptions.
 
-    class php_exception_wrapper:
-        private php_zts_base
+    class php_exception_wrapper
     {
     public:
-        php_exception_wrapper(TSRMLS_D):
-            php_zts_base(TSRMLS_C), zex(EG(exception))
+        php_exception_wrapper():
+            ex(EG(exception))
         {
         }
 
         bool has_exception() const
         {
-            return zex != nullptr;
+            return ex != nullptr;
         }
 
         void handle()
         {
-            zend_clear_exception(TSRMLS_C);
+            zend_clear_exception();
+            ex = nullptr;
         }
 
         void set_giterr() const;
         void throw_php_git2_exception() const;
+
     private:
         php_exception_wrapper(const php_exception_wrapper&) = delete;
         php_exception_wrapper& operator =(const php_exception_wrapper&) = delete;
 
-        zval* zex;
+        zend_object* ex;
     };
 
     // Provide a function to handle a generic libgit2 error. It is generic for

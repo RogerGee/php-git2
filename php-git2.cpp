@@ -823,19 +823,19 @@ git_signature* php_git2::convert_signature(zval* zv)
 
     array_wrapper arr(zv);
 
-    if (!arr.query("name",sizeof("name"))) {
+    if (!arr.query("name",sizeof("name")-1)) {
         return nullptr;
     }
     name = arr.get_string();
-    if (!arr.query("email",sizeof("email"))) {
+    if (!arr.query("email",sizeof("email")-1)) {
         return nullptr;
     }
     email = arr.get_string();
-    if (!arr.query("when.time",sizeof("when.time"))) {
+    if (!arr.query("when.time",sizeof("when.time")-1)) {
         return nullptr;
     }
     time = arr.get_long();
-    if (!arr.query("when.offset",sizeof("when.offset"))) {
+    if (!arr.query("when.offset",sizeof("when.offset")-1)) {
         return nullptr;
     }
     offset = arr.get_long();
@@ -852,49 +852,49 @@ int php_git2::convert_transfer_progress(git_transfer_progress& stats,zval* zv)
     bool failure = false;
     array_wrapper arr(zv);
 
-    if (arr.query("total_objects",sizeof("total_objects"))) {
+    if (arr.query("total_objects",sizeof("total_objects")-1)) {
         stats.total_objects = static_cast<int>(arr.get_long());
     }
     else {
         failure = true;
     }
 
-    if (arr.query("indexed_objects",sizeof("indexed_objects"))) {
+    if (arr.query("indexed_objects",sizeof("indexed_objects")-1)) {
         stats.indexed_objects = static_cast<int>(arr.get_long());
     }
     else {
         failure = true;
     }
 
-    if (arr.query("received_objects",sizeof("received_objects"))) {
+    if (arr.query("received_objects",sizeof("received_objects")-1)) {
         stats.received_objects = static_cast<int>(arr.get_long());
     }
     else {
         failure = true;
     }
 
-    if (arr.query("local_objects",sizeof("local_objects"))) {
+    if (arr.query("local_objects",sizeof("local_objects")-1)) {
         stats.local_objects = static_cast<int>(arr.get_long());
     }
     else {
         failure = true;
     }
 
-    if (arr.query("total_deltas",sizeof("total_deltas"))) {
+    if (arr.query("total_deltas",sizeof("total_deltas")-1)) {
         stats.total_deltas = static_cast<int>(arr.get_long());
     }
     else {
         failure = true;
     }
 
-    if (arr.query("indexed_deltas",sizeof("indexed_deltas"))) {
+    if (arr.query("indexed_deltas",sizeof("indexed_deltas")-1)) {
         stats.indexed_deltas = static_cast<int>(arr.get_long());
     }
     else {
         failure = true;
     }
 
-    if (arr.query("received_bytes",sizeof("received_bytes"))) {
+    if (arr.query("received_bytes",sizeof("received_bytes")-1)) {
         stats.received_bytes = static_cast<int>(arr.get_long());
     }
     else {

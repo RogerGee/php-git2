@@ -171,7 +171,7 @@ namespace php_git2
             RETVAL_STRING(Z_STRVAL(value));
         }
 
-    private:
+    protected:
         virtual void parse_impl(zval* zvp,int argno)
         {
             char* s;
@@ -211,11 +211,11 @@ namespace php_git2
             return php_string::byval_git2();
         }
 
-    private:
+    protected:
         virtual void parse_impl(zval* zvp,int argno)
         {
             if (Z_TYPE_P(zvp) == IS_NULL) {
-                ZVAL_NULL(value);
+                ZVAL_NULL(&value);
                 return;
             }
 
@@ -266,10 +266,10 @@ namespace php_git2
         ~php_string_out()
         {
             if (ptr == nullptr) {
-                ZVAL_NULL(value);
+                ZVAL_NULL(&value);
             }
             else {
-                ZVAL_STRING(value,ptr);
+                ZVAL_STRING(&value,ptr);
             }
         }
 
@@ -442,7 +442,7 @@ namespace php_git2
 
         ~php_long_out()
         {
-            ZVAL_LONG(value,static_cast<zend_long>(n));
+            ZVAL_LONG(&value,static_cast<zend_long>(n));
         }
 
         IntType* byval_git2()
@@ -503,7 +503,7 @@ namespace php_git2
                 // Fetch the resource handle. Zend will perform error checking
                 // on the resource type.
                 rsrc = static_cast<GitResource*>(
-                    zend_fetch_resource(Z_RESVAL(value),
+                    zend_fetch_resource(Z_RES(value),
                         GitResource::resource_name(),
                         GitResource::resource_le())
                     );
@@ -529,7 +529,7 @@ namespace php_git2
 
         typename GitResource::git2_type byval_git2()
         {
-            GitResource* res = php_resource<GitResource>::get_object(argno);
+            GitResource* res = php_resource<GitResource>::get_object();
 
             // Ensure that the underlying handle is owned by the resource before
             // returning it.
@@ -580,7 +580,7 @@ namespace php_git2
             zend_register_resource(return_value,rsrc,GitResource::resource_le() TSRMLS_CC);
         }
 
-        GitResource* get_object(unsigned argno = ARGNO_MAX) const
+        GitResource* get_object() const
         {
             // Retrieve the resource object, creating it if it does not exist.
             if (rsrc == nullptr) {
@@ -651,7 +651,7 @@ namespace php_git2
             }
         }
 
-        GitResource* get_object(unsigned argno = ARGNO_MAX)
+        GitResource* get_object()
         {
             // Return the resource backing if the handle was non-NULL. Otherwise
             // return NULL.
@@ -693,6 +693,9 @@ namespace php_git2
         {
             return const_cast<zval*>(&value);
         }
+
+    protected:
+        using php_resource<GitResource>::value;
     };
 
     template<typename GitResource>
@@ -708,6 +711,9 @@ namespace php_git2
         {
             php_resource_nullable_ref<GitResource>::ret(value);
         }
+
+    protected:
+        using php_resource<GitResource>::value;
     };
 
     // Provide a type that represents an optional resource value (one that could
@@ -720,8 +726,7 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR_WITH_BASE(php_resource_nullable,php_resource<GitResource>)
 
-        typename GitResource::git2_type
-        byval_git2()
+        typename GitResource::git2_type byval_git2()
         {
             GitResource* rsrc;
 
@@ -733,7 +738,7 @@ namespace php_git2
             // Fetch the resource handle. Zend will perform error checking on
             // the resource type.
             rsrc = static_cast<GitResource*>(
-                zend_fetch_resource(ZEND_RESVAL(value),
+                zend_fetch_resource(Z_RES(value),
                     GitResource::resource_name(),
                     GitResource::resource_le())
                 );
@@ -750,11 +755,14 @@ namespace php_git2
             return nullptr;
         }
 
+    protected:
+        using php_resource<GitResource>::value;
+
     private:
         virtual void parse_impl(zval* zvp,int argno)
         {
             if (Z_TYPE_P(zvp) == IS_NULL) {
-                ZVAL_NULL(value);
+                ZVAL_NULL(&value);
                 return;
             }
 
@@ -782,7 +790,7 @@ namespace php_git2
 
             // Fetch the resource handle.
             rsrc = static_cast<GitResource*>(
-                zend_fetch_resource(Z_RESVAL(value),
+                zend_fetch_resource(Z_RES(value),
                     GitResource::resource_name(),
                     GitResource::resource_le())
                 );
@@ -795,7 +803,7 @@ namespace php_git2
             // invalidated across any zvals that reference it, and the
             // underlying handle will be destroyed (if it has no more
             // references).
-            zend_hash_index_del(&EG(regular_list),Z_RESVAL(value));
+            zend_hash_index_del(&EG(regular_list),Z_RES_HANDLE(value));
             value = nullptr;
 
             // The return value should not be used. We do not attempt frees
@@ -910,7 +918,7 @@ namespace php_git2
 
         ~php_git_oid_out()
         {
-            ret(value);
+            php_string::ret(&value);
         }
     };
 
@@ -976,7 +984,7 @@ namespace php_git2
             for (size_t i = 0;i < arr.count;++i) {
                 char buf[GIT_OID_HEXSZ + 1];
                 git_oid_tostr(buf,sizeof(buf),arr.ids + i);
-                add_next_index_string(return_value,buf,1);
+                add_next_index_string(return_value,buf);
             }
         }
 
@@ -1026,7 +1034,7 @@ namespace php_git2
 
         ~php_git_buf_out()
         {
-            ret(value);
+            php_string::ret(&value);
         }
     };
 

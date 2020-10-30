@@ -150,9 +150,9 @@ namespace php_git2
     private:
         static int le;
 
-        static void destroy_resource(zend_rsrc_list_entry* rsrc TSRMLS_DC)
+        static void destroy_resource(zend_resource* res)
         {
-            git2_resource* self = reinterpret_cast<git2_resource*>(rsrc->ptr);
+            git2_resource* self = reinterpret_cast<git2_resource*>(res->ptr);
             free_recursive(self);
         }
 

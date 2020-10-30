@@ -410,7 +410,7 @@ namespace php_git2
             GIT2_ARRAY_LOOKUP_STRING(arr,summary,opts);
             GIT2_ARRAY_LOOKUP_STRING(arr,body,opts);
 
-            if (arr.query("author",sizeof("author"))) {
+            if (arr.query("author",sizeof("author")-1)) {
                 zval* zv = arr.get_zval();
                 git_signature* author;
 

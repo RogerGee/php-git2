@@ -12,7 +12,7 @@ array_wrapper::array_wrapper(zval* zarray):
 {
     // Give 'tmp' an initial value so that we have it in a known state
     // initially.
-    INIT_ZVAL(tmp);
+    ZVAL_UNDEF(&tmp);
 }
 
 array_wrapper::~array_wrapper()
@@ -23,22 +23,22 @@ array_wrapper::~array_wrapper()
 bool array_wrapper::query(const char* key,size_t keysz)
 {
     usesTmp = false;
-    if (zend_hash_find(ht,key,keysz,(void**)&zvp) != FAILURE) {
+    zvp = zend_hash_str_find(ht,key,keysz);
+    if (zvp != nullptr) {
         return true;
     }
 
-    zvp = nullptr;
     return false;
 }
 
 bool array_wrapper::query(int index)
 {
     usesTmp = false;
-    if (zend_hash_index_find(ht,index,(void**)&zvp) != FAILURE) {
+    zvp = zend_hash_index_find(ht,index);
+    if (zvp != nullptr) {
         return true;
     }
 
-    zvp = nullptr;
     return false;
 }
 
@@ -100,11 +100,12 @@ bool array_wrapper::get_bool() const
 zval* array_wrapper::get_zval() const
 {
     if (found()) {
-        return *zvp;
+        return zvp;
     }
 
     zval_dtor(&tmp);
     ZVAL_NULL(&tmp);
+
     return &tmp;
 }
 
@@ -135,8 +136,7 @@ zval* array_wrapper::copy_if_not_type(int type) const
         zval_dtor(zv);
 
         // Copy the zval into the temporary zval.
-        ZVAL_COPY_VALUE(zv,*zvp);
-        zval_copy_ctor(zv);
+        ZVAL_DUP(zv,zvp);
 
         // Convert the copied zval.
         convert_to_explicit_type(zv,type);
