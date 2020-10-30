@@ -313,21 +313,21 @@ namespace php_git2
 
     // Provide a function that extracts zvals into a local pack.
 
-    void php_extract_args_impl(int nargs,zval* args,php_value* dest);
+    void php_extract_args_impl(int nargs,zval* args,php_value* dest,int ngiven);
 
     template<typename... Ts,unsigned... Ns>
-    inline void php_extract_args(local_pack<Ts...>& pack,sequence<Ns...>&& seq)
+    inline void php_extract_args(local_pack<Ts...>& pack,sequence<Ns...>&& seq,int ngiven)
     {
         constexpr int NARGS = sizeof...(Ns);
 
         zval args[NARGS];
         php_value* dest[] = { pack.template get<Ns>()... };
 
-        php_extract_args_impl(NARGS,args,dest);
+        php_extract_args_impl(NARGS,args,dest,ngiven);
     }
 
     template<typename... Ts>
-    inline void php_extract_args(local_pack<Ts...>&,sequence<>&&)
+    inline void php_extract_args(local_pack<Ts...>&,sequence<>&&,int)
     {
         // Specialize call for empty sequence where no args need to be extracted
         // from userspace.
@@ -582,7 +582,7 @@ static void zif_php_git2_function(INTERNAL_FUNCTION_PARAMETERS)
     if (BAILOUT_ENTER_REGION(ctx)) {
         try {
             // Obtain values from PHP userspace.
-            php_git2::php_extract_args(vars,PHPForward());
+            php_git2::php_extract_args(vars,PHPForward(),(int)ZEND_NUM_ARGS());
 
             // Call wrapped function.
             retval = php_git2::library_call(FuncWrapper(),vars,GitForward());
@@ -638,7 +638,7 @@ static void zif_php_git2_function_rethandler(INTERNAL_FUNCTION_PARAMETERS)
     if (BAILOUT_ENTER_REGION(ctx)) {
         try {
             // Obtain values from PHP userspace.
-            php_git2::php_extract_args(vars,PHPForward());
+            php_git2::php_extract_args(vars,PHPForward(),(int)ZEND_NUM_ARGS());
 
             // Call wrapped function.
             retval = php_git2::library_call(FuncWrapper(),vars,GitForward());
@@ -680,7 +680,7 @@ static void zif_php_git2_function_void(INTERNAL_FUNCTION_PARAMETERS)
 
     if (BAILOUT_ENTER_REGION(ctx)) {
         try {
-            php_git2::php_extract_args(vars,PHPForward());
+            php_git2::php_extract_args(vars,PHPForward(),(int)ZEND_NUM_ARGS());
             php_git2::library_call(FuncWrapper(),vars,GitForward());
         } catch (php_git2::php_git2_exception_base& ex) {
             php_git2::php_bailout_context ctx2(bailer TSRMLS_CC);
@@ -721,7 +721,7 @@ static void zif_php_git2_function_setdeps(INTERNAL_FUNCTION_PARAMETERS)
     if (BAILOUT_ENTER_REGION(ctx)) {
         try {
             // Obtain values from PHP userspace.
-            php_git2::php_extract_args(vars,PHPForward());
+            php_git2::php_extract_args(vars,PHPForward(),(int)ZEND_NUM_ARGS());
 
             // Call wrapped function.
             retval = php_git2::library_call(FuncWrapper(),vars,GitForward());
@@ -772,7 +772,7 @@ static void zif_php_git2_function_setdeps2(INTERNAL_FUNCTION_PARAMETERS)
     if (BAILOUT_ENTER_REGION(ctx)) {
         try {
             // Obtain values from PHP userspace.
-            php_git2::php_extract_args(vars,PHPForward());
+            php_git2::php_extract_args(vars,PHPForward(),(int)ZEND_NUM_ARGS());
 
             // Call wrapped function.
             retval = php_git2::library_call(FuncWrapper(),vars,GitForward());
@@ -821,7 +821,7 @@ static void zif_php_git2_function_setdeps_void(INTERNAL_FUNCTION_PARAMETERS)
     if (BAILOUT_ENTER_REGION(ctx)) {
         try {
             // Obtain values from PHP userspace.
-            php_git2::php_extract_args(vars,PHPForward());
+            php_git2::php_extract_args(vars,PHPForward(),(int)ZEND_NUM_ARGS());
 
             // Make call to underlying git2 function.
             php_git2::library_call(FuncWrapper(),vars,GitForward());
@@ -858,7 +858,7 @@ static void zif_php_git2_function_free(INTERNAL_FUNCTION_PARAMETERS)
 
     if (BAILOUT_ENTER_REGION(ctx)) {
         try {
-            php_git2::php_extract_args(vars,PHPForward());
+            php_git2::php_extract_args(vars,PHPForward(),(int)ZEND_NUM_ARGS());
 
             // Assume the first element is the resource to delete. Call its
             // byval_git2() member function to cause it to be freed. We never

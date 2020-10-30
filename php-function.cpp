@@ -7,7 +7,7 @@
 #include "php-function.h"
 using namespace php_git2;
 
-void php_git2::php_extract_args_impl(int nargs,zval* args,php_value* dest)
+void php_git2::php_extract_args_impl(int nargs,zval* args,php_value* dest,int ngiven)
 {
     int result;
 
@@ -19,7 +19,10 @@ void php_git2::php_extract_args_impl(int nargs,zval* args,php_value* dest)
     }
 
     if (result == FAILURE) {
-        php_error(E_ERROR,"Incorrect number of arguments passed to function");
+        throw php_git2_exception("%s() expects exactly %d parameters, %d given",
+            get_active_function_name(),
+            nargs,
+            ngiven);
     }
 }
 
