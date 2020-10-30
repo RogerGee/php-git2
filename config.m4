@@ -33,6 +33,7 @@ if test $PHP_GIT2 != "no"; then
     PHP_NEW_EXTENSION(git2,php-git2.cpp \
         php-git2-fe.cpp \
         php-function.cpp \
+        php-type.cpp \
         php-constants.cpp \
         php-callback.cpp \
         php-object.cpp \

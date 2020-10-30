@@ -54,15 +54,15 @@ namespace php_git2
     class php_value;
 
     template<>
-    class php_value<zend_long>:
+    class php_value<long>:
         public php_value_base
     {
     public:
         ZTS_CONSTRUCTOR(php_value)
 
-        zend_long byval_git2() const
+        long byval_git2() const
         {
-            return Z_LVAL(value);
+            return static_cast<long>(Z_LVAL(value));
         }
 
         void ret(zval* return_value) const
@@ -73,8 +73,13 @@ namespace php_git2
     private:
         virtual void parse_impl(zval* zvp,int argno)
         {
+            int result;
             zend_long dummy;
-            zend_parse_parameter(0,argno,zvp,"l",&dummy);
+
+            result = zend_parse_parameter(ZEND_PARSE_PARAMS_THROW,argno,zvp,"l",&dummy);
+            if (result == FAILURE) {
+                throw php_git2_propagated_exception();
+            }
 
             ZVAL_COPY_VALUE(&value,zvp);
         }
@@ -104,8 +109,13 @@ namespace php_git2
     private:
         virtual void parse_impl(zval* zvp,int argno)
         {
+            int result;
             zend_bool dummy;
-            zend_parse_parameter(0,argno,zvp,"b",&dummy);
+
+            result = zend_parse_parameter(ZEND_PARSE_PARAMS_THROW,argno,zvp,"b",&dummy);
+            if (result == FAILURE) {
+                throw php_git2_propagated_exception();
+            }
 
             ZVAL_COPY_VALUE(&value,zvp);
         }
@@ -131,8 +141,13 @@ namespace php_git2
     private:
         virtual void parse_impl(zval* zvp,int argno)
         {
+            int result;
             double dummy;
-            zend_parse_parameter(0,argno,zvp,"d",&dummy);
+
+            result = zend_parse_parameter(ZEND_PARSE_PARAMS_THROW,argno,zvp,"d",&dummy);
+            if (result == FAILURE) {
+                throw php_git2_propagated_exception();
+            }
 
             ZVAL_COPY_VALUE(&value,zvp);
         }
@@ -161,7 +176,12 @@ namespace php_git2
         {
             char* s;
             size_t l;
-            zend_parse_parameter(0,argno,zvp,"s",&s,&l);
+            int result;
+
+            result = zend_parse_parameter(ZEND_PARSE_PARAMS_THROW,argno,zvp,"s",&s,&l);
+            if (result == FAILURE) {
+                throw php_git2_propagated_exception();
+            }
 
             ZVAL_COPY_VALUE(&value,zvp);
         }
@@ -170,7 +190,7 @@ namespace php_git2
     // Provide basic type definitions for the core types.
 
     using php_bool = php_value<bool>;
-    using php_long = php_value<zend_long>;
+    using php_long = php_value<long>;
     using php_double = php_value<double>;
     using php_string = php_value<const char*>;
 
@@ -437,9 +457,16 @@ namespace php_git2
     // as a value (for a created resource) and another when it is used by
     // reference (for an uncreated resource).
 
+    class php_resource_base:
+        public php_value_base
+    {
+    private:
+        virtual void parse_impl(zval* zvp,int argno);
+    };
+
     template<typename GitResource>
     class php_resource:
-        public php_value_base,
+        public php_resource_base,
         protected php_zts_base
     {
     public:
@@ -464,7 +491,7 @@ namespace php_git2
         }
 
     private:
-        // Store the resource object.
+        // Cache the resource object.
         GitResource* rsrc;
 
         GitResource* lookup()
@@ -485,14 +512,6 @@ namespace php_git2
 
             return rsrc;
         }
-
-        virtual void parse_impl(zval* zvp,int argno)
-        {
-            zval* dummy;
-            zend_parse_parameters(0,argno,zvp,"r",&dummy);
-
-            ZVAL_COPY_VALUE(&value,zvp);
-        }
     };
 
     template<typename GitResource>
@@ -505,8 +524,7 @@ namespace php_git2
         {
         }
 
-        typename GitResource::git2_type
-        byval_git2()
+        typename GitResource::git2_type byval_git2()
         {
             GitResource* res = php_resource<GitResource>::get_object(argno);
 
@@ -530,8 +548,7 @@ namespace php_git2
         {
         }
 
-        typename GitResource::git2_type*
-        byval_git2()
+        typename GitResource::git2_type* byval_git2()
         {
             // Create a resource backing instance if it does not already exist.
             if (rsrc == nullptr) {
@@ -539,12 +556,9 @@ namespace php_git2
             }
 
             return rsrc->get_handle_byref();
-
-            UNUSED(argno);
         }
 
-        typename GitResource::const_git2_type*
-        byval_git2() const
+        typename GitResource::const_git2_type* byval_git2() const
         {
             // Create a resource backing instance if it does not already exist.
             if (rsrc == nullptr) {
@@ -555,8 +569,6 @@ namespace php_git2
             // force the compiler to call the correct overloaded member
             // function. We have to do this since it's mutable.
             return const_cast<const GitResource*>(rsrc)->get_handle_byref();
-
-            UNUSED(argno);
         }
 
         void ret(zval* return_value) const
@@ -1052,9 +1064,16 @@ namespace php_git2
     // contexts. The memory is designed to persist for the duration of a
     // function call. The SourceType should be some php_value_base derivation.
 
+    class php_array_base:
+        public php_value_base
+    {
+    private:
+        virtual void parse_impl(zval* zvp,int argno);
+    };
+
     template<typename SourceType,typename ConvertType>
     class php_array:
-        public php_value_base,
+        public php_array_base,
         private php_zts_base
     {
     public:
@@ -1119,18 +1138,11 @@ namespace php_git2
         {
             return cnt;
         }
+
     private:
         long cnt;
         SourceType* sources;
         ConvertType* data;
-
-        virtual void parse_impl(zval* zvp,int argno)
-        {
-            zval* dummy;
-            zend_parse_parameter(0,argno,zvp,"a",&dummy);
-
-            ZVAL_COPY_VALUE(&value,zvp);
-        }
     };
 
     // Provide an array connector that returns the array length.

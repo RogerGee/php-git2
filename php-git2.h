@@ -310,7 +310,7 @@ namespace php_git2
         virtual void handle(TSRMLS_D) const noexcept
         {
             // Transform the exception into a PHP exception.
-            zend_throw_exception(nullptr,what(),code TSRMLS_CC);
+            zend_throw_exception(nullptr,what(),code);
         }
     };
 
