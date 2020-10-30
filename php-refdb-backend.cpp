@@ -345,7 +345,7 @@ void php_refdb_backend_object::assign_owner(php_git_refdb* newOwner)
     method_wrapper method("exists",backend);
 
     MAKE_STD_ZVAL(zrefname);
-    ZVAL_STRING(zrefname,ref_name,1);
+    ZVAL_STRING(zrefname,ref_name);
 
     // Call userspace method implementation corresponding to refdb operation.
 
@@ -378,7 +378,7 @@ void php_refdb_backend_object::assign_owner(php_git_refdb* newOwner)
     method_wrapper method("lookup",backend);
 
     MAKE_STD_ZVAL(zrefname);
-    ZVAL_STRING(zrefname,ref_name,1);
+    ZVAL_STRING(zrefname,ref_name);
 
     // Call userspace method implementation corresponding to refdb operation.
 
@@ -412,7 +412,7 @@ void php_refdb_backend_object::assign_owner(php_git_refdb* newOwner)
 
     ALLOC_INIT_ZVAL(zglob);
     if (glob != nullptr) {
-        ZVAL_STRING(zglob,glob,1);
+        ZVAL_STRING(zglob,glob);
     }
 
     // Call userspace method implementation corresponding to refdb operation.
@@ -491,13 +491,13 @@ void php_refdb_backend_object::assign_owner(php_git_refdb* newOwner)
     ZVAL_BOOL(zforce,force);
     convert_signature(zwho,who);
     if (message != NULL) {
-        ZVAL_STRING(zmessage,message,1);
+        ZVAL_STRING(zmessage,message);
     }
     if (old != nullptr) {
         convert_oid(zold,old);
     }
     if (old_target != nullptr) {
-        ZVAL_STRING(zoldtarget,old_target,1);
+        ZVAL_STRING(zoldtarget,old_target);
     }
 
     // Call userspace method implementation corresponding to refdb operation.
@@ -541,12 +541,12 @@ void php_refdb_backend_object::assign_owner(php_git_refdb* newOwner)
     MAKE_STD_ZVAL(zwho);
     ALLOC_INIT_ZVAL(zmessage);
 
-    ZVAL_STRING(zoldname,old_name,1);
-    ZVAL_STRING(znewname,new_name,1);
+    ZVAL_STRING(zoldname,old_name);
+    ZVAL_STRING(znewname,new_name);
     ZVAL_BOOL(zforce,1);
     convert_signature(zwho,who);
     if (message != nullptr) {
-        ZVAL_STRING(zmessage,message,1);
+        ZVAL_STRING(zmessage,message);
     }
 
     // Call userspace method implementation corresponding to refdb operation.
@@ -588,12 +588,12 @@ void php_refdb_backend_object::assign_owner(php_git_refdb* newOwner)
     ALLOC_INIT_ZVAL(zoldid);
     ALLOC_INIT_ZVAL(zoldtarget);
 
-    ZVAL_STRING(zrefname,ref_name,1);
+    ZVAL_STRING(zrefname,ref_name);
     if (old_id != nullptr) {
         convert_oid(zoldid,old_id);
     }
     if (old_target != nullptr) {
-        ZVAL_STRING(zoldtarget,old_target,1);
+        ZVAL_STRING(zoldtarget,old_target);
     }
 
     // Call userspace method implementation corresponding to refdb operation.
@@ -632,7 +632,7 @@ void php_refdb_backend_object::assign_owner(php_git_refdb* newOwner)
     method_wrapper method("has_log",backend);
 
     MAKE_STD_ZVAL(zrefname);
-    ZVAL_STRING(zrefname,refname,1);
+    ZVAL_STRING(zrefname,refname);
 
     // Call userspace method implementation corresponding to refdb operation.
 
@@ -662,7 +662,7 @@ void php_refdb_backend_object::assign_owner(php_git_refdb* newOwner)
     method_wrapper method("ensure_log",backend);
 
     MAKE_STD_ZVAL(zrefname);
-    ZVAL_STRING(zrefname,refname,1);
+    ZVAL_STRING(zrefname,refname);
 
     // Call userspace method implementation corresponding to refdb operation.
 
@@ -693,7 +693,7 @@ void php_refdb_backend_object::assign_owner(php_git_refdb* newOwner)
     method_wrapper method("reflog_read",backend);
 
     MAKE_STD_ZVAL(zname);
-    ZVAL_STRING(zname,name,1);
+    ZVAL_STRING(zname,name);
 
     // Call userspace method implementation corresponding to refdb operation.
 
@@ -801,8 +801,8 @@ void php_refdb_backend_object::assign_owner(php_git_refdb* newOwner)
 
     MAKE_STD_ZVAL(zoldname);
     MAKE_STD_ZVAL(znewname);
-    ZVAL_STRING(zoldname,old_name,1);
-    ZVAL_STRING(znewname,new_name,1);
+    ZVAL_STRING(zoldname,old_name);
+    ZVAL_STRING(znewname,new_name);
 
     // Call userspace method implementation corresponding to refdb operation.
 
@@ -826,7 +826,7 @@ void php_refdb_backend_object::assign_owner(php_git_refdb* newOwner)
     method_wrapper method("reflog_delete",backend);
 
     MAKE_STD_ZVAL(zname);
-    ZVAL_STRING(zname,name,1);
+    ZVAL_STRING(zname,name);
 
     // Call userspace method implementation corresponding to refdb operation.
 
@@ -850,7 +850,7 @@ void php_refdb_backend_object::assign_owner(php_git_refdb* newOwner)
     method_wrapper method("lock",backend);
 
     MAKE_STD_ZVAL(zrefname);
-    ZVAL_STRING(zrefname,refname,1);
+    ZVAL_STRING(zrefname,refname);
 
     // Call userspace method implementation corresponding to refdb operation.
 
@@ -928,7 +928,7 @@ void php_refdb_backend_object::assign_owner(php_git_refdb* newOwner)
 
     convert_signature(zsig,sig);
     if (message != nullptr) {
-        ZVAL_STRING(zmessage,message,1);
+        ZVAL_STRING(zmessage,message);
     }
 
     // Call userspace method implementation corresponding to refdb operation.

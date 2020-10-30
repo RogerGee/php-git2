@@ -36,7 +36,7 @@ static constexpr auto ZIF_GIT_TREEBUILDER_NEW = zif_php_git2_function_setdeps<
     php_git2::local_pack<
         php_git2::php_resource_ref<php_git2::php_git_treebuilder>,
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_resource_null<php_git2::php_git_tree>
+        php_git2::php_resource_nullable<php_git2::php_git_tree>
         >,
     php_git2::sequence<0,1>,
     1,

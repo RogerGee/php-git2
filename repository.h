@@ -142,7 +142,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_DISCOVER = zif_php_git2_function<
         php_git2::php_git_buf,
         php_git2::php_string,
         php_git2::php_bool,
-        php_git2::php_nullable_string
+        php_git2::php_string_nullable
         >,
     1,
     php_git2::sequence<1,2,3>,
@@ -181,7 +181,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_HASHFILE = zif_php_git2_function<
         php_git2::php_resource<php_git2::php_git_repository>,
         php_git2::php_string,
         php_git2::php_long_cast<git_otype>,
-        php_git2::php_nullable_string
+        php_git2::php_string_nullable
         >,
     1,
     php_git2::sequence<1,2,3,4>,
@@ -371,7 +371,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_OPEN_EXT = zif_php_git2_function<
         const char*>::func<git_repository_open_ext>,
     php_git2::local_pack<
         php_git2::php_resource_ref<php_git2::php_git_repository>,
-        php_git2::php_nullable_string,
+        php_git2::php_string_nullable,
         php_git2::php_long_cast<unsigned int>,
         php_git2::php_string
         >,

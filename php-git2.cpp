@@ -394,7 +394,7 @@ void php_git2::convert_oid(zval* zv,const git_oid* oid)
     char buf[GIT_OID_HEXSZ + 1];
 
     git_oid_tostr(buf,sizeof(buf),oid);
-    ZVAL_STRINGL(zv,buf,GIT_OID_HEXSZ,1);
+    ZVAL_STRINGL(zv,buf,GIT_OID_HEXSZ);
 }
 
 void php_git2::convert_oid_prefix(zval* zv,const git_oid* prefix,size_t len)
@@ -406,7 +406,7 @@ void php_git2::convert_oid_prefix(zval* zv,const git_oid* prefix,size_t len)
     }
 
     git_oid_tostr(buf,len,prefix);
-    ZVAL_STRING(zv,buf,1);
+    ZVAL_STRING(zv,buf);
 }
 
 void php_git2::convert_transfer_progress(zval* zv,const git_transfer_progress* stats)
@@ -444,23 +444,23 @@ void php_git2::convert_blame_hunk(zval* zv,const git_blame_hunk* hunk)
     array_init(zv);
     add_assoc_long(zv,"lines_in_hunk",hunk->lines_in_hunk);
     git_oid_tostr(buf,sizeof(buf),&hunk->final_commit_id);
-    add_assoc_string(zv,"final_commit_id",buf,1);
+    add_assoc_string(zv,"final_commit_id",buf);
     add_assoc_long(zv,"final_start_line_number",hunk->final_start_line_number);
-    add_assoc_string(zv,"final_signature.name",hunk->final_signature->name,1);
-    add_assoc_string(zv,"final_signature.email",hunk->final_signature->email,1);
+    add_assoc_string(zv,"final_signature.name",hunk->final_signature->name);
+    add_assoc_string(zv,"final_signature.email",hunk->final_signature->email);
     add_assoc_long(zv,"final_signature.when.time",hunk->final_signature->when.time);
     add_assoc_long(zv,"final_signature.when.offset",hunk->final_signature->when.offset);
     git_oid_tostr(buf,sizeof(buf),&hunk->orig_commit_id);
-    add_assoc_string(zv,"orig_commit_id",buf,1);
-    add_assoc_string(zv,"orig_path",const_cast<char*>(hunk->orig_path),1);
+    add_assoc_string(zv,"orig_commit_id",buf);
+    add_assoc_string(zv,"orig_path",const_cast<char*>(hunk->orig_path));
     add_assoc_long(zv,"orig_start_line_number",hunk->orig_start_line_number);
-    add_assoc_string(zv,"orig_signature.name",hunk->orig_signature->name,1);
-    add_assoc_string(zv,"orig_signature.email",hunk->orig_signature->email,1);
+    add_assoc_string(zv,"orig_signature.name",hunk->orig_signature->name);
+    add_assoc_string(zv,"orig_signature.email",hunk->orig_signature->email);
     add_assoc_long(zv,"orig_signature.when.time",hunk->orig_signature->when.time);
     add_assoc_long(zv,"orig_signature.when.offset",hunk->orig_signature->when.offset);
     buf[0] = hunk->boundary;
     buf[1] = 0;
-    add_assoc_string(zv,"boundary",buf,1);
+    add_assoc_string(zv,"boundary",buf);
 }
 
 void php_git2::convert_diff_delta(zval* zv,const git_diff_delta* delta)
@@ -504,7 +504,7 @@ void php_git2::convert_diff_file(zval* zv,const git_diff_file* file)
     array_init(zv);
     git_oid_tostr(buf,sizeof(buf),&file->id);
     buf[idlen] = 0;
-    add_assoc_stringl(zv,"id",buf,GIT_OID_HEXSZ,1);
+    add_assoc_stringl(zv,"id",buf,GIT_OID_HEXSZ);
     add_assoc_const_string(zv,"path",file->path);
     add_assoc_long_ex(zv,"size",sizeof("size"),file->size);
     add_assoc_long_ex(zv,"flags",sizeof("flags"),file->flags);
@@ -545,7 +545,11 @@ void php_git2::convert_diff_binary_file(zval* zv,const git_diff_binary_file* fil
         add_assoc_null_ex(zv,"data",sizeof("data"));
     }
     else {
-        add_assoc_stringl_ex(zv,"data",sizeof("data"),const_cast<char*>(file->data),file->datalen,1);
+        add_assoc_stringl_ex(zv,
+            "data",
+            sizeof("data"),
+            const_cast<char*>(file->data),
+            file->datalen);
     }
     add_assoc_long_ex(zv,"inflatedlen",sizeof("inflatedlen"),file->inflatedlen);
 }
@@ -564,7 +568,7 @@ void php_git2::convert_diff_hunk(zval* zv,const git_diff_hunk* hunk)
     add_assoc_long_ex(zv,"new_lines",sizeof("new_lines"),hunk->new_lines);
 
     // The header is NUL terminated so we just let PHP copy it over.
-    add_assoc_string_ex(zv,"header",sizeof("header"),const_cast<char*>(hunk->header),1);
+    add_assoc_string_ex(zv,"header",sizeof("header"),const_cast<char*>(hunk->header));
 }
 
 void php_git2::convert_diff_line(zval* zv,const git_diff_line* line)
@@ -580,7 +584,11 @@ void php_git2::convert_diff_line(zval* zv,const git_diff_line* line)
     add_assoc_long_ex(zv,"new_lineno",sizeof("new_lineno"),line->new_lineno);
     add_assoc_long_ex(zv,"num_lines",sizeof("num_lines"),line->num_lines);
     add_assoc_long_ex(zv,"content_offset",sizeof("content_offset"),line->content_offset);
-    add_assoc_stringl_ex(zv,"content",sizeof("content"),const_cast<char*>(line->content),line->content_len,1);
+    add_assoc_stringl_ex(zv,
+        "content",
+        sizeof("content"),
+        const_cast<char*>(line->content),
+        line->content_len);
 }
 
 void php_git2::convert_diff_perfdata(zval* zv,const git_diff_perfdata* perfdata)
@@ -593,8 +601,8 @@ void php_git2::convert_diff_perfdata(zval* zv,const git_diff_perfdata* perfdata)
 void php_git2::convert_signature(zval* zv,const git_signature* sig)
 {
     array_init(zv);
-    add_assoc_string(zv,"name",sig->name,1);
-    add_assoc_string(zv,"email",sig->email,1);
+    add_assoc_string(zv,"name",sig->name);
+    add_assoc_string(zv,"email",sig->email);
     add_assoc_long(zv,"when.time",sig->when.time);
     add_assoc_long(zv,"when.offset",sig->when.offset);
 }
@@ -618,11 +626,11 @@ void php_git2::convert_index_entry(zval* zv,const git_index_entry* ent)
     add_assoc_long_ex(zv,"gid",sizeof("gid"),ent->gid);
     add_assoc_long_ex(zv,"file_size",sizeof("file_size"),ent->file_size);
     git_oid_tostr(buf,sizeof(buf),&ent->id);
-    add_assoc_string_ex(zv,"id",sizeof("id"),buf,1);
+    add_assoc_string_ex(zv,"id",sizeof("id"),buf);
     add_assoc_long_ex(zv,"flags",sizeof("flags"),ent->flags);
     add_assoc_long_ex(zv,"flags_extended",sizeof("flags_extended"),ent->flags_extended);
     if (ent->path != nullptr) {
-        add_assoc_string_ex(zv,"path",sizeof("path"),const_cast<char*>(ent->path),1);
+        add_assoc_string_ex(zv,"path",sizeof("path"),const_cast<char*>(ent->path));
     }
     else {
         add_assoc_null_ex(zv,"path",sizeof("path"));
@@ -667,10 +675,10 @@ void php_git2::convert_merge_file_result(zval* zv,const git_merge_file_result* r
         add_assoc_null(zv,"path");
     }
     else {
-        add_assoc_string(zv,"path",const_cast<char*>(res->path),1);
+        add_assoc_string(zv,"path",const_cast<char*>(res->path));
     }
     add_assoc_long(zv,"mode",res->mode);
-    add_assoc_stringl(zv,"ptr",const_cast<char*>(res->ptr),res->len,1);
+    add_assoc_stringl(zv,"ptr",const_cast<char*>(res->ptr),res->len);
 }
 
 void php_git2::convert_reflog_entry(zval* zv,const git_reflog_entry* ent)
@@ -699,7 +707,7 @@ void php_git2::convert_reflog_entry(zval* zv,const git_reflog_entry* ent)
         add_assoc_null(zv,"message");
     }
     else {
-        add_assoc_string(zv,"message",const_cast<char*>(msg),1);
+        add_assoc_string(zv,"message",const_cast<char*>(msg));
     }
 }
 void php_git2::convert_reflog(zval* zv,const git_reflog* log)
@@ -737,7 +745,7 @@ void php_git2::convert_rebase_operation(zval* zv,const git_rebase_operation* ope
     add_assoc_zval_ex(zv,"id",sizeof("id"),zid);
 
     if (oper->exec != nullptr) {
-        add_assoc_string(zv,"exec",const_cast<char*>(oper->exec),1);
+        add_assoc_string(zv,"exec",const_cast<char*>(oper->exec));
     }
     else {
         add_assoc_null(zv,"exec");
@@ -758,8 +766,8 @@ void php_git2::convert_push_update(zval* zv,const git_push_update* up)
 
     array_init(zv);
 
-    add_assoc_string(zv,"src_refname",up->src_refname,1);
-    add_assoc_string(zv,"dst_refname",up->dst_refname,1);
+    add_assoc_string(zv,"src_refname",up->src_refname);
+    add_assoc_string(zv,"dst_refname",up->dst_refname);
 
     MAKE_STD_ZVAL(zoidsrc);
     MAKE_STD_ZVAL(zoiddst);
@@ -789,9 +797,9 @@ void php_git2::convert_remote_head(zval* zv,const git_remote_head* head)
     add_assoc_zval(zv,"oid",zoid);
     add_assoc_zval(zv,"loid",zloid);
 
-    add_assoc_string(zv,"name",head->name,1);
+    add_assoc_string(zv,"name",head->name);
     if (head->symref_target != nullptr) {
-        add_assoc_string(zv,"symref_target",head->symref_target,1);
+        add_assoc_string(zv,"symref_target",head->symref_target);
     }
     else {
         add_assoc_null(zv,"symref_target");

@@ -67,7 +67,7 @@ static constexpr auto ZIF_GIT_NOTE_CREATE = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_git_oid,
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_nullable_string,
+        php_git2::php_string_nullable,
         php_git2::php_resource<php_git2::php_git_signature>,
         php_git2::php_resource<php_git2::php_git_signature>,
         php_git2::php_git_oid_fromstr,
@@ -88,7 +88,7 @@ static constexpr auto ZIF_GIT_NOTE_FOREACH = zif_php_git2_function<
         void*>::func<git_note_foreach>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_nullable_string,
+        php_git2::php_string_nullable,
         php_git2::php_callback_handler<php_git2::note_foreach_callback>,
         php_git2::php_callback_sync
         >,
@@ -128,7 +128,7 @@ static constexpr auto ZIF_GIT_NOTE_ITERATOR_NEW = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_resource_ref<php_git2::php_git_note_iterator>,
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_nullable_string
+        php_git2::php_string_nullable
         >,
     1,
     php_git2::sequence<1,2>,
@@ -174,7 +174,7 @@ static constexpr auto ZIF_GIT_NOTE_READ = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_resource_ref<php_git2::php_git_note>,
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_nullable_string,
+        php_git2::php_string_nullable,
         php_git2::php_git_oid_fromstr
         >,
     1,
@@ -192,7 +192,7 @@ static constexpr auto ZIF_GIT_NOTE_REMOVE = zif_php_git2_function<
         const git_oid*>::func<git_note_remove>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_nullable_string,
+        php_git2::php_string_nullable,
         php_git2::php_resource<php_git2::php_git_signature>,
         php_git2::php_resource<php_git2::php_git_signature>,
         php_git2::php_git_oid_fromstr

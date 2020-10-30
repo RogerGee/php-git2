@@ -831,9 +831,9 @@ int note_foreach_callback::callback(const git_oid* blob_id,
     char buf[GIT_OID_HEXSZ + 1];
 
     git_oid_tostr(buf,sizeof(buf),blob_id);
-    ZVAL_STRING(params[0],buf,1);
+    ZVAL_STRING(params[0],buf);
     git_oid_tostr(buf,sizeof(buf),annotated_object_id);
-    ZVAL_STRING(params[1],buf,1);
+    ZVAL_STRING(params[1],buf);
     params.assign<2>(cb->data);
 
     result = params.call(cb->func,&retval);
@@ -862,7 +862,7 @@ int stash_callback::callback(size_t index,
 
     params.assign<0>(index,message);
     git_oid_tostr(buf,sizeof(buf),stash_id);
-    ZVAL_STRING(params[2],buf,1);
+    ZVAL_STRING(params[2],buf);
     params.assign<3>(cb->data);
 
     result = params.call(cb->func,&retval);

@@ -107,7 +107,7 @@ static constexpr auto ZIF_GIT_INDEXER_NEW = zif_php_git2_function_setdeps<
         php_git2::php_resource_ref<php_git2::php_git_indexer_with_stats>,
         php_git2::php_string,
         php_git2::php_long,
-        php_git2::php_resource_null<php_git2::php_git_odb>
+        php_git2::php_resource_nullable<php_git2::php_git_odb>
         >,
     php_git2::sequence<2,5>,
     3,

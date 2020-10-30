@@ -267,7 +267,7 @@ PHP_METHOD(GitRefDBBackend_Internal,iterator_next)
         }
 
         // Write reference name to out parameter.
-        ZVAL_STRING(znameout,git_reference_name(ref),1);
+        ZVAL_STRING(znameout,git_reference_name(ref));
 
         // Write reference value to the return value.
         oid = git_reference_target(ref);
@@ -278,7 +278,7 @@ PHP_METHOD(GitRefDBBackend_Internal,iterator_next)
                 throw php_git2_fatal_exception("GitRefDBBackend_Internal::iterator_next(): next reference is invalid");
             }
 
-            RETVAL_STRING(target,1);
+            RETVAL_STRING(target);
         }
         else {
             convert_oid(return_value,oid);

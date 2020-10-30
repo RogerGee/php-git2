@@ -361,6 +361,7 @@ namespace php_git2
         {
             RETVAL_STRINGL(buffer,bufsz);
         }
+
     private:
         char* buffer;
         size_t bufsz;
@@ -425,6 +426,7 @@ namespace php_git2
 
             RETURN_FALSE
         }
+
     protected:
         using php_long_ref<IntType>::get_value;
     };
@@ -447,6 +449,7 @@ namespace php_git2
         {
             return &n;
         }
+
     private:
         IntType n;
     };
@@ -847,6 +850,7 @@ namespace php_git2
             git_oid_tostr(buf,sizeof(buf),&oid);
             RETVAL_STRING(buf);
         }
+
     private:
         git_oid oid;
     };
@@ -940,6 +944,7 @@ namespace php_git2
                 add_next_index_string(return_value,arr.strings[i]);
             }
         }
+
     private:
         git_strarray arr;
     };
@@ -974,6 +979,7 @@ namespace php_git2
                 add_next_index_string(return_value,buf,1);
             }
         }
+
     private:
         git_oidarray arr;
     };
@@ -1002,8 +1008,9 @@ namespace php_git2
         {
             // Convert the git_buf into a PHP string. Make sure to copy the
             // buffer since the destructor will free the git_buf.
-            RETVAL_STRINGL(buf.ptr,buf.size,1);
+            RETVAL_STRINGL(buf.ptr,buf.size);
         }
+
     private:
         git_buf buf;
     };
@@ -1038,8 +1045,9 @@ namespace php_git2
 
         void ret(zval* return_value)
         {
-            RETVAL_STRING(buffer,1);
+            RETVAL_STRING(buffer);
         }
+
     private:
         char buffer[MaxLength];
     };
@@ -1168,6 +1176,7 @@ namespace php_git2
 
             return zend_hash_num_elements(Z_ARRVAL_P(conn.get_value()));
         }
+
     private:
         connect_t& conn;
     };
@@ -1247,7 +1256,6 @@ namespace php_git2
 
             return php_strarray_array::byval_git2();
         }
-
     };
 
     class php_strarray_byval_array:

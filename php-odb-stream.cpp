@@ -179,7 +179,7 @@ void php_odb_stream_object::assign_owner(php_git_odb* newOwner)
     method_wrapper method("write",stream);
 
     MAKE_STD_ZVAL(zbuf);
-    ZVAL_STRINGL(zbuf,buffer,len,1);
+    ZVAL_STRINGL(zbuf,buffer,len);
 
     // Call userspace method implementation of corresponding stream operation.
 

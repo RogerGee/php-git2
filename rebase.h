@@ -136,10 +136,10 @@ static constexpr auto ZIF_GIT_REBASE_COMMIT = zif_php_git2_function_rethandler<
     php_git2::local_pack<
         php_git2::php_git_oid_out,
         php_git2::php_resource<php_git2::php_git_rebase>,
-        php_git2::php_resource_null<php_git2::php_git_signature>,
+        php_git2::php_resource_nullable<php_git2::php_git_signature>,
         php_git2::php_resource<php_git2::php_git_signature>,
-        php_git2::php_nullable_string,
-        php_git2::php_nullable_string
+        php_git2::php_string_nullable,
+        php_git2::php_string_nullable
         >,
     php_git2::php_git_rebase_commit_rethandler
     >;
@@ -154,7 +154,7 @@ static constexpr auto ZIF_GIT_REBASE_FINISH = zif_php_git2_function<
         const git_signature*>::func<git_rebase_finish>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_rebase>,
-        php_git2::php_resource_null<php_git2::php_git_signature>
+        php_git2::php_resource_nullable<php_git2::php_git_signature>
         >
     >;
 
@@ -176,9 +176,9 @@ static constexpr auto ZIF_GIT_REBASE_INIT = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_resource_ref<php_git2::php_git_rebase>,
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_resource_null<php_git2::php_git_annotated_commit>,
-        php_git2::php_resource_null<php_git2::php_git_annotated_commit>,
-        php_git2::php_resource_null<php_git2::php_git_annotated_commit>,
+        php_git2::php_resource_nullable<php_git2::php_git_annotated_commit>,
+        php_git2::php_resource_nullable<php_git2::php_git_annotated_commit>,
+        php_git2::php_resource_nullable<php_git2::php_git_annotated_commit>,
         php_git2::php_git_rebase_options
         >,
     1,

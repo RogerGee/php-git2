@@ -16,7 +16,6 @@ extern "C" {
 #include <zend.h>
 #include <zend_exceptions.h>
 #include <zend_interfaces.h>
-#include <ext/standard/php_smart_str.h>
 #include <ext/spl/spl_exceptions.h>
 #include <ext/standard/php_var.h>
 #include <ext/standard/php_string.h>

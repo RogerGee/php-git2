@@ -329,7 +329,7 @@ namespace php_git2
     // Misc. helper types
 
     using diff_nullable_buffer_length_connector = php_git2::connector_wrapper<
-        php_git2::php_string_length_connector<size_t,php_git2::php_nullable_string>
+        php_git2::php_string_length_connector<size_t,php_git2::php_string_nullable>
         >;
 
     using diff_buffer_length_connector = php_git2::connector_wrapper<
@@ -468,11 +468,11 @@ static constexpr auto ZIF_GIT_DIFF_BLOB_TO_BUFFER = zif_php_git2_function<
         git_diff_line_cb,
         void*>::func<git_diff_blob_to_buffer>,
     php_git2::local_pack<
-        php_git2::php_resource_null<php_git2::php_git_blob>,
-        php_git2::php_nullable_string,
+        php_git2::php_resource_nullable<php_git2::php_git_blob>,
+        php_git2::php_string_nullable,
         php_git2::diff_nullable_buffer_length_connector,
-        php_git2::php_nullable_string,
-        php_git2::php_nullable_string,
+        php_git2::php_string_nullable,
+        php_git2::php_string_nullable,
         php_git2::php_git_diff_options,
 
         // Callback info
@@ -503,10 +503,10 @@ static constexpr auto ZIF_GIT_DIFF_BLOBS = zif_php_git2_function<
         git_diff_line_cb,
         void*>::func<git_diff_blobs>,
     php_git2::local_pack<
-        php_git2::php_resource_null<php_git2::php_git_blob>,
-        php_git2::php_nullable_string,
-        php_git2::php_resource_null<php_git2::php_git_blob>,
-        php_git2::php_nullable_string,
+        php_git2::php_resource_nullable<php_git2::php_git_blob>,
+        php_git2::php_string_nullable,
+        php_git2::php_resource_nullable<php_git2::php_git_blob>,
+        php_git2::php_string_nullable,
         php_git2::php_git_diff_options,
 
         // Callback info
@@ -537,11 +537,11 @@ static constexpr auto ZIF_GIT_DIFF_BUFFERS = zif_php_git2_function<
         void*>::func<git_diff_buffers>,
     php_git2::local_pack<
         php_git2::diff_nullable_buffer_length_connector,
-        php_git2::php_nullable_string,
-        php_git2::php_nullable_string,
+        php_git2::php_string_nullable,
+        php_git2::php_string_nullable,
         php_git2::diff_nullable_buffer_length_connector,
-        php_git2::php_nullable_string,
-        php_git2::php_nullable_string,
+        php_git2::php_string_nullable,
+        php_git2::php_string_nullable,
         php_git2::php_git_diff_options,
 
         // Callback info
@@ -716,8 +716,8 @@ static constexpr auto ZIF_GIT_DIFF_TREE_TO_TREE = zif_php_git2_function_setdeps<
     php_git2::local_pack<
         php_git2::php_resource_ref<php_git2::php_git_diff>,
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_resource_null<php_git2::php_git_tree>,
-        php_git2::php_resource_null<php_git2::php_git_tree>,
+        php_git2::php_resource_nullable<php_git2::php_git_tree>,
+        php_git2::php_resource_nullable<php_git2::php_git_tree>,
         php_git2::php_git_diff_options
         >,
     php_git2::sequence<0,1>, // Make the git_diff dependent on the git_repository
@@ -736,7 +736,7 @@ static constexpr auto ZIF_GIT_DIFF_TREE_TO_WORKDIR = zif_php_git2_function_setde
     php_git2::local_pack<
         php_git2::php_resource_ref<php_git2::php_git_diff>,
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_resource_null<php_git2::php_git_tree>,
+        php_git2::php_resource_nullable<php_git2::php_git_tree>,
         php_git2::php_git_diff_options
         >,
     php_git2::sequence<0,1>, // Make the git_diff dependent on the git_repository
@@ -755,7 +755,7 @@ static constexpr auto ZIF_GIT_DIFF_TREE_TO_WORKDIR_WITH_INDEX = zif_php_git2_fun
     php_git2::local_pack<
         php_git2::php_resource_ref<php_git2::php_git_diff>,
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_resource_null<php_git2::php_git_tree>,
+        php_git2::php_resource_nullable<php_git2::php_git_tree>,
         php_git2::php_git_diff_options
         >,
     php_git2::sequence<0,1>, // Make the git_diff dependent on the git_repository
@@ -902,8 +902,8 @@ static constexpr auto ZIF_GIT_DIFF_INDEX_TO_INDEX = zif_php_git2_function_setdep
     php_git2::local_pack<
         php_git2::php_resource_ref<php_git2::php_git_diff>,
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_resource_null<php_git2::php_git_index>,
-        php_git2::php_resource_null<php_git2::php_git_index>,
+        php_git2::php_resource_nullable<php_git2::php_git_index>,
+        php_git2::php_resource_nullable<php_git2::php_git_index>,
         php_git2::php_git_diff_options
         >,
     php_git2::sequence<0,1>, // Make the git_diff dependent on the git_repository
@@ -923,8 +923,8 @@ static constexpr auto ZIF_GIT_DIFF_TREE_TO_INDEX = zif_php_git2_function_setdeps
     php_git2::local_pack<
         php_git2::php_resource_ref<php_git2::php_git_diff>,
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_resource_null<php_git2::php_git_tree>,
-        php_git2::php_resource_null<php_git2::php_git_index>,
+        php_git2::php_resource_nullable<php_git2::php_git_tree>,
+        php_git2::php_resource_nullable<php_git2::php_git_index>,
         php_git2::php_git_diff_options
         >,
     php_git2::sequence<0,1>, // Make the git_diff dependent on the git_repository
@@ -943,7 +943,7 @@ static constexpr auto ZIF_GIT_DIFF_INDEX_TO_WORKDIR = zif_php_git2_function_setd
     php_git2::local_pack<
         php_git2::php_resource_ref<php_git2::php_git_diff>,
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_resource_null<php_git2::php_git_index>,
+        php_git2::php_resource_nullable<php_git2::php_git_index>,
         php_git2::php_git_diff_options
         >,
     php_git2::sequence<0,1>, // Make the git_diff dependent on the git_repository

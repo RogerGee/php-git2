@@ -394,7 +394,7 @@ namespace php_git2
     php_return(char retval,local_pack<Ts...>&,zval* return_value)
     {
         char str[2] = {retval,0};
-        RETVAL_STRING(str,1);
+        RETVAL_STRING(str);
     }
 
     template<int ReturnPos,typename... Ts>
@@ -437,7 +437,7 @@ namespace php_git2
     php_return(const char* retval,local_pack<Ts...>& pack,zval* return_value)
     {
         if (retval != nullptr) {
-            RETVAL_STRING(retval,1);
+            RETVAL_STRING(retval);
         }
         else {
             // Just in case.

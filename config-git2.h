@@ -637,7 +637,7 @@ static constexpr auto ZIF_GIT_CONFIG_GET_MULTIVAR_FOREACH = zif_php_git2_functio
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_config>,
         php_git2::php_string,
-        php_git2::php_nullable_string,
+        php_git2::php_string_nullable,
         php_git2::php_callback_handler<php_git2::config_foreach_callback>,
         php_git2::php_callback_sync
         >,
@@ -693,7 +693,7 @@ static constexpr auto ZIF_GIT_CONFIG_BACKEND_FOREACH_MATCH = zif_php_git2_functi
         void*>::func<git_config_backend_foreach_match>,
     php_git2::local_pack<
         php_git2::php_git_config_backend_byval,
-        php_git2::php_nullable_string,
+        php_git2::php_string_nullable,
         php_git2::php_callback_handler<php_git2::config_foreach_callback>,
         php_git2::php_callback_sync
         >,
@@ -728,7 +728,7 @@ static constexpr auto ZIF_GIT_CONFIG_MULTIVAR_ITERATOR_NEW = zif_php_git2_functi
         php_git2::php_resource_ref<php_git2::php_git_config_iterator>,
         php_git2::php_resource<php_git2::php_git_config>,
         php_git2::php_string,
-        php_git2::php_nullable_string
+        php_git2::php_string_nullable
         >,
     php_git2::sequence<0,1>,
     1,

@@ -122,7 +122,7 @@ PHP_FUNCTION(git_libgit2_version)
     git_libgit2_version(&major,&minor,&rev);
     snprintf(buf,sizeof(buf),"%d.%d.%d",major,minor,rev);
 
-    RETURN_STRING(buf,1);
+    RETURN_STRING(buf);
 }
 
 PHP_FUNCTION(git2_version)
@@ -134,5 +134,5 @@ PHP_FUNCTION(git2_version)
     snprintf(buf,sizeof(buf),"%s %s (libgit2 %d.%d.%d)",PHP_GIT2_EXTNAME,PHP_GIT2_EXTVER,
         major,minor,rev);
 
-    RETURN_STRING(buf,1);
+    RETURN_STRING(buf);
 }

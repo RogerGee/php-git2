@@ -75,7 +75,7 @@ static constexpr auto ZIF_GIT_CHECKOUT_TREE = zif_php_git2_function<
         const git_checkout_options*>::func<git_checkout_tree>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_resource_null<php_git2::php_git_object>,
+        php_git2::php_resource_nullable<php_git2::php_git_object>,
         php_git2::php_git_checkout_options
         >
     >;
@@ -88,7 +88,7 @@ static constexpr auto ZIF_GIT_CHECKOUT_INDEX = zif_php_git2_function<
         const git_checkout_options*>::func<git_checkout_index>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_resource_null<php_git2::php_git_index>,
+        php_git2::php_resource_nullable<php_git2::php_git_index>,
         php_git2::php_git_checkout_options
         >
     >;

@@ -88,7 +88,7 @@ namespace php_git2
                 ZVAL_NULL(params[I]);
             }
             else {
-                ZVAL_STRING(params[I],str,1);
+                ZVAL_STRING(params[I],str);
             }
             assign<I+1>(std::forward<Ts>(ts)...);
         }
@@ -96,7 +96,7 @@ namespace php_git2
         template<unsigned I,typename... Ts>
         void assign(const void* a,size_t& b,Ts&&... ts)
         {
-            ZVAL_STRINGL(params[I],(const char*)a,b,1);
+            ZVAL_STRINGL(params[I],(const char*)a,b);
             assign<I+1>(std::forward<Ts>(ts)...);
         }
 
@@ -172,7 +172,7 @@ namespace php_git2
     {
     public:
         php_callback_sync(TSRMLS_D):
-            php_callback_base(TSRMLS_C), p(std::numeric_limits<unsigned>::max())
+            php_callback_base(TSRMLS_C), p(ARGNO_MAX)
         {
         }
 
@@ -195,7 +195,7 @@ namespace php_git2
             // the value zero if the parameters need to be swapped such that the
             // function zval is first.
 
-            if (p == std::numeric_limits<unsigned>::max()) {
+            if (p == ARGNO_MAX) {
                 p = pos;
                 return &func;
             }
@@ -204,7 +204,7 @@ namespace php_git2
             return &data;
         }
 
-        void* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        void* byval_git2(unsigned argno = ARGNO_MAX)
         {
             set_members_impl(func,data);
 
@@ -240,7 +240,7 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR_WITH_BASE(php_callback_sync_nullable,php_callback_sync)
 
-        void* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        void* byval_git2(unsigned argno = ARGNO_MAX)
         {
             set_members_impl(func,data);
 
@@ -298,7 +298,7 @@ namespace php_git2
             // Assign php_callback_sync object to resource object. It must have
             // a member called 'cb' to which we have access.
             GitResource* rsrc = conn.get_object(
-                std::numeric_limits<unsigned>::max());
+                ARGNO_MAX);
             rsrc->cb = cb;
         }
 
@@ -307,7 +307,7 @@ namespace php_git2
             return cb->byref_php(pos);
         }
 
-        void* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        void* byval_git2(unsigned argno = ARGNO_MAX)
         {
             return cb->byval_git2(argno);
         }
@@ -343,7 +343,7 @@ namespace php_git2
             return cb->byref_php(pos);
         }
 
-        void* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        void* byval_git2(unsigned argno = ARGNO_MAX)
         {
             return cb->byval_git2(argno);
         }
@@ -381,7 +381,7 @@ namespace php_git2
             // assigned properly so we can access the GitResource.
 
             GitResource* rsrc = stor.get_object(
-                std::numeric_limits<unsigned>::max());
+                ARGNO_MAX);
             if (rsrc->cb == nullptr) {
                 rsrc->cb = cb;
             }
@@ -392,7 +392,7 @@ namespace php_git2
             return cb->byref_php(pos);
         }
 
-        void* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        void* byval_git2(unsigned argno = ARGNO_MAX)
         {
             return cb->byval_git2(argno);
         }
@@ -411,7 +411,7 @@ namespace php_git2
     public:
         ZTS_CONSTRUCTOR(php_callback_handler)
 
-        constexpr typename CallbackFunc::type byval_git2(unsigned argno = std::numeric_limits<unsigned>::max()) const
+        constexpr typename CallbackFunc::type byval_git2(unsigned argno = ARGNO_MAX) const
         {
             // Return the static address of the wrapped callback function.
             return &CallbackFunc::callback;
@@ -435,7 +435,7 @@ namespace php_git2
         {
         }
 
-        typename CallbackFunc::type byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        typename CallbackFunc::type byval_git2(unsigned argno = ARGNO_MAX)
         {
             // Return null if the callback zval is NULL.
             if (Z_TYPE_P(conn.func) == IS_NULL) {
@@ -462,7 +462,7 @@ namespace php_git2
         {
         }
 
-        typename CallbackFunc::type byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        typename CallbackFunc::type byval_git2(unsigned argno = ARGNO_MAX)
         {
             php_callback_base* cb = conn.get_base_callback();
 

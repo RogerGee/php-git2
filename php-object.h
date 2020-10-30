@@ -104,7 +104,7 @@ namespace php_git2
             object_wrapper(base)
         {
             INIT_ZVAL(zmethod);
-            ZVAL_STRING(&zmethod,methodName,1);
+            ZVAL_STRING(&zmethod,methodName);
             INIT_ZVAL(zretval);
         }
 

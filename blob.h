@@ -31,7 +31,7 @@ namespace php_git2
                 // obtained from the blob attached to the local_pack.
                 size_t length;
                 length = git_blob_rawsize(pack.get<0>().get_object(1)->get_handle());
-                RETVAL_STRINGL((const char*)retval,length,1);
+                RETVAL_STRINGL((const char*)retval,length);
             }
             else {
                 RETVAL_NULL();
@@ -333,7 +333,7 @@ static constexpr auto ZIF_GIT_BLOB_CREATE_FROMSTREAM = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_git_writestream_byref,
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_nullable_string
+        php_git2::php_string_nullable
         >,
     1,
     php_git2::sequence<1,2>,

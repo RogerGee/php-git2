@@ -114,7 +114,7 @@ void php_odb_writepack_object::assign_owner(php_git_odb* newOwner)
     MAKE_STD_ZVAL(zdata);
     MAKE_STD_ZVAL(zprogress);
 
-    ZVAL_STRINGL(zdata,reinterpret_cast<const char*>(data),length,1);
+    ZVAL_STRINGL(zdata,reinterpret_cast<const char*>(data),length);
     convert_transfer_progress(zprogress,prog);
 
     zval* params[] = { zdata, zprogress };

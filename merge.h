@@ -470,7 +470,7 @@ static constexpr auto ZIF_GIT_MERGE_TREES = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_resource_ref<php_git2::php_git_index>,
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_resource_null<php_git2::php_git_tree>,
+        php_git2::php_resource_nullable<php_git2::php_git_tree>,
         php_git2::php_resource<php_git2::php_git_tree>,
         php_git2::php_resource<php_git2::php_git_tree>,
         php_git2::php_git_merge_options

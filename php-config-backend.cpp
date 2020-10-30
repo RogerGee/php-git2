@@ -278,7 +278,7 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
     // Allocate/set zvals.
 
     MAKE_STD_ZVAL(zkey);
-    ZVAL_STRING(zkey,key,1);
+    ZVAL_STRING(zkey,key);
 
     // Call userspace method implementation corresponding to config backend
     // operation.
@@ -345,8 +345,8 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
 
     MAKE_STD_ZVAL(zname);
     MAKE_STD_ZVAL(zvalue);
-    ZVAL_STRING(zname,name,1);
-    ZVAL_STRING(zvalue,value,1);
+    ZVAL_STRING(zname,name);
+    ZVAL_STRING(zvalue,value);
 
     // Call userspace method implementation corresponding to config backend
     // operation.
@@ -377,9 +377,9 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
     MAKE_STD_ZVAL(zname);
     MAKE_STD_ZVAL(zregexp);
     MAKE_STD_ZVAL(zvalue);
-    ZVAL_STRING(zname,name,1);
-    ZVAL_STRING(zregexp,regexp,1);
-    ZVAL_STRING(zvalue,value,1);
+    ZVAL_STRING(zname,name);
+    ZVAL_STRING(zregexp,regexp);
+    ZVAL_STRING(zvalue,value);
 
     // Call userspace method implementation corresponding to config backend
     // operation.
@@ -406,7 +406,7 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
     // Allocate/set zvals.
 
     MAKE_STD_ZVAL(zname);
-    ZVAL_STRING(zname,name,1);
+    ZVAL_STRING(zname,name);
 
     // Call userspace method implementation corresponding to config backend
     // operation.
@@ -434,8 +434,8 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
 
     MAKE_STD_ZVAL(zname);
     MAKE_STD_ZVAL(zregexp);
-    ZVAL_STRING(zname,name,1);
-    ZVAL_STRING(zregexp,regexp,1);
+    ZVAL_STRING(zname,name);
+    ZVAL_STRING(zregexp,regexp);
 
     // Call userspace method implementation corresponding to config backend
     // operation.

@@ -304,10 +304,10 @@ static constexpr auto ZIF_GIT_COMMIT_CREATE = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_git_oid,
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_nullable_string,
+        php_git2::php_string_nullable,
         php_git2::php_resource<php_git2::php_git_signature>,
         php_git2::php_resource<php_git2::php_git_signature>,
-        php_git2::php_nullable_string,
+        php_git2::php_string_nullable,
         php_git2::php_string,
         php_git2::php_resource<php_git2::php_git_tree>,
         php_git2::connector_wrapper<
@@ -340,7 +340,7 @@ static constexpr auto ZIF_GIT_COMMIT_CREATE_BUFFER = zif_php_git2_function<
         php_git2::php_resource<php_git2::php_git_repository>,
         php_git2::php_resource<php_git2::php_git_signature>,
         php_git2::php_resource<php_git2::php_git_signature>,
-        php_git2::php_nullable_string,
+        php_git2::php_string_nullable,
         php_git2::php_string,
         php_git2::php_resource<php_git2::php_git_tree>,
         php_git2::connector_wrapper<
@@ -372,10 +372,10 @@ static constexpr auto ZIF_GIT_COMMIT_CREATE_FROM_CALLBACK = zif_php_git2_functio
     php_git2::local_pack<
         php_git2::php_git_oid,
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_nullable_string,
+        php_git2::php_string_nullable,
         php_git2::php_resource<php_git2::php_git_signature>,
         php_git2::php_resource<php_git2::php_git_signature>,
-        php_git2::php_nullable_string,
+        php_git2::php_string_nullable,
         php_git2::php_string,
         php_git2::php_git_oid_fromstr,
         php_git2::php_callback_handler<php_git2::commit_parent_callback>,
@@ -402,10 +402,10 @@ static constexpr auto ZIF_GIT_COMMIT_CREATE_FROM_IDS = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_git_oid,
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_nullable_string,
+        php_git2::php_string_nullable,
         php_git2::php_resource<php_git2::php_git_signature>,
         php_git2::php_resource<php_git2::php_git_signature>,
-        php_git2::php_nullable_string,
+        php_git2::php_string_nullable,
         php_git2::php_string,
         php_git2::php_git_oid_fromstr,
         php_git2::connector_wrapper<
@@ -455,12 +455,12 @@ static constexpr auto ZIF_GIT_COMMIT_AMEND = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_git_oid,
         php_git2::php_resource<php_git2::php_git_commit>,
-        php_git2::php_nullable_string,
-        php_git2::php_resource_null<php_git2::php_git_signature>,
-        php_git2::php_resource_null<php_git2::php_git_signature>,
-        php_git2::php_nullable_string,
-        php_git2::php_nullable_string,
-        php_git2::php_resource_null<php_git2::php_git_tree>
+        php_git2::php_string_nullable,
+        php_git2::php_resource_nullable<php_git2::php_git_signature>,
+        php_git2::php_resource_nullable<php_git2::php_git_signature>,
+        php_git2::php_string_nullable,
+        php_git2::php_string_nullable,
+        php_git2::php_resource_nullable<php_git2::php_git_tree>
         >,
     1, // Return the git_oid string
     php_git2::sequence<1,2,3,4,5,6,7>,
@@ -496,7 +496,7 @@ static constexpr auto ZIF_GIT_COMMIT_EXTRACT_SIGNATURE = zif_php_git2_function<
         php_git2::php_git_buf_out,
         php_git2::php_resource<php_git2::php_git_repository>,
         php_git2::php_git_oid_fromstr,
-        php_git2::php_nullable_string
+        php_git2::php_string_nullable
         >,
     1,
     php_git2::sequence<1,2,3,4>,

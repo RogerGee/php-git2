@@ -546,7 +546,7 @@ static constexpr auto ZIF_GIT_REMOTE_FETCH = zif_php_git2_function<
         php_git2::php_resource<php_git2::php_git_remote>,
         php_git2::php_strarray_array_nullable,
         php_git2::php_git_fetch_options,
-        php_git2::php_nullable_string
+        php_git2::php_string_nullable
         >
     >;
 
@@ -817,7 +817,7 @@ static constexpr auto ZIF_GIT_REMOTE_UPDATE_TIPS = zif_php_git2_function<
         php_git2::php_git_remote_callbacks,
         php_git2::php_bool,
         php_git2::php_long_cast<git_remote_autotag_option_t>,
-        php_git2::php_nullable_string
+        php_git2::php_string_nullable
         >
     >;
 

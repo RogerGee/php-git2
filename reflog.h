@@ -53,7 +53,7 @@ static constexpr auto ZIF_GIT_REFLOG_APPEND = zif_php_git2_function<
         php_git2::php_resource<php_git2::php_git_reflog>,
         php_git2::php_git_oid_fromstr,
         php_git2::php_resource<php_git2::php_git_signature>,
-        php_git2::php_nullable_string
+        php_git2::php_string_nullable
         >
     >;
 

@@ -182,7 +182,7 @@ static constexpr auto ZIF_GIT_BRANCH_SET_UPSTREAM = zif_php_git2_function<
         const char*>::func<git_branch_set_upstream>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_reference>,
-        php_git2::php_nullable_string
+        php_git2::php_string_nullable
         >,
     -1
     >;

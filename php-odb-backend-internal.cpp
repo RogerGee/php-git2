@@ -140,7 +140,7 @@ PHP_METHOD(GitODBBackend_Internal,read)
             // Copy the result into the return zval. Then set the out
             // parameters. Finally we have to free the buffer allocated by the
             // call to read().
-            RETVAL_STRINGL((const char*)data,size,1);
+            RETVAL_STRINGL((const char*)data,size);
             ZVAL_LONG(ztype,type);
             free(data);
         }
@@ -197,7 +197,7 @@ PHP_METHOD(GitODBBackend_Internal,read_prefix)
             // Copy the result into the return zval. Then set the out
             // parameters.  Finally we have to free the buffer allocated by the
             // call to read_prefix().
-            RETVAL_STRINGL((const char*)data,size,1);
+            RETVAL_STRINGL((const char*)data,size);
             convert_oid(zoid,&full);
             ZVAL_LONG(ztype,type);
             free(data);

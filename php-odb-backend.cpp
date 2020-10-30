@@ -316,7 +316,7 @@ void php_odb_backend_object::unset_backend(zval* zobj)
     MAKE_STD_ZVAL(ztype);
 
     convert_oid(zoid,oid);
-    ZVAL_STRINGL(zpayload,(const char*)data,size,1);
+    ZVAL_STRINGL(zpayload,(const char*)data,size);
     ZVAL_LONG(ztype,type);
 
     // Call userspace method implementation corresponding to odb operation.
