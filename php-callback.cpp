@@ -10,7 +10,7 @@
 #include "php-callback.h"
 using namespace php_git2;
 
-int php_git2::php_git2_invoke_callback(zval* func,zval* ret,zend_uint paramCount,zval* params[] TSRMLS_DC)
+int php_git2::php_git2_invoke_callback(zval* func,zval* ret,int paramCount,zval params[] TSRMLS_DC)
 {
     php_bailer bailer ZTS_CTOR;
     php_bailout_context ctx(bailer TSRMLS_CC);
@@ -21,7 +21,7 @@ int php_git2::php_git2_invoke_callback(zval* func,zval* ret,zend_uint paramCount
     if (BAILOUT_ENTER_REGION(ctx)) {
         int retval;
 
-        retval = call_user_function(EG(function_table),NULL,func,ret,paramCount,params TSRMLS_CC);
+        retval = call_user_function(EG(function_table),NULL,func,ret,paramCount,params);
         if (retval == FAILURE) {
             php_git2_giterr_set(GITERR_INVALID,"Failed to invoke userspace callback");
             result = GIT_EPHPFATAL;
@@ -51,34 +51,61 @@ int php_git2::php_git2_invoke_callback(zval* func,zval* ret,zend_uint paramCount
 
 // php_callback_base
 
-php_callback_base::php_callback_base(TSRMLS_D):
-    php_zts_base(TSRMLS_C), func(nullptr), data(nullptr)
+php_callback_base::php_callback_base()
 {
+    ZVAL_NULL(&data);
 }
 
-bool php_callback_base::is_null() const
+php_callback_base::~php_callback_base()
 {
-    if (func == nullptr || Z_TYPE_P(func) == IS_NULL) {
-        return true;
-    }
-
-    return false;
+    zval_ptr_dtor(&value);
+    zval_ptr_dtor(&data);
 }
 
-bool php_callback_base::is_callable() const
+void php_callback_base::parse_impl(zval* zvp,int argno)
 {
-    if (func != nullptr && Z_TYPE_P(func) != IS_NULL) {
-        char* error = nullptr;
-        zend_bool retval;
-        retval = zend_is_callable_ex(func,NULL,0,NULL,NULL,NULL,&error TSRMLS_CC);
-        if (error) {
-            efree(error);
+    // NOTE: We perform a copy with reference count increment. This is to
+    // accomodate asynchronous callbacks that require the variable to stay alive
+    // after the function has returned. The subclass is responsible for freeing
+    // the zvals.
+
+    if (Z_TYPE(value) == IS_UNDEF) {
+        // Copy callable argument. This is always conventionally the first
+        // element parsed and stored into 'value'.
+
+        int result;
+        zend_fcall_info fci;
+        zend_fcall_info_cache fcc;
+
+        result = zend_parse_parameter(ZEND_PARSE_PARAMS_THROW,argno,zvp,"f",&fci,&fcc);
+        if (result == FAILURE) {
+            throw php_git2_propagated_exception();
         }
 
-        return retval;
+        ZVAL_COPY(&value,&fci.function_name);
     }
+    else {
+        // Copy payload argument.
+        ZVAL_COPY(&data,zvp);
+    }
+}
 
-    return false;
+// php_callback_sync_nullable
+
+void php_callback_sync_nullable::parse_impl(zval* zvp,int argno)
+{
+    // Allow the base class to parse if the callable zval is not null.
+    if (Z_TYPE(value) == IS_UNDEF) {
+        if (Z_TYPE_P(zvp) == IS_NULL) {
+            ZVAL_NULL(&value);
+        }
+        else {
+            php_callback_sync::parse_impl(zvp,argno);
+        }
+    }
+    else if (Z_TYPE(value) != IS_NULL) {
+        php_callback_sync::parse_impl(zvp,argno);
+    }
 }
 
 // packbuilder_foreach_callback
