@@ -22,8 +22,6 @@ namespace php_git2
     {
         using PackType = local_pack<php_resource<php_git_blob> >;
     public:
-        ZTS_CONSTRUCTOR(php_git_blob_rawcontent_rethandler)
-
         bool ret(const void* retval,zval* return_value,PackType& pack)
         {
             if (retval != nullptr) {
@@ -44,20 +42,12 @@ namespace php_git2
     // Provide types for getting/returning git_writestream objects.
 
     class php_git_writestream_byval:
-        public php_value_base,
-        private php_zts_base
+        public php_object<php_writestream_object>
     {
     public:
-        php_git_writestream_byval(TSRMLS_D):
-            php_zts_base(TSRMLS_C)
-        {
-        }
-
         git_writestream* byval_git2()
         {
-            // Extract the git_writestream from the object zval.
-            php_writestream_object* object;
-            object = reinterpret_cast<php_writestream_object*>(zend_objects_get_address(value TSRMLS_CC));
+            php_writestream_object* object = get_object();
 
             if (object->ws == nullptr) {
                 throw php_git2_exception("The writestream has already been closed");
@@ -65,28 +55,14 @@ namespace php_git2
 
             return object->ws;
         }
-
-    private:
-        virtual void parse_impl(zval* zv,unsigned argno)
-        {
-            // Make sure zval is object derived from GitWritestream.
-            if (Z_TYPE_P(value) != IS_OBJECT
-                || !is_subclass_of(Z_OBJCE_P(value),
-                    class_entry[php_git2_writestream_obj]))
-            {
-                // TODO Throw exception.
-            }
-
-            ZVAL_COPY(&value,zv);
-        }
     };
 
     class php_git_writestream_byref:
         private php_zts_base
     {
     public:
-        php_git_writestream_byref(TSRMLS_D):
-            php_zts_base(TSRMLS_C), ws(nullptr)
+        php_git_writestream_byref():
+            ws(nullptr)
         {
         }
 
@@ -100,6 +76,7 @@ namespace php_git2
             // Wrap the git_writestream in an object zval.
             php_git2_make_writestream(return_value,ws TSRMLS_CC);
         }
+
     private:
         git_writestream* ws;
     };
@@ -113,14 +90,12 @@ namespace php_git2
     public:
         git_writestream* byval_git2()
         {
-            // Extract the git_writestream from the object zval.
-            php_writestream_object* object;
-            git_writestream* ws;
-            object = reinterpret_cast<php_writestream_object*>(zend_objects_get_address(value TSRMLS_CC));
+            php_writestream_object* object = get_object();
 
             if (object->ws == nullptr) {
                 throw php_git2_exception("The writestream has already been closed");
             }
+
             ws = object->ws;
             object->ws = nullptr;
 

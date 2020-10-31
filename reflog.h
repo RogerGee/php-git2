@@ -9,7 +9,6 @@
 
 namespace php_git2
 {
-
     // Explicitly specialize git2_resource destructor for git_reference.
     template<> php_git_reflog::~git2_resource()
     {
@@ -25,8 +24,6 @@ namespace php_git2
     class php_git_reflog_entry_rethandler
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_reflog_entry_rethandler)
-
         template<typename... Ts>
         bool ret(const git_reflog_entry* retval,zval* return_value,local_pack<Ts...>& pack)
         {

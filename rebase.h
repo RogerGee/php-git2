@@ -11,7 +11,6 @@
 
 namespace php_git2
 {
-
     // Explicitly specialize git2_resource destructor for git_rebase.
     template<> php_git_rebase::~git2_resource()
     {
@@ -19,17 +18,12 @@ namespace php_git2
     }
 
     class php_git_rebase_options:
-        public php_value_base
+        public php_option_array
     {
     public:
-        php_git_rebase_options(TSRMLS_D):
-            mergeOpts(TSRMLS_C), checkoutOpts(TSRMLS_C)
-        {
-        }
-
         const git_rebase_options* byval_git2()
         {
-            if (Z_TYPE_P(value) == IS_ARRAY) {
+            if (!is_null()) {
                 array_wrapper arr(value);
 
                 git_rebase_init_options(&opts,GIT_REBASE_OPTIONS_VERSION);
@@ -56,8 +50,6 @@ namespace php_git2
     class php_git_rebase_operation
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_rebase_operation)
-
         git_rebase_operation** byval_git2()
         {
             return &operation;
@@ -72,21 +64,14 @@ namespace php_git2
         git_rebase_operation* operation;
     };
 
-    class php_git_rebase_operation_rethandler:
-        private php_zts_base
+    class php_git_rebase_operation_rethandler
     {
     public:
-        php_git_rebase_operation_rethandler(TSRMLS_D):
-            php_zts_base(TSRMLS_C)
-        {
-        }
-
         template<typename... Ts>
         bool ret(git_rebase_operation* retval,zval* return_value,local_pack<Ts...>& pack)
         {
-            php_git_rebase_operation oper ZTS_CTOR;
+            php_git_rebase_operation oper;
             *oper.byval_git2() = retval;
-
             oper.ret(return_value);
 
             return true;
@@ -98,8 +83,6 @@ namespace php_git2
     class php_git_rebase_commit_rethandler
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_rebase_commit_rethandler)
-
         template<typename... Ts>
         bool ret(int retval,zval* return_value,local_pack<Ts...>& pack)
         {

@@ -43,6 +43,11 @@ namespace php_git2
             ZVAL_COPY_VALUE(&value,zvp);
         }
 
+        bool is_null() const
+        {
+            return Z_TYPE(value) == IS_NULL;
+        }
+
     protected:
         zval value;
 
@@ -488,7 +493,7 @@ namespace php_git2
 
         // This member function is used to retrieve the resource object. We must
         // make sure it has been fetched from the resource value.
-        GitResource* get_object(unsigned argno = ARGNO_MAX)
+        GitResource* get_object()
         {
             return lookup();
         }
@@ -1074,11 +1079,7 @@ namespace php_git2
         }
     };
 
-    // Provide a type that converts PHP arrays into arrays of git2 objects. The
-    // implementation supports arrays of a single type. The git2 array is
-    // allocated using the PHP allocator and should only be used in read-only
-    // contexts. The memory is designed to persist for the duration of a
-    // function call. The SourceType should be some php_value_base derivation.
+    // Provide a base type for PHP arrays.
 
     class php_array_base:
         public php_value_base
@@ -1086,6 +1087,22 @@ namespace php_git2
     private:
         virtual void parse_impl(zval* zvp,int argno);
     };
+
+    // Provide a base type for option arrays. (This is really just a nullable
+    // array base type that is commonly used for option arrays.)
+
+    class php_option_array:
+        public php_array_base
+    {
+    private:
+        virtual void parse_impl(zval* zvp,int argno);
+    };
+
+    // Provide a type that converts PHP arrays into arrays of git2 objects. The
+    // implementation supports arrays of a single type. The git2 array is
+    // allocated using the PHP allocator and should only be used in read-only
+    // contexts. The memory is designed to persist for the duration of a
+    // function call. The SourceType should be some php_value_base derivation.
 
     template<typename SourceType,typename ConvertType>
     class php_array:
@@ -1167,7 +1184,10 @@ namespace php_git2
     class php_array_length_connector
     {
     public:
-        using connect_t = php_array<typename ArrayType::source_t,typename ArrayType::convert_t>;
+        using connect_t = php_array<
+            typename ArrayType::source_t,
+            typename ArrayType::convert_t
+            >;
         typedef IntType target_t;
 
         php_array_length_connector(connect_t& obj TSRMLS_DC):

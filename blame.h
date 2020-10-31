@@ -21,17 +21,17 @@ namespace php_git2
     // struct.
 
     class php_git2_blame_options:
-        public php_value_base
+        public php_option_array
     {
     public:
-        php_git2_blame_options(TSRMLS_D)
+        php_git2_blame_options()
         {
             git_blame_init_options(&opts,GIT_BLAME_OPTIONS_VERSION);
         }
 
         git_blame_options* byval_git2()
         {
-            if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
+            if (!is_null()) {
                 array_wrapper arr(value);
 
                 GIT2_ARRAY_LOOKUP_LONG(arr,flags,opts);

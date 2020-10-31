@@ -9,7 +9,6 @@
 
 namespace php_git2
 {
-
     // Explicitly specialize git2_resource destructor for git_signature.
     template<> php_git_signature::~git2_resource()
     {

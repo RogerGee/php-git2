@@ -11,23 +11,21 @@
 
 namespace php_git2
 {
-
     // Provide a type for converting a PHP array into a git_merge_options
     // struct.
 
     class php_git_merge_options:
-        public php_value_base
+        public php_option_array
     {
     public:
-        php_git_merge_options(TSRMLS_D):
-            strarray(TSRMLS_C)
+        php_git_merge_options()
         {
             git_merge_init_options(&opts,GIT_MERGE_OPTIONS_VERSION);
         }
 
         git_merge_options* byval_git2()
         {
-            if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
+            if (!is_null()) {
                 array_wrapper arr(value);
 
                 GIT2_ARRAY_LOOKUP_LONG(arr,flags,opts);
@@ -53,17 +51,17 @@ namespace php_git2
     // Provide type for git_merge_file_options.
 
     class php_git_merge_file_options:
-        public php_value_base
+        public php_option_array
     {
     public:
-        php_git_merge_file_options(TSRMLS_D)
+        php_git_merge_file_options()
         {
             git_merge_file_init_options(&opts,GIT_MERGE_FILE_OPTIONS_VERSION);
         }
 
         const git_merge_file_options* byval_git2()
         {
-            if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
+            if (!is_null()) {
                 array_wrapper arr(value);
 
                 GIT2_ARRAY_LOOKUP_STRING(arr,ancestor_label,opts);
@@ -77,6 +75,7 @@ namespace php_git2
 
             return nullptr;
         }
+
     private:
         git_merge_file_options opts;
     };
@@ -84,17 +83,17 @@ namespace php_git2
     // Provide type for git_merge_file_input.
 
     class php_git_merge_file_input:
-        public php_value_base
+        public php_option_array
     {
     public:
-        php_git_merge_file_input(TSRMLS_D)
+        php_git_merge_file_input()
         {
             git_merge_file_init_input(&input,GIT_MERGE_FILE_INPUT_VERSION);
         }
 
         const git_merge_file_input* byval_git2()
         {
-            if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
+            if (!is_null()) {
                 array_wrapper arr(value);
 
                 GIT2_ARRAY_LOOKUP_STRING_WITH_LENGTH(arr,ptr,size,input);
@@ -106,6 +105,7 @@ namespace php_git2
 
             return nullptr;
         }
+
     private:
         git_merge_file_input input;
     };
@@ -115,8 +115,6 @@ namespace php_git2
     class php_git_merge_file_result_ref
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_merge_file_result_ref)
-
         ~php_git_merge_file_result_ref()
         {
             git_merge_file_result_free(&result);

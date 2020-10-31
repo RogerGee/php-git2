@@ -9,7 +9,6 @@
 
 namespace php_git2
 {
-
     // Explicitly specialize git2_resource destructor for git_odb and
     // git_odb_object.
 
@@ -35,18 +34,17 @@ namespace php_git2
     // Provide a type which binds a git_odb_writepack along with a callback to a
     // PHP object instance of type GitODBWritepack.
 
-    class php_git_odb_writepack:
-        private php_zts_base
+    class php_git_odb_writepack
     {
         friend writepack_async_callback;
     public:
         // Make this object a connector to a php_resource that looks up a
         // php_git_odb resource wrapper.
         using connect_t = php_resource<php_git_odb>;
-        typedef git_odb_writepack** target_t;
+        using target_t = git_odb_writepack**;
 
-        php_git_odb_writepack(connect_t& conn TSRMLS_DC):
-            php_zts_base(TSRMLS_C), writepack(nullptr), ownerWrapper(conn)
+        php_git_odb_writepack(connect_t& conn):
+            writepack(nullptr), ownerWrapper(conn)
         {
         }
 
@@ -63,8 +61,12 @@ namespace php_git2
             // the writepack object in this extension module. Also pass in the
             // owner ODB to control lifetime.
 
-            php_git2_make_odb_writepack(return_value,writepack,cb,nullptr,
-                ownerWrapper.get_object() TSRMLS_CC);
+            php_git2_make_odb_writepack(
+                return_value,
+                writepack,
+                cb,
+                nullptr,
+                ownerWrapper.get_object());
         }
 
     private:
@@ -81,34 +83,22 @@ namespace php_git2
     // GitODBBackend object is updated with a custom backing if none is
     // set. (Thus, this operation is not idempotent.)
     class php_git_odb_backend_byval:
-        public php_value_base,
-        private php_zts_base
+        public php_object<php_odb_backend_object>
     {
     public:
         // Make this object a connector to a php_resource that looks up a
         // php_git_odb resource wrapper.
         using connect_t = php_resource<php_git_odb>;
-        typedef git_odb_backend* target_t;
+        using target_t = git_odb_backend*;
 
-        php_git_odb_backend_byval(connect_t& conn TSRMLS_DC):
-            php_zts_base(TSRMLS_C), ownerWrapper(conn)
+        php_git_odb_backend_byval(connect_t& conn):
+            ownerWrapper(conn)
         {
         }
 
         git_odb_backend* byval_git2()
         {
-            // Make sure the zval is an object of or derived from class
-            // GitODBBackend.
-            if (Z_TYPE_P(value) != IS_OBJECT
-                || !is_subclass_of(Z_OBJCE_P(value),
-                        class_entry[php_git2_odb_backend_obj]))
-            {
-                error("GitODBBackend",argno);
-            }
-
-            // Extract the git_odb_backend from the object zval.
-            php_odb_backend_object* object;
-            object = reinterpret_cast<php_odb_backend_object*>(zend_objects_get_address(value TSRMLS_CC));
+            php_odb_backend_object* object = get_object();
 
             // If the object doesn't have a backing, then we create a custom
             // one.
@@ -133,18 +123,18 @@ namespace php_git2
 
             return object->backend;
         }
+
     private:
         connect_t& ownerWrapper;
     };
 
     // Returns a git_odb_backend as a GitODBBackend PHP value. The owner ODB is
     // NOT set on the backend object.
-    class php_git_odb_backend_byref:
-        protected php_zts_base
+    class php_git_odb_backend_byref
     {
     public:
-        php_git_odb_backend_byref(TSRMLS_D):
-            php_zts_base(TSRMLS_C), backend(nullptr)
+        php_git_odb_backend_byref():
+            backend(nullptr)
         {
         }
 
@@ -156,13 +146,15 @@ namespace php_git2
         void ret(zval* return_value)
         {
             // Wrap the git_odb_backend handle in an object zval.
-            php_git2_make_odb_backend(return_value,backend,nullptr TSRMLS_CC);
+            php_git2_make_odb_backend(return_value,backend,nullptr);
         }
+
     protected:
         git_odb_backend* get_backend()
         {
             return backend;
         }
+
     private:
         git_odb_backend* backend;
     };
@@ -176,10 +168,10 @@ namespace php_git2
         // Make this object a connector to a php_resource that looks up a
         // php_git_odb resource wrapper.
         using connect_t = php_resource<php_git_odb>;
-        typedef git_odb_backend** target_t;
+        using target_t = git_odb_backend**;
 
-        php_git_odb_backend_byref_owned(connect_t& conn TSRMLS_DC):
-            php_git_odb_backend_byref(TSRMLS_C), ownerWrapper(conn)
+        php_git_odb_backend_byref_owned(connect_t& conn):
+            ownerWrapper(conn)
         {
         }
 
@@ -188,8 +180,9 @@ namespace php_git2
             // Wrap the git_odb_backend handle in an object zval. Set the owner
             // to the php_git_odb resource wrapper.
 
-            php_git2_make_odb_backend(return_value,get_backend(),ownerWrapper.get_object() TSRMLS_CC);
+            php_git2_make_odb_backend(return_value,get_backend(),ownerWrapper.get_object());
         }
+
     private:
         connect_t& ownerWrapper;
     };
@@ -200,44 +193,26 @@ namespace php_git2
 
     // Extracts a git_odb_stream from a GitODBStream PHP value.
     class php_git_odb_stream_byval:
-        public php_value_base,
-        private php_zts_base
+        public php_object<php_odb_stream_object>
     {
     public:
-        php_git_odb_stream_byval(TSRMLS_D):
-            php_zts_base(TSRMLS_C)
-        {
-        }
-
         git_odb_stream* byval_git2()
         {
-            // Make sure the zval is an object of or derived from class GitODBStream
-            if (Z_TYPE_P(value) != IS_OBJECT
-                || !is_subclass_of(Z_OBJCE_P(value),
-                    class_entry[php_git2_odb_stream_obj]))
-            {
-                error("GitODBStream",argno);
-            }
-
-            // Extract the git_odb_stream from the object zval.
-            php_odb_stream_object* object;
-            object = reinterpret_cast<php_odb_stream_object*>(zend_objects_get_address(value TSRMLS_CC));
-            return object->stream;
+            return get_object()->stream;
         }
     };
 
     // Binds a git_odb_stream
-    class php_git_odb_stream_byref:
-        private php_zts_base
+    class php_git_odb_stream_byref
     {
     public:
         // Make this object a connector to a php_resource that looks up a
         // php_git_odb resource wrapper.
         using connect_t = php_resource<php_git_odb>;
-        typedef git_odb_stream** target_t;
+        using target_t = git_odb_stream**;
 
-        php_git_odb_stream_byref(connect_t& conn TSRMLS_DC):
-            php_zts_base(TSRMLS_C), stream(nullptr), ownerWrapper(conn)
+        php_git_odb_stream_byref(connect_t& conn):
+            stream(nullptr), ownerWrapper(conn)
         {
         }
 
@@ -249,8 +224,9 @@ namespace php_git2
         void ret(zval* return_value)
         {
             // Wrap the git_odb_backend handle in an object zval.
-            php_git2_make_odb_stream(return_value,stream,ownerWrapper.get_object() TSRMLS_CC);
+            php_git2_make_odb_stream(return_value,stream,ownerWrapper.get_object());
         }
+
     private:
         git_odb_stream* stream;
         connect_t& ownerWrapper;
@@ -261,8 +237,6 @@ namespace php_git2
     {
         using PackType = local_pack<php_resource<php_git_odb_object> >;
     public:
-        ZTS_CONSTRUCTOR(php_git_odb_object_data_rethandler)
-
         bool ret(const void* retval,zval* return_value,PackType& pack)
         {
             if (retval != nullptr) {
@@ -280,7 +254,7 @@ namespace php_git2
         }
     };
 
-}
+} // namespace php_git2
 
 // Functions:
 

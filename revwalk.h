@@ -9,7 +9,6 @@
 
 namespace php_git2
 {
-
     // Explicitly specialize git2_resource destructor for git_revwalk.
     template<> php_git_revwalk::~git2_resource()
     {
@@ -19,8 +18,6 @@ namespace php_git2
     struct revwalk_next_rethandler
     {
         using lpack = local_pack<php_git_oid,php_resource<php_git_revwalk> >;
-
-        ZTS_CONSTRUCTOR(revwalk_next_rethandler)
 
         bool ret(int retval,zval* return_value,lpack& pack)
         {
@@ -41,7 +38,8 @@ namespace php_git2
 
     class php_git_revwalk_ex;
     using revwalk_async_callback_t =
-        php_git2::php_callback_async_existing<php_git2::php_git_revwalk_ex>;
+        php_git2::php_callback_async_existing<php_git2::php_git_revwalk_ex
+        >;
 
     // Subclass php_git_revwalk to store callback information. Any revwalk must
     // be managed by this class.

@@ -7,11 +7,17 @@
 #include "php-array.h"
 using namespace php_git2;
 
-array_wrapper::array_wrapper(zval* zarray):
-    ht(Z_ARRVAL_P(zarray)), zvp(nullptr), usesTmp(false)
+array_wrapper::array_wrapper(zval& zv):
+    ht(Z_ARRVAL(zv)), zvp(nullptr), usesTmp(false)
 {
     // Give 'tmp' an initial value so that we have it in a known state
     // initially.
+    ZVAL_UNDEF(&tmp);
+}
+
+array_wrapper::array_wrapper(zval* zvp):
+    ht(Z_ARRVAL_P(zvp)), zvp(nullptr), usesTmp(false)
+{
     ZVAL_UNDEF(&tmp);
 }
 

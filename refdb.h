@@ -19,34 +19,22 @@ namespace php_git2
     // Provide type for passing/returning git_refdb_backends.
 
     class php_git_refdb_backend:
-        public php_value_base,
-        private php_zts_base
+        public php_object<php_refdb_backend_object>
     {
     public:
         // Make this object a connector to a php_resource that looks up a
         // php_git_refdb resource wrapper object.
         using connect_t = php_resource<php_git_refdb>;
-        typedef git_refdb_backend* target_t;
+        using target_t = git_refdb_backend*;
 
-        php_git_refdb_backend(connect_t& conn TSRMLS_DC):
-            php_zts_base(TSRMLS_C), ownerWrapper(conn)
+        php_git_refdb_backend(connect_t& conn):
+            ownerWrapper(conn)
         {
         }
 
         git_refdb_backend* byval_git2()
         {
-            // Make sure the zval is an object of or derived from class
-            // GitRefDBBackend.
-            if (Z_TYPE_P(value) != IS_OBJECT
-                || !is_subclass_of(Z_OBJCE_P(value),
-                        class_entry[php_git2_refdb_backend_obj]))
-            {
-                error("GitRefDBBackend",argno);
-            }
-
-            // Extract the git_odb_backend from the object zval.
-            php_refdb_backend_object* object;
-            object = reinterpret_cast<php_refdb_backend_object*>(zend_objects_get_address(value TSRMLS_CC));
+            php_refdb_backend_object* object = get_object();
 
             // If the object doesn't have a backing, then we create a custom
             // one.
@@ -77,11 +65,10 @@ namespace php_git2
     };
 
     class php_git_refdb_backend_ref:
-        private php_zts_base
     {
     public:
-        php_git_refdb_backend_ref(TSRMLS_D):
-            php_zts_base(TSRMLS_C), backend(nullptr)
+        php_git_refdb_backend_ref():
+            backend(nullptr)
         {
         }
 
@@ -92,7 +79,7 @@ namespace php_git2
 
         void ret(zval* return_value)
         {
-            php_git2_make_refdb_backend(return_value,backend,nullptr TSRMLS_CC);
+            php_git2_make_refdb_backend(return_value,backend,nullptr);
         }
 
     private:

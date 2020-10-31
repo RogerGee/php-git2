@@ -9,21 +9,18 @@
 
 namespace php_git2
 {
-
     class php_git_checkout_options:
-        public php_value_base,
-        private php_zts_base
+        public php_option_array
     {
     public:
-        php_git_checkout_options(TSRMLS_D):
-            php_zts_base(TSRMLS_C), strarray(TSRMLS_C)
+        php_git_checkout_options()
         {
             git_checkout_init_options(&opts,GIT_CHECKOUT_OPTIONS_VERSION);
         }
 
         git_checkout_options* byval_git2()
         {
-            if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
+            if (!is_null()) {
                 array_wrapper arr(value);
 
                 GIT2_ARRAY_LOOKUP_LONG(arr,version,opts);
@@ -47,6 +44,7 @@ namespace php_git2
 
             return nullptr;
         }
+
     private:
         git_checkout_options opts;
         php_strarray_byval_array strarray;

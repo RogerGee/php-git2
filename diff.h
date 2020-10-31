@@ -23,17 +23,12 @@ namespace php_git2
     // Define type to wrap git_diff_options.
 
     class php_git_diff_options:
-        public php_value_base
+        public php_option_array
     {
     public:
-        php_git_diff_options(TSRMLS_D):
-            callbacks(TSRMLS_C), strarray(TSRMLS_C)
-        {
-        }
-
         const git_diff_options* byval_git2()
         {
-            if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
+            if (!is_null()) {
                 array_wrapper arr(value);
                 git_diff_init_options(&opts,GIT_DIFF_OPTIONS_VERSION);
 
@@ -92,14 +87,12 @@ namespace php_git2
     // Define type to wrap git_diff_find_options.
 
     class php_git_diff_find_options:
-        public php_value_base
+        public php_option_array
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_diff_find_options)
-
         const git_diff_find_options* byval_git2()
         {
-            if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
+            if (!is_null()) {
                 array_wrapper arr(value);
                 git_diff_find_init_options(&opts,GIT_DIFF_FIND_OPTIONS_VERSION);
 
@@ -137,7 +130,7 @@ namespace php_git2
         typedef ConnectType connect_t;
         typedef typename CallbackType::type target_t;
 
-        php_git_diff_callback_base(git_diff_callback_info& obj TSRMLS_DC):
+        php_git_diff_callback_base(git_diff_callback_info& obj):
            info(obj)
         {
         }
@@ -165,7 +158,10 @@ namespace php_git2
     };
 
     template<typename ConnectType,typename CallbackType>
-    class php_git_diff_callback : public php_git_diff_callback_base<ConnectType,CallbackType> {};
+    class php_git_diff_callback
+        : public php_git_diff_callback_base<ConnectType,CallbackType>
+    {
+    };
 
     template<typename ConnectType>
     class php_git_diff_callback<ConnectType,diff_file_callback>:
@@ -180,7 +176,7 @@ namespace php_git2
 
         zval* get_value()
         {
-            return this->info.fileCallback.func;
+            return this->info.fileCallback.get_value();
         }
 
         target_t byval_git2()
@@ -202,7 +198,7 @@ namespace php_git2
 
         zval* get_value()
         {
-            return this->info.binaryCallback.func;
+            return this->info.binaryCallback.get_value();
         }
 
         target_t byval_git2()
@@ -224,7 +220,7 @@ namespace php_git2
 
         zval* get_value()
         {
-            return this->info.hunkCallback.func;
+            return this->info.hunkCallback.get_value();
         }
 
         target_t byval_git2()
@@ -246,7 +242,7 @@ namespace php_git2
 
         zval* get_value()
         {
-            return this->info.lineCallback.func;
+            return this->info.lineCallback.get_value();
         }
 
         target_t byval_git2()
@@ -258,14 +254,9 @@ namespace php_git2
     class php_git_diff_callback_payload
     {
     public:
-        php_git_diff_callback_payload(TSRMLS_D):
-            info(TSRMLS_C)
-        {
-        }
-
         zval* get_value()
         {
-            return info.zpayload;
+            return &info.zpayload;
         }
 
         void* byval_git2()
@@ -340,8 +331,6 @@ namespace php_git2
     class php_git_diff_delta_rethandler
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_diff_delta_rethandler)
-
         bool ret(const git_diff_delta* delta,zval* return_value,local_pack<Ts...>& pack)
         {
             if (delta == nullptr) {
@@ -358,8 +347,6 @@ namespace php_git2
     class php_git_diff_perfdata
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_diff_perfdata)
-
         git_diff_perfdata* byval_git2()
         {
             return &perfdata;
@@ -377,12 +364,11 @@ namespace php_git2
     // Define type to wrap git_diff_format_email_options.
 
     class php_git_diff_format_email_options:
-        public php_value_base,
-        private php_zts_base
+        public php_option_array
     {
     public:
-        php_git_diff_format_email_options(TSRMLS_D):
-            php_zts_base(TSRMLS_C), oid(TSRMLS_C), sig(nullptr)
+        php_git_diff_format_email_options():
+            sig(nullptr)
         {
             git_diff_format_email_init_options(&opts,GIT_DIFF_FORMAT_EMAIL_OPTIONS_VERSION);
         }
@@ -396,10 +382,6 @@ namespace php_git2
 
         const git_diff_format_email_options* byval_git2()
         {
-            if (Z_TYPE_P(value) != IS_ARRAY) {
-                error("array",argno);
-            }
-
             array_wrapper arr(value);
 
             GIT2_ARRAY_LOOKUP_LONG(arr,version,opts);
@@ -415,20 +397,23 @@ namespace php_git2
                 git_signature* author;
 
                 if (Z_TYPE_P(zv) == IS_ARRAY) {
-                    sig = convert_signature(arr.get_zval());
+                    sig = convert_signature(zv);
                     if (sig == nullptr) {
-                        error_custom("Element 'author' must be git_signature array",argno);
+                        throw php_git2_exception(
+                            "Cannot parse 'author' from "
+                            "git_diff_format_email_options array");
                     }
                     author = sig;
                 }
                 else if (Z_TYPE_P(zv) == IS_RESOURCE) {
-                    php_resource<php_git_signature> sigres ZTS_CTOR;
+                    php_resource<php_git_signature> sigres;
 
                     sigres.set_zval(zv);
                     author = sigres.get_object()->get_handle();
                 }
                 else {
-                    error_custom("Expected resource or array for 'author' option",argno);
+                    throw php_git2_exception(
+                        "Field 'author' is invalid in git_diff_format_email_options array");
                 }
 
                 opts.author = author;

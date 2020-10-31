@@ -6,7 +6,6 @@
 
 #ifndef PHPGIT2_SUBMODULE_H
 #define PHPGIT2_SUBMODULE_H
-
 #include "checkout.h"
 #include "remote.h"
 
@@ -21,22 +20,20 @@ namespace php_git2
     // Create type to wrap git_submodule_update_options.
 
     class php_git_submodule_update_options:
-        public php_value_base,
-        private php_zts_base
+        public php_option_array
     {
     public:
-        php_git_submodule_update_options(TSRMLS_D):
-            php_zts_base(TSRMLS_C)
+        php_git_submodule_update_options()
         {
             git_submodule_update_init_options(&opts,GIT_SUBMODULE_UPDATE_OPTIONS_VERSION);
         }
 
         git_submodule_update_options* byval_git2()
         {
-            if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
+            if (!is_null()) {
                 array_wrapper arr(value);
-                php_git_checkout_options checkoutOpts ZTS_CTOR;
-                php_git_fetch_options fetchOpts ZTS_CTOR;
+                php_git_checkout_options checkoutOpts;
+                php_git_fetch_options fetchOpts;
 
                 GIT2_ARRAY_LOOKUP_LONG(arr,version,opts);
                 GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(arr,checkoutOpts,checkout_opts,opts);
@@ -54,7 +51,7 @@ namespace php_git2
         git_submodule_update_options opts;
     };
 
-}
+} // namespace php_git2
 
 // Function template declarations
 

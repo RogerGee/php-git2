@@ -15,7 +15,8 @@ namespace php_git2
     class array_wrapper
     {
     public:
-        array_wrapper(zval* zarray);
+        array_wrapper(zval& zv);
+        array_wrapper(zval* zvp);
         ~array_wrapper();
 
         bool query(const char* key,size_t keysz);

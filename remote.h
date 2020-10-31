@@ -16,18 +16,17 @@ namespace php_git2
     }
 
     class php_git_remote_callbacks:
-        public php_value_base
+        public php_option_array
     {
     public:
-        php_git_remote_callbacks(TSRMLS_D):
-            info(TSRMLS_C)
+        php_git_remote_callbacks()
         {
             git_remote_init_callbacks(&opts,GIT_REMOTE_CALLBACKS_VERSION);
         }
 
         const git_remote_callbacks* byval_git2()
         {
-            if (Z_TYPE_P(value) == IS_ARRAY) {
+            if (!is_null()) {
                 array_wrapper arr(value);
 
                 GIT2_ARRAY_LOOKUP_CALLBACK_NULLABLE(
@@ -106,9 +105,6 @@ namespace php_git2
 
                 opts.payload = &info;
             }
-            else if (Z_TYPE_P(value) != IS_NULL) {
-                error("array",argno);
-            }
 
             return &opts;
         }
@@ -119,18 +115,17 @@ namespace php_git2
     };
 
     class php_git_proxy_options:
-        public php_value_base
+        public php_option_array
     {
     public:
-        php_git_proxy_options(TSRMLS_D):
-            info(TSRMLS_C)
+        php_git_proxy_options()
         {
             git_proxy_init_options(&opts,GIT_PROXY_OPTIONS_VERSION);
         }
 
         const git_proxy_options* byval_git2()
         {
-            if (Z_TYPE_P(value) == IS_ARRAY) {
+            if (!is_null()) {
                 array_wrapper arr(value);
 
                 GIT2_ARRAY_LOOKUP_LONG(arr,version,opts);
@@ -155,9 +150,6 @@ namespace php_git2
 
                 opts.payload = &info;
             }
-            else if (Z_TYPE_P(value) != IS_NULL) {
-                error("array",argno);
-            }
 
             return &opts;
         }
@@ -168,22 +160,20 @@ namespace php_git2
     };
 
     class php_git_fetch_options:
-        public php_value_base,
-        private php_zts_base
+        public php_option_array
     {
     public:
-        php_git_fetch_options(TSRMLS_D):
-            php_zts_base(TSRMLS_C), custom_headers(TSRMLS_C)
+        php_git_fetch_options()
         {
             git_fetch_init_options(&opts,GIT_FETCH_OPTIONS_VERSION);
         }
 
         const git_fetch_options* byval_git2()
         {
-            if (Z_TYPE_P(value) == IS_ARRAY) {
+            if (!is_null()) {
                 array_wrapper arr(value);
-                php_git_remote_callbacks callbacks ZTS_CTOR;
-                php_git_proxy_options proxy_opts ZTS_CTOR;
+                php_git_remote_callbacks callbacks;
+                php_git_proxy_options proxy_opts;
 
                 GIT2_ARRAY_LOOKUP_LONG(arr,version,opts);
                 GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(
@@ -208,9 +198,6 @@ namespace php_git2
                     custom_headers,
                     opts);
             }
-            else if (Z_TYPE_P(value) != IS_NULL) {
-                error("array",argno);
-            }
 
             return &opts;
         }
@@ -225,18 +212,17 @@ namespace php_git2
         private php_zts_base
     {
     public:
-        php_git_push_options(TSRMLS_D):
-            php_zts_base(TSRMLS_C), custom_headers(TSRMLS_C)
+        php_git_push_options()
         {
             git_push_init_options(&opts,GIT_PUSH_OPTIONS_VERSION);
         }
 
         const git_push_options* byval_git2()
         {
-            if (Z_TYPE_P(value) == IS_ARRAY) {
+            if (!is_null()) {
                 array_wrapper arr(value);
-                php_git_remote_callbacks callbacks ZTS_CTOR;
-                php_git_proxy_options proxy_opts ZTS_CTOR;
+                php_git_remote_callbacks callbacks;
+                php_git_proxy_options proxy_opts;
 
                 GIT2_ARRAY_LOOKUP_LONG(arr,version,opts);
                 GIT2_ARRAY_LOOKUP_LONG(arr,pb_parallelism,opts);
@@ -259,9 +245,6 @@ namespace php_git2
                     custom_headers,
                     opts);
             }
-            else if (Z_TYPE_P(value) != IS_NULL) {
-                error("array",argno);
-            }
 
             return &opts;
         }
@@ -275,16 +258,15 @@ namespace php_git2
     {
     public:
         using connect_t = php_long_ref<size_t>;
-        typedef const git_remote_head*** target_t;
-
+        using target_t = const git_remote_head***;
         using connector_type = connector_wrapper<php_git_remote_head>;
 
-        php_git_remote_head(connect_t& obj TSRMLS_DC):
+        php_git_remote_head(connect_t& obj):
             conn(obj)
         {
         }
 
-        target_t byval_git2(unsigned p)
+        target_t byval_git2()
         {
             return &arr;
         }
@@ -295,11 +277,10 @@ namespace php_git2
 
             array_init(return_value);
             for (size_t i = 0;i < n;++i) {
-                zval* zv;
-                MAKE_STD_ZVAL(zv);
-                convert_remote_head(zv,arr[i]);
+                zval zv;
+                convert_remote_head(&zv,arr[i]);
 
-                add_next_index_zval(return_value,zv);
+                add_next_index_zval(return_value,&zv);
             }
         }
 
@@ -308,15 +289,9 @@ namespace php_git2
         connect_t& conn;
     };
 
-    class php_refspec_rethandler:
-        private php_zts_base
+    class php_refspec_rethandler
     {
     public:
-        php_refspec_rethandler(TSRMLS_D):
-            php_zts_base(TSRMLS_C)
-        {
-        }
-
         template<typename... Ts>
         bool ret(const git_refspec* refspec,zval* return_value,local_pack<Ts...>&)
         {
@@ -325,7 +300,7 @@ namespace php_git2
                 return true;
             }
 
-            php_resource_ref<php_git_refspec> res ZTS_CTOR;
+            php_resource_ref<php_git_refspec> res;
 
             *res.byval_git2() = refspec;
             res.ret(return_value);
@@ -337,8 +312,6 @@ namespace php_git2
     class php_transfer_progress_rethandler
     {
     public:
-        ZTS_CONSTRUCTOR(php_transfer_progress_rethandler)
-
         template<typename... Ts>
         bool ret(const git_transfer_progress* stats,zval* return_value,local_pack<Ts...>&)
         {

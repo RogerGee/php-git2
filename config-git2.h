@@ -12,7 +12,6 @@ extern "C" {
 
 namespace php_git2
 {
-
     // Explicitly specialize git2_resource destructor for git_config.
     template<> php_git_config::~git2_resource()
     {
@@ -31,7 +30,7 @@ namespace php_git2
     class php_git_config_entry
     {
     public:
-        php_git_config_entry(TSRMLS_D):
+        php_git_config_entry():
             entry(nullptr)
         {
         }
@@ -52,11 +51,13 @@ namespace php_git2
             add_assoc_string(return_value,"value",(char*)entry->value,1);
             add_assoc_long(return_value,"level",entry->level);
         }
+
     protected:
         git_config_entry* get_entry() const
         {
             return entry;
         }
+
     private:
         git_config_entry* entry;
     };
@@ -80,11 +81,9 @@ namespace php_git2
     // Provide a type for converting a PHP array to a git_cvar_map.
 
     class php_git_cvar_map:
-        public php_value_base
+        public php_array_base
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_cvar_map)
-
         git_cvar_map byval_git2()
         {
             git_cvar_map result;
@@ -109,26 +108,22 @@ namespace php_git2
     // Provide type for handling config backend parameters.
 
     class php_git_config_backend:
-        public php_value_base,
-        private php_zts_base
+        public php_object<php_config_backend_object>
     {
     public:
         // Make this object a connector to a php_resource that looks up a
         // php_git_config resource wrapper.
         using connect_t = php_resource<php_git_config>;
-        typedef git_config_backend* target_t;
+        using target_t = git_config_backend*;
 
-        php_git_config_backend(connect_t& conn TSRMLS_DC):
-            php_zts_base(TSRMLS_C), ownerWrapper(conn)
+        php_git_config_backend(connect_t& conn)
+            ownerWrapper(conn)
         {
         }
 
         git_config_backend* byval_git2()
         {
-            // Extract the git_config_backend from the object zval.
-            php_config_backend_object* object;
-            object = reinterpret_cast<php_config_backend_object*>
-                (zend_objects_get_address(value TSRMLS_CC));
+            php_config_backend_object* object = get_object();
 
             // Create custom backing if one doesn't already exist. Make sure the
             // owner is attached to the object.
@@ -147,20 +142,6 @@ namespace php_git2
 
     private:
         connect_t& ownerWrapper;
-
-        virtual void parse_impl(zval* zv,int argno)
-        {
-            // Make sure the zval is an object of or derived from class
-            // GitConfigBackend.
-            if (Z_TYPE_P(zv) != IS_OBJECT
-                || !is_subclass_of(Z_OBJCE_P(zv),
-                        class_entry[php_git2_config_backend_obj]))
-            {
-                // TODO Throw exception.
-            }
-
-            ZVAL_COPY(&value,zv);
-        }
     };
 
     class php_git_config_backend_byval:
@@ -169,12 +150,7 @@ namespace php_git2
     public:
         git_config_backend* byval_git2()
         {
-            // Extract the git_config_backend from the object zval.
-            php_config_backend_object* object;
-            object = reinterpret_cast<php_config_backend_object*>
-                (zend_objects_get_address(value TSRMLS_CC));
-
-            return object->backend;
+            return get_object()->backend;
         }
     };
 

@@ -10,24 +10,21 @@
 
 namespace php_git2
 {
-
     class php_git_revert_options:
-        public php_value_base,
-        private php_zts_base
+        public php_option_array
     {
     public:
-        php_git_revert_options(TSRMLS_D):
-            php_zts_base(TSRMLS_C)
+        php_git_revert_options()
         {
             git_revert_init_options(&opts,GIT_REVERT_OPTIONS_VERSION);
         }
 
         const git_revert_options* byval_git2()
         {
-            if (value != nullptr && Z_TYPE_P(value)) {
+            if (!is_null()) {
                 array_wrapper arr(value);
-                php_git_merge_options mergeOptions ZTS_CTOR;
-                php_git_checkout_options checkoutOptions ZTS_CTOR;
+                php_git_merge_options mergeOptions;
+                php_git_checkout_options checkoutOptions;
 
                 GIT2_ARRAY_LOOKUP_LONG(arr,mainline,opts);
                 GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(arr,mergeOptions,merge_opts,opts);

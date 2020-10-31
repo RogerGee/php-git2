@@ -25,24 +25,18 @@ namespace php_git2
     // git_index_entry.
 
     class php_git_index_entry:
-        public php_value_base,
-        private php_zts_base
+        public php_array_base
     {
     public:
-        php_git_index_entry(TSRMLS_D):
-            php_zts_base(TSRMLS_C)
+        php_git_index_entry()
         {
             memset(&ent,0,sizeof(git_index_entry));
         }
 
         const git_index_entry* byval_git2()
         {
-            if (!Z_TYPE_P(value)) {
-                error("array",argno);
-            }
-
             array_wrapper arr(value);
-            php_git_index_time tm ZTS_CTOR;
+            php_git_index_time tm;
 
             GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(arr,tm,ctime,ent);
             GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(arr,tm,mtime,ent);
@@ -59,22 +53,21 @@ namespace php_git2
 
             return &ent;
         }
+
     private:
         git_index_entry ent;
 
         class php_git_index_time:
-            public php_value_base
+            public php_array_base
         {
         public:
-            php_git_index_time(TSRMLS_D)
+            php_git_index_time()
             {
                 memset(&tv,0,sizeof(git_index_time));
             }
 
             const git_index_time* byval_git2()
             {
-                assert(Z_TYPE_P(value) == IS_ARRAY);
-
                 array_wrapper arr(value);
 
                 GIT2_ARRAY_LOOKUP_LONG(arr,seconds,tv);
@@ -93,8 +86,6 @@ namespace php_git2
     class php_git_index_entry_ref
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_index_entry_ref)
-
         const git_index_entry** byval_git2()
         {
             return &ent;
@@ -104,6 +95,7 @@ namespace php_git2
         {
             php_git2::convert_index_entry(return_value,ent);
         }
+
     private:
         const git_index_entry* ent;
     };
@@ -113,8 +105,6 @@ namespace php_git2
         public php_git_index_entry_ref
     {
     public:
-        ZTS_CONSTRUCTOR_WITH_BASE(php_git_index_entry_out,php_git_index_entry_ref)
-
         ~php_git_index_entry_out()
         {
             ret(value);
@@ -126,8 +116,6 @@ namespace php_git2
     class php_git_index_entry_rethandler
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_index_entry_rethandler)
-
         template<typename... Ts>
         bool ret(const git_index_entry* entry,zval* return_value,local_pack<Ts...>& pack)
         {

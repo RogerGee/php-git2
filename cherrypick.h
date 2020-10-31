@@ -11,28 +11,27 @@
 
 namespace php_git2
 {
-
     // Provide a type for converting a PHP array into a git_cherrypick_options
     // struct.
 
     class php_git_cherrypick_options:
-        public php_value_base
+        public php_option_array
     {
     public:
-        php_git_cherrypick_options(TSRMLS_D):
-            strarray(TSRMLS_C), mergeOpts(TSRMLS_C), checkoutOpts(TSRMLS_C)
+        php_git_cherrypick_options()
         {
             git_cherrypick_init_options(&opts,GIT_CHERRYPICK_OPTIONS_VERSION);
         }
 
         git_cherrypick_options* byval_git2()
         {
-            if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
+            if (!is_null()) {
                 array_wrapper arr(value);
 
                 GIT2_ARRAY_LOOKUP_LONG(arr,mainline,opts);
                 GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(arr,mergeOpts,merge_opts,opts);
                 GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(arr,checkoutOpts,checkout_opts,opts);
+
                 return &opts;
             }
 

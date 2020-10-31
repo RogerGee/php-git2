@@ -10,7 +10,6 @@
 
 namespace php_git2
 {
-
     // Explicitly specialize git2_resource destructor for git_patch.
     template<> php_git_patch::~git2_resource()
     {
@@ -21,8 +20,6 @@ namespace php_git2
     class php_git_diff_hunk
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_diff_hunk)
-
         const git_diff_hunk** byval_git2()
         {
             return &hunk;
@@ -41,8 +38,6 @@ namespace php_git2
     class php_git_diff_line
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_diff_line)
-
         const git_diff_line** byval_git2()
         {
             return &line;

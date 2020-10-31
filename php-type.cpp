@@ -36,6 +36,18 @@ void php_array_base::parse_impl(zval* zvp,int argno)
     ZVAL_COPY_VALUE(&value,zvp);
 }
 
+// php_option_array
+
+void php_option_array::parse_impl(zval* zvp,int argno)
+{
+    if (Z_TYPE(value) == IS_NULL) {
+        ZVAL_NULL(&value);
+        return;
+    }
+
+    php_array_base::parse_impl(zvp,argno);
+}
+
 /*
  * Local Variables:
  * indent-tabs-mode:nil

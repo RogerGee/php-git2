@@ -9,7 +9,6 @@
 
 namespace php_git2
 {
-
     // Specialize resource type destructor.
 
     template<> php_git_indexer::~git2_resource()
@@ -71,7 +70,7 @@ namespace php_git2
         using connect_t = php_resource<php_git_indexer_with_stats>;
         typedef git_transfer_progress* target_t;
 
-        php_git_indexer_connector(connect_t& obj TSRMLS_DC):
+        php_git_indexer_connector(connect_t& obj):
             conn(obj)
         {
         }

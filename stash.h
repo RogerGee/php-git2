@@ -11,21 +11,19 @@
 namespace php_git2
 {
     class php_git_stash_apply_options:
-        public php_value_base,
-        private php_zts_base
+        public php_option_array
     {
     public:
-        php_git_stash_apply_options(TSRMLS_D):
-            php_zts_base(TSRMLS_C), callback(TSRMLS_C)
+        php_git_stash_apply_options()
         {
             git_stash_apply_init_options(&opts,GIT_STASH_APPLY_OPTIONS_VERSION);
         }
 
         const git_stash_apply_options* byval_git2()
         {
-            if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
+            if (!is_null()) {
                 array_wrapper arr(value);
-                php_git_checkout_options checkoutOptions ZTS_CTOR;
+                php_git_checkout_options checkoutOptions;
 
                 GIT2_ARRAY_LOOKUP_LONG(arr,flags,opts);
                 GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(arr,checkoutOptions,checkout_options,opts);

@@ -485,19 +485,11 @@ namespace php_git2
 
     struct git_diff_callback_info
     {
-        git_diff_callback_info(TSRMLS_D):
-            fileCallback(TSRMLS_C),
-            binaryCallback(TSRMLS_C),
-            hunkCallback(TSRMLS_C),
-            lineCallback(TSRMLS_C)
-        {
-        }
-
         php_callback_base fileCallback;
         php_callback_base binaryCallback;
         php_callback_base hunkCallback;
         php_callback_base lineCallback;
-        zval* zpayload;
+        zval zpayload;
     };
 
     struct diff_file_callback

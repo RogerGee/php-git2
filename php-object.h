@@ -6,6 +6,7 @@
 
 #ifndef PHPGIT2_PHPOBJECT_H
 #define PHPGIT2_PHPOBJECT_H
+#include "php-type.h"
 #include "php-callback.h"
 extern "C" {
 #include <git2/sys/odb_backend.h>
@@ -44,6 +45,48 @@ namespace php_git2
         php_git2_refdb_backend_internal_obj,
         php_git2_closure_obj,
         _php_git2_obj_top_
+    };
+
+    // Store class entry for global lookup by php_git2_object_t enumerator.
+
+    extern zend_class_entry* class_entry[];
+
+    // Define base class for object PHP values.
+
+    template<typename ObjectType>
+    class php_object:
+        public php_value_base
+    {
+    public:
+        ObjectType* get_object()
+        {
+            return reinterpret_cast<ObjectType*>(Z_OBJ(value));
+        }
+
+        const ObjectType* get_object() const
+        {
+            return reinterpret_cast<const ObjectType*>(Z_OBJ(value));
+        }
+
+    private:
+        virtual void parse_impl(zval* zvp,int argno)
+        {
+            int result;
+            zval* dummy;
+            zend_class_entry* ce = php_git2::class_entry[ObjectType::get_type()];
+
+            result = zend_parse_parameter(ZEND_PARSE_PARAMS_THROW,
+                argno,
+                zvp,
+                "O",
+                &dummy,
+                ce);
+            if (result == FAILURE) {
+                throw php_git2_propagated_exception();
+            }
+
+            ZVAL_COPY_VALUE(&value,zvp);
+        }
     };
 
     // Define a type for wrapping method calls.
@@ -96,16 +139,12 @@ namespace php_git2
     {
     public:
         using object_wrapper = php_object_wrapper<ObjectType,BackingType>;
-#ifdef ZTS
-        using object_wrapper::TSRMLS_C;
-#endif
 
         php_method_wrapper(const char* methodName,typename ObjectType::base_class* base):
             object_wrapper(base)
         {
-            INIT_ZVAL(zmethod);
             ZVAL_STRING(&zmethod,methodName);
-            INIT_ZVAL(zretval);
+            ZVAL_NULL(&zretval);
         }
 
         ~php_method_wrapper()
@@ -119,9 +158,6 @@ namespace php_git2
             php_bailer bailer ZTS_CTOR;
             php_bailout_context ctx(bailer TSRMLS_CC);
             int result = GIT_OK;
-#ifdef ZTS
-            TSRMLS_D = ZTS_MEMBER_C(object_wrapper::backing()->zts);
-#endif
 
             if (BAILOUT_ENTER_REGION(ctx)) {
                 int retval;
@@ -132,14 +168,14 @@ namespace php_git2
                     &zmethod,
                     &zretval,
                     nparams,
-                    params TSRMLS_CC);
+                    params);
 
                 if (retval == FAILURE) {
                     php_git2_giterr_set(GITERR_INVALID,"Failed to invoke userspace method");
                     result = GIT_EPHPFATAL;
                 }
                 else {
-                    php_exception_wrapper ex ZTS_CTOR;
+                    php_exception_wrapper ex;
 
                     // Handle case where PHP userspace threw an exception.
                     if (ex.has_exception()) {
@@ -201,6 +237,11 @@ namespace php_git2
         void assign_owner(php_git_odb* newOwner);
         void unset_backend(zval* zobj);
 
+        constexpr static php_git2_object_t get_type()
+        {
+            return php_git2_odb_backend_obj;
+        }
+
         static zend_object_handlers handlers;
         static void init(zend_class_entry* ce);
     private:
@@ -252,6 +293,11 @@ namespace php_git2
     {
         php_odb_backend_internal_object(zend_class_entry* ce TSRMLS_DC);
 
+        constexpr static php_git2_object_t get_type()
+        {
+            return php_git2_odb_backend_internal_obj;
+        }
+
         static zend_object_handlers handlers;
         static void init(zend_class_entry* ce);
     };
@@ -270,6 +316,11 @@ namespace php_git2
         void unset_writepack()
         {
             writepack = nullptr;
+        }
+
+        constexpr static php_git2_object_t get_type()
+        {
+            return php_git2_odb_writepack_obj;
         }
 
         static zend_object_handlers handlers;
@@ -308,6 +359,11 @@ namespace php_git2
         git_transfer_progress prog;
         php_callback_sync* cb;
 
+        constexpr static php_git2_object_t get_type()
+        {
+            return php_git2_odb_writepack_internal_obj;
+        }
+
         static zend_object_handlers handlers;
         static void init(zend_class_entry* ce);
     };
@@ -337,6 +393,11 @@ namespace php_git2
         {
             stream = nullptr;
             kind = unset;
+        }
+
+        constexpr static php_git2_object_t get_type()
+        {
+            return php_git2_odb_stream_obj;
         }
 
         static zend_object_handlers handlers;
@@ -369,6 +430,11 @@ namespace php_git2
     {
         php_odb_stream_internal_object(zend_class_entry* ce TSRMLS_DC);
 
+        constexpr static php_git2_object_t get_type()
+        {
+            return php_git2_odb_stream_internal_obj;
+        }
+
         static zend_object_handlers handlers;
         static void init(zend_class_entry* ce);
     };
@@ -380,6 +446,11 @@ namespace php_git2
 
         git_writestream* ws;
         php_zts_member zts;
+
+        constexpr static php_git2_object_t get_type()
+        {
+            return php_git2_writestream_obj;
+        }
 
         static zend_object_handlers handlers;
         static void init(zend_class_entry* ce);
@@ -395,6 +466,11 @@ namespace php_git2
         php_zts_member zts;
 
         void create_custom_backend(zval* zobj,php_git_config* owner);
+
+        constexpr static php_git2_object_t get_type()
+        {
+            return php_git2_config_backend_obj;
+        }
 
         static zend_object_handlers handlers;
         static void init(zend_class_entry* ce);
@@ -458,6 +534,11 @@ namespace php_git2
             kind = conventional;
         }
         void assign_owner(php_git_refdb* owner);
+
+        constexpr static php_git2_object_t get_type()
+        {
+            return php_git2_refdb_backend_obj;
+        }
 
         static zend_object_handlers handlers;
         static void init(zend_class_entry* ce);
@@ -523,6 +604,11 @@ namespace php_git2
 
         git_reference_iterator* iter;
 
+        constexpr static php_git2_object_t get_type()
+        {
+            return php_git2_refdb_backend_internal_obj;
+        }
+
         static zend_object_handlers handlers;
         static void init(zend_class_entry* ce);
     };
@@ -539,6 +625,11 @@ namespace php_git2
         bool hasPayload;
         closure_dstor payloadDestructor;
         php_zts_member zts;
+
+        constexpr static php_git2_object_t get_type()
+        {
+            return php_git2_closure_obj;
+        }
 
         static zend_object_handlers handlers;
         static void init(zend_class_entry* ce);
@@ -568,8 +659,8 @@ namespace php_git2
     zend_function* not_allowed_get_constructor(zval* object TSRMLS_DC);
     zend_function* disallow_base_get_constructor(zval* object TSRMLS_DC);
 
-    // Extern variables in this namespace.
-    extern zend_class_entry* class_entry[];
+    // Function entry lists for class methods.
+
     extern zend_function_entry odb_backend_methods[];
     extern zend_function_entry odb_backend_internal_methods[];
     extern zend_function_entry odb_writepack_methods[];

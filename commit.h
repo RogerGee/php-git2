@@ -25,7 +25,8 @@ namespace php_git2
     using php_git_commit_array_length_connector = php_git2::connector_wrapper<
         php_git2::php_array_length_connector<
             size_t,
-            php_git2::php_git_commit_array>
+            php_git2::php_git_commit_array
+            >
         >;
 
 } // php_git2

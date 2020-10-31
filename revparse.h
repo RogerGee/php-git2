@@ -9,16 +9,13 @@
 
 namespace php_git2
 {
-
     // Define a type for creating a new refspec and converting it to a PHP array
     // for userspace.
 
-    class php_git2_revspec_ref:
-        private php_zts_base
+    class php_git2_revspec_ref
     {
     public:
-        php_git2_revspec_ref(TSRMLS_D):
-            php_zts_base(TSRMLS_C)
+        php_git2_revspec_ref()
         {
             memset(&revspec,0,sizeof(git_revspec));
         }
@@ -32,10 +29,8 @@ namespace php_git2
         {
             // Convert the revspec into a PHP array.
 
-            zval* zfrom = nullptr;
-            zval* zto = nullptr;
-            php_resource_ref<php_git_object> fieldFrom ZTS_CTOR;
-            php_resource_ref<php_git_object> fieldTo ZTS_CTOR;
+            php_resource_ref<php_git_object> fieldFrom;
+            php_resource_ref<php_git_object> fieldTo;
 
             array_init(return_value);
 
@@ -44,9 +39,9 @@ namespace php_git2
             // imply a range.
 
             if (revspec.from != nullptr) {
-                MAKE_STD_ZVAL(zfrom);
+                zval zfrom;
                 *fieldFrom.byval_git2() = revspec.from;
-                fieldFrom.ret(zfrom);
+                fieldFrom.ret(&zfrom);
                 add_assoc_zval(return_value,"from",zfrom);
             }
             else {
@@ -54,9 +49,9 @@ namespace php_git2
             }
 
             if (revspec.to != nullptr) {
-                MAKE_STD_ZVAL(zto);
+                zval zto;
                 *fieldTo.byval_git2() = revspec.to;
-                fieldTo.ret(zto);
+                fieldTo.ret(&zto);
                 add_assoc_zval(return_value,"to",zto);
             }
             else {

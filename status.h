@@ -21,18 +21,17 @@ namespace php_git2
     // struct.
 
     class php_git_status_options:
-        public php_value_base
+        public php_option_array
     {
     public:
-        php_git_status_options(TSRMLS_D):
-            strarray(TSRMLS_C)
+        php_git_status_options()
         {
             git_status_init_options(&opts,GIT_STATUS_OPTIONS_VERSION);
         }
 
         git_status_options* byval_git2()
         {
-            if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
+            if (!is_null()) {
                 array_wrapper arr(value);
 
                 GIT2_ARRAY_LOOKUP_LONG(arr,show,opts);
@@ -54,8 +53,6 @@ namespace php_git2
     class php_git_status_entry_rethandler
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_status_entry_rethandler)
-
         bool ret(const git_status_entry* ent,zval* return_value,local_pack<Ts...>& pack)
         {
             if (ent == nullptr) {
@@ -80,8 +77,6 @@ namespace php_git2
             php_string
             >;
 
-        ZTS_CONSTRUCTOR(php_git_status_file_rethandler)
-
         bool ret(int result,zval* return_value,pack_type& pack)
         {
             if (result == 0) {
@@ -100,7 +95,8 @@ namespace php_git2
             return false;
         }
     };
-}
+
+} // namespace php_git2
 
 static constexpr auto ZIF_GIT_STATUS_BYINDEX = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<

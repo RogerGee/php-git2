@@ -23,15 +23,9 @@ namespace php_git2
 
     // Provide rethandler for returning git_tree_entry.
     template<typename... Ts>
-    class php_git_tree_entry_rethandler:
-        private php_zts_base
+    class php_git_tree_entry_rethandler
     {
     public:
-        php_git_tree_entry_rethandler(TSRMLS_D):
-            php_zts_base(TSRMLS_C)
-        {
-        }
-
         bool ret(const git_tree_entry* retval,zval* return_value,local_pack<Ts...>& pack)
         {
             // The functions that target this return handler return NULL if the
@@ -56,7 +50,8 @@ namespace php_git2
             return true;
         }
     };
-}
+
+} // namespace php_git2
 
 // Template declarations for bindings:
 

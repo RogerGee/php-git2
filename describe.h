@@ -16,17 +16,17 @@ namespace php_git2
     }
 
     class php_git_describe_options:
-        public php_value_base
+        public php_option_array
     {
     public:
-        php_git_describe_options(TSRMLS_D)
+        php_git_describe_options()
         {
             git_describe_init_options(&opts,GIT_DESCRIBE_OPTIONS_VERSION);
         }
 
         /*const*/ git_describe_options* byval_git2()
         {
-            if (Z_TYPE_P(value) == IS_ARRAY) {
+            if (!is_null()) {
                 array_wrapper arr(value);
 
                 GIT2_ARRAY_LOOKUP_LONG(arr,version,opts);
@@ -35,9 +35,6 @@ namespace php_git2
                 GIT2_ARRAY_LOOKUP_STRING_NULLABLE(arr,pattern,opts);
                 GIT2_ARRAY_LOOKUP_BOOL(arr,only_follow_first_parent,opts);
                 GIT2_ARRAY_LOOKUP_BOOL(arr,show_commit_oid_as_fallback,opts);
-            }
-            else if (Z_TYPE_P(value) != IS_NULL) {
-                error("array",argno);
             }
 
             return &opts;
@@ -48,26 +45,23 @@ namespace php_git2
     };
 
     class php_git_describe_format_options:
-        public php_value_base
+        public php_option_array
     {
     public:
-        php_git_describe_format_options(TSRMLS_D)
+        php_git_describe_format_options()
         {
             git_describe_init_format_options(&opts,GIT_DESCRIBE_FORMAT_OPTIONS_VERSION);
         }
 
         const git_describe_format_options* byval_git2()
         {
-            if (Z_TYPE_P(value) == IS_ARRAY) {
+            if (!is_null()) {
                 array_wrapper arr(value);
 
                 GIT2_ARRAY_LOOKUP_LONG(arr,version,opts);
                 GIT2_ARRAY_LOOKUP_LONG(arr,abbreviated_size,opts);
                 GIT2_ARRAY_LOOKUP_BOOL(arr,always_use_long_format,opts);
                 GIT2_ARRAY_LOOKUP_STRING_NULLABLE(arr,dirty_suffix,opts);
-            }
-            else if (Z_TYPE_P(value) != IS_NULL) {
-                error("array",argno);
             }
 
             return &opts;
