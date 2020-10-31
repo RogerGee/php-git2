@@ -160,12 +160,11 @@ namespace php_git2
     // Provide types for tracking bailouts and manipulating PHP bailout jump
     // buffers.
 
-    class php_bailer:
-        private php_zts_base
+    class php_bailer
     {
     public:
-        php_bailer(TSRMLS_D):
-            php_zts_base(TSRMLS_C), flag(false)
+        php_bailer():
+            flag(false)
         {
         }
 
@@ -370,20 +369,26 @@ namespace php_git2
     class php_exception_wrapper
     {
     public:
-        php_exception_wrapper():
-            ex(EG(exception))
+        php_exception_wrapper()
         {
+            zend_object* ob = EG(exception);
+            if (ob != nullptr) {
+                ZVAL_OBJ(&zex,ob);
+            }
+            else {
+                ZVAL_UNDEF(&zex);
+            }
         }
 
         bool has_exception() const
         {
-            return ex != nullptr;
+            return Z_TYPE(zex) != IS_UNDEF;
         }
 
         void handle()
         {
             zend_clear_exception();
-            ex = nullptr;
+            ZVAL_UNDEF(&zex);
         }
 
         void set_giterr() const;
@@ -393,7 +398,7 @@ namespace php_git2
         php_exception_wrapper(const php_exception_wrapper&) = delete;
         php_exception_wrapper& operator =(const php_exception_wrapper&) = delete;
 
-        zend_object* ex;
+        zval zex;
     };
 
     // Provide a function to handle a generic libgit2 error. It is generic for
