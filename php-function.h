@@ -303,7 +303,7 @@ namespace php_git2
     // Provide a special case for when N wraps around to 0-1. This will become
     // the max unsigned integer. We need this to generate an empty sequence.
     template<>
-    struct gen_seq<ARGNO_MAX>
+    struct gen_seq<std::numeric_limits<unsigned>::max()>
     {
         using type = sequence<>;
     };
@@ -313,7 +313,7 @@ namespace php_git2
 
     // Provide a function that extracts zvals into a local pack.
 
-    void php_extract_args_impl(int nargs,zval* args,php_value* dest,int ngiven);
+    void php_extract_args_impl(int nargs,zval* args,php_value_base* dest[],int ngiven);
 
     template<typename... Ts,unsigned... Ns>
     inline void php_extract_args(local_pack<Ts...>& pack,sequence<Ns...>&& seq,int ngiven)
@@ -321,7 +321,7 @@ namespace php_git2
         constexpr int NARGS = sizeof...(Ns);
 
         zval args[NARGS];
-        php_value* dest[] = { pack.template get<Ns>()... };
+        php_value_base* dest[] = { &pack.template get<Ns>()... };
 
         php_extract_args_impl(NARGS,args,dest,ngiven);
     }
@@ -452,7 +452,7 @@ namespace php_git2
         if (retval != nullptr) {
             char buf[GIT_OID_HEXSZ + 1];
             git_oid_tostr(buf,sizeof(buf),retval);
-            RETVAL_STRING(buf,strlen(buf));
+            RETVAL_STRINGL(buf,strlen(buf));
         }
         else {
             RETVAL_NULL();

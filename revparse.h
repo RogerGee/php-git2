@@ -42,7 +42,7 @@ namespace php_git2
                 zval zfrom;
                 *fieldFrom.byval_git2() = revspec.from;
                 fieldFrom.ret(&zfrom);
-                add_assoc_zval(return_value,"from",zfrom);
+                add_assoc_zval(return_value,"from",&zfrom);
             }
             else {
                 add_assoc_null(return_value,"from");
@@ -52,7 +52,7 @@ namespace php_git2
                 zval zto;
                 *fieldTo.byval_git2() = revspec.to;
                 fieldTo.ret(&zto);
-                add_assoc_zval(return_value,"to",zto);
+                add_assoc_zval(return_value,"to",&zto);
             }
             else {
                 add_assoc_null(return_value,"to");

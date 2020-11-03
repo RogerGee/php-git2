@@ -152,8 +152,7 @@ static constexpr auto ZIF_GIT_OBJECT_SHORT_ID = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_OBJECT_STRING2TYPE = zif_php_git2_function<

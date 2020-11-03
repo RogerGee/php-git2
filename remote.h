@@ -208,8 +208,7 @@ namespace php_git2
     };
 
     class php_git_push_options:
-        public php_value_base,
-        private php_zts_base
+        public php_option_array
     {
     public:
         php_git_push_options()

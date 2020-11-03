@@ -77,7 +77,7 @@ static int reflog_entry_from_array(git_reflog_entry** out,zval* zarr)
         giterr_set_str(GIT_EINVALID,"Reflog entry must have 'committer' member");
         return GIT_ERROR;
     }
-    committer = convert_signature(arr.get_zval());
+    committer = convert_signature(arr.get_value());
     if (committer == nullptr) {
         giterr_set_str(GIT_EINVALID,"Failed to extract 'committer' from reflog entry");
         return GIT_ERROR;

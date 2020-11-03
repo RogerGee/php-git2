@@ -57,18 +57,11 @@ namespace php_git2
                     payload,
                     opts);
 
-                // Force payload to be pair of callbacks and check callable zval
-                // type.
+                // Force payload to be pair of callbacks.
                 if (opts.notify_cb != nullptr) {
-                    if (!callbacks.notifyCallback.is_callable()) {
-                        error_custom("Element 'notify_cb' must be a callable",argno);
-                    }
                     opts.payload = reinterpret_cast<void*>(&callbacks);
                 }
                 if (opts.progress_cb != nullptr) {
-                    if (!callbacks.progressCallback.is_callable()) {
-                        error_custom("Element 'progress_cb' must be a callable",argno);
-                    }
                     opts.payload = reinterpret_cast<void*>(&callbacks);
                 }
 
@@ -141,14 +134,10 @@ namespace php_git2
         }
 
     protected:
-        target_t get_cfunc(unsigned argno,const php_callback_base& cb)
+        target_t get_cfunc(const php_callback_base& cb)
         {
             if (cb.is_null()) {
                 return nullptr;
-            }
-
-            if (!cb.is_callable()) {
-                php_value_base::error("callable",argno);
             }
 
             return CallbackType::callback;
@@ -181,7 +170,7 @@ namespace php_git2
 
         target_t byval_git2()
         {
-            return this->get_cfunc(argno,this->info.fileCallback);
+            return this->get_cfunc(this->info.fileCallback);
         }
     };
 
@@ -203,7 +192,7 @@ namespace php_git2
 
         target_t byval_git2()
         {
-            return this->get_cfunc(argno,this->info.binaryCallback);
+            return this->get_cfunc(this->info.binaryCallback);
         }
     };
 
@@ -225,7 +214,7 @@ namespace php_git2
 
         target_t byval_git2()
         {
-            return this->get_cfunc(argno,this->info.hunkCallback);
+            return this->get_cfunc(this->info.hunkCallback);
         }
     };
 
@@ -247,7 +236,7 @@ namespace php_git2
 
         target_t byval_git2()
         {
-            return this->get_cfunc(argno,this->info.lineCallback);
+            return this->get_cfunc(this->info.lineCallback);
         }
     };
 
@@ -261,25 +250,6 @@ namespace php_git2
 
         void* byval_git2()
         {
-            // Check types of all callbacks. All callbacks are allowed to be
-            // null.
-            if (!info.fileCallback.is_null() && !info.fileCallback.is_callable()) {
-                php_value_base::error_custom("Expected 'callable' for file callback",
-                    ARGNO_MAX);
-            }
-            if (!info.binaryCallback.is_null() && !info.binaryCallback.is_callable()) {
-                php_value_base::error_custom("Expected 'callable' for binary callback",
-                    ARGNO_MAX);
-            }
-            if (!info.hunkCallback.is_null() && !info.hunkCallback.is_callable()) {
-                php_value_base::error_custom("Expected 'callable' for hunk callback",
-                    ARGNO_MAX);
-            }
-            if (!info.lineCallback.is_null() && !info.lineCallback.is_callable()) {
-                php_value_base::error_custom("Expected 'callable' for line callback",
-                    ARGNO_MAX);
-            }
-
             return reinterpret_cast<void*>(&info);
         }
 
@@ -393,7 +363,7 @@ namespace php_git2
             GIT2_ARRAY_LOOKUP_STRING(arr,body,opts);
 
             if (arr.query("author",sizeof("author")-1)) {
-                zval* zv = arr.get_zval();
+                zval* zv = arr.get_value();
                 git_signature* author;
 
                 if (Z_TYPE_P(zv) == IS_ARRAY) {

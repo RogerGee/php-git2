@@ -103,7 +103,7 @@ namespace php_git2
             // If the object doesn't have a backing, then we create a custom
             // one.
             if (object->kind == php_odb_backend_object::unset) {
-                object->create_custom_backend(value);
+                object->create_custom_backend(get_value());
             }
 
             // If the object is a custom backing then it already is (presumably)
@@ -243,7 +243,7 @@ namespace php_git2
                 // Make a binary string for the return value. The length is
                 // obtained from the odb_object attached to the local_pack.
                 size_t length;
-                length = git_odb_object_size(pack.get<0>().get_object(1)->get_handle());
+                length = git_odb_object_size(pack.get<0>().get_object()->get_handle());
                 RETVAL_STRINGL((const char*)retval,length);
             }
             else {

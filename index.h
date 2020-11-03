@@ -101,13 +101,13 @@ namespace php_git2
     };
 
     class php_git_index_entry_out:
-        public php_value_base,
+        public php_value_generic,
         public php_git_index_entry_ref
     {
     public:
         ~php_git_index_entry_out()
         {
-            ret(value);
+            ret(get_value());
         }
     };
 
@@ -459,7 +459,6 @@ static constexpr auto ZIF_GIT_INDEX_OWNER = zif_php_git2_function_rethandler<
         php_git2::php_resource_ref<php_git2::php_git_repository_nofree>
         >,
     php_git2::php_owner_rethandler<php_git2::php_git_index>,
-    php_git2::sequence<0>,
     php_git2::sequence<0>,
     php_git2::sequence<0>
     >;

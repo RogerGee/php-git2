@@ -13,7 +13,6 @@ extern "C" {
 
 namespace php_git2
 {
-
     // Explicitly specialize git2_resource destructor for git_reference.
     template<> php_git_reference::~git2_resource()
     {
@@ -542,7 +541,6 @@ static constexpr auto ZIF_GIT_REFERENCE_FOREACH_NAME = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<0,2,2>, // pass callback in twice for function and payload
-    php_git2::sequence<0,1,2>,
     php_git2::sequence<0,1,2>
     >;
 

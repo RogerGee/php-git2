@@ -152,7 +152,6 @@ static constexpr auto ZIF_GIT_COMMIT_OWNER = zif_php_git2_function_rethandler<
         >,
     php_git2::php_owner_rethandler<php_git2::php_git_commit>,
     php_git2::sequence<0>,
-    php_git2::sequence<0>,
     php_git2::sequence<0>
     >;
 

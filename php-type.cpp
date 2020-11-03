@@ -63,6 +63,13 @@ void php_value_base::parse_ex(zval* zvp,const char* ctx)
     }
 }
 
+// php_value_generic
+
+void php_value_generic::parse_impl(zval* zvp,int)
+{
+    ZVAL_COPY_VALUE(&value,zvp);
+}
+
 // php_resource_base
 
 void php_resource_base::parse_impl(zval* zvp,int argno)

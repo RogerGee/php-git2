@@ -183,7 +183,8 @@ static PHP_FUNCTION(git2_indexer_stats)
             indexer.parse(zvp,1);
 
             try {
-                stats = indexer.get_object(1)->get_stats();
+                stats = indexer.get_object()->get_stats();
+
             } catch (php_git2::php_git2_exception_base& ex) {
                 php_git2::php_bailout_context ctx2(bailer TSRMLS_CC);
 

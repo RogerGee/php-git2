@@ -39,7 +39,7 @@ namespace php_git2
             // If the object doesn't have a backing, then we create a custom
             // one.
             if (object->backend == nullptr) {
-                object->create_custom_backend(value);
+                object->create_custom_backend(get_value());
             }
 
             // If the object has a custom backing then it is (presumably)
@@ -64,7 +64,7 @@ namespace php_git2
         connect_t& ownerWrapper;
     };
 
-    class php_git_refdb_backend_ref:
+    class php_git_refdb_backend_ref
     {
     public:
         php_git_refdb_backend_ref():

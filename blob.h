@@ -28,7 +28,7 @@ namespace php_git2
                 // Make a binary string for the return value. The length is
                 // obtained from the blob attached to the local_pack.
                 size_t length;
-                length = git_blob_rawsize(pack.get<0>().get_object(1)->get_handle());
+                length = git_blob_rawsize(pack.get<0>().get_object()->get_handle());
                 RETVAL_STRINGL((const char*)retval,length);
             }
             else {
@@ -96,7 +96,7 @@ namespace php_git2
                 throw php_git2_exception("The writestream has already been closed");
             }
 
-            ws = object->ws;
+            auto ws = object->ws;
             object->ws = nullptr;
 
             return ws;

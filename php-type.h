@@ -9,9 +9,6 @@
 #include "php-array.h"
 #include "php-resource.h"
 #include <new>
-#include <limits>
-
-#define ARGNO_MAX std::numeric_limits<unsigned>::max()
 
 namespace php_git2
 {
@@ -57,6 +54,13 @@ namespace php_git2
         virtual void parse_impl(zval* zvp,int argno) = 0;
     };
 
+    class php_value_generic:
+        public php_value_base
+    {
+    private:
+        virtual void parse_impl(zval* zvp,int argno);
+    };
+
     template<typename T>
     class php_value;
 
@@ -65,8 +69,6 @@ namespace php_git2
         public php_value_base
     {
     public:
-        ZTS_CONSTRUCTOR(php_value)
-
         long byval_git2() const
         {
             return static_cast<long>(Z_LVAL(value));
@@ -97,8 +99,6 @@ namespace php_git2
         public php_value_base
     {
     public:
-        ZTS_CONSTRUCTOR(php_value)
-
         bool byval_git2() const
         {
             return Z_LVAL(value) ? true : false;
@@ -133,8 +133,6 @@ namespace php_git2
         public php_value_base
     {
     public:
-        ZTS_CONSTRUCTOR(php_value)
-
         double byval_git2() const
         {
             return Z_DVAL(value);
@@ -162,11 +160,9 @@ namespace php_git2
 
     template<>
     class php_value<const char*>:
-        public php_value_base
+        virtual public php_value_base
     {
     public:
-        ZTS_CONSTRUCTOR(php_value)
-
         const char* byval_git2() const
         {
             return Z_STRVAL(value);
@@ -204,14 +200,14 @@ namespace php_git2
     // Provide a nullable string type.
 
     class php_string_nullable:
-        public php_string
+        virtual public php_string
     {
     public:
         ZTS_CONSTRUCTOR_WITH_BASE(php_string_nullable,php_string)
 
         const char* byval_git2() const
         {
-            if (Z_TYPE(value) == IS_NULL) {
+            if (is_null()) {
                 return nullptr;
             }
 
@@ -483,44 +479,34 @@ namespace php_git2
         typedef GitResource resource_t;
 
         php_resource(TSRMLS_D):
-            php_zts_base(TSRMLS_C), rsrc(nullptr)
+            php_zts_base(TSRMLS_C)
         {
         }
 
-        typename GitResource::git2_type
-        byval_git2()
+        typename GitResource::git2_type byval_git2()
         {
-            return lookup()->get_handle();
+            return get_object()->get_handle();
         }
 
         // This member function is used to retrieve the resource object. We must
         // make sure it has been fetched from the resource value.
         GitResource* get_object()
         {
-            return lookup();
+            return reinterpret_cast<GitResource*>(Z_RES_VAL(value));
         }
 
     private:
-        // Cache the resource object.
-        GitResource* rsrc;
-
-        GitResource* lookup()
+        virtual void parse_impl(zval* zvp,int argno)
         {
-            if (rsrc == nullptr) {
-                // Fetch the resource handle. Zend will perform error checking
-                // on the resource type.
-                rsrc = static_cast<GitResource*>(
-                    zend_fetch_resource(Z_RES(value),
-                        GitResource::resource_name(),
-                        GitResource::resource_le())
-                    );
+            void* result;
+            php_resource_base::parse_impl(zvp,argno);
+            result = zend_fetch_resource(Z_RES(value),
+                GitResource::resource_name(),
+                GitResource::resource_le());
 
-                if (rsrc == nullptr) {
-                    throw php_git2_exception("The specified resource is invalid");
-                }
+            if (result == nullptr) {
+                throw php_git2_propagated_exception();
             }
-
-            return rsrc;
         }
     };
 
@@ -583,8 +569,10 @@ namespace php_git2
 
         void ret(zval* return_value) const
         {
-            // Create a resource zval that uses the GitResource backing.
-            zend_register_resource(return_value,rsrc,GitResource::resource_le() TSRMLS_CC);
+            zend_resource* zr;
+
+            zr = zend_register_resource(rsrc,GitResource::resource_le());
+            RETVAL_RES(zr);
         }
 
         GitResource* get_object() const
@@ -730,40 +718,29 @@ namespace php_git2
     class php_resource_nullable:
         public php_resource<GitResource>
     {
+        using base = php_resource<GitResource>;
     public:
-        ZTS_CONSTRUCTOR_WITH_BASE(php_resource_nullable,php_resource<GitResource>)
-
         typename GitResource::git2_type byval_git2()
         {
-            GitResource* rsrc;
-
             // Resource may be null.
-            if (Z_TYPE(value) == IS_NULL) {
+            if (base::is_null()) {
                 return nullptr;
             }
 
-            // Fetch the resource handle. Zend will perform error checking on
-            // the resource type.
-            rsrc = static_cast<GitResource*>(
-                zend_fetch_resource(Z_RES(value),
-                    GitResource::resource_name(),
-                    GitResource::resource_le())
-                );
-
-            if (rsrc == nullptr) {
-                throw php_git2_exception("Fetched resource is invalid");
-            }
-
-            return rsrc->get_handle();
+            return base::byval_git2();
         }
 
         GitResource* get_object()
         {
-            return nullptr;
+            if (base::is_null()) {
+                return nullptr;
+            }
+
+            return base::get_object();
         }
 
     protected:
-        using php_resource<GitResource>::value;
+        using base::value;
 
     private:
         virtual void parse_impl(zval* zvp,int argno)
@@ -773,7 +750,7 @@ namespace php_git2
                 return;
             }
 
-            php_resource<GitResource>::parse_impl(zvp,argno);
+            base::parse_impl(zvp,argno);
         }
     };
 
@@ -790,28 +767,12 @@ namespace php_git2
         {
         }
 
-        typename GitResource::git2_type
-        byval_git2()
+        typename GitResource::git2_type byval_git2()
         {
-            GitResource* rsrc;
-
-            // Fetch the resource handle.
-            rsrc = static_cast<GitResource*>(
-                zend_fetch_resource(Z_RES(value),
-                    GitResource::resource_name(),
-                    GitResource::resource_le())
-                );
-
-            if (rsrc == nullptr) {
-                throw php_git2_exception("Fetched resource is invalid");
-            }
-
             // Delete the PHP resource. This will cause the resource to be
-            // invalidated across any zvals that reference it, and the
-            // underlying handle will be destroyed (if it has no more
-            // references).
-            zend_hash_index_del(&EG(regular_list),Z_RES_HANDLE(value));
-            value = nullptr;
+            // invalidated across any zvals that reference it and the underlying
+            // handle will be destroyed (if it has no more references).
+            zend_list_close(Z_RES(value));
 
             // The return value should not be used. We do not attempt frees
             // directly from user space.
@@ -835,11 +796,9 @@ namespace php_git2
         ~php_resource_cleanup_delayed()
         {
             // Delete the PHP resource. This will cause the resource to be
-            // invalidated across any zvals that reference it, and the
-            // underlying handle will be destroyed (if it has no more
-            // references).
-            zend_hash_index_del(&EG(regular_list),Z_RESVAL(value));
-            value = nullptr;
+            // invalidated across any zvals that reference it and the underlying
+            // handle will be destroyed (if it has no more references).
+            zend_list_close(Z_RES(value));
         }
 
     protected:
@@ -871,7 +830,7 @@ namespace php_git2
     };
 
     class php_git_oid_fromstr:
-        public php_string
+        virtual public php_string
     {
     public:
         ZTS_CONSTRUCTOR(php_git_oid_fromstr)
@@ -1280,7 +1239,7 @@ namespace php_git2
 
         git_strarray* byval_git2()
         {
-            if (Z_TYPE(value) == IS_NULL) {
+            if (is_null()) {
                 return nullptr;
             }
 

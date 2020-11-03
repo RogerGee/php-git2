@@ -47,8 +47,8 @@ namespace php_git2
             }
 
             array_init(return_value);
-            add_assoc_string(return_value,"name",(char*)entry->name,1);
-            add_assoc_string(return_value,"value",(char*)entry->value,1);
+            add_assoc_string(return_value,"name",(char*)entry->name);
+            add_assoc_string(return_value,"value",(char*)entry->value);
             add_assoc_long(return_value,"level",entry->level);
         }
 
@@ -116,7 +116,7 @@ namespace php_git2
         using connect_t = php_resource<php_git_config>;
         using target_t = git_config_backend*;
 
-        php_git_config_backend(connect_t& conn)
+        php_git_config_backend(connect_t& conn):
             ownerWrapper(conn)
         {
         }
@@ -128,7 +128,7 @@ namespace php_git2
             // Create custom backing if one doesn't already exist. Make sure the
             // owner is attached to the object.
             if (object->backend == nullptr) {
-                object->create_custom_backend(value,ownerWrapper.get_object());
+                object->create_custom_backend(get_value(),ownerWrapper.get_object());
             }
             else if (object->owner != nullptr) {
                 throw php_git2_exception("The config backend is already owned by a repository");
