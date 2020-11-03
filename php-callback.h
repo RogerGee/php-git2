@@ -150,6 +150,12 @@ namespace php_git2
             return this;
         }
 
+        void set_members(zval* zvpFunc,zval* zvpPayload)
+        {
+            parse_with_context(zvpFunc,"callback");
+            parse_with_context(zvpPayload,"payload");
+        }
+
     protected:
         // NOTE: Callable is stored in base 'value' member.
         zval data; // payload

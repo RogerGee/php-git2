@@ -38,7 +38,9 @@ namespace php_git2
             parse_impl(zvp,argno);
         }
 
-        void set_zval(zval* zvp)
+        void parse_with_context(zval* zvp,const char* ctx);
+
+        void set_value(zval* zvp)
         {
             ZVAL_COPY_VALUE(&value,zvp);
         }
@@ -1159,7 +1161,7 @@ namespace php_git2
                  (element = zend_hash_get_current_data_ex(ht,&pos)) != nullptr;
                  zend_hash_move_forward_ex(ht,&pos))
             {
-                sources[i].set_zval(element);
+                sources[i].set_value(element);
                 data[i] = sources[i].byval_git2();
                 i += 1;
             }
@@ -1173,7 +1175,7 @@ namespace php_git2
         }
 
     private:
-        long cnt;
+        uint32_t cnt;
         SourceType* sources;
         ConvertType* data;
     };

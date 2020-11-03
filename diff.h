@@ -408,7 +408,7 @@ namespace php_git2
                 else if (Z_TYPE_P(zv) == IS_RESOURCE) {
                     php_resource<php_git_signature> sigres;
 
-                    sigres.set_zval(zv);
+                    sigres.parse_with_context(zv,"author");
                     author = sigres.get_object()->get_handle();
                 }
                 else {

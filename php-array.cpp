@@ -103,7 +103,7 @@ bool array_wrapper::get_bool() const
     return false;
 }
 
-zval* array_wrapper::get_zval() const
+zval* array_wrapper::get_value() const
 {
     if (found()) {
         return zvp;

@@ -212,7 +212,7 @@ php_git2_fatal_exception::php_git2_fatal_exception(const char* format, ...)
 
 // php_exception_wrapper
 
-void php_exception_wrapper::set_giterr() const
+const char* php_exception_wrapper::get_message() const
 {
     zval rv;
     zval* msg;
@@ -224,31 +224,30 @@ void php_exception_wrapper::set_giterr() const
         1,
         &rv);
 
+    return msg == nullptr ? nullptr : Z_STRVAL_P(msg);
+}
+
+void php_exception_wrapper::set_giterr() const
+{
+    const char* msg = get_message();
+
     if (msg != nullptr) {
-        php_git2_giterr_set(GITERR_INVALID,"%s",Z_STRVAL_P(msg));
+        php_git2_giterr_set(GITERR_INVALID,msg);
     }
     else {
         php_git2_giterr_set(GITERR_INVALID,"An exception occurred during the operation");
     }
 }
 
-void php_exception_wrapper::throw_php_git2_exception() const
+void php_exception_wrapper::throw_fatal() const
 {
-    zval rv;
-    zval* msg;
-
-    msg = zend_read_property(Z_OBJCE(zex),
-        const_cast<zval*>(&zex),
-        "message",
-        sizeof("message")-1,
-        1,
-        &rv);
+    const char* msg = get_message();
 
     if (msg != nullptr) {
-        throw php_git2_fatal_exception("%s",Z_STRVAL_P(msg));
+        throw php_git2_fatal_exception(msg);
     }
 
-    throw php_git2_fatal_exception("%s","An exception occurred during the operation");
+    throw php_git2_fatal_exception("An exception occurred during the operation");
 }
 
 // php_git2::git_error<int>()

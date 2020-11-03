@@ -380,6 +380,8 @@ namespace php_git2
             }
         }
 
+        const char* get_message() const;
+
         bool has_exception() const
         {
             return Z_TYPE(zex) != IS_UNDEF;
@@ -392,7 +394,7 @@ namespace php_git2
         }
 
         void set_giterr() const;
-        void throw_php_git2_exception() const;
+        void throw_fatal() const;
 
     private:
         php_exception_wrapper(const php_exception_wrapper&) = delete;

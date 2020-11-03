@@ -337,7 +337,7 @@ PHP_METHOD(GitRefDBBackend_Internal,write)
         git_signature* sig;
         php_resource<php_git_reference> ref ZTS_CTOR;
 
-        ref.set_zval(zref);
+        ref.set_value(zref);
         sig = convert_signature(zwho);
         if (sig == nullptr) {
             throw php_git2_fatal_exception("GitRefDBBackend_Internal::write(): signature array is incorrect");
@@ -662,7 +662,7 @@ PHP_METHOD(GitRefDBBackend_Internal,reflog_write)
         int retval;
         php_resource<php_git_reflog> reflog ZTS_CTOR;
 
-        reflog.set_zval(zreflog);
+        reflog.set_value(zreflog);
 
         retval = object->backend->reflog_write(object->backend,reflog.byval_git2());
         if (retval < 0) {
