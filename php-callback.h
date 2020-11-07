@@ -465,8 +465,8 @@ namespace php_git2
         {
         }
 
-        php_callback_base notifyCallback;
-        php_callback_base progressCallback;
+        php_callback_sync notifyCallback;
+        php_callback_sync progressCallback;
     };
 
     struct diff_notify_callback
@@ -491,11 +491,16 @@ namespace php_git2
 
     struct git_diff_callback_info
     {
-        php_callback_base fileCallback;
-        php_callback_base binaryCallback;
-        php_callback_base hunkCallback;
-        php_callback_base lineCallback;
-        zval zpayload;
+        git_diff_callback_info(zval* zvp):
+            zpayload(zvp)
+        {
+        }
+
+        php_callback_sync* fileCallback;
+        php_callback_sync* binaryCallback;
+        php_callback_sync* hunkCallback;
+        php_callback_sync* lineCallback;
+        zval* zpayload;
     };
 
     struct diff_file_callback
@@ -639,20 +644,17 @@ namespace php_git2
         {
         }
 
-        // TODO Handle lifetime of callbacks. The php_callback_base currently
-        // leaves the callback+payload zvals allocated.
-
-        php_callback_base transportMessageCallback;
-        php_callback_base completionCallback;
-        php_callback_base credAcquireCallback;
-        php_callback_base transportCertificateCheckCallback;
-        php_callback_base transferProgressCallback;
-        php_callback_base updateTipsCallback;
-        php_callback_base packbuilderProgressCallback;
-        php_callback_base pushTransferProgressCallback;
-        php_callback_base pushUpdateReferenceCallback;
-        php_callback_base pushNegotiationCallback;
-        //php_callback_base transportCallback;
+        php_callback_sync transportMessageCallback;
+        php_callback_sync completionCallback;
+        php_callback_sync credAcquireCallback;
+        php_callback_sync transportCertificateCheckCallback;
+        php_callback_sync transferProgressCallback;
+        php_callback_sync updateTipsCallback;
+        php_callback_sync packbuilderProgressCallback;
+        php_callback_sync pushTransferProgressCallback;
+        php_callback_sync pushUpdateReferenceCallback;
+        php_callback_sync pushNegotiationCallback;
+        //php_callback_sync transportCallback;
     };
 
     struct remote_transport_message_callback

@@ -622,10 +622,11 @@ int diff_progress_callback::callback(
 
 int diff_file_callback::callback(const git_diff_delta* delta,float progress,void* payload)
 {
+    php_callback_base* cb;
     git_diff_callback_info* info;
-    info = reinterpret_cast<git_diff_callback_info*>(payload);
 
-    php_callback_base* cb = &info->fileCallback;
+    info = reinterpret_cast<git_diff_callback_info*>(payload);
+    cb = info->fileCallback;
 
 #ifdef ZTS
     TSRMLS_D = ZTS_MEMBER_PC(cb);
@@ -649,10 +650,11 @@ int diff_binary_callback::callback(const git_diff_delta* delta,
     const git_diff_binary* binary,
     void* payload)
 {
+    php_callback_base* cb;
     git_diff_callback_info* info;
-    info = reinterpret_cast<git_diff_callback_info*>(payload);
 
-    php_callback_base* cb = &info->binaryCallback;
+    info = reinterpret_cast<git_diff_callback_info*>(payload);
+    cb = info->binaryCallback;
 
 #ifdef ZTS
     TSRMLS_D = ZTS_MEMBER_PC(cb);
@@ -677,10 +679,11 @@ int diff_hunk_callback::callback(const git_diff_delta* delta,
     const git_diff_hunk* hunk,
     void* payload)
 {
+    php_callback_base* cb;
     git_diff_callback_info* info;
-    info = reinterpret_cast<git_diff_callback_info*>(payload);
 
-    php_callback_base* cb = &info->hunkCallback;
+    info = reinterpret_cast<git_diff_callback_info*>(payload);
+    cb = info->hunkCallback;
 
 #ifdef ZTS
     TSRMLS_D = ZTS_MEMBER_PC(cb);
@@ -706,10 +709,11 @@ int diff_line_callback::callback(const git_diff_delta* delta,
     const git_diff_line* line,
     void* payload)
 {
+    php_callback_base* cb;
     git_diff_callback_info* info;
-    info = reinterpret_cast<git_diff_callback_info*>(payload);
 
-    php_callback_base* cb = &info->lineCallback;
+    info = reinterpret_cast<git_diff_callback_info*>(payload);
+    cb = info->lineCallback;
 
 #ifdef ZTS
     TSRMLS_D = ZTS_MEMBER_PC(cb);

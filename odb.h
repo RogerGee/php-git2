@@ -665,7 +665,8 @@ static constexpr auto ZIF_GIT_ODB_EXISTS_PREFIX = zif_php_git2_function<
         php_git2::php_git_oid_out,
         php_git2::php_resource<php_git2::php_git_odb>,
         php_git2::connector_wrapper<
-            php_git2::php_string_length_connector<size_t,php_git2::php_git_oid_fromstr> >,
+            php_git2::php_string_length_connector<size_t,php_git2::php_git_oid_fromstr>
+            >,
         php_git2::php_git_oid_fromstr
         >,
     0,

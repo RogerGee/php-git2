@@ -110,142 +110,13 @@ namespace php_git2
         git_diff_find_options opts;
     };
 
-    // Define types for grabbing callback functions. All callbacks target the
-    // same git_diff_callback_info object which is obtained by chaining
-    // connectors through a local pack. The types are specialized for each
-    // callback. Each object is also used to obtain the underlying
-    // ptr-to-function for each callback if a valid PHP callback was obtained.
-
-    template<typename ConnectType,typename CallbackType>
-    class php_git_diff_callback_base
+    class php_git_diff_callback_payload:
+        public php_value_generic
     {
     public:
-        typedef ConnectType connect_t;
-        typedef typename CallbackType::type target_t;
-
-        php_git_diff_callback_base(git_diff_callback_info& obj):
-           info(obj)
+        php_git_diff_callback_payload():
+            info(get_value())
         {
-        }
-
-        operator git_diff_callback_info&()
-        {
-            return this->info;
-        }
-
-    protected:
-        target_t get_cfunc(const php_callback_base& cb)
-        {
-            if (cb.is_null()) {
-                return nullptr;
-            }
-
-            return CallbackType::callback;
-        }
-
-        git_diff_callback_info& info;
-    };
-
-    template<typename ConnectType,typename CallbackType>
-    class php_git_diff_callback
-        : public php_git_diff_callback_base<ConnectType,CallbackType>
-    {
-    };
-
-    template<typename ConnectType>
-    class php_git_diff_callback<ConnectType,diff_file_callback>:
-        public php_git_diff_callback_base<ConnectType,diff_file_callback>
-    {
-    public:
-        using my_base = php_git_diff_callback_base<ConnectType,diff_file_callback>;
-        using typename my_base::connect_t;
-        using typename my_base::target_t;
-
-        using my_base::my_base;
-
-        zval* get_value()
-        {
-            return this->info.fileCallback.get_value();
-        }
-
-        target_t byval_git2()
-        {
-            return this->get_cfunc(this->info.fileCallback);
-        }
-    };
-
-    template<typename ConnectType>
-    class php_git_diff_callback<ConnectType,diff_binary_callback>:
-        public php_git_diff_callback_base<ConnectType,diff_binary_callback>
-    {
-    public:
-        using my_base = php_git_diff_callback_base<ConnectType,diff_binary_callback>;
-        using typename my_base::connect_t;
-        using typename my_base::target_t;
-
-        using my_base::my_base;
-
-        zval* get_value()
-        {
-            return this->info.binaryCallback.get_value();
-        }
-
-        target_t byval_git2()
-        {
-            return this->get_cfunc(this->info.binaryCallback);
-        }
-    };
-
-    template<typename ConnectType>
-    class php_git_diff_callback<ConnectType,diff_hunk_callback>:
-        public php_git_diff_callback_base<ConnectType,diff_hunk_callback>
-    {
-    public:
-        using my_base = php_git_diff_callback_base<ConnectType,diff_hunk_callback>;
-        using typename my_base::connect_t;
-        using typename my_base::target_t;
-
-        using my_base::my_base;
-
-        zval* get_value()
-        {
-            return this->info.hunkCallback.get_value();
-        }
-
-        target_t byval_git2()
-        {
-            return this->get_cfunc(this->info.hunkCallback);
-        }
-    };
-
-    template<typename ConnectType>
-    class php_git_diff_callback<ConnectType,diff_line_callback>:
-        public php_git_diff_callback_base<ConnectType,diff_line_callback>
-    {
-    public:
-        using my_base = php_git_diff_callback_base<ConnectType,diff_line_callback>;
-        using typename my_base::connect_t;
-        using typename my_base::target_t;
-
-        using my_base::my_base;
-
-        zval* get_value()
-        {
-            return this->info.lineCallback.get_value();
-        }
-
-        target_t byval_git2()
-        {
-            return this->get_cfunc(this->info.lineCallback);
-        }
-    };
-
-    class php_git_diff_callback_payload
-    {
-    public:
-        zval* get_value()
-        {
-            return &info.zpayload;
         }
 
         void* byval_git2()
@@ -253,7 +124,7 @@ namespace php_git2
             return reinterpret_cast<void*>(&info);
         }
 
-        operator git_diff_callback_info&()
+        git_diff_callback_info& get_info()
         {
             return info;
         }
@@ -262,31 +133,123 @@ namespace php_git2
         git_diff_callback_info info;
     };
 
-    // Enumerate connector types for the git_diff callback specializations.
+    // Define types for grabbing callback functions. All callbacks target the
+    // same git_diff_callback_info object which is obtained via connectors. The
+    // types are specialized for each callback. Each object is also used to
+    // obtain the underlying ptr-to-function for each callback if a valid PHP
+    // callback was obtained.
 
-    using diff_line_callback_info = php_git_diff_callback<
-        php_git_diff_callback_payload,
-        diff_line_callback
-        >;
-    using diff_line_callback_connector = connector_wrapper<diff_line_callback_info>;
+    template<typename CallbackType>
+    class php_git_diff_callback_base:
+        public php_callback_base
+    {
+    public:
+        typedef php_git_diff_callback_payload connect_t;
+        typedef typename CallbackType::type target_t;
 
-    using diff_hunk_callback_info = php_git_diff_callback<
-        diff_line_callback_info,
-        diff_hunk_callback
-        >;
-    using diff_hunk_callback_connector = connector_wrapper<diff_hunk_callback_info>;
+        php_git_diff_callback_base(php_git_diff_callback_payload& obj):
+           info(obj.get_info())
+        {
+        }
 
-    using diff_binary_callback_info = php_git_diff_callback<
-        diff_hunk_callback_info,
-        diff_binary_callback
-        >;
-    using diff_binary_callback_connector = connector_wrapper<diff_binary_callback_info>;
+        typename CallbackType::type byval_git2()
+        {
+            if (is_null()) {
+                return nullptr;
+            }
 
-    using diff_file_callback_info = php_git_diff_callback<
-        diff_binary_callback_info,
-        diff_file_callback
-        >;
-    using diff_file_callback_connector = connector_wrapper<diff_file_callback_info>;
+            return CallbackType::callback;
+        }
+
+    protected:
+        git_diff_callback_info& info;
+    };
+
+    template<typename CallbackType>
+    class php_git_diff_callback:
+        public php_git_diff_callback_base<CallbackType>
+    {
+    };
+
+    template<>
+    class php_git_diff_callback<diff_file_callback>:
+        public php_git_diff_callback_base<diff_file_callback>
+    {
+    public:
+        using base_t = php_git_diff_callback_base<diff_file_callback>;
+        using typename base_t::connect_t;
+        using typename base_t::target_t;
+
+        php_git_diff_callback(php_git_diff_callback_payload& obj):
+           base_t(obj)
+        {
+            info.fileCallback = this;
+        }
+    };
+
+    template<>
+    class php_git_diff_callback<diff_binary_callback>:
+        public php_git_diff_callback_base<diff_binary_callback>
+    {
+        using base_t = php_git_diff_callback_base<diff_binary_callback>;
+    public:
+        using typename base_t::connect_t;
+        using typename base_t::target_t;
+
+        php_git_diff_callback(php_git_diff_callback_payload& obj):
+           base_t(obj)
+        {
+            info.binaryCallback = this;
+        }
+    };
+
+    template<>
+    class php_git_diff_callback<diff_hunk_callback>:
+        public php_git_diff_callback_base<diff_hunk_callback>
+    {
+        using base_t = php_git_diff_callback_base<diff_hunk_callback>;
+    public:
+        using typename base_t::connect_t;
+        using typename base_t::target_t;
+
+        php_git_diff_callback(php_git_diff_callback_payload& obj):
+           base_t(obj)
+        {
+            info.hunkCallback = this;
+        }
+    };
+
+    template<>
+    class php_git_diff_callback<diff_line_callback>:
+        public php_git_diff_callback_base<diff_line_callback>
+    {
+    public:
+        using base_t = php_git_diff_callback_base<diff_line_callback>;
+        using typename base_t::connect_t;
+        using typename base_t::target_t;
+
+        php_git_diff_callback(php_git_diff_callback_payload& obj):
+           base_t(obj)
+        {
+            info.lineCallback = this;
+        }
+    };
+
+    // Enumerate connector types for the git_diff callback specializations. The
+    // callbacks always have the same parameter order, so we can parameterize
+    // the connector pack offsets here.
+
+    using diff_line_callback_info = php_git_diff_callback<diff_line_callback>;
+    using diff_line_callback_connector = connector_wrapper<diff_line_callback_info,1>;
+
+    using diff_hunk_callback_info = php_git_diff_callback<diff_hunk_callback>;
+    using diff_hunk_callback_connector = connector_wrapper<diff_hunk_callback_info,2>;
+
+    using diff_binary_callback_info = php_git_diff_callback<diff_binary_callback>;
+    using diff_binary_callback_connector = connector_wrapper<diff_binary_callback_info,3>;
+
+    using diff_file_callback_info = php_git_diff_callback<diff_file_callback>;
+    using diff_file_callback_connector = connector_wrapper<diff_file_callback_info,4>;
 
     // Misc. helper types
 

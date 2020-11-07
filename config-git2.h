@@ -107,7 +107,7 @@ namespace php_git2
 
     // Provide type for handling config backend parameters.
 
-    class php_git_config_backend:
+    class php_git_config_backend_owner_connector:
         public php_object<php_config_backend_object>
     {
     public:
@@ -116,7 +116,7 @@ namespace php_git2
         using connect_t = php_resource<php_git_config>;
         using target_t = git_config_backend*;
 
-        php_git_config_backend(connect_t& conn):
+        php_git_config_backend_owner_connector(connect_t& conn):
             ownerWrapper(conn)
         {
         }
@@ -145,7 +145,7 @@ namespace php_git2
     };
 
     class php_git_config_backend_byval:
-        public php_git_config_backend
+        public php_object<php_config_backend_object>
     {
     public:
         git_config_backend* byval_git2()
@@ -650,7 +650,7 @@ static constexpr auto ZIF_GIT_CONFIG_ADD_BACKEND = zif_php_git2_function<
         git_config_level_t,
         int>::func<git_config_add_backend>,
     php_git2::local_pack<
-        php_git2::connector_wrapper<php_git2::php_git_config_backend>,
+        php_git2::connector_wrapper<php_git2::php_git_config_backend_owner_connector>,
         php_git2::php_resource<php_git2::php_git_config>,
         php_git2::php_long_cast<git_config_level_t>,
         php_git2::php_bool
