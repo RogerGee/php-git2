@@ -210,7 +210,7 @@ namespace php_git2
     private:
         virtual void parse_impl(zval* zvp,int argno)
         {
-            return cb->parse_impl(zvp,argno);
+            return cb->parse(zvp,argno);
         }
     };
 

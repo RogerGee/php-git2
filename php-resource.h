@@ -9,6 +9,7 @@
 #include "php-git2.h"
 #include <new>
 #include <typeinfo>
+#include <iostream>
 
 namespace php_git2
 {
@@ -91,8 +92,11 @@ namespace php_git2
         {
             // The destructor should be specialized for the git_type used by the
             // particular template class instantiation.
-            throw php_git2_exception(
-                "Resource type was not implemented correctly: no destructor provided");
+
+            std::cerr << "Resource type '" << resource_name()
+                      << "' was not implemented correctly: no destructor provided"
+                      << std::endl;
+            std::terminate();
         }
 
         git2_type get_handle()

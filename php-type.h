@@ -527,7 +527,7 @@ namespace php_git2
         virtual void parse_impl(zval* zvp,int argno)
         {
             void* result;
-            php_resource_base::parse_impl(zvp,argno);
+            php_resource_base::parse(zvp,argno);
             result = zend_fetch_resource(Z_RES(value),
                 GitResource::resource_name(),
                 GitResource::resource_le());
@@ -663,14 +663,18 @@ namespace php_git2
             // If the handle was non-NULL, create a resource backing. Then pass
             // it off to a new resource zval.
             if (handle != nullptr) {
+                zend_resource* zr;
+
                 if (rsrc == nullptr) {
                     rsrc = php_git2_create_resource<GitResource>();
                     rsrc->set_handle(handle);
                 }
-                zend_register_resource(return_value,rsrc,GitResource::resource_le() TSRMLS_CC);
+
+                zr = zend_register_resource(rsrc,GitResource::resource_le());
+                RETVAL_RES(zr);
             }
             else {
-                ZVAL_NULL(return_value);
+                RETVAL_NULL();
             }
         }
 
@@ -762,7 +766,7 @@ namespace php_git2
                 return;
             }
 
-            base::parse_impl(zvp,argno);
+            base::parse(zvp,argno);
         }
     };
 
