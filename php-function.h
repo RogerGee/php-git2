@@ -13,56 +13,62 @@
 
 namespace php_git2
 {
-    // Here we provide a type to contain the local variables used in a php-git2
-    // wrapper function.
+    // Forward-declare types for type selector.
 
-    // Base object is empty.
+    template<typename... Ts>
+    class local_pack;
+
+    template<typename T,unsigned Offset>
+    class connector_wrapper;
+
+    // Provide some meta-constructs to access an arbitrary type from a local
+    // pack.
+
+    template<unsigned K,typename U>
+    struct local_pack_type;
+
+    template<typename U,typename... Us>
+    struct local_pack_type<0,local_pack<U,Us...> >
+    {
+        typedef U type;
+    };
+
+    template<typename U,typename... Us,unsigned Offset>
+    struct local_pack_type<0,local_pack<connector_wrapper<U,Offset>,Us...> >
+    {
+        typedef U type;
+    };
+
+    template<unsigned K,typename U,typename... Us>
+    struct local_pack_type<K,local_pack<U,Us...> >
+    {
+        using type = typename local_pack_type<K-1,local_pack<Us...> >::type;
+    };
+
+    // Provide a type to contain the local variables used in a php-git2 wrapper
+    // function.
+
     template<typename... Ts>
     class local_pack
     {
+        // Base class is empty and terminates recursive inheritance.
     public:
-        local_pack(TSRMLS_D)
-        {
-#ifdef ZTS
-            UNUSED(TSRMLS_C);
-#endif
-        }
-
         static constexpr unsigned size()
         {
             return 0;
         }
     };
 
-    // Recursive object inherits object containing the rest of the pack.
     template<typename T,typename... Ts>
     class local_pack<T,Ts...>:
         private local_pack<Ts...>
     {
-    protected:
-        // Provide some meta-constructs to access an arbitrary type from a
-        // parameter pack.
+        // Recursive object inherits object containing the rest of the pack.
 
-        template<unsigned K,typename U>
-        struct type_selector;
-
-        template<typename U,typename... Us>
-        struct type_selector<0,local_pack<U,Us...> >
-        {
-            typedef U type;
-        };
-
-        template<unsigned K,typename U,typename... Us>
-        struct type_selector<K,local_pack<U,Us...> >
-        {
-            typedef typename type_selector<K-1,
-                local_pack<Us...> >::type type;
-        };
+        using pack_t = local_pack<T,Ts...>;
+        using base_t = local_pack<Ts...>;
     public:
-        // Initialize to default. This is important if PHP assumes default
-        // values for some parameters.
-        local_pack(TSRMLS_D):
-            local_pack<Ts...>(TSRMLS_C), local(T(TSRMLS_C))
+        local_pack()
         {
         }
 
@@ -70,19 +76,16 @@ namespace php_git2
         // zero-based, Kth element in the local variable pack.
 
         template<unsigned K>
-        typename std::enable_if<K == 0,
-            typename type_selector<0,
-                local_pack<T,Ts...> >::type&>::type get()
+        typename std::enable_if<K == 0,T&>::type get()
         {
             return local;
         }
 
         template<unsigned K>
         typename std::enable_if<(K != 0),
-            typename type_selector<K,
-                local_pack<T,Ts...> >::type&>::type get()
+            typename local_pack_type<K,pack_t>::type&>::type get()
         {
-            return ((local_pack<Ts...>*)this)->template get<K-1>();
+            return static_cast<base_t*>(this)->template get<K-1>();
         }
 
         // Provide the size of the pack as a constant function expression.
@@ -91,44 +94,25 @@ namespace php_git2
         {
             return sizeof...(Ts) + 1;
         }
+
     private:
         T local;
     };
 
-    // Provide a type to connect adjacent variables in a local_pack. This will
-    // merely serve as a wrapper for connectors defined in the different
-    // implementations. The wrapper's template parameter must define a
-    // byval_git2() member function and two member types called 'target_t' and
-    // 'connect_t'. We must specialize local_pack for this type.
+    // Provide a type to connect adjacent variables in a local_pack.
 
-    template<typename T>
+    template<typename T,unsigned Offset = 1>
     class connector_wrapper
     {
     public:
-        connector_wrapper(typename T::connect_t& obj TSRMLS_DC):
-            connector(obj TSRMLS_CC)
+        connector_wrapper(typename T::connect_t& conn):
+            connector(conn)
         {
         }
 
-        connector_wrapper(typename T::connect_t&& obj TSRMLS_DC):
-            connector(std::forward<typename T::connect_t>(obj) TSRMLS_CC)
+        connector_wrapper(typename T::connect_t&& conn):
+            connector(std::forward<typename T::connect_t>(conn))
         {
-        }
-
-        zval** byref_php(unsigned pos)
-        {
-            return connector.byref_php(pos);
-        }
-
-        typename T::target_t
-        byval_git2()
-        {
-            return connector.byval_git2();
-        }
-
-        void ret(zval* return_value)
-        {
-            connector.ret(return_value);
         }
 
         T& get_connector()
@@ -140,114 +124,21 @@ namespace php_git2
         {
             return connector;
         }
+
     private:
         T connector;
     };
 
-    template<typename T>
-    class connector_wrapper_ex:
-        public connector_wrapper<T>
-    {
-    public:
-        connector_wrapper_ex(connector_wrapper<typename T::connect_t>& obj TSRMLS_DC):
-            connector_wrapper<T>(obj.get_connector() TSRMLS_CC)
-        {
-        }
-
-        connector_wrapper_ex(connector_wrapper<typename T::connect_t>&& obj TSRMLS_DC):
-            connector_wrapper<T>(obj.get_connector() TSRMLS_CC)
-        {
-        }
-    };
-
-    template<typename T,typename... Ts>
-    class local_pack<connector_wrapper<T>,Ts...>:
-        local_pack<Ts...>
-    {
-    protected:
-        // Provide some meta-constructs to access an arbitrary type from a
-        // parameter pack.
-
-        template<unsigned K,typename U>
-        struct type_selector;
-
-        template<typename U,typename... Us>
-        struct type_selector<0,local_pack<U,Us...> >
-        {
-            typedef U type;
-        };
-
-        template<unsigned K,typename U,typename... Us>
-        struct type_selector<K,local_pack<U,Us...> >
-        {
-            typedef typename type_selector<K-1,
-                local_pack<Us...> >::type type;
-        };
-    public:
-        // Initialize to default. This is important if PHP assumes default
-        // values for some parameters.
-        local_pack(TSRMLS_D):
-            local_pack<Ts...>(TSRMLS_C), local(get<1>() TSRMLS_CC)
-        {
-        }
-
-        // The get<K> member function is used to extract a reference to the
-        // zero-based, Kth element in the local variable pack.
-
-        template<unsigned K>
-        typename std::enable_if<K == 0,
-            typename type_selector<0,
-                local_pack<connector_wrapper<T>,Ts...> >::type&>::type get()
-        {
-            return local;
-        }
-
-        template<unsigned K>
-        typename std::enable_if<(K != 0),
-            typename type_selector<K,
-                local_pack<connector_wrapper<T>,Ts...> >::type&>::type get()
-        {
-            return ((local_pack<Ts...>*)this)->template get<K-1>();
-        }
-
-        // Provide the size of the pack as a constant function expression.
-
-        static constexpr unsigned size()
-        {
-            return sizeof...(Ts) + 1;
-        }
-    private:
-        connector_wrapper<T> local;
-    };
-
-    template<typename T,typename... Ts>
-    class local_pack<connector_wrapper_ex<T>,Ts...>:
+    template<typename T,typename... Ts,unsigned Offset>
+    class local_pack<connector_wrapper<T,Offset>,Ts...>:
         private local_pack<Ts...>
     {
-    protected:
-        // Provide some meta-constructs to access an arbitrary type from a
-        // parameter pack.
-
-        template<unsigned K,typename U>
-        struct type_selector;
-
-        template<typename U,typename... Us>
-        struct type_selector<0,local_pack<U,Us...> >
-        {
-            typedef U type;
-        };
-
-        template<unsigned K,typename U,typename... Us>
-        struct type_selector<K,local_pack<U,Us...> >
-        {
-            typedef typename type_selector<K-1,
-                local_pack<Us...> >::type type;
-        };
+        using wrapper_t = connector_wrapper<T,Offset>;
+        using pack_t = local_pack<wrapper_t,Ts...>;
+        using base_t = local_pack<Ts...>;
     public:
-        // Initialize to default. This is important if PHP assumes default
-        // values for some parameters.
-        local_pack(TSRMLS_D):
-            local_pack<Ts...>(TSRMLS_C), local(get<1>() TSRMLS_CC)
+        local_pack():
+            local(get<Offset>())
         {
         }
 
@@ -255,19 +146,16 @@ namespace php_git2
         // zero-based, Kth element in the local variable pack.
 
         template<unsigned K>
-        typename std::enable_if<K == 0,
-            typename type_selector<0,
-                local_pack<connector_wrapper_ex<T>,Ts...> >::type&>::type get()
+        typename std::enable_if<K == 0,T&>::type get()
         {
-            return local;
+            return local.get_connector();
         }
 
         template<unsigned K>
         typename std::enable_if<(K != 0),
-            typename type_selector<K,
-                local_pack<connector_wrapper_ex<T>,Ts...> >::type&>::type get()
+            typename local_pack_type<K,pack_t>::type&>::type get()
         {
-            return ((local_pack<Ts...>*)this)->template get<K-1>();
+            return static_cast<base_t*>(this)->template get<K-1>();
         }
 
         // Provide the size of the pack as a constant function expression.
@@ -276,8 +164,9 @@ namespace php_git2
         {
             return sizeof...(Ts) + 1;
         }
+
     private:
-        connector_wrapper_ex<T> local;
+        wrapper_t local;
     };
 
     // Provide some meta-constructs to generate a zero-based, integer sequence
@@ -313,7 +202,7 @@ namespace php_git2
 
     // Provide a function that extracts zvals into a local pack.
 
-    void php_extract_args_impl(int nargs,zval* args,php_value_base* dest[],int ngiven);
+    void php_extract_args_impl(int nargs,zval* args,php_parameter* dest[],int ngiven);
 
     template<typename... Ts,unsigned... Ns>
     inline void php_extract_args(local_pack<Ts...>& pack,sequence<Ns...>&& seq,int ngiven)
@@ -321,7 +210,7 @@ namespace php_git2
         constexpr int NARGS = sizeof...(Ns);
 
         zval args[NARGS];
-        php_value_base* dest[] = { &pack.template get<Ns>()... };
+        php_parameter* dest[] = { &pack.template get<Ns>()... };
 
         php_extract_args_impl(NARGS,args,dest,ngiven);
     }
@@ -511,7 +400,7 @@ namespace php_git2
         >;
 
     template<typename CallbackFunc,typename CallbackAsyncType>
-    using php_callback_handler_nullable_async = connector_wrapper_ex<
+    using php_callback_handler_nullable_async = connector_wrapper<
         php_callback_handler_nullable_connector_async<CallbackFunc,CallbackAsyncType>
         >;
 

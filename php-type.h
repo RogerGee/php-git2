@@ -12,11 +12,30 @@
 
 namespace php_git2
 {
-    // Provide a base class for managing PHP values. The purpose of this class
-    // is to provide a read-only view of the zval. The class does NOT manage the
-    // lifecycle of the wrapped zval.
+    // Provide abstract base class for value that can be parsed from a parameter
+    // zval.
 
-    class php_value_base
+    class php_parameter
+    {
+    public:
+        void parse(zval* zvp,int argno)
+        {
+            // NOTE: Parse assumes 'value' is empty.
+            parse_impl(zvp,argno);
+        }
+
+        void parse_with_context(zval* zvp,const char* ctx);
+
+    private:
+        virtual void parse_impl(zval* zvp,int argno) = 0;
+    };
+
+    // Provide abstract base class for managing PHP values. The purpose of this
+    // class is to provide a read-only view of the zval. The class does NOT
+    // manage the lifecycle of the wrapped zval.
+
+    class php_value_base:
+        public php_parameter
     {
     public:
         php_value_base()
@@ -28,14 +47,6 @@ namespace php_git2
         {
             return &value;
         }
-
-        void parse(zval* zvp,int argno)
-        {
-            // NOTE: Parse assumes 'value' is empty.
-            parse_impl(zvp,argno);
-        }
-
-        void parse_with_context(zval* zvp,const char* ctx);
 
         void set_value(zval* zvp)
         {
@@ -49,9 +60,6 @@ namespace php_git2
 
     protected:
         zval value;
-
-    private:
-        virtual void parse_impl(zval* zvp,int argno) = 0;
     };
 
     class php_value_generic:
@@ -811,8 +819,6 @@ namespace php_git2
     class php_git_oid
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_oid)
-
         git_oid* byval_git2()
         {
             return &oid;

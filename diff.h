@@ -257,6 +257,7 @@ namespace php_git2
         {
             return info;
         }
+
     private:
         git_diff_callback_info info;
     };
@@ -273,19 +274,19 @@ namespace php_git2
         diff_line_callback_info,
         diff_hunk_callback
         >;
-    using diff_hunk_callback_connector = connector_wrapper_ex<diff_hunk_callback_info>;
+    using diff_hunk_callback_connector = connector_wrapper<diff_hunk_callback_info>;
 
     using diff_binary_callback_info = php_git_diff_callback<
         diff_hunk_callback_info,
         diff_binary_callback
         >;
-    using diff_binary_callback_connector = connector_wrapper_ex<diff_binary_callback_info>;
+    using diff_binary_callback_connector = connector_wrapper<diff_binary_callback_info>;
 
     using diff_file_callback_info = php_git_diff_callback<
         diff_binary_callback_info,
         diff_file_callback
         >;
-    using diff_file_callback_connector = connector_wrapper_ex<diff_file_callback_info>;
+    using diff_file_callback_connector = connector_wrapper<diff_file_callback_info>;
 
     // Misc. helper types
 

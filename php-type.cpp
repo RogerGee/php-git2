@@ -8,9 +8,9 @@
 #include <cstdio>
 #include <cstring>
 
-// php_value_base
+// php_parameter
 
-void php_value_base::parse_ex(zval* zvp,const char* ctx)
+void php_parameter::parse_ex(zval* zvp,const char* ctx)
 {
     try {
         parse_impl(zvp,1);

@@ -26,7 +26,7 @@ namespace php_git2
 
     // Simplify the typename for an ODB's writepack callback.
 
-    using writepack_async_callback = php_callback_async_ex<
+    using php_writepack_async_callback = php_callback_async_ex<
         php_git_odb_writepack,
         php_callback_sync_nullable
         >;
@@ -36,7 +36,7 @@ namespace php_git2
 
     class php_git_odb_writepack
     {
-        friend writepack_async_callback;
+        friend php_writepack_async_callback;
     public:
         // Make this object a connector to a php_resource that looks up a
         // php_git_odb resource wrapper.
@@ -287,9 +287,9 @@ static constexpr auto ZIF_GIT_ODB_WRITE_PACK = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_callback_handler_nullable_async<
             php_git2::transfer_progress_callback,
-            php_git2::writepack_async_callback
+            php_git2::php_writepack_async_callback
             >,
-        php_git2::connector_wrapper_ex<php_git2::writepack_async_callback>,
+        php_git2::connector_wrapper<php_git2::php_writepack_async_callback>,
         php_git2::connector_wrapper<php_git2::php_git_odb_writepack>,
         php_git2::php_resource<php_git2::php_git_odb>
         >,
