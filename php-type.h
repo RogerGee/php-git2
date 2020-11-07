@@ -30,6 +30,28 @@ namespace php_git2
         virtual void parse_impl(zval* zvp,int argno) = 0;
     };
 
+    // Provide output parameter type.
+
+    class php_output_parameter:
+        public php_parameter
+    {
+    public:
+        php_output_parameter():
+            zvp(nullptr)
+        {
+        }
+
+        zval* get_value()
+        {
+            return zvp;
+        }
+
+    private:
+        zval* zvp;
+
+        virtual void parse_impl(zval* zvp,int argno);
+    };
+
     // Provide abstract base class for managing PHP values. The purpose of this
     // class is to provide a read-only view of the zval. The class does NOT
     // manage the lifecycle of the wrapped zval.
@@ -266,7 +288,7 @@ namespace php_git2
     // Provide a string type that can be returned through an out parameter.
 
     class php_string_out:
-        public php_string
+        public php_output_parameter
     {
     public:
         php_string_out(TSRMLS_D):
@@ -277,10 +299,10 @@ namespace php_git2
         ~php_string_out()
         {
             if (ptr == nullptr) {
-                ZVAL_NULL(&value);
+                ZVAL_NULL(get_value());
             }
             else {
-                ZVAL_STRING(&value,ptr);
+                ZVAL_STRING(get_value(),ptr);
             }
         }
 
@@ -446,14 +468,12 @@ namespace php_git2
 
     template<typename IntType>
     class php_long_out:
-        public php_long
+        public php_output_parameter
     {
     public:
-        ZTS_CONSTRUCTOR(php_long_out)
-
         ~php_long_out()
         {
-            ZVAL_LONG(&value,static_cast<zend_long>(n));
+            ZVAL_LONG(get_value(),static_cast<zend_long>(n));
         }
 
         IntType* byval_git2()
@@ -681,42 +701,26 @@ namespace php_git2
 
     template<typename GitResource>
     class php_resource_ref_out:
-        public php_resource<GitResource>,
+        public php_output_parameter,
         public php_resource_ref<GitResource>
     {
     public:
-        ZTS_CONSTRUCTOR_WITH_BASE(php_resource_ref_out,php_resource_ref<GitResource>)
-
         ~php_resource_ref_out()
         {
-            php_resource_ref<GitResource>::ret(value);
+            php_resource_ref<GitResource>::ret(get_value());
         }
-
-        zval* get_value() const
-        {
-            return const_cast<zval*>(&value);
-        }
-
-    protected:
-        using php_resource<GitResource>::value;
     };
 
     template<typename GitResource>
     class php_resource_nullable_ref_out:
-        public php_resource<GitResource>,
+        public php_output_parameter,
         public php_resource_nullable_ref<GitResource>
     {
     public:
-        ZTS_CONSTRUCTOR_WITH_BASE(php_resource_nullable_ref_out,
-            php_resource_nullable_ref<GitResource>)
-
         ~php_resource_nullable_ref_out()
         {
-            php_resource_nullable_ref<GitResource>::ret(value);
+            php_resource_nullable_ref<GitResource>::ret(get_value());
         }
-
-    protected:
-        using php_resource<GitResource>::value;
     };
 
     // Provide a type that represents an optional resource value (one that could
@@ -882,15 +886,13 @@ namespace php_git2
     // Provide a type for returning an OID value using an out parameter.
 
     class php_git_oid_out:
-        public php_git_oid,
-        public php_string
+        public php_output_parameter,
+        public php_git_oid
     {
     public:
-        ZTS_CONSTRUCTOR_WITH_BASE(php_git_oid_out,php_git_oid)
-
         ~php_git_oid_out()
         {
-            php_string::ret(&value);
+            ret(get_value());
         }
     };
 
@@ -998,15 +1000,13 @@ namespace php_git2
     // Provide a type for returning a git_buf value using an out parameter.
 
     class php_git_buf_out:
-        public php_git_buf,
-        public php_string
+        public php_output_parameter,
+        public php_git_buf
     {
     public:
-        ZTS_CONSTRUCTOR_WITH_BASE(php_git_buf_out,php_git_buf)
-
         ~php_git_buf_out()
         {
-            php_string::ret(&value);
+            ret(get_value());
         }
     };
 

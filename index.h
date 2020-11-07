@@ -101,7 +101,7 @@ namespace php_git2
     };
 
     class php_git_index_entry_out:
-        public php_value_generic,
+        public php_output_parameter,
         public php_git_index_entry_ref
     {
     public:

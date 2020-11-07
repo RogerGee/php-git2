@@ -63,6 +63,15 @@ void php_parameter::parse_ex(zval* zvp,const char* ctx)
     }
 }
 
+// php_output_parameter
+
+virtual void php_output_parameter::parse_impl(zval* zp,int argno)
+{
+    // Output parameters must maintain the original zval so that it can be
+    // directly modified.
+    this->zvp = zvp;
+}
+
 // php_value_generic
 
 void php_value_generic::parse_impl(zval* zvp,int)
