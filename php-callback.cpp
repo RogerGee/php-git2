@@ -470,16 +470,14 @@ int repository_create_callback::callback(git_repository** out,
         return GIT_EPHP;
     }
 
-    // The repository resource *MUST* be owned (i.e. this resource is
-    // responsible for freeing the handle). We assume that the caller is going
-    // to return the repository as an owned resource (potentially), and at the
-    // very least, the caller is responsible for freeing the repo handle we
-    // assign here. Therefore, we cannot have a git_repository handle from a
-    // non-owned context (since it could be freed in another context at some
-    // future point). Furthermore, we must revoke ownership on this resource to
-    // avoid a double free.
+    // The repository resource *MUST* be an owner (i.e. this resource is
+    // responsible for freeing the handle). We assume libgit2 is responsible for
+    // freeing the repo handle we assign here. Therefore, we cannot have a
+    // git_repository handle from a non-owner context (since it could be freed
+    // in another context at some future point). Furthermore, we must revoke
+    // ownership on this resource to avoid a double free.
 
-    if (!resource->is_owned()) {
+    if (!resource->is_owner()) {
         giterr_set_str(GITERR_INVALID,
             "Invalid return value: repository_create_callbackcannot return non-owner "
             "resource");
@@ -899,9 +897,9 @@ int cred_acquire_callback::callback(git_cred** cred,
                     "git_cred resource");
                 result = GIT_EPHP;
             }
-            else if (!resource->is_owned()) {
+            else if (!resource->is_owner()) {
                 // Check the ownership status for sanity's sake. All git_cred
-                // resources should be owned.
+                // resources should be owners.
                 giterr_set_str(GITERR_INVALID,
                     "Invalid return value: cred_acquire_callback cannot return "
                     "non-owner resource");
@@ -1241,9 +1239,9 @@ int remote_create_callback::callback(
                     "git_remote resource");
                 result = GIT_EPHP;
             }
-            else if (!resource->is_owned()) {
+            else if (!resource->is_owner()) {
                 // Check the ownership status for sanity's sake. All git_remote
-                // resources created by the callback should be owned.
+                // resources created by the callback should be owners.
                 giterr_set_str(GITERR_INVALID,
                     "Invalid return value: remote_create_callback cannot return "
                     "non-owner resource");

@@ -539,23 +539,18 @@ namespace php_git2
     };
 
     template<typename GitResource>
-    class php_resource_owned:
+    class php_resource_owner:
         public php_resource<GitResource>
     {
     public:
-        php_resource_owned(TSRMLS_D):
-            php_resource<GitResource>(TSRMLS_C)
-        {
-        }
-
         typename GitResource::git2_type byval_git2()
         {
             GitResource* res = php_resource<GitResource>::get_object();
 
-            // Ensure that the underlying handle is owned by the resource before
+            // Ensure that the resource owns the underlying handle before
             // returning it.
-            if (!res->is_owned()) {
-                throw php_git2_exception("Cannot execute git2 call on non-owner resource");
+            if (!res->is_owner()) {
+                throw php_git2_exception("Cannot execute libgit2 call on non-owner resource");
             }
 
             return res->get_handle();

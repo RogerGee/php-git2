@@ -84,7 +84,7 @@ namespace php_git2
         typedef const git_type* const_git2_type;
 
         git2_resource(bool isOwner = true):
-            handle(nullptr), isowned(isOwner)
+            handle(nullptr), isowner(isOwner)
         {
         }
 
@@ -122,14 +122,14 @@ namespace php_git2
             handle = ptr;
         }
 
-        bool is_owned() const
+        bool is_owner() const
         {
-            return isowned;
+            return isowner;
         }
 
         void revoke_ownership()
         {
-            isowned = false;
+            isowner = false;
         }
 
         static void define_resource_type(int moduleNumber)
@@ -168,7 +168,7 @@ namespace php_git2
             // be cleaned up (i.e. all references have been decremented).
 
             if (down_ref()) {
-                if (handle != nullptr && isowned) {
+                if (handle != nullptr && isowner) {
                     this->~git2_resource();
                 }
 
@@ -184,10 +184,11 @@ namespace php_git2
         // libgit2 routines.
         git2_type handle;
 
-        // Indicates whether or not the handle may be freed by this object.
-        bool isowned;
-
+        // Indicates whether or not the instance is the owner of the handle. If
+        // so, then the instance may free the handle.
+        bool isowner;
     };
+
     template<typename git_type>
     int git2_resource<git_type>::le = 0;
 
