@@ -104,9 +104,10 @@ ZEND_EXTERN_MODULE_GLOBALS(git2)
 
 #define GIT_EPHPRANGE_START   -30000
 
-#define GIT_EPHPFATAL         -30000
+#define GIT_EPHP              -30000
 #define GIT_EPHPEXPROP        -30001
-#define GIT_EPHPFATALPROP     -30002
+#define GIT_EPHPFATAL         -30002
+#define GIT_EPHPFATALPROP     -30003
 
 namespace php_git2
 {
@@ -420,12 +421,6 @@ namespace php_git2
 
     template<>
     void git_error(int code);
-
-    // Provide a function used for issuing a PHP warning from the latest libgit2
-    // error. The error state is cleared after the error is reported. This
-    // function does NOT throw.
-
-    void git_warning(int code,const char* prefix = nullptr);
 
     // Provide a wrapper around giterr_set_str that allows printf-style format
     // strings.

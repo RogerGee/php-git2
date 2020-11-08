@@ -258,12 +258,12 @@ void php_git2::git_error(int code)
     // Pull libgit2 exception.
     const ::git_error* err = giterr_last();
     if (err == nullptr) {
-        throw php_git2_exception("libgit2 no error?");
+        throw php_git2_exception("libgit2 no error");
     }
 
-    // User errors are passed off as normal exceptions. These generate PHP
-    // exceptions.
-    if (code == GIT_EUSER) {
+    // User errors (indicated from userspace callbacks) and internal PHP errors
+    // are passed off as normal exceptions. These generate PHP exceptions.
+    if (code == GIT_EUSER || code == GIT_EPHP) {
         php_git2_exception ex("%s",err->message);
         ex.code = code;
         giterr_clear();
@@ -299,29 +299,6 @@ void php_git2::git_error(int code)
     ex.code = code;
     giterr_clear();
     throw ex;
-}
-
-// php_git2::git_warning()
-
-void php_git2::git_warning(int code,const char* prefix)
-{
-    // Pull libgit2 exception.
-    const ::git_error* err = giterr_last();
-    if (err == nullptr) {
-        return;
-    }
-
-    if (code != GIT_EUSER && code > GIT_EPHPRANGE_START) {
-        php_error(E_WARNING,"libgit2 error: (%d) %s",err->klass,err->message);
-    }
-    else if (prefix != nullptr) {
-        php_error(E_WARNING,"%s: %s",prefix,err->message);
-    }
-    else {
-        php_error(E_WARNING,"%s",err->message);
-    }
-
-    giterr_clear();
 }
 
 // php_git2::php_git2_giterr_set()

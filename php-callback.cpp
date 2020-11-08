@@ -136,7 +136,7 @@ packbuilder_foreach_callback::callback(void* buf,size_t size,void* payload)
         if (stream == nullptr) {
             giterr_set_str(GITERR_INVALID,
                 "Resource argument is invalid in git_packbuilder_foreach callback");
-            return GIT_ERROR;
+            return GIT_EPHP;
         }
 
         php_stream_write(stream,(const char*)buf,size);
@@ -147,7 +147,7 @@ packbuilder_foreach_callback::callback(void* buf,size_t size,void* payload)
         giterr_set_str(GITERR_INVALID,
             "Invalid invocation of git_packbuilder_foreach callback: "
             "payload argument must be stream resource");
-        return GIT_ERROR;
+        return GIT_EPHP;
     }
 
     // Otherwise we convert the values to zvals and call PHP userspace.
@@ -442,7 +442,7 @@ int repository_create_callback::callback(git_repository** out,
     if (Z_TYPE(retval) == IS_NULL || Z_TYPE(retval) == IS_FALSE) {
         giterr_set_str(GITERR_INVALID,
             "Failed to create repository in repository_create_callback");
-        return GIT_ERROR;
+        return GIT_EPHP;
     }
 
     // Make sure a git_repository resource was returned.
@@ -450,7 +450,7 @@ int repository_create_callback::callback(git_repository** out,
         giterr_set_str(GITERR_INVALID,
             "Invalid return value: repository_create_callback must return "
             "git_repository resource");
-        return GIT_ERROR;
+        return GIT_EPHP;
     }
 
     // Extract resource from return value.
@@ -467,7 +467,7 @@ int repository_create_callback::callback(git_repository** out,
         giterr_set_str(GITERR_INVALID,
             "Invalid return value: repository_create_callback must return "
             "git_repository resource");
-        return GIT_ERROR;
+        return GIT_EPHP;
     }
 
     // The repository resource *MUST* be owned (i.e. this resource is
@@ -481,8 +481,9 @@ int repository_create_callback::callback(git_repository** out,
 
     if (!resource->is_owned()) {
         giterr_set_str(GITERR_INVALID,
-            "repository_create_callback: cannot return non-owner resource");
-        return GIT_ERROR;
+            "Invalid return value: repository_create_callbackcannot return non-owner "
+            "resource");
+        return GIT_EPHP;
     }
 
     resource->revoke_ownership();
@@ -896,7 +897,7 @@ int cred_acquire_callback::callback(git_cred** cred,
                 giterr_set_str(GITERR_INVALID,
                     "Invalid return value: cred_acquire_callback must return "
                     "git_cred resource");
-                result = GIT_ERROR;
+                result = GIT_EPHP;
             }
             else if (!resource->is_owned()) {
                 // Check the ownership status for sanity's sake. All git_cred
@@ -904,7 +905,7 @@ int cred_acquire_callback::callback(git_cred** cred,
                 giterr_set_str(GITERR_INVALID,
                     "Invalid return value: cred_acquire_callback cannot return "
                     "non-owner resource");
-                result = GIT_ERROR;
+                result = GIT_EPHP;
             }
             else {
                 // Revoke ownership since it is now up to the library to manage
@@ -1238,7 +1239,7 @@ int remote_create_callback::callback(
                 giterr_set_str(GITERR_INVALID,
                     "Invalid return value: remote_create_callback must return "
                     "git_remote resource");
-                result = GIT_ERROR;
+                result = GIT_EPHP;
             }
             else if (!resource->is_owned()) {
                 // Check the ownership status for sanity's sake. All git_remote
@@ -1246,7 +1247,7 @@ int remote_create_callback::callback(
                 giterr_set_str(GITERR_INVALID,
                     "Invalid return value: remote_create_callback cannot return "
                     "non-owner resource");
-                result = GIT_ERROR;
+                result = GIT_EPHP;
             }
             else {
                 // Revoke ownership since it is now up to the library to manage
@@ -1260,8 +1261,9 @@ int remote_create_callback::callback(
             convert_to_long(&retval);
             if (Z_LVAL(retval) == 0) {
                 giterr_set_str(GITERR_INVALID,
-                    "remote_create_callback: invalid return value");
-                result = GIT_ERROR;
+                    "Invalid return value: remote_create_callback must return "
+                    "non-zero integer");
+                result = GIT_EPHP;
             }
             else {
                 result = Z_LVAL(retval);
