@@ -7,10 +7,11 @@
 #include "php-type.h"
 #include <cstdio>
 #include <cstring>
+using namespace php_git2;
 
 // php_parameter
 
-void php_parameter::parse_ex(zval* zvp,const char* ctx)
+void php_parameter::parse_with_context(zval* zvp,const char* ctx)
 {
     try {
         parse_impl(zvp,1);
@@ -65,7 +66,7 @@ void php_parameter::parse_ex(zval* zvp,const char* ctx)
 
 // php_output_parameter
 
-virtual void php_output_parameter::parse_impl(zval* zp,int argno)
+void php_output_parameter::parse_impl(zval* zp,int argno)
 {
     // Output parameters must maintain the original zval so that it can be
     // directly modified.
@@ -118,7 +119,7 @@ void php_option_array::parse_impl(zval* zvp,int argno)
         return;
     }
 
-    php_array_base::parse_impl(zvp,argno);
+    php_array_base::parse(zvp,argno);
 }
 
 /*
