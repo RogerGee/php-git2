@@ -105,16 +105,16 @@ static constexpr auto ZIF_GIT_SIGNATURE_FROM_BUFFER = zif_php_git2_function<
 
 static PHP_FUNCTION(git2_signature_convert)
 {
-    php_git2::php_bailer bailer ZTS_CTOR;
+    php_git2::php_bailer bailer;
 
     {
         git_signature* handle;
-        php_git2::php_resource<php_git2::php_git_signature> signature ZTS_CTOR;
-        php_git2::php_bailout_context ctx(bailer TSRMLS_CC);
+        php_git2::php_resource<php_git2::php_git_signature> signature;
+        php_git2::php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
             zval* zvp;
-            if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"z",&zvp) == FAILURE) {
+            if (zend_parse_parameters(ZEND_NUM_ARGS(),"z",&zvp) == FAILURE) {
                 return;
             }
 
@@ -123,10 +123,10 @@ static PHP_FUNCTION(git2_signature_convert)
             try {
                 handle = signature.byval_git2();
             } catch (php_git2::php_git2_exception_base& ex) {
-                php_git2::php_bailout_context ctx2(bailer TSRMLS_CC);
+                php_git2::php_bailout_context ctx2(bailer);
 
                 if (BAILOUT_ENTER_REGION(ctx2)) {
-                    ex.handle(TSRMLS_C);
+                    ex.handle();
                 }
 
                 return;

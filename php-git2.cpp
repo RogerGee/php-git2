@@ -55,7 +55,7 @@ PHP_GSHUTDOWN_FUNCTION(git2)
 
 PHP_MINIT_FUNCTION(git2)
 {
-    php_git2_globals_init(TSRMLS_C);
+    php_git2_globals_init();
 
     // Initialize git2 library.
     git_libgit2_init();
@@ -103,17 +103,17 @@ PHP_MINIT_FUNCTION(git2)
         git_submodule >(module_number);
 
     // Register all classes provided by this extension.
-    php_git2_register_classes(TSRMLS_C);
+    php_git2_register_classes();
 
     // Register all libgit2 constants.
-    php_git2_register_constants(module_number TSRMLS_CC);
+    php_git2_register_constants(module_number);
 
     return SUCCESS;
 }
 
 PHP_RINIT_FUNCTION(git2)
 {
-    php_git2_globals_request_init(TSRMLS_C);
+    php_git2_globals_request_init();
 
     return SUCCESS;
 }
@@ -151,7 +151,7 @@ PHP_MSHUTDOWN_FUNCTION(git2)
 
 PHP_RSHUTDOWN_FUNCTION(git2)
 {
-    php_git2_globals_request_shutdown(TSRMLS_C);
+    php_git2_globals_request_shutdown();
 
     return SUCCESS;
 }
@@ -316,17 +316,17 @@ void php_git2::php_git2_giterr_set(int errorClass,const char* format, ...)
 
 // Globals functions
 
-void php_git2::php_git2_globals_ctor(zend_git2_globals* gbls TSRMLS_DC)
+void php_git2::php_git2_globals_ctor(zend_git2_globals* gbls)
 {
     gbls->propagateFatalError = false;
 }
 
-void php_git2::php_git2_globals_dtor(zend_git2_globals* gbls TSRMLS_DC)
+void php_git2::php_git2_globals_dtor(zend_git2_globals* gbls)
 {
     UNUSED(gbls);
 }
 
-void php_git2::php_git2_globals_init(TSRMLS_D)
+void php_git2::php_git2_globals_init()
 {
 #ifdef ZTS
     ts_allocate_id(&git2_globals_id,
@@ -338,13 +338,13 @@ void php_git2::php_git2_globals_init(TSRMLS_D)
 #endif
 }
 
-void php_git2::php_git2_globals_request_init(TSRMLS_D)
+void php_git2::php_git2_globals_request_init()
 {
     GIT2_G(propagateFatalError) = false;
     GIT2_G(requestActive) = true;
 }
 
-void php_git2::php_git2_globals_request_shutdown(TSRMLS_D)
+void php_git2::php_git2_globals_request_shutdown()
 {
     // NOTE: this function does not touch all globals since the state of some
     // globals MAY be important at this stage.

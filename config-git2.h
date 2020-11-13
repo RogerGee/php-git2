@@ -66,8 +66,6 @@ namespace php_git2
         public php_git_config_entry
     {
     public:
-        ZTS_CONSTRUCTOR_WITH_BASE(php_git_config_entry_freeing,php_git_config_entry)
-
         ~php_git_config_entry_freeing()
         {
             git_config_entry* ent = get_entry();

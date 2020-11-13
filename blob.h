@@ -9,7 +9,6 @@
 
 namespace php_git2
 {
-
     // Explicitly specialize git2_resource destructor for git_blob.
 
     template<> php_git_blob::~git2_resource()
@@ -57,8 +56,7 @@ namespace php_git2
         }
     };
 
-    class php_git_writestream_byref:
-        private php_zts_base
+    class php_git_writestream_byref
     {
     public:
         php_git_writestream_byref():
@@ -74,7 +72,7 @@ namespace php_git2
         void ret(zval* return_value)
         {
             // Wrap the git_writestream in an object zval.
-            php_git2_make_writestream(return_value,ws TSRMLS_CC);
+            php_git2_make_writestream(return_value,ws);
         }
 
     private:

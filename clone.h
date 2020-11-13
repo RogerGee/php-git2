@@ -12,7 +12,6 @@
 
 namespace php_git2
 {
-
     class php_git_clone_options:
         public php_option_array
     {
@@ -26,8 +25,8 @@ namespace php_git2
         {
             if (!is_null()) {
                 array_wrapper arr(value);
-                php_git_checkout_options checkoutOpts ZTS_CTOR;
-                php_git_fetch_options fetchOpts ZTS_CTOR;
+                php_git_checkout_options checkoutOpts;
+                php_git_fetch_options fetchOpts;
 
                 GIT2_ARRAY_LOOKUP_LONG(arr,bare,opts);
                 GIT2_ARRAY_LOOKUP_LONG(arr,local,opts);

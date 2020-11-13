@@ -37,7 +37,7 @@ namespace php_git2
             }
 
             auto&& tree = pack.template get<0>();
-            const php_resource_ref<php_git_tree_entry_nofree> entry ZTS_CTOR;
+            const php_resource_ref<php_git_tree_entry_nofree> entry;
 
             // Set return value. This will create a resource for the new
             // git_tree_entry handle.

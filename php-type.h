@@ -233,8 +233,6 @@ namespace php_git2
         virtual public php_string
     {
     public:
-        ZTS_CONSTRUCTOR_WITH_BASE(php_string_nullable,php_string)
-
         const char* byval_git2() const
         {
             if (is_null()) {
@@ -261,7 +259,7 @@ namespace php_git2
     class php_string_ref
     {
     public:
-        php_string_ref(TSRMLS_D):
+        php_string_ref():
             ptr(nullptr)
         {
         }
@@ -291,7 +289,7 @@ namespace php_git2
         public php_output_parameter
     {
     public:
-        php_string_out(TSRMLS_D):
+        php_string_out():
             ptr(nullptr)
         {
         }
@@ -324,7 +322,7 @@ namespace php_git2
         using connect_t = StringType;
         typedef IntType target_t;
 
-        php_string_length_connector(connect_t& obj TSRMLS_DC):
+        php_string_length_connector(connect_t& obj):
             conn(obj)
         {
         }
@@ -347,8 +345,8 @@ namespace php_git2
         using typename base_type::connect_t;
         using typename base_type::target_t;
 
-        php_string_length_connector_null(connect_t& obj TSRMLS_DC):
-            base_type(obj TSRMLS_CC)
+        php_string_length_connector_null(connect_t& obj):
+            base_type(obj)
         {
         }
 
@@ -374,7 +372,7 @@ namespace php_git2
         using connect_t = php_long;
         using target_t = char*;
 
-        php_string_buffer_connector(connect_t& obj TSRMLS_DC)
+        php_string_buffer_connector(connect_t& obj)
         {
             bufsz = static_cast<size_t>(obj.byval_git2());
             buffer = static_cast<char*>(emalloc(bufsz));
@@ -407,8 +405,6 @@ namespace php_git2
         public php_long
     {
     public:
-        ZTS_CONSTRUCTOR_WITH_BASE(php_long_cast,php_long)
-
         IntType byval_git2() const
         {
             return static_cast<IntType>(php_long::byval_git2());
@@ -421,8 +417,6 @@ namespace php_git2
     class php_long_ref
     {
     public:
-        ZTS_CONSTRUCTOR(php_long_ref)
-
         IntType* byval_git2()
         {
             return &n;
@@ -449,8 +443,6 @@ namespace php_git2
         public php_long_ref<IntType>
     {
     public:
-        ZTS_CONSTRUCTOR_WITH_BASE(php_bool_ref,php_long_ref<IntType>)
-
         void ret(zval* return_value)
         {
             if (get_value()) {
@@ -500,16 +492,10 @@ namespace php_git2
 
     template<typename GitResource>
     class php_resource:
-        public php_resource_base,
-        protected php_zts_base
+        public php_resource_base
     {
     public:
         typedef GitResource resource_t;
-
-        php_resource(TSRMLS_D):
-            php_zts_base(TSRMLS_C)
-        {
-        }
 
         typename GitResource::git2_type byval_git2()
         {
@@ -558,12 +544,11 @@ namespace php_git2
     };
 
     template<typename GitResource>
-    class php_resource_ref:
-        private php_zts_base
+    class php_resource_ref
     {
     public:
-        php_resource_ref(TSRMLS_D):
-            php_zts_base(TSRMLS_C), rsrc(nullptr)
+        php_resource_ref():
+            rsrc(nullptr)
         {
         }
 
@@ -636,12 +621,11 @@ namespace php_git2
     // value was NULL.
 
     template<typename GitResource>
-    class php_resource_nullable_ref:
-        private php_zts_base
+    class php_resource_nullable_ref
     {
     public:
-        php_resource_nullable_ref(TSRMLS_D):
-            php_zts_base(TSRMLS_C), rsrc(nullptr), handle(nullptr)
+        php_resource_nullable_ref():
+            rsrc(nullptr), handle(nullptr)
         {
         }
 
@@ -773,11 +757,6 @@ namespace php_git2
         public php_resource<GitResource>
     {
     public:
-        php_resource_cleanup(TSRMLS_D):
-            php_resource<GitResource>(TSRMLS_C)
-        {
-        }
-
         typename GitResource::git2_type byval_git2()
         {
             // Delete the PHP resource. This will cause the resource to be
@@ -799,11 +778,6 @@ namespace php_git2
         public php_resource<GitResource>
     {
     public:
-        php_resource_cleanup_delayed(TSRMLS_D):
-            php_resource<GitResource>(TSRMLS_C)
-        {
-        }
-
         ~php_resource_cleanup_delayed()
         {
             // Delete the PHP resource. This will cause the resource to be
@@ -814,9 +788,6 @@ namespace php_git2
 
     protected:
         using php_resource<GitResource>::value;
-#ifdef ZTS
-        using php_resource<GitResource>::TSRMLS_C;
-#endif
     };
 
     class php_git_oid
@@ -842,8 +813,6 @@ namespace php_git2
         virtual public php_string
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_oid_fromstr)
-
         git_oid* byval_git2()
         {
             // Convert PHP string to git_oid.
@@ -860,8 +829,6 @@ namespace php_git2
         virtual public php_git_oid_fromstr
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_oid_fromstr_nullable)
-
         using php_git_oid_fromstr::byval_git2;
 
     private:
@@ -874,8 +841,6 @@ namespace php_git2
         public php_git_oid_fromstr
     {
     public:
-        ZTS_CONSTRUCTOR_WITH_BASE(php_git_oid_byval_fromstr,php_git_oid_fromstr)
-
         git_oid byval_git2()
         {
             return *php_git_oid_fromstr::byval_git2();
@@ -902,7 +867,7 @@ namespace php_git2
     class php_strarray
     {
     public:
-        php_strarray(TSRMLS_D)
+        php_strarray()
         {
             memset(&arr,0,sizeof(git_strarray));
         }
@@ -936,7 +901,7 @@ namespace php_git2
     class php_oidarray
     {
     public:
-        php_oidarray(TSRMLS_D)
+        php_oidarray()
         {
             memset(&arr,0,sizeof(git_oidarray));
         }
@@ -970,7 +935,7 @@ namespace php_git2
     class php_git_buf
     {
     public:
-        php_git_buf(TSRMLS_D)
+        php_git_buf()
         {
             memset(&buf,0,sizeof(git_buf));
         }
@@ -1015,8 +980,6 @@ namespace php_git2
     class php_fixed_buffer
     {
     public:
-        ZTS_CONSTRUCTOR(php_fixed_buffer)
-
         char* byval_git2()
         {
             return buffer;
@@ -1037,8 +1000,6 @@ namespace php_git2
     class php_constant
     {
     public:
-        ZTS_CONSTRUCTOR(php_constant)
-
         ConstantType byval_git2()
         {
             return Value;
@@ -1072,15 +1033,14 @@ namespace php_git2
 
     template<typename SourceType,typename ConvertType>
     class php_array:
-        public php_array_base,
-        private php_zts_base
+        public php_array_base
     {
     public:
         typedef SourceType source_t;
         typedef ConvertType convert_t;
 
-        php_array(TSRMLS_D):
-            php_zts_base(TSRMLS_C), data(nullptr)
+        php_array():
+            data(nullptr)
         {
         }
 
@@ -1112,7 +1072,7 @@ namespace php_git2
             // constructor on each object.
             sources = reinterpret_cast<SourceType*>(emalloc(sizeof(SourceType) * cnt));
             for (i = 0;i < cnt;++i) {
-                new(sources + i) SourceType(TSRMLS_C);
+                new(sources + i) SourceType;
             }
 
             // Create an array to hold the converted values.
@@ -1156,7 +1116,7 @@ namespace php_git2
             >;
         typedef IntType target_t;
 
-        php_array_length_connector(connect_t& obj TSRMLS_DC):
+        php_array_length_connector(connect_t& obj):
             conn(obj)
         {
         }
@@ -1202,8 +1162,7 @@ namespace php_git2
         public php_string_array
     {
     public:
-        php_strarray_array(TSRMLS_D):
-            php_string_array(TSRMLS_C)
+        php_strarray_array()
         {
             memset(&arr,0,sizeof(git_strarray));
         }
@@ -1240,8 +1199,6 @@ namespace php_git2
         public php_strarray_array
     {
     public:
-        ZTS_CONSTRUCTOR_WITH_BASE(php_strarray_array_nullable,php_strarray_array);
-
         git_strarray* byval_git2()
         {
             if (is_null()) {
@@ -1256,8 +1213,6 @@ namespace php_git2
         public php_strarray_array
     {
     public:
-        ZTS_CONSTRUCTOR_WITH_BASE(php_strarray_byval_array,php_strarray_array)
-
         git_strarray byval_git2()
         {
             // Return structure by value. This is still a shallow copy of the

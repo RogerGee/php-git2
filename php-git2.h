@@ -58,37 +58,6 @@ ZEND_EXTERN_MODULE_GLOBALS(git2)
 #define GIT2_G(v)  (git2_globals.v)
 #endif
 
-// Provide macros for handling functionality for threaded PHP builds.
-
-#ifdef ZTS
-#define ZTS_CONSTRUCTOR(type) type(TSRMLS_D) {}
-#define ZTS_CONSTRUCTOR_WITH_BASE(type,base) type(TSRMLS_D): base(TSRMLS_C) {}
-#define ZTS_MEMBER_C(obj) obj.TSRMLS_C
-#define ZTS_MEMBER_CC(obj) , obj.TSRMLS_C
-#define ZTS_MEMBER_PC(obj) obj->TSRMLS_C
-#define ZTS_MEMBER_PCC(obj) , obj->TSRMLS_C
-#define ZTS_MEMBER_EXTRACT(obj) TSRMLS_D = obj.TSRMLS_C
-
-// We provide a macro that allows us to optionally pass TSRMLS_C to a
-// constructor.
-#define ZTS_CTOR (TSRMLS_C)
-
-#else
-
-#define ZTS_CONSTRUCTOR(type)
-#define ZTS_CONSTRUCTOR_WITH_BASE(type,base)
-#define ZTS_MEMBER_C(obj)
-#define ZTS_MEMBER_CC(obj)
-#define ZTS_MEMBER_PC(obj)
-#define ZTS_MEMBER_PCC(obj)
-#define ZTS_MEMBER_EXTRACT(obj)
-
-// Make ZTS_CTOR insert nothing. It cannot be "( )" because C++ resolves
-// ambiguity in parsing 'T X()' in favor of a function declaration.
-#define ZTS_CTOR
-
-#endif
-
 #define UNUSED(var) ((void)var)
 
 #define add_assoc_const_string(zv,key,str)                  \
@@ -113,50 +82,6 @@ namespace php_git2
 {
     // List of all functions provided in the php-git2-fe compilation unit.
     extern zend_function_entry functions[];
-
-    // Provide a class to manage passing copies of ZTS handles around.
-
-    class php_zts_base
-    {
-#ifdef ZTS
-    protected:
-        php_zts_base(TSRMLS_D):
-            TSRMLS_C(TSRMLS_C)
-        {
-        }
-
-    public:
-        TSRMLS_D;
-#endif
-    };
-
-    class php_zts_base_fetched
-    {
-#ifdef ZTS
-    protected:
-        php_zts_base_fetched()
-        {
-            TSRMLS_FETCH();
-            this->TSRMLS_C = TSRMLS_C;
-        }
-
-    public:
-        TSRMLS_D;
-#endif
-    };
-
-    class php_zts_member:
-        public php_zts_base
-    {
-#ifdef ZTS
-    public:
-        php_zts_member(void*** zts):
-            php_zts_base(zts)
-        {
-        }
-#endif
-    };
-
 
     // Provide types for tracking bailouts and manipulating PHP bailout jump
     // buffers.
@@ -195,12 +120,11 @@ namespace php_git2
         bool flag;
     };
 
-    class php_bailout_context:
-        private php_zts_base
+    class php_bailout_context
     {
     public:
-        php_bailout_context(php_bailer& theBailer TSRMLS_DC):
-            php_zts_base(TSRMLS_C), original(EG(bailout)), bailer(theBailer)
+        php_bailout_context(php_bailer& theBailer):
+            original(EG(bailout)), bailer(theBailer)
         {
             EG(bailout) = &current;
         }
@@ -247,7 +171,7 @@ namespace php_git2
 
         // Member function that handles the exception in some well-defined way
         // according to the exception type.
-        virtual void handle(TSRMLS_D) const noexcept = 0;
+        virtual void handle() const noexcept = 0;
 
         // The error code to report to userspace.
         int code;
@@ -306,7 +230,7 @@ namespace php_git2
     public:
         php_git2_exception(const char* format, ...);
 
-        virtual void handle(TSRMLS_D) const noexcept
+        virtual void handle() const noexcept
         {
             // Transform the exception into a PHP exception.
             zend_throw_exception(nullptr,what(),code);
@@ -327,7 +251,7 @@ namespace php_git2
             return nullptr;
         }
 
-        virtual void handle(TSRMLS_D) const noexcept
+        virtual void handle() const noexcept
         {
         }
     };
@@ -343,7 +267,7 @@ namespace php_git2
             return nullptr;
         }
 
-        virtual void handle(TSRMLS_D) const noexcept
+        virtual void handle() const noexcept
         {
             // Bailout since an error is already set and was propagated through.
             php_bailer::bailout();
@@ -358,7 +282,7 @@ namespace php_git2
     public:
         php_git2_fatal_exception(const char* format, ...);
 
-        virtual void handle(TSRMLS_D) const noexcept
+        virtual void handle() const noexcept
         {
             // Generate a fatal PHP error.
             php_error(E_ERROR,"%s",what());
@@ -429,15 +353,15 @@ namespace php_git2
 
     // Function to register constants defined in php-constants.cpp.
 
-    void php_git2_register_constants(int module_number TSRMLS_DC);
+    void php_git2_register_constants(int module_number);
 
     // Functions to create/initialize module globals.
 
-    void php_git2_globals_ctor(zend_git2_globals* gbls TSRMLS_DC);
-    void php_git2_globals_dtor(zend_git2_globals* gbls TSRMLS_DC);
-    void php_git2_globals_init(TSRMLS_D);
-    void php_git2_globals_request_init(TSRMLS_D);
-    void php_git2_globals_request_shutdown(TSRMLS_D);
+    void php_git2_globals_ctor(zend_git2_globals* gbls);
+    void php_git2_globals_dtor(zend_git2_globals* gbls);
+    void php_git2_globals_init();
+    void php_git2_globals_request_init();
+    void php_git2_globals_request_shutdown();
 
     // Helper functions for converting git2 values to PHP values.
 

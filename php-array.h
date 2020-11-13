@@ -135,7 +135,7 @@ namespace php_git2
 
 #define GIT2_ARRAY_LOOKUP_RESOURCE(wrapper,type,name,var)               \
     if (wrapper.query(#name,sizeof(#name)-1)) {                         \
-        php_resource<type> rr ZTS_CTOR;                                 \
+        php_resource<type> rr;                                          \
         type r;                                                         \
         zval* zv = wrapper.get_value();                                 \
         if (Z_TYPE_P(zv) != IS_NULL) {                                  \
@@ -147,7 +147,7 @@ namespace php_git2
 
 #define GIT2_ARRAY_INDEX_RESOURCE(wrapper,index,type,name,var,ctx)      \
     if (wrapper.query(index)) {                                         \
-        php_resource<type> rr ZTS_CTOR;                                 \
+        php_resource<type> rr;                                          \
         type r;                                                         \
         zval* zv = wrapper.get_value();                                 \
         if (Z_TYPE_P(zv) != IS_NULL) {                                  \

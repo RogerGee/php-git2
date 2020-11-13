@@ -167,29 +167,28 @@ static constexpr auto ZIF_GIT_INDEXER_FREE = zif_php_git2_function_free<
 // git_transfer_progress members.
 static PHP_FUNCTION(git2_indexer_stats)
 {
-    php_git2::php_bailer bailer ZTS_CTOR;
+    php_git2::php_bailer bailer;
 
     {
         git_transfer_progress* stats;
-        php_git2::php_resource<php_git2::php_git_indexer_with_stats> indexer ZTS_CTOR;
-        php_git2::php_bailout_context ctx(bailer TSRMLS_CC);
+        php_git2::php_resource<php_git2::php_git_indexer_with_stats> indexer;
+        php_git2::php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
             zval* zvp;
-            if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"z",&zvp) == FAILURE) {
+            if (zend_parse_parameters(ZEND_NUM_ARGS(),"z",&zvp) == FAILURE) {
                 return;
             }
 
-            indexer.parse(zvp,1);
-
             try {
+                indexer.parse(zvp,1);
                 stats = indexer.get_object()->get_stats();
 
             } catch (php_git2::php_git2_exception_base& ex) {
-                php_git2::php_bailout_context ctx2(bailer TSRMLS_CC);
+                php_git2::php_bailout_context ctx2(bailer);
 
                 if (BAILOUT_ENTER_REGION(ctx2)) {
-                    ex.handle(TSRMLS_C);
+                    ex.handle();
                 }
 
                 return;

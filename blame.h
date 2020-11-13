@@ -9,7 +9,6 @@
 
 namespace php_git2
 {
-
     // Explicitly specialize git2_resource destructor for git_blame.
 
     template<> php_git_blame::~git2_resource()
@@ -55,8 +54,6 @@ namespace php_git2
     class php_git_blame_hunk_rethandler
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_blame_hunk_rethandler)
-
         bool ret(const git_blame_hunk* hunk,zval* return_value,local_pack<Ts...>& pack)
         {
             if (hunk == nullptr) {
