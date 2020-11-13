@@ -48,21 +48,42 @@ namespace php_git2
 
     extern zend_class_entry* class_entry[];
 
+    // Define superclass for zend_object that uses composition instead of
+    // inheritance.
+
+    template<typename CustomObjectType>
+    struct php_zend_object
+    {
+        CustomObjectType base;
+        zend_object std; // last
+
+        static constexpr size_t offset()
+        {
+            return offsetof(php_zend_object,base);
+        }
+
+        static inline php_zend_object* get_storage(zend_object* zo)
+        {
+            return reinterpret_cast<php_zend_object*>(zo - offset());
+        }
+
+        static inline CustomObjectType* get_base(zend_object* zo)
+        {
+            return &( reinterpret_cast<php_zend_object*>(zo - offset())->base );
+        }
+    };
+
     // Define base class for object PHP values.
 
     template<typename ObjectType>
     class php_object:
         public php_value_base
     {
+        using wrapper_t = php_zend_object<ObjectType>;
     public:
         ObjectType* get_object()
         {
-            return reinterpret_cast<ObjectType*>(Z_OBJ(value));
-        }
-
-        const ObjectType* get_object() const
-        {
-            return reinterpret_cast<const ObjectType*>(Z_OBJ(value));
+            return wrapper_t::get_base(Z_OBJ(value));
         }
 
     private:
@@ -91,10 +112,10 @@ namespace php_git2
     template<typename ObjectType,typename BackingType>
     class php_object_wrapper
     {
+        using wrapper_t = php_zend_object<BackingType>;
     public:
         php_object_wrapper(typename ObjectType::base_class* base):
-            wrapperObject(static_cast<ObjectType*>(base)),
-            backingObject(nullptr)
+            wrapperObject(static_cast<ObjectType*>(base))
         {
         }
 
@@ -110,12 +131,7 @@ namespace php_git2
 
         BackingType* backing()
         {
-            // Lazy load the backing object.
-            if (backingObject == nullptr) {
-                backingObject = reinterpret_cast<BackingType*>(Z_OBJ_P(wrapperObject->thisobj));
-            }
-
-            return backingObject;
+            return wrapper_t::get_base(Z_OBJ_P(wrapperObject->thisobj));
         }
 
     protected:
@@ -126,7 +142,6 @@ namespace php_git2
 
     private:
         ObjectType* wrapperObject;
-        BackingType* backingObject;
     };
 
     template<typename ObjectType,typename BackingType>
@@ -202,11 +217,11 @@ namespace php_git2
         zval zretval;
     };
 
-    // Define zend_object derivations for objects that require an extended
-    // backend structure. Each class must provide a static 'handlers' member and
-    // a static 'init' function for handling class initialization.
+    // Define custom storage for objects that require an extended backend
+    // structure. Each class must provide a static 'handlers' member and a
+    // static 'init' function for handling class initialization.
 
-    struct php_odb_backend_object : zend_object
+    struct php_odb_backend_object
     {
         enum backend_kind
         {
@@ -216,7 +231,7 @@ namespace php_git2
             custom
         };
 
-        php_odb_backend_object(zend_class_entry* ce);
+        php_odb_backend_object();
         ~php_odb_backend_object();
 
         git_odb_backend* backend;
@@ -305,7 +320,7 @@ namespace php_git2
 
     struct php_odb_backend_internal_object : php_odb_backend_object
     {
-        php_odb_backend_internal_object(zend_class_entry* ce);
+        php_odb_backend_internal_object();
 
         constexpr static php_git2_object_t get_type()
         {
@@ -316,9 +331,9 @@ namespace php_git2
         static void init(zend_class_entry* ce);
     };
 
-    struct php_odb_writepack_object : zend_object
+    struct php_odb_writepack_object
     {
-        php_odb_writepack_object(zend_class_entry* ce);
+        php_odb_writepack_object();
         ~php_odb_writepack_object();
 
         git_odb_writepack* writepack;
@@ -367,7 +382,7 @@ namespace php_git2
 
     struct php_odb_writepack_internal_object : php_odb_writepack_object
     {
-        php_odb_writepack_internal_object(zend_class_entry* ce);
+        php_odb_writepack_internal_object();
         ~php_odb_writepack_internal_object();
 
         git_transfer_progress prog;
@@ -382,7 +397,7 @@ namespace php_git2
         static void init(zend_class_entry* ce);
     };
 
-    struct php_odb_stream_object : zend_object
+    struct php_odb_stream_object
     {
         enum stream_kind
         {
@@ -392,7 +407,7 @@ namespace php_git2
             custom
         };
 
-        php_odb_stream_object(zend_class_entry* ce);
+        php_odb_stream_object();
         ~php_odb_stream_object();
 
         git_odb_stream* stream;
@@ -442,7 +457,7 @@ namespace php_git2
 
     struct php_odb_stream_internal_object : php_odb_stream_object
     {
-        php_odb_stream_internal_object(zend_class_entry* ce);
+        php_odb_stream_internal_object();
 
         constexpr static php_git2_object_t get_type()
         {
@@ -453,9 +468,9 @@ namespace php_git2
         static void init(zend_class_entry* ce);
     };
 
-    struct php_writestream_object : zend_object
+    struct php_writestream_object
     {
-        php_writestream_object(zend_class_entry* ce);
+        php_writestream_object();
         ~php_writestream_object();
 
         git_writestream* ws;
@@ -469,9 +484,9 @@ namespace php_git2
         static void init(zend_class_entry* ce);
     };
 
-    struct php_config_backend_object : zend_object
+    struct php_config_backend_object
     {
-        php_config_backend_object(zend_class_entry* ce);
+        php_config_backend_object();
         ~php_config_backend_object();
 
         git_config_backend* backend;
@@ -524,7 +539,7 @@ namespace php_git2
         static void free(git_config_backend* cfg);
     };
 
-    struct php_refdb_backend_object : zend_object
+    struct php_refdb_backend_object
     {
         enum backend_kind
         {
@@ -534,7 +549,7 @@ namespace php_git2
             custom
         };
 
-        php_refdb_backend_object(zend_class_entry* ce);
+        php_refdb_backend_object();
         ~php_refdb_backend_object();
 
         git_refdb_backend* backend;
@@ -609,7 +624,9 @@ namespace php_git2
         static int compress(git_refdb_backend *backend);
         static int has_log(git_refdb_backend *backend, const char *refname);
         static int ensure_log(git_refdb_backend *backend, const char *refname);
-        static int reflog_read(git_reflog **out, git_refdb_backend *backend, const char *name);
+        static int reflog_read(git_reflog **out,
+            git_refdb_backend *backend,
+            const char *name);
         static int reflog_write(git_refdb_backend *backend, git_reflog *reflog);
         static int reflog_rename(git_refdb_backend *backend,
             const char *old_name,
@@ -628,7 +645,7 @@ namespace php_git2
 
     struct php_refdb_backend_internal_object : php_refdb_backend_object
     {
-        php_refdb_backend_internal_object(zend_class_entry* ce);
+        php_refdb_backend_internal_object();
         ~php_refdb_backend_internal_object();
 
         git_reference_iterator* iter;
@@ -642,11 +659,11 @@ namespace php_git2
         static void init(zend_class_entry* ce);
     };
 
-    struct php_closure_object : zend_object
+    struct php_closure_object
     {
         typedef void (*closure_dstor)(void*);
 
-        php_closure_object(zend_class_entry* ce);
+        php_closure_object();
         ~php_closure_object();
 
         zend_function func;
@@ -685,7 +702,9 @@ namespace php_git2
         php_git_odb* owner);
     void php_git2_make_writestream(zval* zp,
         git_writestream* ws);
-    void php_git2_make_refdb_backend(zval* zp,git_refdb_backend* backend,php_git_refdb* owner);
+    void php_git2_make_refdb_backend(zval* zp,
+        git_refdb_backend* backend,
+        php_git_refdb* owner);
 
     // Useful helpers
 

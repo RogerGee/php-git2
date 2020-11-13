@@ -11,37 +11,51 @@
 #include "php-object.h"
 #include "php-type.h"
 #include <new>
-#include <cstring>
 using namespace php_git2;
 
 // Provide generic versions of the custom zend_object derivation create/free
 // handlers.
 
 template<typename T>
-static void php_free_object(T* object)
+static void php_free_object(zend_object* zo)
 {
-    object->~T();
+    php_zend_object<T>* object = php_zend_object<T>::get_storage(zo);
+    zend_object_std_dtor(zo);
+    object->base.~T();
     efree(object);
 }
 
 template<typename T>
-static zend_object_value php_create_object_handler(zend_class_entry* ce TSRMLS_DC)
+static zend_object* php_create_object_handler(zend_class_entry* ce)
 {
-    T* object;
-    zend_object_value val;
+    void* ptr;
+    php_zend_object<T>* object;
 
-    object = new(emalloc(sizeof(T))) T(ce TSRMLS_CC);
+    // TODO Update to use zend_object_alloc().
 
-    memset(&val,0,sizeof(zend_object_value));
-    val.handle = zend_objects_store_put(object,
-        (zend_objects_store_dtor_t)zend_objects_destroy_object,
-        (zend_objects_free_object_storage_t)php_free_object<T>,
-        nullptr TSRMLS_CC);
-    val.handlers = &T::handlers;
+    ptr = ecalloc(1,sizeof(php_zend_object<T>) + zend_object_properties_size(ce));
+    object = new(ptr) php_zend_object<T>;
+    zend_object_std_init(&object->std,ce);
+    object_properties_init(&object->std,ce);
+    object->std.handlers = &T::handlers;
 
-    return val;
+    return &object->std;
+}
 
-    UNUSED(ce);
+template<typename T>
+static void php_init_object_handlers(zend_class_entry* ce)
+{
+    zend_object_handlers* stdhandlers = zend_get_std_object_handlers();
+
+    // Store class entry for later global lookup and set create_object function.
+    php_git2::class_entry[T::get_type()] = ce;
+    ce->create_object = &php_create_object_handler<T>;
+
+    // Initialize handlers.
+    memcpy(&T::handlers,stdhandlers,sizeof(zend_object_handlers));
+    T::handlers.offset = php_zend_object<T>::offset();
+    T::handlers.free_object = &php_free_object<T>;
+    T::init(ce);
 }
 
 // Define the global list of class entry structure references.
@@ -53,132 +67,82 @@ zend_class_entry* php_git2::class_entry[_php_git2_obj_top_];
 
 void php_git2::php_git2_register_classes(TSRMLS_D)
 {
-    zend_object_handlers* stdhandlers = zend_get_std_object_handlers();
     zend_class_entry ce, *pce;
 
     // abstract class GitODBBackend
     INIT_CLASS_ENTRY(ce,"GitODBBackend",odb_backend_methods);
-    pce = zend_register_internal_class(&ce TSRMLS_CC);
-    php_git2::class_entry[php_git2_odb_backend_obj] = pce;
+    pce = zend_register_internal_class(&ce);
     pce->ce_flags |= ZEND_ACC_EXPLICIT_ABSTRACT_CLASS;
-    memcpy(&php_odb_backend_object::handlers,stdhandlers,sizeof(zend_object_handlers));
-    pce->create_object = php_create_object_handler<php_odb_backend_object>;
-    php_odb_backend_object::init(pce);
+    php_init_object_handlers<php_odb_backend_object>(pce);
 
     // final class GitODBBackend_Internal extends GitODBBackend
     INIT_CLASS_ENTRY(ce,"GitODBBackend_Internal",odb_backend_internal_methods);
-    pce = zend_register_internal_class_ex(
-        &ce,
-        php_git2::class_entry[php_git2_odb_backend_obj],
-        nullptr TSRMLS_CC);
-    php_git2::class_entry[php_git2_odb_backend_internal_obj] = pce;
-    pce->ce_flags |= ZEND_ACC_FINAL_CLASS;
-    memcpy(&php_odb_backend_internal_object::handlers,
-        &php_odb_backend_object::handlers,
-        sizeof(zend_object_handlers));
-    pce->create_object = php_create_object_handler<php_odb_backend_internal_object>;
-    php_odb_backend_internal_object::init(pce);
+    pce = zend_register_internal_class_ex(&ce,
+        php_git2::class_entry[php_git2_odb_backend_obj]);
+    pce->ce_flags |= ZEND_ACC_FINAL;
+    php_init_object_handlers<php_odb_backend_internal_object>(pce);
 
     // abstract class GitODBWritepack
     INIT_CLASS_ENTRY(ce,"GitODBWritepack",odb_writepack_methods);
-    pce = zend_register_internal_class(&ce TSRMLS_CC);
-    php_git2::class_entry[php_git2_odb_writepack_obj] = pce;
+    pce = zend_register_internal_class(&ce);
     pce->ce_flags |= ZEND_ACC_EXPLICIT_ABSTRACT_CLASS;
-    memcpy(&php_odb_writepack_object::handlers,stdhandlers,sizeof(zend_object_handlers));
-    pce->create_object = php_create_object_handler<php_odb_writepack_object>;
-    php_odb_writepack_object::init(pce);
+    php_init_object_handlers<php_odb_writepack_object>(pce);
 
     // final class GitODBWritepack_Internal extends GitODBWritepack
     INIT_CLASS_ENTRY(ce,"GitODBWritepack_Internal",odb_writepack_internal_methods);
-    pce = zend_register_internal_class_ex(
-        &ce,
-        php_git2::class_entry[php_git2_odb_writepack_obj],
-        nullptr TSRMLS_CC);
-    php_git2::class_entry[php_git2_odb_writepack_internal_obj] = pce;
-    pce->ce_flags |= ZEND_ACC_FINAL_CLASS;
-    memcpy(&php_odb_writepack_internal_object::handlers,
-        &php_odb_writepack_object::handlers,
-        sizeof(zend_object_handlers));
-    pce->create_object = php_create_object_handler<php_odb_writepack_internal_object>;
-    php_odb_writepack_internal_object::init(pce);
+    pce = zend_register_internal_class_ex(&ce,
+        php_git2::class_entry[php_git2_odb_writepack_obj]);
+    pce->ce_flags |= ZEND_ACC_FINAL;
+    php_init_object_handlers<php_odb_writepack_internal_object>(pce);
 
     // abstract class GitODBStream
     INIT_CLASS_ENTRY(ce,"GitODBStream",odb_stream_methods);
-    pce = zend_register_internal_class(&ce TSRMLS_CC);
-    php_git2::class_entry[php_git2_odb_stream_obj] = pce;
+    pce = zend_register_internal_class(&ce);
     pce->ce_flags |= ZEND_ACC_EXPLICIT_ABSTRACT_CLASS;
-    memcpy(&php_odb_stream_object::handlers,stdhandlers,sizeof(zend_object_handlers));
-    pce->create_object = php_create_object_handler<php_odb_stream_object>;
-    php_odb_stream_object::init(pce);
+    php_init_object_handlers<php_odb_stream_object>(pce);
 
     // final class GitODBStream_Internal extends GitODBStream
     INIT_CLASS_ENTRY(ce,"GitODBStream_Internal",odb_stream_internal_methods);
-    pce = zend_register_internal_class_ex(
-        &ce,
-        php_git2::class_entry[php_git2_odb_stream_obj],
-        nullptr TSRMLS_CC);
-    php_git2::class_entry[php_git2_odb_stream_internal_obj] = pce;
-    pce->ce_flags |= ZEND_ACC_FINAL_CLASS;
-    memcpy(&php_odb_stream_internal_object::handlers,
-        &php_odb_stream_object::handlers,
-        sizeof(zend_object_handlers));
-    pce->create_object = php_create_object_handler<php_odb_stream_internal_object>;
-    php_odb_stream_internal_object::init(pce);
+    pce = zend_register_internal_class_ex(&ce,
+        php_git2::class_entry[php_git2_odb_stream_obj]);
+    pce->ce_flags |= ZEND_ACC_FINAL;
+    php_init_object_handlers<php_odb_stream_internal_object>(pce);
 
     // final class GitWritestream
     INIT_CLASS_ENTRY(ce,"GitWritestream",writestream_methods);
-    pce = zend_register_internal_class(&ce TSRMLS_CC);
-    php_git2::class_entry[php_git2_writestream_obj] = pce;
-    pce->ce_flags |= ZEND_ACC_FINAL_CLASS;
-    memcpy(&php_writestream_object::handlers,stdhandlers,sizeof(zend_object_handlers));
-    pce->create_object = php_create_object_handler<php_writestream_object>;
-    php_writestream_object::init(pce);
+    pce = zend_register_internal_class(&ce);
+    pce->ce_flags |= ZEND_ACC_FINAL;
+    php_init_object_handlers<php_writestream_object>(pce);
 
     // abstract class GitConfigBackend
     INIT_CLASS_ENTRY(ce,"GitConfigBackend",config_backend_methods);
-    pce = zend_register_internal_class(&ce TSRMLS_CC);
-    php_git2::class_entry[php_git2_config_backend_obj] = pce;
+    pce = zend_register_internal_class(&ce);
     pce->ce_flags |= ZEND_ACC_EXPLICIT_ABSTRACT_CLASS;
-    memcpy(&php_config_backend_object::handlers,stdhandlers,sizeof(zend_object_handlers));
-    pce->create_object = php_create_object_handler<php_config_backend_object>;
-    php_config_backend_object::init(pce);
+    php_init_object_handlers<php_config_backend_object>(pce);
 
     // abstract class GitRefDBBackend
     INIT_CLASS_ENTRY(ce,"GitRefDBBackend",refdb_backend_methods);
-    pce = zend_register_internal_class(&ce TSRMLS_CC);
-    php_git2::class_entry[php_git2_refdb_backend_obj] = pce;
+    pce = zend_register_internal_class(&ce);
     pce->ce_flags |= ZEND_ACC_EXPLICIT_ABSTRACT_CLASS;
-    memcpy(&php_refdb_backend_object::handlers,stdhandlers,sizeof(zend_object_handlers));
-    pce->create_object = php_create_object_handler<php_refdb_backend_object>;
-    php_refdb_backend_object::init(pce);
+    php_init_object_handlers<php_refdb_backend_object>(pce);
 
     // final class GitRefDBBackend_Internal extends GitRefDBBackend
     INIT_CLASS_ENTRY(ce,"GitRefDBBackend_Internal",refdb_backend_internal_methods);
-    pce = zend_register_internal_class_ex(
-        &ce,
-        php_git2::class_entry[php_git2_refdb_backend_obj],
-        nullptr TSRMLS_CC);
-    php_git2::class_entry[php_git2_refdb_backend_internal_obj] = pce;
-    pce->ce_flags |= ZEND_ACC_FINAL_CLASS;
-    memcpy(&php_refdb_backend_internal_object::handlers,
-        &php_refdb_backend_object::handlers,
-        sizeof(zend_object_handlers));
-    pce->create_object = php_create_object_handler<php_refdb_backend_internal_object>;
-    php_refdb_backend_internal_object::init(pce);
+    pce = zend_register_internal_class_ex(&ce,
+        php_git2::class_entry[php_git2_refdb_backend_obj]);
+    pce->ce_flags |= ZEND_ACC_FINAL;
+    php_init_object_handlers<php_refdb_backend_internal_object>(pce);
 
     // final class GitClosure
     INIT_CLASS_ENTRY(ce,"GitClosure",closure_methods);
-    pce = zend_register_internal_class(&ce TSRMLS_CC);
-    php_git2::class_entry[php_git2_closure_obj] = pce;
-    pce->ce_flags |= ZEND_ACC_FINAL_CLASS;
-    memcpy(&php_closure_object::handlers,stdhandlers,sizeof(zend_object_handlers));
-    pce->create_object = php_create_object_handler<php_closure_object>;
-    php_closure_object::init(pce);
+    pce = zend_register_internal_class(&ce);
+    pce->ce_flags |= ZEND_ACC_FINAL;
+    php_init_object_handlers<php_closure_object>(pce);
 }
 
 // Provide implementations for generic make function.
 
-void php_git2::php_git2_make_object(zval* zp,php_git2_object_t type TSRMLS_DC)
+void php_git2::php_git2_make_object(zval* zp,php_git2_object_t type)
 {
     object_init_ex(zp,php_git2::class_entry[type]);
 }
@@ -198,19 +162,23 @@ bool php_git2::is_method_overridden(zend_class_entry* ce,const char* method,int 
     return (func->common.prototype != NULL);
 }
 
-zend_function* php_git2::not_allowed_get_constructor(zval* object TSRMLS_DC)
+zend_function* php_git2::not_allowed_get_constructor(zval* object)
 {
     zend_class_entry* ce = Z_OBJCE_P(object);
+
     php_error(E_RECOVERABLE_ERROR, "Instantiation of '%s' is not allowed",ce->name);
+
     return nullptr;
 }
 
-zend_function* php_git2::disallow_base_get_constructor(zval* object TSRMLS_DC)
+zend_function* php_git2::disallow_base_get_constructor(zval* object)
 {
     zend_class_entry* ce = Z_OBJCE_P(object);
+
     if (!ce->parent) {
-        return not_allowed_get_constructor(object TSRMLS_CC);
+        return not_allowed_get_constructor(object);
     }
+
     return ce->constructor;
 }
 
