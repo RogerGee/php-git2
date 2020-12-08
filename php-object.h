@@ -54,6 +54,18 @@ namespace php_git2
     template<typename CustomObjectType>
     struct php_zend_object
     {
+        php_zend_object(zend_class_entry* ce)
+        {
+            zend_object_std_init(&std,ce);
+            object_properties_init(&std,ce);
+            std.handlers = &CustomObjectType::handlers;
+        }
+
+        ~php_zend_object()
+        {
+            zend_object_std_dtor(&std);
+        }
+
         CustomObjectType base;
         zend_object std; // last
 

@@ -20,8 +20,7 @@ template<typename T>
 static void php_free_object(zend_object* zo)
 {
     php_zend_object<T>* object = php_zend_object<T>::get_storage(zo);
-    zend_object_std_dtor(zo);
-    object->base.~T();
+    object->~php_zend_object<T>();
     efree(object);
 }
 
@@ -34,10 +33,7 @@ static zend_object* php_create_object_handler(zend_class_entry* ce)
     // TODO Update to use zend_object_alloc().
 
     ptr = ecalloc(1,sizeof(php_zend_object<T>) + zend_object_properties_size(ce));
-    object = new(ptr) php_zend_object<T>;
-    zend_object_std_init(&object->std,ce);
-    object_properties_init(&object->std,ce);
-    object->std.handlers = &T::handlers;
+    object = new(ptr) php_zend_object<T>(ce);
 
     return &object->std;
 }
@@ -54,7 +50,7 @@ static void php_init_object_handlers(zend_class_entry* ce)
     // Initialize handlers.
     memcpy(&T::handlers,stdhandlers,sizeof(zend_object_handlers));
     T::handlers.offset = php_zend_object<T>::offset();
-    T::handlers.free_object = &php_free_object<T>;
+    T::handlers.free_obj = &php_free_object<T>;
     T::init(ce);
 }
 
@@ -151,15 +147,18 @@ void php_git2::php_git2_make_object(zval* zp,php_git2_object_t type)
 
 bool php_git2::is_method_overridden(zend_class_entry* ce,const char* method,int len)
 {
-    zend_function* func;
+    zval* func;
+    zend_function* fbc;
 
-    // Look up the function entry in the class entry's function table.
-    if (zend_hash_find(&ce->function_table,method,len,(void**)&func) == FAILURE) {
+    func = zend_hash_str_find(&ce->function_table,method,len);
+    if (func == nullptr) {
         return false;
     }
 
-    // The method is overloaded if the prototype is defined.
-    return (func->common.prototype != NULL);
+    fbc = Z_FUNC_P(func);
+
+    // The method is overridden if the prototype is defined.
+    return (fbc->common.prototype != NULL);
 }
 
 zend_function* php_git2::not_allowed_get_constructor(zval* object)
