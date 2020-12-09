@@ -10,19 +10,10 @@
 
 #include "php-object.h"
 #include "php-type.h"
-#include <new>
 using namespace php_git2;
 
 // Provide generic versions of the custom zend_object derivation create/free
 // handlers.
-
-template<typename T>
-static void php_free_object(zend_object* zo)
-{
-    php_zend_object<T>* object = php_zend_object<T>::get_storage(zo);
-    object->~php_zend_object<T>();
-    efree(object);
-}
 
 template<typename T>
 static zend_object* php_create_object_handler(zend_class_entry* ce)
@@ -39,8 +30,17 @@ static zend_object* php_create_object_handler(zend_class_entry* ce)
 }
 
 template<typename T>
+static void php_free_object(zend_object* zo)
+{
+    php_zend_object<T>* object = php_zend_object<T>::get_storage(zo);
+    object->~php_zend_object<T>();
+    efree(object);
+}
+
+template<typename T>
 static void php_init_object_handlers(zend_class_entry* ce)
 {
+    using php_object_t = php_zend_object<T>;
     zend_object_handlers* stdhandlers = zend_get_std_object_handlers();
 
     // Store class entry for later global lookup and set create_object function.
@@ -48,15 +48,20 @@ static void php_init_object_handlers(zend_class_entry* ce)
     ce->create_object = &php_create_object_handler<T>;
 
     // Initialize handlers.
-    memcpy(&T::handlers,stdhandlers,sizeof(zend_object_handlers));
-    T::handlers.offset = php_zend_object<T>::offset();
-    T::handlers.free_obj = &php_free_object<T>;
-    T::init(ce);
+    memcpy(&php_object_t::handlers,stdhandlers,sizeof(zend_object_handlers));
+    php_object_t::handlers.offset = php_object_t::offset();
+    php_object_t::handlers.free_obj = &php_free_object<T>;
+    php_object_t::init(ce);
 }
 
 // Define the global list of class entry structure references.
 
 zend_class_entry* php_git2::class_entry[_php_git2_obj_top_];
+
+// Define handlers for any type.
+
+template<typename CustomObjectType>
+zend_object_handlers php_git2::php_zend_object<CustomObjectType>::handlers;
 
 // This function registers all classes. It should be called by the MINIT startup
 // function.

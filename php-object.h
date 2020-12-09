@@ -8,6 +8,7 @@
 #define PHPGIT2_PHPOBJECT_H
 #include "php-type.h"
 #include "php-callback.h"
+#include <new>
 extern "C" {
 #include <git2/sys/odb_backend.h>
 #include <git2/sys/refdb_backend.h>
@@ -56,18 +57,26 @@ namespace php_git2
     {
         php_zend_object(zend_class_entry* ce)
         {
+            void* ptr = ecalloc(1,sizeof(CustomObjectType));
+            base = new(ptr) CustomObjectType();
+
             zend_object_std_init(&std,ce);
             object_properties_init(&std,ce);
-            std.handlers = &CustomObjectType::handlers;
+            std.handlers = &handlers;
         }
 
         ~php_zend_object()
         {
             zend_object_std_dtor(&std);
+            base->~CustomObjectType();
+            efree(base);
         }
 
-        CustomObjectType base;
+        CustomObjectType* base; // indirect to force standard layout
         zend_object std; // last
+
+        static zend_object_handlers handlers;
+        static void init(zend_class_entry* ce);
 
         static constexpr size_t offset()
         {
@@ -81,7 +90,7 @@ namespace php_git2
 
         static inline CustomObjectType* get_base(zend_object* zo)
         {
-            return &( reinterpret_cast<php_zend_object*>(zo - offset())->base );
+            return reinterpret_cast<php_zend_object*>(zo - offset())->base;
         }
     };
 
@@ -264,9 +273,6 @@ namespace php_git2
             return php_git2_odb_backend_obj;
         }
 
-        static zend_object_handlers handlers;
-        static void init(zend_class_entry* ce);
-
     private:
         // Provide a custom odb_backend derivation that remembers the PHP object
         // to which it's attached.
@@ -338,9 +344,6 @@ namespace php_git2
         {
             return php_git2_odb_backend_internal_obj;
         }
-
-        static zend_object_handlers handlers;
-        static void init(zend_class_entry* ce);
     };
 
     struct php_odb_writepack_object
@@ -362,9 +365,6 @@ namespace php_git2
         {
             return php_git2_odb_writepack_obj;
         }
-
-        static zend_object_handlers handlers;
-        static void init(zend_class_entry* ce);
 
     private:
         // Provide a custom derivation to handle subclasses.
@@ -404,9 +404,6 @@ namespace php_git2
         {
             return php_git2_odb_writepack_internal_obj;
         }
-
-        static zend_object_handlers handlers;
-        static void init(zend_class_entry* ce);
     };
 
     struct php_odb_stream_object
@@ -440,9 +437,6 @@ namespace php_git2
             return php_git2_odb_stream_obj;
         }
 
-        static zend_object_handlers handlers;
-        static void init(zend_class_entry* ce);
-
     private:
         // Provide a custom derivation to handle subclasses.
         struct git_odb_stream_php:
@@ -475,9 +469,6 @@ namespace php_git2
         {
             return php_git2_odb_stream_internal_obj;
         }
-
-        static zend_object_handlers handlers;
-        static void init(zend_class_entry* ce);
     };
 
     struct php_writestream_object
@@ -491,9 +482,6 @@ namespace php_git2
         {
             return php_git2_writestream_obj;
         }
-
-        static zend_object_handlers handlers;
-        static void init(zend_class_entry* ce);
     };
 
     struct php_config_backend_object
@@ -510,9 +498,6 @@ namespace php_git2
         {
             return php_git2_config_backend_obj;
         }
-
-        static zend_object_handlers handlers;
-        static void init(zend_class_entry* ce);
 
     private:
         // Provide a custom config_backend derivation that remembers the PHP
@@ -580,9 +565,6 @@ namespace php_git2
         {
             return php_git2_refdb_backend_obj;
         }
-
-        static zend_object_handlers handlers;
-        static void init(zend_class_entry* ce);
 
     private:
         struct git_refdb_backend_php:
@@ -666,9 +648,6 @@ namespace php_git2
         {
             return php_git2_refdb_backend_internal_obj;
         }
-
-        static zend_object_handlers handlers;
-        static void init(zend_class_entry* ce);
     };
 
     struct php_closure_object
@@ -687,9 +666,6 @@ namespace php_git2
         {
             return php_git2_closure_obj;
         }
-
-        static zend_object_handlers handlers;
-        static void init(zend_class_entry* ce);
     };
 
     // Provide a routine to call during MINIT for registering the custom
