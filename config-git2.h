@@ -121,7 +121,7 @@ namespace php_git2
 
         git_config_backend* byval_git2()
         {
-            php_config_backend_object* object = get_object();
+            php_config_backend_object* object = get_storage();
 
             // Create custom backing if one doesn't already exist. Make sure the
             // owner is attached to the object.
@@ -148,7 +148,7 @@ namespace php_git2
     public:
         git_config_backend* byval_git2()
         {
-            return get_object()->backend;
+            return get_storage()->backend;
         }
     };
 

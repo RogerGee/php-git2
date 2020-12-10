@@ -46,7 +46,7 @@ namespace php_git2
     public:
         git_writestream* byval_git2()
         {
-            php_writestream_object* object = get_object();
+            php_writestream_object* object = get_storage();
 
             if (object->ws == nullptr) {
                 throw php_git2_exception("The writestream has already been closed");
@@ -88,7 +88,7 @@ namespace php_git2
     public:
         git_writestream* byval_git2()
         {
-            php_writestream_object* object = get_object();
+            php_writestream_object* object = get_storage();
 
             if (object->ws == nullptr) {
                 throw php_git2_exception("The writestream has already been closed");

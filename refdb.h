@@ -34,7 +34,7 @@ namespace php_git2
 
         git_refdb_backend* byval_git2()
         {
-            php_refdb_backend_object* object = get_object();
+            php_refdb_backend_object* object = get_storage();
 
             // If the object doesn't have a backing, then we create a custom
             // one.

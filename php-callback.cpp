@@ -21,7 +21,7 @@ int php_git2::php_git2_invoke_callback(zval* func,zval* ret,int paramCount,zval 
     if (BAILOUT_ENTER_REGION(ctx)) {
         int retval;
 
-        retval = call_user_function(EG(function_table),NULL,func,ret,paramCount,params);
+        retval = call_user_function(NULL,NULL,func,ret,paramCount,params);
         if (retval == FAILURE) {
             php_git2_giterr_set(GITERR_INVALID,"Failed to invoke userspace callback");
             result = GIT_EPHPFATAL;

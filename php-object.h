@@ -49,16 +49,16 @@ namespace php_git2
 
     extern zend_class_entry* class_entry[];
 
-    // Define superclass for zend_object that uses composition instead of
-    // inheritance.
+    // Define generic class for custom zend_object. This type must employ
+    // standard layout.
 
-    template<typename CustomObjectType>
+    template<typename StorageType>
     struct php_zend_object
     {
         php_zend_object(zend_class_entry* ce)
         {
-            void* ptr = ecalloc(1,sizeof(CustomObjectType));
-            base = new(ptr) CustomObjectType();
+            void* ptr = ecalloc(1,sizeof(StorageType));
+            storage = new(ptr) StorageType();
 
             zend_object_std_init(&std,ce);
             object_properties_init(&std,ce);
@@ -68,11 +68,11 @@ namespace php_git2
         ~php_zend_object()
         {
             zend_object_std_dtor(&std);
-            base->~CustomObjectType();
-            efree(base);
+            storage->~StorageType();
+            efree(storage);
         }
 
-        CustomObjectType* base; // indirect to force standard layout
+        StorageType* storage; // indirect to force standard layout
         zend_object std; // last
 
         static zend_object_handlers handlers;
@@ -80,31 +80,31 @@ namespace php_git2
 
         static constexpr size_t offset()
         {
-            return offsetof(php_zend_object,base);
+            return offsetof(php_zend_object,storage);
         }
 
-        static inline php_zend_object* get_storage(zend_object* zo)
+        static inline php_zend_object* get_wrapper(zend_object* zo)
         {
             return reinterpret_cast<php_zend_object*>(zo - offset());
         }
 
-        static inline CustomObjectType* get_base(zend_object* zo)
+        static inline StorageType* get_storage(zend_object* zo)
         {
-            return reinterpret_cast<php_zend_object*>(zo - offset())->base;
+            return reinterpret_cast<php_zend_object*>(zo - offset())->storage;
         }
     };
 
     // Define base class for object PHP values.
 
-    template<typename ObjectType>
+    template<typename StorageType>
     class php_object:
         public php_value_base
     {
-        using wrapper_t = php_zend_object<ObjectType>;
+        using wrapper_t = php_zend_object<StorageType>;
     public:
-        ObjectType* get_object()
+        StorageType* get_storage()
         {
-            return wrapper_t::get_base(Z_OBJ(value));
+            return wrapper_t::get_storage(Z_OBJ(value));
         }
 
     private:
@@ -112,7 +112,7 @@ namespace php_git2
         {
             int result;
             zval* dummy;
-            zend_class_entry* ce = php_git2::class_entry[ObjectType::get_type()];
+            zend_class_entry* ce = php_git2::class_entry[StorageType::get_type()];
 
             result = zend_parse_parameter(ZEND_PARSE_PARAMS_THROW,
                 argno,
@@ -130,13 +130,13 @@ namespace php_git2
 
     // Define a type for wrapping method calls.
 
-    template<typename ObjectType,typename BackingType>
+    template<typename BackendType,typename StorageType>
     class php_object_wrapper
     {
-        using wrapper_t = php_zend_object<BackingType>;
+        using wrapper_t = php_zend_object<StorageType>;
     public:
-        php_object_wrapper(typename ObjectType::base_class* base):
-            wrapperObject(static_cast<ObjectType*>(base))
+        php_object_wrapper(typename BackendType::base_class* base):
+            wrapperObject(static_cast<BackendType*>(base))
         {
         }
 
@@ -145,14 +145,14 @@ namespace php_git2
             return wrapperObject->thisobj;
         }
 
-        ObjectType* object()
+        BackendType* object()
         {
             return wrapperObject;
         }
 
-        BackingType* backing()
+        StorageType* backing()
         {
-            return wrapper_t::get_base(Z_OBJ_P(wrapperObject->thisobj));
+            return wrapper_t::get_storage(Z_OBJ_P(wrapperObject->thisobj));
         }
 
     protected:
@@ -162,17 +162,17 @@ namespace php_git2
         }
 
     private:
-        ObjectType* wrapperObject;
+        BackendType* wrapperObject;
     };
 
-    template<typename ObjectType,typename BackingType>
+    template<typename BackendType,typename StorageType>
     class php_method_wrapper:
-        public php_object_wrapper<ObjectType,BackingType>
+        public php_object_wrapper<BackendType,StorageType>
     {
     public:
-        using object_wrapper = php_object_wrapper<ObjectType,BackingType>;
+        using object_wrapper = php_object_wrapper<BackendType,StorageType>;
 
-        php_method_wrapper(const char* methodName,typename ObjectType::base_class* base):
+        php_method_wrapper(const char* methodName,typename BackendType::base_class* base):
             object_wrapper(base)
         {
             ZVAL_STRING(&zmethod,methodName);
@@ -196,7 +196,7 @@ namespace php_git2
 
                 retval = call_user_function(
                     NULL,
-                    object_wrapper::thisobj_pp(),
+                    object_wrapper::thisobj(),
                     &zmethod,
                     &zretval,
                     nparams,
@@ -238,9 +238,7 @@ namespace php_git2
         zval zretval;
     };
 
-    // Define custom storage for objects that require an extended backend
-    // structure. Each class must provide a static 'handlers' member and a
-    // static 'init' function for handling class initialization.
+    // Define custom storage types for custom classes.
 
     struct php_odb_backend_object
     {
@@ -259,14 +257,14 @@ namespace php_git2
         backend_kind kind;
         php_git_odb* owner;
 
-        void create_custom_backend(zval* zobj);
+        void create_custom_backend(zval* obj);
         void create_conventional_backend(php_git_odb* newOwner)
         {
             assign_owner(newOwner);
             kind = conventional;
         }
         void assign_owner(php_git_odb* newOwner);
-        void unset_backend(zval* zobj);
+        void unset_backend(zval* obj);
 
         constexpr static php_git2_object_t get_type()
         {
@@ -281,10 +279,10 @@ namespace php_git2
         {
             typedef git_odb_backend base_class;
 
-            git_odb_backend_php(zval* zv);
+            git_odb_backend_php(zend_object* obj);
             ~git_odb_backend_php();
 
-            zval* thisobj;
+            zval thisobj;
         };
 
         using method_wrapper = php_method_wrapper<
@@ -373,10 +371,10 @@ namespace php_git2
         {
             typedef git_odb_writepack base_class;
 
-            git_odb_writepack_php(zval* zv);
+            git_odb_writepack_php(zend_object* obj);
             ~git_odb_writepack_php();
 
-            zval* thisobj;
+            zval thisobj;
         };
 
         using method_wrapper = php_method_wrapper<
@@ -444,10 +442,10 @@ namespace php_git2
         {
             typedef git_odb_stream base_class;
 
-            git_odb_stream_php(zval* zv,unsigned int mode);
+            git_odb_stream_php(zend_object* obj,unsigned int mode);
             ~git_odb_stream_php();
 
-            zval* thisobj;
+            zval thisobj;
         };
 
         using method_wrapper = php_method_wrapper<
@@ -487,7 +485,6 @@ namespace php_git2
     struct php_config_backend_object
     {
         php_config_backend_object();
-        ~php_config_backend_object();
 
         git_config_backend* backend;
         php_git_config* owner;
@@ -507,10 +504,10 @@ namespace php_git2
         {
             typedef git_config_backend base_class;
 
-            git_config_backend_php(zval* zv);
+            git_config_backend_php(zend_object* obj);
             ~git_config_backend_php();
 
-            zval* thisobj;
+            zval thisobj;
         };
 
         using method_wrapper = php_method_wrapper<
@@ -572,10 +569,10 @@ namespace php_git2
         {
             typedef git_refdb_backend base_class;
 
-            git_refdb_backend_php(zval* zv);
+            git_refdb_backend_php(zend_object* obj);
             ~git_refdb_backend_php();
 
-            zval* thisobj;
+            zval thisobj;
         };
 
         using method_wrapper = php_method_wrapper<

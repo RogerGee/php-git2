@@ -15,42 +15,42 @@ using namespace php_git2;
 // Provide generic versions of the custom zend_object derivation create/free
 // handlers.
 
-template<typename T>
+template<typename StorageType>
 static zend_object* php_create_object_handler(zend_class_entry* ce)
 {
     void* ptr;
-    php_zend_object<T>* object;
+    php_zend_object<StorageType>* object;
 
     // TODO Update to use zend_object_alloc().
 
-    ptr = ecalloc(1,sizeof(php_zend_object<T>) + zend_object_properties_size(ce));
-    object = new(ptr) php_zend_object<T>(ce);
+    ptr = ecalloc(1,sizeof(php_zend_object<StorageType>) + zend_object_properties_size(ce));
+    object = new(ptr) php_zend_object<StorageType>(ce);
 
     return &object->std;
 }
 
-template<typename T>
+template<typename StorageType>
 static void php_free_object(zend_object* zo)
 {
-    php_zend_object<T>* object = php_zend_object<T>::get_storage(zo);
-    object->~php_zend_object<T>();
+    php_zend_object<StorageType>* object = php_zend_object<StorageType>::get_wrapper(zo);
+    object->~php_zend_object<StorageType>();
     efree(object);
 }
 
-template<typename T>
+template<typename StorageType>
 static void php_init_object_handlers(zend_class_entry* ce)
 {
-    using php_object_t = php_zend_object<T>;
+    using php_object_t = php_zend_object<StorageType>;
     zend_object_handlers* stdhandlers = zend_get_std_object_handlers();
 
     // Store class entry for later global lookup and set create_object function.
-    php_git2::class_entry[T::get_type()] = ce;
-    ce->create_object = &php_create_object_handler<T>;
+    php_git2::class_entry[StorageType::get_type()] = ce;
+    ce->create_object = &php_create_object_handler<StorageType>;
 
     // Initialize handlers.
     memcpy(&php_object_t::handlers,stdhandlers,sizeof(zend_object_handlers));
     php_object_t::handlers.offset = php_object_t::offset();
-    php_object_t::handlers.free_obj = &php_free_object<T>;
+    php_object_t::handlers.free_obj = &php_free_object<StorageType>;
     php_object_t::init(ce);
 }
 
@@ -60,8 +60,8 @@ zend_class_entry* php_git2::class_entry[_php_git2_obj_top_];
 
 // Define handlers for any type.
 
-template<typename CustomObjectType>
-zend_object_handlers php_git2::php_zend_object<CustomObjectType>::handlers;
+template<typename StorageType>
+zend_object_handlers php_git2::php_zend_object<StorageType>::handlers;
 
 // This function registers all classes. It should be called by the MINIT startup
 // function.

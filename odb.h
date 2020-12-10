@@ -98,7 +98,7 @@ namespace php_git2
 
         git_odb_backend* byval_git2()
         {
-            php_odb_backend_object* object = get_object();
+            php_odb_backend_object* object = get_storage();
 
             // If the object doesn't have a backing, then we create a custom
             // one.
@@ -198,7 +198,7 @@ namespace php_git2
     public:
         git_odb_stream* byval_git2()
         {
-            return get_object()->stream;
+            return get_storage()->stream;
         }
     };
 
