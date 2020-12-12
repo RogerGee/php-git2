@@ -10,7 +10,12 @@
 
 namespace php_git2
 {
-    int php_git2_invoke_callback(zval* func,zval* ret,int paramCount,zval params[]);
+    int php_git2_invoke_callback(
+        zval* obj,
+        zval* func,
+        zval* ret,
+        int paramCount,
+        zval params[]);
 
     // Provide a type that contains an array of zvals converted from primative
     // values.
@@ -47,21 +52,28 @@ namespace php_git2
         template<unsigned I,typename... Ts>
         void assign(long h,Ts&&... ts)
         {
-            ZVAL_LONG(params + I,h);
+            ZVAL_LONG(params + I,static_cast<zend_long>(h));
+            assign<I+1>(std::forward<Ts>(ts)...);
+        }
+
+        template<unsigned I,typename... Ts>
+        void assign(int h,Ts&&... ts)
+        {
+            ZVAL_LONG(params + I,static_cast<zend_long>(h));
             assign<I+1>(std::forward<Ts>(ts)...);
         }
 
         template<unsigned I,typename... Ts>
         void assign(unsigned int h,Ts&&... ts)
         {
-            ZVAL_LONG(params + I,static_cast<long>(h));
+            ZVAL_LONG(params + I,static_cast<zend_long>(h));
             assign<I+1>(std::forward<Ts>(ts)...);
         }
 
         template<unsigned I,typename... Ts>
         void assign(size_t sz,Ts&&... ts)
         {
-            ZVAL_LONG(params + I,sz);
+            ZVAL_LONG(params + I,static_cast<zend_long>(sz));
             assign<I+1>(std::forward<Ts>(ts)...);
         }
 
@@ -110,7 +122,12 @@ namespace php_git2
 
         int call(zval* func,zval* ret)
         {
-            return php_git2_invoke_callback(func,ret,Count,params);
+            return php_git2_invoke_callback(nullptr,func,ret,Count,params);
+        }
+
+        int call(zval* obj,zval* func,zval* ret)
+        {
+            return php_git2_invoke_callback(obj,func,ret,Count,params);
         }
 
         zval* operator [](unsigned index)

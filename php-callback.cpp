@@ -10,7 +10,12 @@
 #include "php-callback.h"
 using namespace php_git2;
 
-int php_git2::php_git2_invoke_callback(zval* func,zval* ret,int paramCount,zval params[])
+int php_git2::php_git2_invoke_callback(
+    zval* obj,
+    zval* func,
+    zval* ret,
+    int paramCount,
+    zval params[])
 {
     php_bailer bailer;
     php_bailout_context ctx(bailer);
@@ -21,7 +26,7 @@ int php_git2::php_git2_invoke_callback(zval* func,zval* ret,int paramCount,zval 
     if (BAILOUT_ENTER_REGION(ctx)) {
         int retval;
 
-        retval = call_user_function(NULL,NULL,func,ret,paramCount,params);
+        retval = call_user_function(NULL,obj,func,ret,paramCount,params);
         if (retval == FAILURE) {
             php_git2_giterr_set(GITERR_INVALID,"Failed to invoke userspace callback");
             result = GIT_EPHPFATAL;

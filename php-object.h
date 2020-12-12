@@ -185,47 +185,20 @@ namespace php_git2
             zval_dtor(&zretval);
         }
 
-        int call(int nparams = 0,zval* params[] = nullptr)
+        int call()
         {
-            php_bailer bailer;
-            php_bailout_context ctx(bailer);
-            int result = GIT_OK;
+            return php_git2_invoke_callback(
+                object_wrapper::thisobj(),
+                &zmethod,
+                &zretval,
+                0,
+                nullptr);
+        }
 
-            if (BAILOUT_ENTER_REGION(ctx)) {
-                int retval;
-
-                retval = call_user_function(
-                    NULL,
-                    object_wrapper::thisobj(),
-                    &zmethod,
-                    &zretval,
-                    nparams,
-                    params);
-
-                if (retval == FAILURE) {
-                    php_git2_giterr_set(GITERR_INVALID,"Failed to invoke userspace method");
-                    result = GIT_EPHPFATAL;
-                }
-                else {
-                    php_exception_wrapper ex;
-
-                    // Handle case where PHP userspace threw an exception.
-                    if (ex.has_exception()) {
-                        ex.set_giterr();
-                        result = GIT_EPHPEXPROP;
-                    }
-                }
-            }
-            else {
-                // Set a libgit2 error for completeness.
-                php_git2_giterr_set(GITERR_INVALID,"PHP reported a fatal error");
-
-                // Allow the fatal error to propogate.
-                result = GIT_EPHPFATALPROP;
-                bailer.handled();
-            }
-
-            return result;
+        template<unsigned Count>
+        int call(zval_array<Count>& params)
+        {
+            return params.call(object_wrapper::thisobj(),&zmethod,&zretval);
         }
 
         zval* retval()
