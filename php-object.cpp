@@ -166,24 +166,19 @@ bool php_git2::is_method_overridden(zend_class_entry* ce,const char* method,int 
     return (fbc->common.prototype != NULL);
 }
 
-zend_function* php_git2::not_allowed_get_constructor(zval* object)
+zend_function* php_git2::not_allowed_get_constructor(zend_object* object)
 {
-    zend_class_entry* ce = Z_OBJCE_P(object);
-
-    php_error(E_RECOVERABLE_ERROR, "Instantiation of '%s' is not allowed",ce->name);
-
+    php_error(E_RECOVERABLE_ERROR, "Instantiation of '%s' is not allowed",object->ce->name);
     return nullptr;
 }
 
-zend_function* php_git2::disallow_base_get_constructor(zval* object)
+zend_function* php_git2::disallow_base_get_constructor(zend_object* object)
 {
-    zend_class_entry* ce = Z_OBJCE_P(object);
-
-    if (!ce->parent) {
+    if (!object->ce->parent) {
         return not_allowed_get_constructor(object);
     }
 
-    return ce->constructor;
+    return object->ce->constructor;
 }
 
 /*
