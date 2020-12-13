@@ -356,7 +356,7 @@ void php_git2::php_git2_globals_request_shutdown()
 
 // Helpers
 
-int php_git2::convert_oid_fromstr(git_oid* dest,const char* src,int srclen)
+int php_git2::convert_oid_fromstr(git_oid* dest,const char* src,size_t srclen)
 {
     // Use a temporary buffer to hold the OID hex string. We make sure it can at
     // most contain a 40 character string. A prefix OID string may have less

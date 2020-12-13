@@ -142,7 +142,7 @@ namespace php_git2
 
         zval* thisobj()
         {
-            return wrapperObject->thisobj;
+            return &wrapperObject->thisobj;
         }
 
         BackendType* object()
@@ -152,13 +152,7 @@ namespace php_git2
 
         StorageType* backing()
         {
-            return wrapper_t::get_storage(Z_OBJ_P(wrapperObject->thisobj));
-        }
-
-    protected:
-        zval** thisobj_pp()
-        {
-            return &wrapperObject->thisobj;
+            return wrapper_t::get_storage(Z_OBJ(wrapperObject->thisobj));
         }
 
     private:
