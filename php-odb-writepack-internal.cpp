@@ -20,20 +20,37 @@ zend_function_entry php_git2::odb_writepack_internal_methods[] = {
 
 // Custom class handlers.
 
-static zval* odb_writepack_internal_read_property(zval* obj,zval* prop,int type,const zend_literal* key TSRMLS_DC);
-static void odb_writepack_internal_write_property(zval* obj,zval* prop,zval* value,const zend_literal* key TSRMLS_DC);
-static int odb_writepack_internal_has_property(zval* obj,zval* prop,int chk_type,const zend_literal* key TSRMLS_DC);
+static zval* odb_writepack_internal_read_property(
+    zval* object,
+    zval* member,
+    int type,
+    void** cache_slot,
+    zval* rv);
+static void odb_writepack_internal_write_property(
+    zval* object,
+    zval* member,
+    zval* value,
+    void** cache_slot);
+static int odb_writepack_internal_has_property(
+    zval* object,
+    zval* member,
+    int has_set_exists,
+    void** cache_slot);
 
 // Make function implementation
 
-void php_git2::php_git2_make_odb_writepack(zval* zp,git_odb_writepack* writepack,
-    php_callback_sync* cb,zval* zbackend,php_git_odb* owner TSRMLS_DC)
+void php_git2::php_git2_make_odb_writepack(
+    zval* zp,
+    git_odb_writepack* writepack,
+    php_callback_sync* cb,
+    zval* zbackend,
+    php_git_odb* owner)
 {
     php_odb_writepack_internal_object* obj;
     zend_class_entry* ce = php_git2::class_entry[php_git2_odb_writepack_internal_obj];
 
     object_init_ex(zp,ce);
-    obj = reinterpret_cast<php_odb_writepack_internal_object*>(zend_objects_get_address(zp TSRMLS_CC));
+    obj = php_zend_object<php_odb_writepack_internal_object>::get_storage(Z_OBJ_P(zp));
 
     // Assign the writepack and callback. The callback is merely along for the
     // ride so it can be destroyed at the proper time.
@@ -48,13 +65,25 @@ void php_git2::php_git2_make_odb_writepack(zval* zp,git_odb_writepack* writepack
     // the parent backend from freeing while the writepack is in use.
     if (zbackend != nullptr) {
         Z_ADDREF_P(zbackend);
-        zend_hash_add(Z_OBJPROP_P(zp),"backend",sizeof("backend"),&zbackend,sizeof(zval*),nullptr);
+        zend_hash_str_add(Z_OBJPROP_P(zp),"backend",sizeof("backend")-1,zbackend);
     }
 }
 
-/*static*/ zend_object_handlers php_odb_writepack_internal_object::handlers;
-php_odb_writepack_internal_object::php_odb_writepack_internal_object(zend_class_entry* ce TSRMLS_DC):
-    php_odb_writepack_object(ce TSRMLS_CC), cb(nullptr)
+// php_zend_object init function
+
+template<>
+void php_zend_object<php_odb_writepack_internal_object>::init(zend_class_entry* ce)
+{
+    handlers.read_property = odb_writepack_internal_read_property;
+    handlers.write_property = odb_writepack_internal_write_property;
+    handlers.has_property = odb_writepack_internal_has_property;
+    handlers.get_constructor = php_git2::not_allowed_get_constructor;
+
+    UNUSED(ce);
+}
+
+php_odb_writepack_internal_object::php_odb_writepack_internal_object():
+    php_odb_writepack_object(), cb(nullptr)
 {
     memset(&prog,0,sizeof(git_transfer_progress));
 }
@@ -74,120 +103,107 @@ php_odb_writepack_internal_object::~php_odb_writepack_internal_object()
     }
 }
 
-/*static*/ void php_odb_writepack_internal_object::init(zend_class_entry* ce)
-{
-    handlers.read_property = odb_writepack_internal_read_property;
-    handlers.write_property = odb_writepack_internal_write_property;
-    handlers.has_property = odb_writepack_internal_has_property;
-    handlers.get_constructor = php_git2::not_allowed_get_constructor;
-
-    UNUSED(ce);
-}
-
 // Implementation of custom class handlers.
 
-zval* odb_writepack_internal_read_property(zval* obj,zval* prop,int type,const zend_literal* key TSRMLS_DC)
+zval* odb_writepack_internal_read_property(
+    zval* object,
+    zval* member,
+    int type,
+    void** cache_slot,
+    zval* rv)
 {
-    zval* ret;
-    zval* tmp_prop = nullptr;
-    const char* str;
-    php_odb_writepack_internal_object* wrapper;
-
-    wrapper = LOOKUP_OBJECT(php_odb_writepack_internal_object,obj);
+    zval* retval;
+    zval tmp_member;
+    php_odb_writepack_internal_object* storage;
 
     // Ensure deep copy of member zval.
-    if (Z_TYPE_P(prop) != IS_STRING) {
-        MAKE_STD_ZVAL(tmp_prop);
-        *tmp_prop = *prop;
-        INIT_PZVAL(tmp_prop);
-        zval_copy_ctor(tmp_prop);
-        convert_to_string(tmp_prop);
-        prop = tmp_prop;
-        key = NULL;
+    if (Z_TYPE_P(member) != IS_STRING) {
+        ZVAL_STR(&tmp_member,zval_get_string(member));
+        member = &tmp_member;
+        cache_slot = nullptr;
     }
 
-    // Handle special properties of git_odb_writepack.
+    // Handle special properties of the git_odb_writepack.
 
-    str = Z_STRVAL_P(prop);
-    if (strcmp(str,"progress") == 0) {
-        // NOTE: We create a new zval every time since this property is readonly
-        // and the value may change.
-        MAKE_STD_ZVAL(ret);
-        php_git2::convert_transfer_progress(ret,&wrapper->prog);
+    using zend_object_t = php_zend_object<php_odb_writepack_internal_object>;
+    storage = zend_object_t::get_storage(Z_OBJ_P(object));
+
+    if (strcmp(Z_STRVAL_P(member),"progress") == 0) {
+        retval = rv;
+        php_git2::convert_transfer_progress(retval,&storage->prog);
     }
     else {
         // Invoke base class handler.
-        ret = (*php_odb_writepack_object::handlers.read_property)(obj,prop,type,key TSRMLS_CC);
+        auto handler = php_zend_object<php_odb_writepack_object>::handlers.read_property;
+        retval = (*handler)(object,member,type,cache_slot,rv);
     }
 
-    if (tmp_prop != nullptr) {
-        Z_ADDREF_P(ret);
-        zval_ptr_dtor(&tmp_prop);
-        Z_DELREF_P(ret);
+    if (member == &tmp_member) {
+        zval_dtor(member);
     }
 
-    return ret;
+    return retval;
 }
 
-void odb_writepack_internal_write_property(zval* obj,zval* prop,zval* value,const zend_literal* key TSRMLS_DC)
+void odb_writepack_internal_write_property(
+    zval* object,
+    zval* member,
+    zval* value,
+    void** cache_slot)
 {
-    zval* tmp_prop = nullptr;
-    const char* str;
+    zval tmp_member;
 
     // Ensure deep copy of member zval.
-    if (Z_TYPE_P(prop) != IS_STRING) {
-        MAKE_STD_ZVAL(tmp_prop);
-        *tmp_prop = *prop;
-        INIT_PZVAL(tmp_prop);
-        zval_copy_ctor(tmp_prop);
-        convert_to_string(tmp_prop);
-        prop = tmp_prop;
-        key = NULL;
+    if (Z_TYPE_P(member) != IS_STRING) {
+        ZVAL_STR(&tmp_member,zval_get_string(member));
+        member = &tmp_member;
+        cache_slot = nullptr;
     }
 
-    str = Z_STRVAL_P(prop);
-    if (strcmp(str,"progress") == 0) {
-        php_error(E_ERROR,"Property '%s' of GitODBWritepack_Internal cannot be updated",str);
+    if (strcmp(Z_STRVAL_P(member),"progress") == 0) {
+        zend_throw_error(
+            nullptr,
+            "Property '%s' of GitODBWritepack_Internal cannot be updated",
+            Z_STRVAL_P(member));
     }
     else {
         // Invoke base class handler.
-        (*php_odb_writepack_object::handlers.write_property)(obj,prop,value,key TSRMLS_CC);
+        auto handler = php_zend_object<php_odb_writepack_object>::handlers.write_property;
+        (*handler)(object,member,value,cache_slot);
     }
 
-    if (tmp_prop != nullptr) {
-        zval_ptr_dtor(&tmp_prop);
+    if (member == &tmp_member) {
+        zval_dtor(member);
     }
 }
 
-int odb_writepack_internal_has_property(zval* obj,zval* prop,int chk_type,const zend_literal* key TSRMLS_DC)
+int odb_writepack_internal_has_property(
+    zval* object,
+    zval* member,
+    int has_set_exists,
+    void** cache_slot)
 {
     int result;
-    zval* tmp_prop = nullptr;
-    const char* src;
+    zval tmp_member;
 
     // Ensure deep copy of member zval.
-    if (Z_TYPE_P(prop) != IS_STRING) {
-        MAKE_STD_ZVAL(tmp_prop);
-        *tmp_prop = *prop;
-        INIT_PZVAL(tmp_prop);
-        zval_copy_ctor(tmp_prop);
-        convert_to_string(tmp_prop);
-        prop = tmp_prop;
-        key = NULL;
+    if (Z_TYPE_P(member) != IS_STRING) {
+        ZVAL_STR(&tmp_member,zval_get_string(member));
+        member = &tmp_member;
+        cache_slot = nullptr;
     }
 
-    src = Z_STRVAL_P(prop);
-    if (strcmp(src,"progress") == 0) {
+    if (strcmp(Z_STRVAL_P(member),"progress") == 0) {
         result = true;
     }
     else {
         // Invoke base class handler.
-        result = (*php_odb_writepack_object::handlers.has_property)
-            (obj,prop,chk_type,key TSRMLS_CC);
+        auto handler = php_zend_object<php_odb_writepack_object>::handlers.has_property;
+        result = (*handler)(object,member,has_set_exists,cache_slot);
     }
 
-    if (tmp_prop != nullptr) {
-        zval_ptr_dtor(&tmp_prop);
+    if (member == &tmp_member) {
+        zval_dtor(member);
     }
 
     return result;
@@ -197,17 +213,18 @@ int odb_writepack_internal_has_property(zval* obj,zval* prop,int chk_type,const 
 
 PHP_METHOD(GitODBWritepack_Internal,append)
 {
-    php_bailer bailer ZTS_CTOR;
+    php_bailer bailer;
     int result;
     char* buf;
-    int amt;
+    size_t amt;
     php_odb_writepack_internal_object* object;
 
-    object = LOOKUP_OBJECT(php_odb_writepack_internal_object,getThis());
+    object = php_zend_object<php_odb_writepack_internal_object>
+        ::get_storage(Z_OBJ_P(getThis()));
 
     assert(object->writepack != nullptr);
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&buf,&amt) != SUCCESS) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS(),"s",&buf,&amt) != SUCCESS) {
         return;
     }
 
@@ -216,22 +233,24 @@ PHP_METHOD(GitODBWritepack_Internal,append)
         if (result < 0) {
             php_git2::git_error(result);
         }
+
     } catch (php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer TSRMLS_CC);
+        php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle(TSRMLS_C);
+            ex.handle();
         }
     }
 }
 
 PHP_METHOD(GitODBWritepack_Internal,commit)
 {
-    php_bailer bailer ZTS_CTOR;
+    php_bailer bailer;
     int result;
     php_odb_writepack_internal_object* object;
 
-    object = LOOKUP_OBJECT(php_odb_writepack_internal_object,getThis());
+    object = php_zend_object<php_odb_writepack_internal_object>
+        ::get_storage(Z_OBJ_P(getThis()));
 
     assert(object->writepack != nullptr);
 
@@ -240,11 +259,12 @@ PHP_METHOD(GitODBWritepack_Internal,commit)
         if (result < 0) {
             php_git2::git_error(result);
         }
+
     } catch (php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer TSRMLS_CC);
+        php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle(TSRMLS_C);
+            ex.handle();
         }
     }
 }
