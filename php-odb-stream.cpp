@@ -9,9 +9,19 @@ using namespace php_git2;
 
 // Custom object handlers
 
-static zval* odb_stream_read_property(zval* obj,zval* prop,int type,const zend_literal* key TSRMLS_DC);
-static void odb_stream_write_property(zval* obj,zval* prop,zval* value,const zend_literal* key TSRMLS_DC);
-static int odb_stream_has_property(zval* obj,zval* prop,int chk_type,const zend_literal* key TSRMLS_DC);
+static zval* odb_stream_read_property(zval* object,
+    zval* member,
+    int type,
+    void** cache_slot,
+    zval* rv);
+static void odb_stream_write_property(zval* object,
+    zval* member,
+    zval* value,
+    void** cache_slot);
+static int odb_stream_has_property(zval* object,
+    zval* member,
+    int has_set_exists,
+    void** cache_slot);
 
 // Class method entries
 
@@ -26,14 +36,23 @@ zend_function_entry php_git2::odb_stream_methods[] = {
     PHP_FE_END
 };
 
+// php_zend_object init function
+
+template<>
+void php_zend_object<php_odb_stream_object>::init(zend_class_entry* ce)
+{
+    handlers.read_property = odb_stream_read_property;
+    handlers.write_property = odb_stream_write_property;
+    handlers.has_property = odb_stream_has_property;
+
+    UNUSED(ce);
+}
+
 // Implementation of php_odb_stream_object
 
-/*static*/ zend_object_handlers php_odb_stream_object::handlers;
-php_odb_stream_object::php_odb_stream_object(zend_class_entry* ce TSRMLS_DC):
-    stream(nullptr), kind(unset), owner(nullptr), zbackend(nullptr), zts(TSRMLS_C)
+php_odb_stream_object::php_odb_stream_object():
+    stream(nullptr), kind(unset), owner(nullptr), zbackend(nullptr)
 {
-    zend_object_std_init(this,ce TSRMLS_CC);
-    object_properties_init(this,ce);
 }
 
 php_odb_stream_object::~php_odb_stream_object()
@@ -66,22 +85,14 @@ php_odb_stream_object::~php_odb_stream_object()
 
     // Free backend zval (if any). This is typically set when kind == custom.
     if (zbackend != nullptr) {
-        zval_ptr_dtor(&zbackend);
+        zval_ptr_dtor(zbackend);
     }
-
-    zend_object_std_dtor(this ZTS_MEMBER_CC(zts));
 }
 
 void php_odb_stream_object::create_custom_stream(zval* zobj,zval* zbackendObject,unsigned int mode)
 {
     // NOTE: this member function should be called under the php-git2 standard
     // exception handler.
-
-    // NOTE: 'zobj' should be any zval that points to an object with 'this' as
-    // its backing (i.e. result of zend_objects_get_address()). This is really
-    // only used by the implementation to obtain class entry info for the class
-    // that was used to create the object AND to keep the PHP object alive while
-    // it is being used by git2.
 
     // Make sure the stream does not already exist.
     if (stream != nullptr) {
@@ -93,7 +104,7 @@ void php_odb_stream_object::create_custom_stream(zval* zobj,zval* zbackendObject
 
     // Free existing zbackend (just in case).
     if (zbackend != nullptr) {
-        zval_ptr_dtor(&zbackend);
+        zval_ptr_dtor(zbackend);
     }
 
     // Assign backend and increment reference count. This keeps the
@@ -102,7 +113,7 @@ void php_odb_stream_object::create_custom_stream(zval* zobj,zval* zbackendObject
     Z_ADDREF_P(zbackend);
 
     // Create new custom stream.
-    stream = new (emalloc(sizeof(git_odb_stream_php))) git_odb_stream_php(zobj,mode ZTS_MEMBER_CC(zts));
+    stream = new (emalloc(sizeof(git_odb_stream_php))) git_odb_stream_php(Z_OBJ_P(zobj),mode);
 
     // Custom ODB streams never require an ODB owner. (The zbackend is the owner
     // in this case.)
@@ -125,32 +136,20 @@ void php_odb_stream_object::assign_owner(php_git_odb* newOwner)
     }
 }
 
-/*static*/ void php_odb_stream_object::init(zend_class_entry* ce)
-{
-    handlers.read_property = odb_stream_read_property;
-    handlers.write_property = odb_stream_write_property;
-    handlers.has_property = odb_stream_has_property;
-
-    UNUSED(ce);
-}
-
 /*static*/ int php_odb_stream_object::read(git_odb_stream *stream,char *buffer,size_t len)
 {
     int result;
-    zval* zlen;
+    zval_array<1> params;
     method_wrapper method("read",stream);
 
-    MAKE_STD_ZVAL(zlen);
-    ZVAL_LONG(zlen,len);
+    ZVAL_LONG(params[0],len);
 
     // Call userspace method implementation of corresponding stream operation.
 
-    zval* params[] = { zlen };
-
-    result = method.call(1,params);
+    result = method.call(params);
     if (result == GIT_OK) {
-        zval* retval = method.retval();
         size_t n;
+        zval* retval = method.retval();
 
         // Return values to caller. We copy the data into the git2-provided
         // buffer, making sure not to overflow.
@@ -165,31 +164,20 @@ void php_odb_stream_object::assign_owner(php_git_odb* newOwner)
         memcpy(buffer,Z_STRVAL_P(retval),n);
     }
 
-    // Cleanup zvals.
-
-    zval_ptr_dtor(&zlen);
-
     return result;
 }
 
 /*static*/ int php_odb_stream_object::write(git_odb_stream *stream,const char *buffer,size_t len)
 {
     int result;
-    zval* zbuf;
+    zval_array<1> params;
     method_wrapper method("write",stream);
 
-    MAKE_STD_ZVAL(zbuf);
-    ZVAL_STRINGL(zbuf,buffer,len);
+    ZVAL_STRINGL(params[0],buffer,len);
 
     // Call userspace method implementation of corresponding stream operation.
 
-    zval* params[] = { zbuf };
-
-    result = method.call(1,params);
-
-    // Cleanup zvals.
-
-    zval_ptr_dtor(&zbuf);
+    result = method.call(params);
 
     return result;
 }
@@ -197,23 +185,16 @@ void php_odb_stream_object::assign_owner(php_git_odb* newOwner)
 /*static*/ int php_odb_stream_object::finalize_write(git_odb_stream *stream,const git_oid *oid)
 {
     int result;
-    zval* zbuf;
+    zval_array<1> params;
     method_wrapper method("finalize_write",stream);
 
     // Initialize/set zvals.
 
-    MAKE_STD_ZVAL(zbuf);
-    convert_oid(zbuf,oid);
+    convert_oid(params[0],oid);
 
     // Call userspace method implementation of corresponding stream operation.
 
-    zval* params[] = { zbuf };
-
-    result = method.call(1,params);
-
-    // Cleanup zvals.
-
-    zval_ptr_dtor(&zbuf);
+    result = method.call(params);
 
     return result;
 }
@@ -232,33 +213,27 @@ void php_odb_stream_object::assign_owner(php_git_odb* newOwner)
 // php_odb_stream::git_odb_stream_php
 
 php_odb_stream_object::
-git_odb_stream_php::git_odb_stream_php(zval* zv,unsigned int newMode TSRMLS_DC)
+git_odb_stream_php::git_odb_stream_php(zend_object* obj,unsigned int newMode)
 {
     // Blank out the base class (which is the structure defined in the git2
     // headers).
     memset(this,0,sizeof(struct git_odb_stream));
 
-    // Copy the object zval so that we have a new zval we can track that refers
-    // to the same specified object. We keep this zval alive as long as the
-    // git_odb_stream is alive.
-    Z_ADDREF_P(zv);
-    thisobj = zv;
-
-    // Get the class entry for the (hopefully) derived class type.
-    zend_class_entry* ce = Z_OBJCE_P(thisobj);
+    // Create object zval to track and keep PHP object storage alive.
+    ZVAL_OBJ(&thisobj,obj);
 
     // Make sure the class provided overridden methods needed for the requested
     // mode. If not we raise a fatal error.
     if (mode == GIT_STREAM_RDONLY) {
-        if (!is_method_overridden(ce,"read",sizeof("read"))) {
+        if (!is_method_overridden(obj->ce,"read",sizeof("read"))) {
             throw php_git2_fatal_exception("Custom GitODBStream must override read()");
         }
     }
     else if (mode == GIT_STREAM_WRONLY) {
-        if (!is_method_overridden(ce,"write",sizeof("write"))) {
+        if (!is_method_overridden(obj->ce,"write",sizeof("write"))) {
             throw php_git2_fatal_exception("Custom GitODBStream must override write()");
         }
-        if (!is_method_overridden(ce,"finalize_write",sizeof("finalize_write"))) {
+        if (!is_method_overridden(obj->ce,"finalize_write",sizeof("finalize_write"))) {
             throw php_git2_fatal_exception("Custom GitODBStream must override finalize_write()");
         }
     }
@@ -276,52 +251,50 @@ git_odb_stream_php::git_odb_stream_php(zval* zv,unsigned int newMode TSRMLS_DC)
 php_odb_stream_object::
 git_odb_stream_php::~git_odb_stream_php()
 {
-    // Free object zval.
     zval_ptr_dtor(&thisobj);
 }
 
 // Implementation of object handlers
 
-zval* odb_stream_read_property(zval* obj,zval* prop,int type,const zend_literal* key TSRMLS_DC)
+zval* odb_stream_read_property(
+    zval* object,
+    zval* member,
+    int type,
+    void** cache_slot,
+    zval* rv)
 {
-    zval* ret;
-    zval* tmp_prop = nullptr;
-    const char* str;
-    php_odb_stream_object* streamWrapper = LOOKUP_OBJECT(php_odb_stream_object,obj);
-    git_odb_stream* stream = streamWrapper->stream;
+    zval* retval;
+    zval tmp_member;
+    php_odb_stream_object* storage;
+    git_odb_stream* stream;
 
     // Ensure deep copy of member zval.
-    if (Z_TYPE_P(prop) != IS_STRING) {
-        MAKE_STD_ZVAL(tmp_prop);
-        *tmp_prop = *prop;
-        INIT_PZVAL(tmp_prop);
-        zval_copy_ctor(tmp_prop);
-        convert_to_string(tmp_prop);
-        prop = tmp_prop;
-        key = NULL;
+    if (Z_TYPE_P(member) != IS_STRING) {
+        ZVAL_STR(&tmp_member,zval_get_string(member));
+        member = &tmp_member;
+        cache_slot = nullptr;
     }
+
+    storage = php_zend_object<php_odb_stream_object>::get_storage(Z_OBJ_P(object));
+    stream = storage->stream;
 
     // Handle special properties of the git_odb_stream.
 
-    str = Z_STRVAL_P(prop);
-    if (strcmp(str,"mode") == 0 && stream != nullptr) {
-        ALLOC_INIT_ZVAL(ret);
-        ZVAL_LONG(ret,stream->mode);
-        Z_DELREF_P(ret);
+    if (strcmp(Z_STRVAL_P(member),"mode") == 0 && stream != nullptr) {
+        retval = rv;
+        ZVAL_LONG(retval,stream->mode);
     }
-    else if (strcmp(str,"declared_size") == 0 && stream != nullptr) {
-        ALLOC_INIT_ZVAL(ret);
-        ZVAL_LONG(ret,stream->declared_size);
-        Z_DELREF_P(ret);
+    else if (strcmp(Z_STRVAL_P(member),"declared_size") == 0 && stream != nullptr) {
+        retval = rv;
+        ZVAL_LONG(retval,stream->declared_size);
     }
-    else if (strcmp(str,"received_bytes") == 0 && stream != nullptr) {
-        ALLOC_INIT_ZVAL(ret);
-        ZVAL_LONG(ret,stream->received_bytes);
-        Z_DELREF_P(ret);
+    else if (strcmp(Z_STRVAL_P(member),"received_bytes") == 0 && stream != nullptr) {
+        retval = rv;
+        ZVAL_LONG(retval,stream->received_bytes);
     }
-    else if (strcmp(str,"backend") == 0 && stream != nullptr) {
-        if (streamWrapper->zbackend != NULL) {
-            ret = streamWrapper->zbackend;
+    else if (strcmp(Z_STRVAL_P(member),"backend") == 0 && stream != nullptr) {
+        if (storage->zbackend != nullptr) {
+            retval = storage->zbackend;
         }
         else {
             // NOTE: In practice, this case should never get executed for custom
@@ -334,94 +307,94 @@ zval* odb_stream_read_property(zval* obj,zval* prop,int type,const zend_literal*
             // NOTE: We can only safely create a backend if an owner is set on
             // the stream.
 
-            ALLOC_INIT_ZVAL(ret);
-            if (stream->backend != nullptr && streamWrapper->owner != nullptr) {
+            retval = rv;
+            if (stream->backend != nullptr && storage->owner != nullptr) {
                 // Create backend object to return to userspace.
-                php_git2_make_odb_backend(ret,stream->backend,streamWrapper->owner TSRMLS_CC);
+                php_git2_make_odb_backend(retval,stream->backend,storage->owner);
 
                 // Cache the property zval to internal storage for possible
-                // lookup later on. Leave the refcount at 1 so we can hold a
-                // reference in our 'streamWrapper'. PHP will grab its own
+                // lookup later on. Increment refcount so we can hold a
+                // reference in the object storage. PHP will grab its own
                 // reference later on for userspace.
-                streamWrapper->zbackend = ret;
-            }
-            else {
-                Z_DELREF_P(ret);
+                Z_ADDREF_P(retval);
+                storage->zbackend = retval;
             }
         }
     }
     else {
-        ret = (*std_object_handlers.read_property)(obj,prop,type,key TSRMLS_CC);
+        zend_object_handlers* std = zend_get_std_object_handlers();
+        retval = std->read_property(object,member,type,cache_slot,rv);
     }
 
-    if (tmp_prop != nullptr) {
-        Z_ADDREF_P(ret);
-        zval_ptr_dtor(&tmp_prop);
-        Z_DELREF_P(ret);
+    if (member == &tmp_member) {
+        zval_dtor(member);
     }
 
-    return ret;
+    return retval;
 }
 
-void odb_stream_write_property(zval* obj,zval* prop,zval* value,const zend_literal* key TSRMLS_DC)
+void odb_stream_write_property(
+    zval* object,
+    zval* member,
+    zval* value,
+    void** cache_slot)
 {
-    zval* tmp_prop = nullptr;
-    const char* str;
+    zval tmp_member;
 
     // Ensure deep copy of member zval.
-    if (Z_TYPE_P(prop) != IS_STRING) {
-        MAKE_STD_ZVAL(tmp_prop);
-        *tmp_prop = *prop;
-        INIT_PZVAL(tmp_prop);
-        zval_copy_ctor(tmp_prop);
-        convert_to_string(tmp_prop);
-        prop = tmp_prop;
-        key = NULL;
+    if (Z_TYPE_P(member) != IS_STRING) {
+        ZVAL_STR(&tmp_member,zval_get_string(member));
+        member = &tmp_member;
+        cache_slot = nullptr;
     }
 
-    str = Z_STRVAL_P(prop);
-    if (strcmp(str,"mode") == 0
-        || strcmp(str,"declared_size") == 0
-        || strcmp(str,"received_bytes") == 0
-        || strcmp(str,"backend") == 0)
+    if (strcmp(Z_STRVAL_P(member),"mode") == 0
+        || strcmp(Z_STRVAL_P(member),"declared_size") == 0
+        || strcmp(Z_STRVAL_P(member),"received_bytes") == 0
+        || strcmp(Z_STRVAL_P(member),"backend") == 0)
     {
-        php_error(E_ERROR,"Property '%s' of GitODBStream cannot be updated",str);
+        zend_throw_error(
+            nullptr,
+            "Property '%s' of GitODBStream cannot be updated",
+            Z_STRVAL_P(member));
     }
     else {
-        (*std_object_handlers.write_property)(obj,prop,value,key TSRMLS_CC);
+        zend_object_handlers* std = zend_get_std_object_handlers();
+        std->write_property(object,member,value,cache_slot);
     }
 
-    if (tmp_prop != nullptr) {
-        zval_ptr_dtor(&tmp_prop);
+    if (member == &tmp_member) {
+        zval_dtor(member);
     }
 }
 
-int odb_stream_has_property(zval* obj,zval* prop,int chk_type,const zend_literal* key TSRMLS_DC)
+int odb_stream_has_property(
+    zval* object,
+    zval* member,
+    int has_set_exists,
+    void** cache_slot)
 {
     int result;
-    zval* tmp_prop = nullptr;
-    const char* src;
-    git_odb_stream* stream = LOOKUP_OBJECT(php_odb_stream_object,obj)->stream;
+    zval tmp_member;
+    git_odb_stream* stream;
 
     // Ensure deep copy of member zval.
-    if (Z_TYPE_P(prop) != IS_STRING) {
-        MAKE_STD_ZVAL(tmp_prop);
-        *tmp_prop = *prop;
-        INIT_PZVAL(tmp_prop);
-        zval_copy_ctor(tmp_prop);
-        convert_to_string(tmp_prop);
-        prop = tmp_prop;
-        key = NULL;
+    if (Z_TYPE_P(member) != IS_STRING) {
+        ZVAL_STR(&tmp_member,zval_get_string(member));
+        member = &tmp_member;
+        cache_slot = nullptr;
     }
 
-    src = Z_STRVAL_P(prop);
-    if (strcmp(src,"mode") == 0 || strcmp(src,"declared_size") == 0
-        || strcmp(src,"received_bytes") == 0)
+    stream = php_zend_object<php_odb_stream_object>::get_storage(Z_OBJ_P(object))->stream;
+
+    if (strcmp(Z_STRVAL_P(member),"mode") == 0
+        || strcmp(Z_STRVAL_P(member),"declared_size") == 0
+        || strcmp(Z_STRVAL_P(member),"received_bytes") == 0)
     {
         result = (stream != nullptr);
     }
-    else if (strcmp(src,"backend") == 0) {
-        if (chk_type == 2) {
+    else if (strcmp(Z_STRVAL_P(member),"backend") == 0) {
+        if (has_set_exists == 2) {
             result = (stream != nullptr);
         }
         else {
@@ -429,11 +402,12 @@ int odb_stream_has_property(zval* obj,zval* prop,int chk_type,const zend_literal
         }
     }
     else {
-        result = (*std_object_handlers.has_property)(obj,prop,chk_type,key TSRMLS_CC);
+        zend_object_handlers* std = zend_get_std_object_handlers();
+        result = std->has_property(object,member,has_set_exists,cache_slot);
     }
 
-    if (tmp_prop != nullptr) {
-        zval_ptr_dtor(&tmp_prop);
+    if (member == &tmp_member) {
+        zval_dtor(member);
     }
 
     return result;

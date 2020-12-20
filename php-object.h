@@ -92,7 +92,12 @@ namespace php_git2
         {
             return reinterpret_cast<php_zend_object*>(zo - offset())->storage;
         }
-    };
+ 
+        static inline StorageType* get_storage(zval* zv)
+        {
+            return reinterpret_cast<php_zend_object*>(Z_OBJ_P(zv) - offset())->storage;
+        }
+   };
 
     // Define base class for object PHP values.
 

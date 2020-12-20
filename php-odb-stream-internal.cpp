@@ -22,14 +22,13 @@ zend_function_entry php_git2::odb_stream_internal_methods[] = {
 
 // Make function implementation
 
-void php_git2::php_git2_make_odb_stream(zval* zp,git_odb_stream* stream,php_git_odb* owner TSRMLS_DC)
+void php_git2::php_git2_make_odb_stream(zval* zp,git_odb_stream* stream,php_git_odb* owner)
 {
     php_odb_stream_internal_object* obj;
-    zend_class_entry* ce = php_git2::class_entry[php_git2_odb_stream_internal_obj];
 
     // Create object zval.
-    object_init_ex(zp,ce);
-    obj = reinterpret_cast<php_odb_stream_internal_object*>(zend_objects_get_address(zp TSRMLS_CC));
+    object_init_ex(zp,php_git2::class_entry[php_git2_odb_stream_internal_obj]);
+    obj = php_zend_object<php_odb_stream_internal_object>::get_storage(Z_OBJ_P(zp));
 
     // Assign the stream handle.
     obj->stream = stream;
@@ -47,19 +46,20 @@ void php_git2::php_git2_make_odb_stream(zval* zp,git_odb_stream* stream,php_git_
     }
 }
 
-// Implementation of php_odb_stream_internal_object
+// php_zend_object init function
 
-/*static*/ zend_object_handlers php_odb_stream_internal_object::handlers;
-php_odb_stream_internal_object::php_odb_stream_internal_object(zend_class_entry* ce TSRMLS_DC):
-    php_odb_stream_object(ce TSRMLS_CC)
-{
-}
-
-/*static*/ void php_odb_stream_internal_object::init(zend_class_entry* ce)
+template<>
+void php_zend_object<php_odb_stream_internal_object>::init(zend_class_entry* ce)
 {
     handlers.get_constructor = php_git2::not_allowed_get_constructor;
 
     UNUSED(ce);
+}
+
+// Implementation of php_odb_stream_internal_object
+
+php_odb_stream_internal_object::php_odb_stream_internal_object()
+{
 }
 
 // Implementation of class methods
@@ -73,20 +73,22 @@ PHP_METHOD(GitODBStream_Internal,read)
      * length of the allocated buffer.
      */
 
-    php_bailer bailer ZTS_CTOR;
+    php_bailer bailer;
     int retval;
     char* buffer;
-    long bufsz;
-    php_odb_stream_object* object = LOOKUP_OBJECT(php_odb_stream_object,getThis());
+    zend_long bufsz;
+    php_odb_stream_internal_object* object;
+
+    object = php_zend_object<php_odb_stream_internal_object>::get_storage(getThis());
 
     // Stream must be created and the function must be implemented.
     if (object->stream == nullptr || object->stream->read == nullptr) {
-        php_error(E_ERROR,"GitODBStream_Internal::read(): method is not available");
+        zend_throw_error(nullptr,"GitODBStream_Internal::read(): method is not available");
         return;
     }
 
     // Parse parameters.
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"l",&bufsz) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS(),"l",&bufsz) == FAILURE) {
         return;
     }
     if (bufsz <= 0) {
@@ -98,36 +100,41 @@ PHP_METHOD(GitODBStream_Internal,read)
         buffer = (char*)emalloc(bufsz);
         retval = object->stream->read(object->stream,buffer,bufsz);
         if (retval < 0) {
+            efree(buffer);
             php_git2::git_error(retval);
         }
         else {
-            RETVAL_STRINGL(buffer,bufsz,0);
+            RETVAL_STRINGL(buffer,bufsz);
+            efree(buffer);
         }
+
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer TSRMLS_CC);
+        php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle(TSRMLS_C);
+            ex.handle();
         }
     }
 }
 
 PHP_METHOD(GitODBStream_Internal,write)
 {
-    php_bailer bailer ZTS_CTOR;
+    php_bailer bailer;
     int retval;
     char* buffer;
-    int bufsz;
-    php_odb_stream_object* object = LOOKUP_OBJECT(php_odb_stream_object,getThis());
+    size_t bufsz;
+    php_odb_stream_internal_object* object;
+
+    object = php_zend_object<php_odb_stream_internal_object>::get_storage(getThis());
 
     // Stream must be created and the function must be implemented.
     if (object->stream == nullptr || object->stream->write == nullptr) {
-        php_error(E_ERROR,"GitODBStream_Internal::write(): method is not available");
+        zend_throw_error(nullptr,"GitODBStream_Internal::write(): method is not available");
         return;
     }
 
     // Parse parameters.
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&buffer,&bufsz) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS(),"s",&buffer,&bufsz) == FAILURE) {
         return;
     }
 
@@ -137,32 +144,35 @@ PHP_METHOD(GitODBStream_Internal,write)
         if (retval < 0) {
             php_git2::git_error(retval);
         }
+
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer TSRMLS_CC);
+        php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle(TSRMLS_C);
+            ex.handle();
         }
     }
 }
 
 PHP_METHOD(GitODBStream_Internal,finalize_write)
 {
-    php_bailer bailer ZTS_CTOR;
+    php_bailer bailer;
     int retval;
     char* input;
-    int input_len;
+    size_t input_len;
     git_oid oid;
-    php_odb_stream_object* object = LOOKUP_OBJECT(php_odb_stream_object,getThis());
+    php_odb_stream_internal_object* object;
+
+    object = php_zend_object<php_odb_stream_internal_object>::get_storage(getThis());
 
     // Stream must be created and the function must be implemented.
     if (object->stream == nullptr || object->stream->finalize_write == nullptr) {
-        php_error(E_ERROR,"GitODBStream_Internal::finalize_write(): method is not available");
+        zend_throw_error(nullptr,"GitODBStream_Internal::finalize_write(): method is not available");
         return;
     }
 
     // Read OID parameter from function arguments.
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&input,&input_len) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS(),"s",&input,&input_len) == FAILURE) {
         return;
     }
 
@@ -175,11 +185,12 @@ PHP_METHOD(GitODBStream_Internal,finalize_write)
         if (retval < 0) {
             php_git2::git_error(retval);
         }
+
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer TSRMLS_CC);
+        php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle(TSRMLS_C);
+            ex.handle();
         }
     }
 }
