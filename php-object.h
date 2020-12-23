@@ -141,27 +141,27 @@ namespace php_git2
         using wrapper_t = php_zend_object<StorageType>;
     public:
         php_object_wrapper(typename BackendType::base_class* base):
-            wrapperObject(static_cast<BackendType*>(base))
+            backendObject(static_cast<BackendType*>(base))
         {
         }
 
         zval* thisobj()
         {
-            return &wrapperObject->thisobj;
+            return &backendObject->thisobj;
         }
 
         BackendType* object()
         {
-            return wrapperObject;
+            return backendObject;
         }
 
         StorageType* backing()
         {
-            return wrapper_t::get_storage(Z_OBJ(wrapperObject->thisobj));
+            return wrapper_t::get_storage(Z_OBJ(backendObject->thisobj));
         }
 
     private:
-        BackendType* wrapperObject;
+        BackendType* backendObject;
     };
 
     template<typename BackendType,typename StorageType>

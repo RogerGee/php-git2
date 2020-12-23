@@ -95,9 +95,9 @@ long array_wrapper::get_long() const
 bool array_wrapper::get_bool() const
 {
     if (found()) {
-        zval* zv = copy_if_not_type(IS_BOOL);
+        zval* zv = copy_if_not_type(_IS_BOOL);
 
-        return Z_BVAL_P(zv);
+        return Z_LVAL_P(zv);
     }
 
     return false;
@@ -134,7 +134,7 @@ zval* array_wrapper::copy_if_not_type(int type) const
         return &tmp;
     }
 
-    zval* zv = *zvp;
+    zval* zv = zvp;
 
     if (Z_TYPE_P(zv) != type) {
         // Use the temporary zval to store the converted, copied zval.
