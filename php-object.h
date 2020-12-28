@@ -17,8 +17,8 @@ extern "C" {
 
 // Helper macros
 
-#define is_subclass_of(a,b)                         \
-    (a == b || instanceof_function(a,b TSRMLS_CC))
+#define is_subclass_of(a,b)                     \
+    (a == b || instanceof_function(a,b))
 
 #define PHP_EMPTY_METHOD(C,M)                   \
     PHP_METHOD(C,M) { }

@@ -410,7 +410,8 @@ PHP_METHOD(GitRefDBBackend_Internal,rename)
     }
 
     // Parse method parameters.
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"ssba!s",
+    if (zend_parse_parameters(ZEND_NUM_ARGS(),
+            "ssba!s",
             &oldname,
             &oldname_len,
             &newname,
@@ -509,10 +510,10 @@ PHP_METHOD(GitRefDBBackend_Internal,del)
         }
 
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer TSRMLS_CC);
+        php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle(TSRMLS_C);
+            ex.handle();
         }
     }
 }

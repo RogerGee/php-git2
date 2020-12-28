@@ -66,7 +66,7 @@ zend_object_handlers php_git2::php_zend_object<StorageType>::handlers;
 // This function registers all classes. It should be called by the MINIT startup
 // function.
 
-void php_git2::php_git2_register_classes(TSRMLS_D)
+void php_git2::php_git2_register_classes()
 {
     zend_class_entry ce, *pce;
 

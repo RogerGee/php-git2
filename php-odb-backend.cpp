@@ -881,7 +881,7 @@ ZEND_FUNCTION(backend_foreach_callback)
         php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle(TSRMLS_C);
+            ex.handle();
         }
     }
 }
@@ -923,7 +923,7 @@ ZEND_FUNCTION(backend_transfer_progress_callback)
         php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle(TSRMLS_C);
+            ex.handle();
         }
     }
 }
