@@ -119,7 +119,7 @@ void php_option_array::parse_impl(zval* zvp,int argno)
         return;
     }
 
-    php_array_base::parse(zvp,argno);
+    php_array_base::parse_impl(zvp,argno);
 }
 
 /*

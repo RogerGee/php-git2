@@ -486,7 +486,7 @@ namespace php_git2
     class php_resource_base:
         public php_value_base
     {
-    private:
+    protected:
         virtual void parse_impl(zval* zvp,int argno);
     };
 
@@ -509,11 +509,11 @@ namespace php_git2
             return reinterpret_cast<GitResource*>(Z_RES_VAL(value));
         }
 
-    private:
+    protected:
         virtual void parse_impl(zval* zvp,int argno)
         {
             void* result;
-            php_resource_base::parse(zvp,argno);
+            php_resource_base::parse_impl(zvp,argno);
             result = zend_fetch_resource(Z_RES(value),
                 GitResource::resource_name(),
                 GitResource::resource_le());
@@ -745,7 +745,7 @@ namespace php_git2
                 return;
             }
 
-            base::parse(zvp,argno);
+            base::parse_impl(zvp,argno);
         }
     };
 
@@ -829,7 +829,14 @@ namespace php_git2
         virtual public php_git_oid_fromstr
     {
     public:
-        using php_git_oid_fromstr::byval_git2;
+        git_oid* byval_git2()
+        {
+            if (Z_TYPE(value) == IS_STRING) {
+                return php_git_oid_fromstr::byval_git2();
+            }
+
+            return nullptr;
+        }
 
     private:
         git_oid oid;
@@ -1011,7 +1018,7 @@ namespace php_git2
     class php_array_base:
         public php_value_base
     {
-    private:
+    protected:
         virtual void parse_impl(zval* zvp,int argno);
     };
 

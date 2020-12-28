@@ -104,11 +104,11 @@ void php_callback_sync_nullable::parse_impl(zval* zvp,int argno)
             ZVAL_NULL(&value);
         }
         else {
-            php_callback_sync::parse(zvp,argno);
+            php_callback_sync::parse_impl(zvp,argno);
         }
     }
     else if (Z_TYPE(value) != IS_NULL) {
-        php_callback_sync::parse(zvp,argno);
+        php_callback_sync::parse_impl(zvp,argno);
     }
 }
 

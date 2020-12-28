@@ -177,11 +177,10 @@ namespace php_git2
         }
 
     protected:
-        // NOTE: Callable is stored in base 'value' member.
-        zval data; // payload
-
-    private:
         virtual void parse_impl(zval* zvp,int argno);
+
+        // NOTE: Callable is stored in 'value' member from base class.
+        zval data; // payload
     };
 
     using php_callback_sync = php_callback_base;
