@@ -545,6 +545,7 @@ namespace php_git2
             ~git_refdb_backend_php();
 
             zval thisobj;
+            zval lockobj;
         };
 
         using method_wrapper = php_method_wrapper<
