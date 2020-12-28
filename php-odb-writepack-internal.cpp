@@ -134,7 +134,7 @@ zval* odb_writepack_internal_read_property(
     }
     else {
         // Invoke base class handler.
-        auto handler = php_zend_object<php_odb_writepack_object>::handlers.read_property;
+        auto handler = zend_object_t::handlers.read_property;
         retval = (*handler)(object,member,type,cache_slot,rv);
     }
 
@@ -168,7 +168,8 @@ void odb_writepack_internal_write_property(
     }
     else {
         // Invoke base class handler.
-        auto handler = php_zend_object<php_odb_writepack_object>::handlers.write_property;
+        using zend_object_t = php_zend_object<php_odb_writepack_internal_object>;
+        auto handler = zend_object_t::handlers.write_property;
         (*handler)(object,member,value,cache_slot);
     }
 
@@ -198,7 +199,8 @@ int odb_writepack_internal_has_property(
     }
     else {
         // Invoke base class handler.
-        auto handler = php_zend_object<php_odb_writepack_object>::handlers.has_property;
+        using zend_object_t = php_zend_object<php_odb_writepack_internal_object>;
+        auto handler = zend_object_t::handlers.has_property;
         result = (*handler)(object,member,has_set_exists,cache_slot);
     }
 
@@ -219,8 +221,7 @@ PHP_METHOD(GitODBWritepack_Internal,append)
     size_t amt;
     php_odb_writepack_internal_object* object;
 
-    object = php_zend_object<php_odb_writepack_internal_object>
-        ::get_storage(Z_OBJ_P(getThis()));
+    object = php_zend_object<php_odb_writepack_internal_object>::get_storage(getThis());
 
     assert(object->writepack != nullptr);
 
@@ -249,8 +250,7 @@ PHP_METHOD(GitODBWritepack_Internal,commit)
     int result;
     php_odb_writepack_internal_object* object;
 
-    object = php_zend_object<php_odb_writepack_internal_object>
-        ::get_storage(Z_OBJ_P(getThis()));
+    object = php_zend_object<php_odb_writepack_internal_object>::get_storage(getThis());
 
     assert(object->writepack != nullptr);
 

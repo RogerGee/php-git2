@@ -80,11 +80,10 @@ zend_function_entry php_git2::odb_backend_internal_methods[] = {
 void php_git2::php_git2_make_odb_backend(zval* zp,git_odb_backend* backend,php_git_odb* owner)
 {
     php_odb_backend_object* storage;
-    zend_class_entry* ce = php_git2::class_entry[php_git2_odb_backend_internal_obj];
 
     // Create object zval.
-    object_init_ex(zp,ce);
-    storage = php_zend_object<php_odb_backend_object>::get_storage(Z_OBJ_P(zp));
+    object_init_ex(zp,php_git2::class_entry[php_git2_odb_backend_internal_obj]);
+    storage = php_zend_object<php_odb_backend_internal_object>::get_storage(Z_OBJ_P(zp));
 
     // Assign the git2 odb_backend object.
     storage->backend = backend;
@@ -134,7 +133,7 @@ PHP_METHOD(GitODBBackend_Internal,read)
 
     // Grab object backing. Verify that the backend exists and the function is
     // implemented.
-    object = php_zend_object<php_odb_backend_object>::get_storage(Z_OBJ_P(getThis()));
+    object = php_zend_object<php_odb_backend_internal_object>::get_storage(getThis());
     if (object->backend == nullptr || object->backend->read == nullptr) {
         zend_throw_error(nullptr,"GitODBBackend_Internal::read(): method is not available");
         return;
@@ -184,7 +183,7 @@ PHP_METHOD(GitODBBackend_Internal,read_prefix)
 
     // Grab object backing. Verify that the backend exists and the function is
     // implemented.
-    object = php_zend_object<php_odb_backend_object>::get_storage(Z_OBJ_P(getThis()));
+    object = php_zend_object<php_odb_backend_internal_object>::get_storage(getThis());
     if (object->backend == nullptr || object->backend->read_prefix == nullptr) {
         zend_throw_error(nullptr,"GitODBBackend_Internal::read_prefix(): method is not available");
         return;
@@ -260,7 +259,7 @@ PHP_METHOD(GitODBBackend_Internal,read_header)
 
     // Grab object backing. Verify that the backend exists and the function is
     // implemented.
-    object = php_zend_object<php_odb_backend_object>::get_storage(Z_OBJ_P(getThis()));
+    object = php_zend_object<php_odb_backend_internal_object>::get_storage(getThis());
     if (object->backend == nullptr || object->backend->read_header == nullptr) {
         zend_throw_error(
             nullptr,
@@ -320,7 +319,7 @@ PHP_METHOD(GitODBBackend_Internal,write)
     php_odb_backend_object* object;
 
     // Backend must be created and write function must be available.
-    object = php_zend_object<php_odb_backend_object>::get_storage(Z_OBJ_P(getThis()));
+    object = php_zend_object<php_odb_backend_internal_object>::get_storage(getThis());
     if (object->backend == nullptr || object->backend->write == nullptr) {
         zend_throw_error(nullptr,"GitODBBackend_Internal::write(): method is not available");
         return;
@@ -352,7 +351,7 @@ PHP_METHOD(GitODBBackend_Internal,write)
         php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle(TSRMLS_C);
+            ex.handle();
         }
     }
 }
@@ -366,7 +365,7 @@ PHP_METHOD(GitODBBackend_Internal,writestream)
     php_odb_backend_object* object;
 
     // Backend must be created and write function must be available.
-    object = php_zend_object<php_odb_backend_object>::get_storage(Z_OBJ_P(getThis()));
+    object = php_zend_object<php_odb_backend_internal_object>::get_storage(getThis());
     if (object->backend == nullptr || object->backend->writestream == nullptr) {
         zend_throw_error(
             nullptr,
@@ -399,7 +398,7 @@ PHP_METHOD(GitODBBackend_Internal,writestream)
         php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle(TSRMLS_C);
+            ex.handle();
         }
     }
 }
@@ -414,7 +413,7 @@ PHP_METHOD(GitODBBackend_Internal,readstream)
     php_odb_backend_object* object;
 
     // Backend must be created and write function must be available.
-    object = php_zend_object<php_odb_backend_object>::get_storage(Z_OBJ_P(getThis()));
+    object = php_zend_object<php_odb_backend_internal_object>::get_storage(getThis());
     if (object->backend == nullptr || object->backend->readstream == nullptr) {
         zend_throw_error(
             nullptr,
@@ -447,7 +446,7 @@ PHP_METHOD(GitODBBackend_Internal,readstream)
         php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle(TSRMLS_C);
+            ex.handle();
         }
     }
 }
@@ -462,7 +461,7 @@ PHP_METHOD(GitODBBackend_Internal,exists)
     php_odb_backend_object* object;
 
     // Backend must be created.
-    object = php_zend_object<php_odb_backend_object>::get_storage(Z_OBJ_P(getThis()));
+    object = php_zend_object<php_odb_backend_internal_object>::get_storage(getThis());
     if (object->backend == nullptr || object->backend->exists == nullptr) {
         zend_throw_error(nullptr,"GitODBBackend_Internal::exists(): method is not available");
         return;
@@ -486,7 +485,7 @@ PHP_METHOD(GitODBBackend_Internal,exists)
         php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle(TSRMLS_C);
+            ex.handle();
         }
 
         return;
@@ -512,7 +511,7 @@ PHP_METHOD(GitODBBackend_Internal,exists_prefix)
     php_odb_backend_object* object;
 
     // Backend must be created.
-    object = php_zend_object<php_odb_backend_object>::get_storage(Z_OBJ_P(getThis()));
+    object = php_zend_object<php_odb_backend_internal_object>::get_storage(getThis());
     if (object->backend == nullptr || object->backend->exists_prefix == nullptr) {
         zend_throw_error(
             nullptr,
@@ -539,7 +538,7 @@ PHP_METHOD(GitODBBackend_Internal,exists_prefix)
         php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle(TSRMLS_C);
+            ex.handle();
         }
 
         return;
@@ -564,7 +563,7 @@ PHP_METHOD(GitODBBackend_Internal,refresh)
     php_odb_backend_object* object;
 
     // Backend must be created and the function must be implemented.
-    object = php_zend_object<php_odb_backend_object>::get_storage(Z_OBJ_P(getThis()));
+    object = php_zend_object<php_odb_backend_internal_object>::get_storage(getThis());
     if (object->backend == nullptr || object->backend->refresh == nullptr) {
         zend_throw_error(nullptr,"GitODBBackend_Internal::refresh(): method is not available");
         return;
@@ -582,7 +581,7 @@ PHP_METHOD(GitODBBackend_Internal,refresh)
         php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle(TSRMLS_C);
+            ex.handle();
         }
     }
 }
@@ -597,7 +596,7 @@ PHP_METHOD(GitODBBackend_Internal,for_each)
     zval* zpayload;
 
     // Backend must be created and the function must be implemented.
-    object = php_zend_object<php_odb_backend_object>::get_storage(Z_OBJ_P(getThis()));
+    object = php_zend_object<php_odb_backend_internal_object>::get_storage(getThis());
     if (object->backend == nullptr || object->backend->foreach == nullptr) {
         zend_throw_error(
             nullptr,
@@ -627,7 +626,7 @@ PHP_METHOD(GitODBBackend_Internal,for_each)
         php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle(TSRMLS_C);
+            ex.handle();
         }
     }
 }
@@ -643,7 +642,7 @@ PHP_METHOD(GitODBBackend_Internal,writepack)
     php_callback_sync_nullable* callback;
 
     // Backend must be created and the function must be implemented.
-    object = php_zend_object<php_odb_backend_object>::get_storage(Z_OBJ_P(thisobj));
+    object = php_zend_object<php_odb_backend_internal_object>::get_storage(thisobj);
     if (object->backend == nullptr || object->backend->writepack == nullptr) {
         zend_throw_error(
             nullptr,
@@ -686,7 +685,7 @@ PHP_METHOD(GitODBBackend_Internal,writepack)
         php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle(TSRMLS_C);
+            ex.handle();
         }
 
         callback->~php_callback_sync_nullable();

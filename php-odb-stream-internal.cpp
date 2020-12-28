@@ -39,7 +39,8 @@ void php_git2::php_git2_make_odb_stream(zval* zp,git_odb_stream* stream,php_git_
 
     // Assign the kind based on whether the owner was set.
     if (obj->owner != nullptr) {
-        obj->kind = php_odb_stream_object::conventional; // stream freed via git_odb_stream_free()
+        // stream freed via git_odb_stream_free()
+        obj->kind = php_odb_stream_object::conventional;
     }
     else {
         obj->kind = php_odb_stream_object::user; // stream freed via $stream->free()
@@ -167,7 +168,9 @@ PHP_METHOD(GitODBStream_Internal,finalize_write)
 
     // Stream must be created and the function must be implemented.
     if (object->stream == nullptr || object->stream->finalize_write == nullptr) {
-        zend_throw_error(nullptr,"GitODBStream_Internal::finalize_write(): method is not available");
+        zend_throw_error(
+            nullptr,
+            "GitODBStream_Internal::finalize_write(): method is not available");
         return;
     }
 
