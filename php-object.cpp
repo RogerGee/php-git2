@@ -168,7 +168,10 @@ bool php_git2::is_method_overridden(zend_class_entry* ce,const char* method,int 
 
 zend_function* php_git2::not_allowed_get_constructor(zend_object* object)
 {
-    php_error(E_RECOVERABLE_ERROR, "Instantiation of '%s' is not allowed",object->ce->name);
+    zend_throw_error(
+        nullptr, 
+        "Instantiation of '%s' is not allowed",
+        ZSTR_VAL(object->ce->name));
     return nullptr;
 }
 

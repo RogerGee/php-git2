@@ -306,7 +306,7 @@ void php_refdb_backend_object::create_custom_backend(zval* zobj)
     // Make sure object doesn't already have a backing. This would imply it is
     // in use already in an refdb.
     if (backend != nullptr) {
-        throw php_git2_fatal_exception("Cannot create custom refdb backend: object already in use");
+        throw php_git2_error_exception("Cannot create custom refdb backend: object already in use");
     }
 
     // Set kind to 'custom'.
@@ -455,7 +455,7 @@ void php_refdb_backend_object::assign_owner(php_git_refdb* newOwner)
             "GitRefDBBackend::write(): Failed to convert git_reference resource: %s",
             ex.what());
 
-        return GIT_EPHPFATAL;
+        return GIT_EPHP_ERROR;
     }
 
     ZVAL_BOOL(params[1],force);
@@ -678,7 +678,7 @@ void php_refdb_backend_object::assign_owner(php_git_refdb* newOwner)
             "GitRefDBBackend::reflog_write(): Failed to convert git_reflog resource: %s",
             ex.what());
 
-        return GIT_EPHPFATAL;
+        return GIT_EPHP_ERROR;
     }
 
     // Call userspace method implementation corresponding to refdb operation.
@@ -780,7 +780,7 @@ void php_refdb_backend_object::assign_owner(php_git_refdb* newOwner)
             "GitRefDBBackend::unlock(): Failed to convert git_reference resource: %s",
             ex.what());
 
-        return GIT_EPHPFATAL;
+        return GIT_EPHP_ERROR;
     }
 
     convert_signature(params[4],sig);
@@ -854,7 +854,7 @@ php_refdb_backend_object::git_refdb_backend_php::git_refdb_backend_php(zend_obje
     reflog_delete = php_refdb_backend_object::reflog_delete;
     if (is_method_overridden(obj->ce,"iterator_new",sizeof("iterator_new"))) {
         if (!is_method_overridden(obj->ce,"iterator_next",sizeof("iterator_next"))) {
-            throw php_git2_fatal_exception(
+            throw php_git2_error_exception(
                 "Cannot create custom refdb backend: "
                 "must implement iterator_next() with iterator_new()");
         }
@@ -871,7 +871,7 @@ php_refdb_backend_object::git_refdb_backend_php::git_refdb_backend_php(zend_obje
         // what happens in git2 source code: unlock is not checked but only
         // called when lock is present.
         if (!is_method_overridden(obj->ce,"unlock",sizeof("unlock"))) {
-            throw php_git2_fatal_exception(
+            throw php_git2_error_exception(
                 "Cannot create custom refdb backend: unlock() must be "
                 "implemented with lock()");
         }

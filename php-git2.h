@@ -46,7 +46,7 @@ extern "C" {
 // Module globals
 
 ZEND_BEGIN_MODULE_GLOBALS(git2)
-  bool propagateFatalError;
+  bool propagateError;
   bool requestActive;
 ZEND_END_MODULE_GLOBALS(git2)
 ZEND_EXTERN_MODULE_GLOBALS(git2)
@@ -71,12 +71,12 @@ ZEND_EXTERN_MODULE_GLOBALS(git2)
 // Create custom git error values. These values must go outside of the range of
 // errors defined in the libgit2 "errors.h" header.
 
-#define GIT_EPHPRANGE_START   -30000
+#define GIT_EPHP_RANGE_START    -30000
 
-#define GIT_EPHP              -30000
-#define GIT_EPHPEXPROP        -30001
-#define GIT_EPHPFATAL         -30002
-#define GIT_EPHPFATALPROP     -30003
+#define GIT_EPHP                -30000
+#define GIT_EPHP_ERROR          -30001
+#define GIT_EPHP_PROP           -30002
+#define GIT_EPHP_PROP_BAILOUT   -30003
 
 namespace php_git2
 {
@@ -96,7 +96,7 @@ namespace php_git2
 
         ~php_bailer()
         {
-            if (flag || GIT2_G(propagateFatalError)) {
+            if (flag || GIT2_G(propagateError)) {
                 bailout();
             }
         }
@@ -244,10 +244,10 @@ namespace php_git2
         public php_git2_exception_base
     {
     public:
-        // Return NULL pointer to indicate that the exception propagates
-        // through.
         virtual const char* what() const noexcept
         {
+            // Return NULL pointer to indicate that the exception propagates
+            // through.
             return nullptr;
         }
 
@@ -256,36 +256,27 @@ namespace php_git2
         }
     };
 
-    class php_git2_fatal_propagated:
-        public php_git2_exception_base
+    class php_git2_propagated_bailout_exception:
+        public php_git2_propagated_exception
     {
     public:
-        // Return NULL pointer to indicate that the exception propagates
-        // through.
-        virtual const char* what() const noexcept
-        {
-            return nullptr;
-        }
-
         virtual void handle() const noexcept
         {
-            // Bailout since an error is already set and was propagated through.
             php_bailer::bailout();
         }
     };
 
-    // Provide an exception type for generating fatal PHP errors.
+    // Provide an exception type for generating error exceptions.
 
-    class php_git2_fatal_exception:
+    class php_git2_error_exception:
         public php_git2_exception__with_message
     {
     public:
-        php_git2_fatal_exception(const char* format, ...);
+        php_git2_error_exception(const char* format, ...);
 
         virtual void handle() const noexcept
         {
-            // Generate a fatal PHP error.
-            php_error(E_ERROR,"%s",what());
+            zend_throw_error(nullptr,what());
         }
     };
 
@@ -319,7 +310,7 @@ namespace php_git2
         }
 
         void set_giterr() const;
-        void throw_fatal() const;
+        void throw_error() const;
 
     private:
         php_exception_wrapper(const php_exception_wrapper&) = delete;

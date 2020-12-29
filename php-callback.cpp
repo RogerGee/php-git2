@@ -29,7 +29,7 @@ int php_git2::php_git2_invoke_callback(
         retval = call_user_function(NULL,obj,func,ret,paramCount,params);
         if (retval == FAILURE) {
             php_git2_giterr_set(GITERR_INVALID,"Failed to invoke userspace callback");
-            result = GIT_EPHPFATAL;
+            result = GIT_EPHP_ERROR;
         }
         else {
             php_exception_wrapper ex;
@@ -37,7 +37,7 @@ int php_git2::php_git2_invoke_callback(
             // Handle case where PHP userspace threw an exception.
             if (ex.has_exception()) {
                 ex.set_giterr();
-                result = GIT_EPHPEXPROP;
+                result = GIT_EPHP_PROP;
             }
         }
     }
@@ -45,8 +45,8 @@ int php_git2::php_git2_invoke_callback(
         // Set a libgit2 error for completeness.
         php_git2_giterr_set(GITERR_INVALID,"PHP reported a fatal error");
 
-        // Allow the fatal error to propogate.
-        result = GIT_EPHPFATALPROP;
+        // Allow the bailout error to propogate.
+        result = GIT_EPHP_PROP_BAILOUT;
         bailer.handled();
     }
 
@@ -272,11 +272,11 @@ commit_parent_callback::callback(size_t idx,void* payload)
     // Handle errors. It is unclear how this callback is to report errors (if at
     // all), so we just report end of operation.
     if (result < 0) {
-        // Flag propagated fatal errors globally so they can be issued later on
-        // by a bailout context. We do this since libgit2 will NOT report the
-        // error to the calling PHP context.
-        if (result == GIT_EPHPFATALPROP) {
-            GIT2_G(propagateFatalError) = true;
+        // Flag propagated errors globally so they can be issued later on by a
+        // bailout context. We do this since libgit2 will NOT report the error
+        // to the calling PHP context.
+        if (result == GIT_EPHP_PROP_BAILOUT) {
+            GIT2_G(propagateError) = true;
         }
 
         return nullptr;
@@ -308,7 +308,7 @@ int reference_foreach_callback::callback(git_reference* ref,void* payload)
     int result;
     zval retval;
     zval_array<2> params;
-    const php_resource_ref<php_git_reference> res;
+    php_resource_ref<php_git_reference> res;
 
     // Convert arguments to PHP values.
     *res.byval_git2() = ref;
@@ -522,11 +522,11 @@ int diff_notify_callback::callback(
     // Handle errors. It is unclear how this callback is to report errors (if at
     // all), so we just report end of operation.
     if (result < 0) {
-        // Flag propagated fatal errors globally so they can be issued later on
+        // Flag propagated errors globally so they can be issued later on
         // by a bailout context. We do this since libgit2 will NOT report the
         // error to the calling PHP context.
-        if (result == GIT_EPHPFATALPROP) {
-            GIT2_G(propagateFatalError) = true;
+        if (result == GIT_EPHP_PROP_BAILOUT) {
+            GIT2_G(propagateError) = true;
         }
 
         return -1;
@@ -565,11 +565,11 @@ int diff_progress_callback::callback(
     // Handle errors. It is unclear how this callback is to report errors (if at
     // all), so we just report end of operation.
     if (result < 0) {
-        // Flag propagated fatal errors globally so they can be issued later on
-        // by a bailout context. We do this since libgit2 will NOT report the
-        // error to the calling PHP context.
-        if (result == GIT_EPHPFATALPROP) {
-            GIT2_G(propagateFatalError) = true;
+        // Flag propagated errors globally so they can be issued later on by a
+        // bailout context. We do this since libgit2 will NOT report the error
+        // to the calling PHP context.
+        if (result == GIT_EPHP_PROP_BAILOUT) {
+            GIT2_G(propagateError) = true;
         }
 
         result = 1;

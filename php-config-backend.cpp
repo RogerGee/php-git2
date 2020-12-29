@@ -150,7 +150,7 @@ static int custom_backend_iterator_next(git_config_entry** out,custom_backend_it
                     "GitConfigBackend::iterator_next(): bad return value: %s",
                     err);
 
-                result = GIT_EPHPFATAL;
+                result = GIT_EPHP_ERROR;
             }
             else {
                 *out = entry;
@@ -167,7 +167,7 @@ static int custom_backend_iterator_next(git_config_entry** out,custom_backend_it
                     GITERR_CONFIG,
                     "GitConfigBackend::iterator_next(): return value must be an array");
 
-                result = GIT_EPHPFATAL;
+                result = GIT_EPHP_ERROR;
             }
         }
     }
@@ -218,7 +218,8 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
     // Make sure this config backend object is not in use anywhere else
     // (i.e. does not yet have a backing).
     if (backend != nullptr) {
-        throw php_git2_fatal_exception("Cannot create custom config backend: object already in use");
+        throw php_git2_error_exception(
+            "Cannot create custom config backend: object already in use");
     }
 
     // Create custom backend. Custom backends are always passed off to git2, so
@@ -283,7 +284,7 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
                     "GitConfigBackend::get(): bad return value: %s",
                     err);
 
-                result = GIT_EPHPFATAL;
+                result = GIT_EPHP_ERROR;
             }
             else {
                 *out = entry;
@@ -300,7 +301,7 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
                     GITERR_CONFIG,
                     "GitConfigBackend::get(): return value must be an array");
 
-                result = GIT_EPHPFATAL;
+                result = GIT_EPHP_ERROR;
             }
         }
     }
@@ -463,7 +464,7 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
             msg = "GitConfigBackend::snapshot(): failed to create snapshot";
         }
         php_git2_giterr_set(GITERR_CONFIG,msg);
-        result = GIT_EPHPFATAL;
+        result = GIT_EPHP_ERROR;
     }
 
     return result;

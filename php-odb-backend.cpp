@@ -123,9 +123,8 @@ void php_odb_backend_object::create_custom_backend(zval* obj)
     // Make sure object doesn't already have a backing. This would imply it is
     // already in use in an ODB.
     if (backend != nullptr) {
-        throw php_git2_fatal_exception(
-            "Cannot create custom ODB backend: object already in use"
-            );
+        throw php_git2_exception(
+            "Cannot create custom ODB backend: object already in use");
     }
 
     // Set kind to 'custom'.
@@ -349,7 +348,7 @@ void php_odb_backend_object::unset_backend(zval* obj)
 
     } catch (php_git2_exception_base& ex) {
         php_git2_giterr_set(GITERR_ODB,ex.what());
-        result = GIT_EPHPFATAL;
+        result = GIT_EPHP_ERROR;
     }
 
     return result;
@@ -403,7 +402,7 @@ void php_odb_backend_object::unset_backend(zval* obj)
 
     } catch (php_git2_exception_base& ex) {
         php_git2_giterr_set(GITERR_ODB,ex.what());
-        result = GIT_EPHPFATAL;
+        result = GIT_EPHP_ERROR;
     }
 
     return result;
@@ -606,7 +605,7 @@ void php_odb_backend_object::unset_backend(zval* obj)
 
     } catch (php_git2_exception_base& ex) {
         php_git2_giterr_set(GITERR_ODB,ex.what());
-        result = GIT_EPHPFATAL;
+        result = GIT_EPHP_ERROR;
     }
 
     return result;

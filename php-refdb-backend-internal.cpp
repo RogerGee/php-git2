@@ -289,7 +289,7 @@ PHP_METHOD(GitRefDBBackend_Internal,iterator_next)
             const char* target = git_reference_symbolic_target(ref);
             if (target == nullptr) {
                 git_reference_free(ref);
-                throw php_git2_fatal_exception(
+                throw php_git2_error_exception(
                     "GitRefDBBackend_Internal::iterator_next(): next reference is invalid");
             }
 
@@ -358,7 +358,7 @@ PHP_METHOD(GitRefDBBackend_Internal,write)
         ref.set_value(&zref);
         sig = convert_signature(&zwho);
         if (sig == nullptr) {
-            throw php_git2_fatal_exception(
+            throw php_git2_error_exception(
                 "GitRefDBBackend_Internal::write(): signature array is incorrect");
         }
         convert_oid_fromstr(&oid,old,old_len);

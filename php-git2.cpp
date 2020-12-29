@@ -200,9 +200,9 @@ php_git2_exception::php_git2_exception(const char* format, ...)
     va_end(args);
 }
 
-// php_git2_fatal_exception
+// php_git2_error_exception
 
-php_git2_fatal_exception::php_git2_fatal_exception(const char* format, ...)
+php_git2_error_exception::php_git2_error_exception(const char* format, ...)
 {
     va_list args;
     va_start(args,format);
@@ -239,15 +239,15 @@ void php_exception_wrapper::set_giterr() const
     }
 }
 
-void php_exception_wrapper::throw_fatal() const
+void php_exception_wrapper::throw_error() const
 {
     const char* msg = get_message();
 
     if (msg != nullptr) {
-        throw php_git2_fatal_exception(msg);
+        throw php_git2_error_exception(msg);
     }
 
-    throw php_git2_fatal_exception("An exception occurred during the operation");
+    throw php_git2_error_exception("An exception occurred during the operation");
 }
 
 // php_git2::git_error<int>()
@@ -270,24 +270,22 @@ void php_git2::git_error(int code)
         throw ex;
     }
 
-    // Fatal errors are passed off as fatal exceptions. These generate PHP fatal
-    // errors.
-    if (code == GIT_EPHPFATAL) {
-        php_git2_fatal_exception ex(err->message);
+    if (code == GIT_EPHP_ERROR) {
+        php_git2_error_exception ex(err->message);
         ex.code = code;
         giterr_clear();
         throw ex;
     }
 
-    if (code == GIT_EPHPEXPROP) {
+    if (code == GIT_EPHP_PROP) {
         php_git2_propagated_exception ex;
         ex.code = code;
         giterr_clear();
         throw ex;
     }
 
-    if (code == GIT_EPHPFATALPROP) {
-        php_git2_fatal_propagated ex;
+    if (code == GIT_EPHP_PROP_BAILOUT) {
+        php_git2_propagated_bailout_exception ex;
         ex.code = code;
         giterr_clear();
         throw ex;
@@ -318,7 +316,7 @@ void php_git2::php_git2_giterr_set(int errorClass,const char* format, ...)
 
 void php_git2::php_git2_globals_ctor(zend_git2_globals* gbls)
 {
-    gbls->propagateFatalError = false;
+    gbls->propagateError = false;
 }
 
 void php_git2::php_git2_globals_dtor(zend_git2_globals* gbls)
@@ -340,7 +338,7 @@ void php_git2::php_git2_globals_init()
 
 void php_git2::php_git2_globals_request_init()
 {
-    GIT2_G(propagateFatalError) = false;
+    GIT2_G(propagateError) = false;
     GIT2_G(requestActive) = true;
 }
 

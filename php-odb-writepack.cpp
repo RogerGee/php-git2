@@ -72,7 +72,7 @@ void php_odb_writepack_object::create_custom_writepack(zval* zobj,zval* zbackend
 
     // Make sure the writepack does not already exist.
     if (writepack != nullptr) {
-        throw php_git2_fatal_exception(
+        throw php_git2_error_exception(
             "cannot create custom ODB writepack - object already in use"
             );
     }
