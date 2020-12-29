@@ -80,22 +80,27 @@ namespace php_git2
 
         static constexpr size_t offset()
         {
-            return offsetof(php_zend_object,storage);
+            return offsetof(php_zend_object,std);
         }
 
         static inline php_zend_object* get_wrapper(zend_object* zo)
         {
-            return reinterpret_cast<php_zend_object*>(zo - offset());
+            return reinterpret_cast<php_zend_object*>(
+                reinterpret_cast<char*>(zo) - offset());
         }
 
         static inline StorageType* get_storage(zend_object* zo)
         {
-            return reinterpret_cast<php_zend_object*>(zo - offset())->storage;
+            return reinterpret_cast<php_zend_object*>(
+                reinterpret_cast<char*>(zo) - offset()
+                )->storage;
         }
- 
+
         static inline StorageType* get_storage(zval* zv)
         {
-            return reinterpret_cast<php_zend_object*>(Z_OBJ_P(zv) - offset())->storage;
+            return reinterpret_cast<php_zend_object*>(
+                reinterpret_cast<char*>(Z_OBJ_P(zv)) - offset()
+                )->storage;
         }
    };
 
