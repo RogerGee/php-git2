@@ -68,9 +68,12 @@ void php_parameter::parse_with_context(zval* zvp,const char* ctx)
 
 void php_output_parameter::parse_impl(zval* zp,int argno)
 {
-    // Output parameters must maintain the original zval so that it can be
-    // directly modified.
-    this->zvp = zvp;
+    if (Z_ISREF_P(zp)) {
+        this->zvp = Z_REFVAL_P(zp);
+    }
+    else {
+        this->zvp = zp;
+    }
 }
 
 // php_value_generic
@@ -114,7 +117,7 @@ void php_array_base::parse_impl(zval* zvp,int argno)
 
 void php_option_array::parse_impl(zval* zvp,int argno)
 {
-    if (Z_TYPE(value) == IS_NULL) {
+    if (Z_TYPE_P(zvp) == IS_NULL) {
         ZVAL_NULL(&value);
         return;
     }

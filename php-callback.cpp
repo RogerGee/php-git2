@@ -26,7 +26,7 @@ int php_git2::php_git2_invoke_callback(
     if (BAILOUT_ENTER_REGION(ctx)) {
         int retval;
 
-        retval = call_user_function(NULL,obj,func,ret,paramCount,params);
+        retval = call_user_function(nullptr,obj,func,ret,paramCount,params);
         if (retval == FAILURE) {
             php_git2_giterr_set(GITERR_INVALID,"Failed to invoke userspace callback");
             result = GIT_EPHP_ERROR;
@@ -107,7 +107,7 @@ void php_callback_sync_nullable::parse_impl(zval* zvp,int argno)
             php_callback_sync::parse_impl(zvp,argno);
         }
     }
-    else if (Z_TYPE(value) != IS_NULL) {
+    else {
         php_callback_sync::parse_impl(zvp,argno);
     }
 }
@@ -124,10 +124,7 @@ packbuilder_foreach_callback::callback(void* buf,size_t size,void* payload)
     // Special Case: if the callback is null but the payload is a stream, we
     // write directly to the stream.
 
-    if (Z_TYPE_P(func) == IS_NULL
-        && data != nullptr
-        && Z_TYPE_P(data) == IS_RESOURCE)
-    {
+    if (Z_TYPE_P(func) == IS_NULL && Z_TYPE_P(data) == IS_RESOURCE) {
         php_stream* stream;
 
         stream = reinterpret_cast<php_stream*>(
@@ -164,7 +161,7 @@ packbuilder_foreach_callback::callback(void* buf,size_t size,void* payload)
     params.assign<0>(buf,size,size,data);
 
     result = params.call(func,&retval);
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -196,7 +193,7 @@ transfer_progress_callback::callback(const git_transfer_progress* stats,void* pa
         }
     }
 
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -219,7 +216,7 @@ odb_foreach_callback::callback(const git_oid* oid,void* payload)
     params.assign<1>(cb->get_payload());
 
     result = params.call(cb->get_value(),&retval);
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -244,7 +241,7 @@ treewalk_callback::callback(const char* root,const git_tree_entry* entry,void* p
     params.assign<2>(std::forward<zval*>(cb->get_payload()));
 
     result = params.call(cb->get_value(),&retval);
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -294,7 +291,7 @@ commit_parent_callback::callback(size_t idx,void* payload)
     convert_to_string(&retval);
     convert_oid_fromstr(oid,Z_STRVAL(retval),Z_STRLEN(retval));
 
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return oid;
 }
@@ -317,7 +314,7 @@ int reference_foreach_callback::callback(git_reference* ref,void* payload)
 
     // Call the userspace callback.
     result = params.call(cb->get_value(),&retval);
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -337,7 +334,7 @@ int reference_foreach_name_callback::callback(const char* name,void* payload)
 
     // Call the userspace callback.
     result = params.call(cb->get_value(),&retval);
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -364,7 +361,7 @@ int packbuilder_progress_callback::callback(int stage,
 
     // Call the userspace callback.
     result = params.call(cb->get_value(),&retval);
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -376,7 +373,6 @@ int config_foreach_callback::callback(const git_config_entry* entry,void* payloa
     php_callback_sync* cb = reinterpret_cast<php_callback_sync*>(payload);
 
     int result;
-    bool returnValue;
     zval* zentry;
     zval retval;
     zval_array<2> params;
@@ -393,11 +389,9 @@ int config_foreach_callback::callback(const git_config_entry* entry,void* payloa
     result = params.call(cb->get_value(),&retval);
     if (result == GIT_OK) {
         convert_to_boolean(&retval);
-        returnValue = Z_LVAL(retval);
-        zval_dtor(&retval);
-
-        result = returnValue ? 1 : 0;
+        result = Z_LVAL(retval) ? 1 : 0;
     }
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -417,7 +411,7 @@ int tag_foreach_callback::callback(const char* name,git_oid* oid,void* payload)
     params.assign<0>(name,buf,cb->get_payload());
 
     result = params.call(cb->get_value(),&retval);
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -534,7 +528,7 @@ int diff_notify_callback::callback(
 
     convert_to_long(&retval);
     result = static_cast<int>(Z_LVAL(retval));
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -584,7 +578,7 @@ int diff_progress_callback::callback(
         }
     }
 
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -606,7 +600,7 @@ int diff_file_callback::callback(const git_diff_delta* delta,float progress,void
     convert_diff_delta(params[0],delta);
     params.assign<1>(progress,info->zpayload);
     result = params.call(cb->get_value(),&retval);
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -631,7 +625,7 @@ int diff_binary_callback::callback(const git_diff_delta* delta,
     convert_diff_binary(params[1],binary);
     params.assign<2>(info->zpayload);
     result = params.call(cb->get_value(),&retval);
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -656,7 +650,7 @@ int diff_hunk_callback::callback(const git_diff_delta* delta,
     convert_diff_hunk(params[1],hunk);
     params.assign<2>(info->zpayload);
     result = params.call(cb->get_value(),&retval);
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -683,7 +677,7 @@ int diff_line_callback::callback(const git_diff_delta* delta,
     convert_diff_line(params[2],line);
     params.assign<3>(info->zpayload);
     result = params.call(cb->get_value(),&retval);
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -702,7 +696,7 @@ int index_matched_path_callback::callback(const char* path,
 
     params.assign<0>(path,matched_pathspec,cb->get_payload());
     result = params.call(cb->get_value(),&retval);
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -722,7 +716,7 @@ int revwalk_hide_callback::callback(const git_oid* commit_id,void* payload)
     params.assign<0>(buf,cb->get_payload());
 
     result = params.call(cb->get_value(),&retval);
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -761,7 +755,7 @@ int attr_foreach_callback::callback(const char* name,const char* value,void* pay
     params.assign<0>(name,value,cb->get_payload());
 
     result = params.call(cb->get_value(),&retval);
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -779,7 +773,7 @@ int status_callback::callback(const char* path,unsigned int status_flags,void* p
     params.assign<0>(path,status_flags,cb->get_payload());
 
     result = params.call(cb->get_value(),&retval);
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -803,7 +797,7 @@ int note_foreach_callback::callback(const git_oid* blob_id,
     params.assign<2>(cb->get_payload());
 
     result = params.call(cb->get_value(),&retval);
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -836,7 +830,7 @@ int stash_callback::callback(size_t index,
         }
     }
 
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -863,7 +857,7 @@ int stash_apply_progress_callback::callback(
         }
     }
 
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -923,7 +917,7 @@ int cred_acquire_callback::callback(git_cred** cred,
         }
     }
 
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -950,7 +944,7 @@ int transport_certificate_check_callback::callback(git_cert* cert,
         result = Z_LVAL(retval) ? 1 : 0;
     }
 
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -979,7 +973,7 @@ int remote_transport_message_callback::callback(const char* str,int len,void* pa
         }
     }
 
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -1000,7 +994,7 @@ int remote_completion_callback::callback(
     params.assign<0>(static_cast<long>(type),cb->get_payload());
     result = params.call(cb->get_value(),&retval);
 
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -1072,7 +1066,7 @@ int remote_update_tips_callback::callback(
     params.assign<3>(cb->get_payload());
     result = params.call(cb->get_value(),&retval);
 
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -1116,7 +1110,7 @@ int remote_push_transfer_progress_callback::callback(
         cb->get_payload());
     result = params.call(cb->get_value(),&retval);
 
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -1142,7 +1136,7 @@ int remote_push_update_reference_callback::callback(
     params.assign<2>(cb->get_payload());
     result = params.call(cb->get_value(),&retval);
 
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -1171,7 +1165,7 @@ int remote_push_negotiation_callback::callback(
     params.assign<1>(cb->get_payload());
     result = params.call(cb->get_value(),&retval);
 
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -1274,7 +1268,7 @@ int remote_create_callback::callback(
         }
     }
 
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -1299,7 +1293,7 @@ int repository_fetchhead_foreach_callback::callback(
     params.assign<3>(static_cast<bool>(is_merge),cb->get_payload());
 
     result = params.call(cb->get_value(),&retval);
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -1320,7 +1314,7 @@ int repository_mergehead_foreach_callback::callback(
     params.assign<1>(cb->get_payload());
 
     result = params.call(cb->get_value(),&retval);
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -1343,7 +1337,7 @@ int treebuilder_filter_callback::callback(
     params.assign<1>(cb->get_payload());
 
     result = params.call(cb->get_value(),&retval);
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }
@@ -1367,7 +1361,7 @@ int submodule_foreach_callback::callback(
 
     // Call the userspace callback.
     result = params.call(cb->get_value(),&retval);
-    zval_dtor(&retval);
+    zval_ptr_dtor(&retval);
 
     return result;
 }

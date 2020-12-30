@@ -190,7 +190,7 @@ namespace php_git2
 
     template<>
     class php_value<const char*>:
-        virtual public php_value_base
+        public php_value_base
     {
     public:
         const char* byval_git2() const
@@ -536,7 +536,8 @@ namespace php_git2
             // Ensure that the resource owns the underlying handle before
             // returning it.
             if (!res->is_owner()) {
-                throw php_git2_exception("Cannot execute libgit2 call on non-owner resource");
+                throw php_git2_exception(
+                    "Cannot execute libgit2 call on non-owner resource");
             }
 
             return res->get_handle();
@@ -825,8 +826,8 @@ namespace php_git2
     };
 
     class php_git_oid_fromstr_nullable:
-        virtual public php_string_nullable,
-        virtual public php_git_oid_fromstr
+        public php_string_nullable,
+        public php_git_oid_fromstr
     {
     public:
         git_oid* byval_git2()
@@ -1026,9 +1027,9 @@ namespace php_git2
     // array base type that is commonly used for option arrays.)
 
     class php_option_array:
-        public php_array_base
+        virtual public php_array_base
     {
-    private:
+    protected:
         virtual void parse_impl(zval* zvp,int argno);
     };
 
@@ -1040,7 +1041,7 @@ namespace php_git2
 
     template<typename SourceType,typename ConvertType>
     class php_array:
-        public php_array_base
+        virtual public php_array_base
     {
     public:
         typedef SourceType source_t;
@@ -1203,7 +1204,8 @@ namespace php_git2
     };
 
     class php_strarray_array_nullable:
-        public php_strarray_array
+        public php_strarray_array,
+        private php_option_array
     {
     public:
         git_strarray* byval_git2()
@@ -1214,6 +1216,9 @@ namespace php_git2
 
             return php_strarray_array::byval_git2();
         }
+
+    private:
+        using php_option_array::parse_impl;
     };
 
     class php_strarray_byval_array:
@@ -1223,7 +1228,7 @@ namespace php_git2
         git_strarray byval_git2()
         {
             // Return structure by value. This is still a shallow copy of the
-            // data.
+            // array data.
             return *php_strarray_array::byval_git2();
         }
     };

@@ -202,17 +202,35 @@ namespace php_git2
 
     // Provide a function that extracts zvals into a local pack.
 
-    void php_extract_args_impl(int nargs,zval* args,php_parameter* dest[],int ngiven);
+    void php_extract_args_impl(
+        int result,
+        int nargs,
+        zval* args[],
+        php_parameter* dest[],
+        int ngiven);
+
+    template<unsigned... Ns>
+    inline int php_zend_get_parameters_wrapper(sequence<Ns...>&& seq,zval* args[])
+    {
+        return zend_get_parameters(0,sizeof...(Ns),&args[Ns]...);
+    }
 
     template<typename... Ts,unsigned... Ns>
     inline void php_extract_args(local_pack<Ts...>& pack,sequence<Ns...>&& seq,int ngiven)
     {
         constexpr int NARGS = sizeof...(Ns);
 
-        zval args[NARGS];
+        int result;
+        zval* args[NARGS];
         php_parameter* dest[] = { &pack.template get<Ns>()... };
 
-        php_extract_args_impl(NARGS,args,dest,ngiven);
+        if (NARGS == ngiven) {
+            result = php_zend_get_parameters_wrapper(make_seq<NARGS>(),args);
+        }
+        else {
+            result = FAILURE;
+        }
+        php_extract_args_impl(result,NARGS,args,dest,ngiven);
     }
 
     template<typename... Ts>
@@ -640,7 +658,7 @@ static void zif_php_git2_function_setdeps(INTERNAL_FUNCTION_PARAMETERS)
 
 template<
     typename FuncWrapper,
-     typename LocalVars,
+    typename LocalVars,
     typename ResourceDeps1,
     typename ResourceDeps2,
     int ReturnPos = -1,
