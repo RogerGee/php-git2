@@ -202,35 +202,15 @@ namespace php_git2
 
     // Provide a function that extracts zvals into a local pack.
 
-    void php_extract_args_impl(
-        int result,
-        int nargs,
-        zval* args[],
-        php_parameter* dest[],
-        int ngiven);
-
-    template<unsigned... Ns>
-    inline int php_zend_get_parameters_wrapper(sequence<Ns...>&& seq,zval* args[])
-    {
-        return zend_get_parameters(0,sizeof...(Ns),&args[Ns]...);
-    }
+    void php_extract_args_impl(int nargs,php_parameter* dest[],int ngiven);
 
     template<typename... Ts,unsigned... Ns>
     inline void php_extract_args(local_pack<Ts...>& pack,sequence<Ns...>&& seq,int ngiven)
     {
         constexpr int NARGS = sizeof...(Ns);
-
-        int result;
-        zval* args[NARGS];
         php_parameter* dest[] = { &pack.template get<Ns>()... };
 
-        if (NARGS == ngiven) {
-            result = php_zend_get_parameters_wrapper(make_seq<NARGS>(),args);
-        }
-        else {
-            result = FAILURE;
-        }
-        php_extract_args_impl(result,NARGS,args,dest,ngiven);
+        php_extract_args_impl(NARGS,dest,ngiven);
     }
 
     template<typename... Ts>
