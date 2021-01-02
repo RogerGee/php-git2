@@ -97,7 +97,7 @@ bool array_wrapper::get_bool() const
     if (found()) {
         zval* zv = copy_if_not_type(_IS_BOOL);
 
-        return Z_LVAL_P(zv);
+        return Z_TYPE_P(zv) == IS_TRUE;
     }
 
     return false;

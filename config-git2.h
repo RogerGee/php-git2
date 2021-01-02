@@ -129,7 +129,7 @@ namespace php_git2
                 object->create_custom_backend(get_value(),ownerWrapper.get_object());
             }
             else if (object->owner != nullptr) {
-                throw php_git2_exception("The config backend is already owned by a repository");
+                throw php_git2_exception("The config backend is already owned by a config");
             }
             else {
                 object->owner = ownerWrapper.get_object();

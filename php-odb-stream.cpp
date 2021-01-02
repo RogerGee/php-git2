@@ -221,6 +221,7 @@ git_odb_stream_php::git_odb_stream_php(zend_object* obj,unsigned int newMode)
 
     // Create object zval to track and keep PHP object storage alive.
     ZVAL_OBJ(&thisobj,obj);
+    Z_ADDREF(thisobj);
 
     // Make sure the class provided overridden methods needed for the requested
     // mode. If not we raise an error.

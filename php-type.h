@@ -131,12 +131,12 @@ namespace php_git2
     public:
         bool byval_git2() const
         {
-            return Z_LVAL(value) ? true : false;
+            return Z_TYPE(value) == IS_TRUE;
         }
 
         void ret(zval* return_value) const
         {
-            if (Z_LVAL(value)) {
+            if (Z_TYPE(value) == IS_TRUE) {
                 RETURN_TRUE
             }
 

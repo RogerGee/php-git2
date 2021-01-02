@@ -389,7 +389,7 @@ int config_foreach_callback::callback(const git_config_entry* entry,void* payloa
     result = params.call(cb->get_value(),&retval);
     if (result == GIT_OK) {
         convert_to_boolean(&retval);
-        result = Z_LVAL(retval) ? 1 : 0;
+        result = Z_TYPE(retval) == IS_TRUE;
     }
     zval_ptr_dtor(&retval);
 
@@ -571,7 +571,7 @@ int diff_progress_callback::callback(
     else {
         if (Z_TYPE(retval) != IS_NULL) {
             convert_to_boolean(&retval);
-            result = Z_LVAL(retval) ? 0 : 1;
+            result = ( Z_TYPE(retval) == IS_TRUE ) ? 0 : 1;
         }
         else {
             result = 0;
@@ -826,7 +826,7 @@ int stash_callback::callback(size_t index,
     if (result == GIT_OK) {
         if (Z_TYPE(retval) != IS_NULL) {
             convert_to_boolean(&retval);
-            result = Z_LVAL(retval) ? 0 : -1;
+            result = ( Z_TYPE(retval) == IS_TRUE ) ? 0 : -1;
         }
     }
 
@@ -853,7 +853,7 @@ int stash_apply_progress_callback::callback(
     if (result == GIT_OK) {
         if (Z_TYPE(retval) != IS_NULL) {
             convert_to_boolean(&retval);
-            result = Z_LVAL(retval) ? 0 : -1;
+            result = ( Z_TYPE(retval) == IS_TRUE ) ? 0 : -1;
         }
     }
 
@@ -941,7 +941,7 @@ int transport_certificate_check_callback::callback(git_cert* cert,
 
     if (result == GIT_OK) {
         convert_to_boolean(&retval);
-        result = Z_LVAL(retval) ? 1 : 0;
+        result = Z_TYPE(retval) == IS_TRUE;
     }
 
     zval_ptr_dtor(&retval);
@@ -969,7 +969,7 @@ int remote_transport_message_callback::callback(const char* str,int len,void* pa
     if (result == GIT_OK) {
         if (Z_TYPE(retval) != IS_NULL) {
             convert_to_boolean(&retval);
-            result = Z_LVAL(retval) ? 0 : -1;
+            result = ( Z_TYPE(retval) == IS_TRUE ) ? 0 : -1;
         }
     }
 

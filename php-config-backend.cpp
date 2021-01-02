@@ -159,7 +159,7 @@ static int custom_backend_iterator_next(git_config_entry** out,custom_backend_it
         else {
             convert_to_boolean(retval);
 
-            if (!Z_LVAL_P(retval)) {
+            if (Z_TYPE_P(retval) == IS_FALSE) {
                 result = GIT_ITEROVER;
             }
             else {
@@ -293,7 +293,7 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
         else {
             convert_to_boolean(retval);
 
-            if (!Z_LVAL_P(retval)) {
+            if (Z_TYPE_P(retval) == IS_FALSE) {
                 result = GIT_ENOTFOUND;
             }
             else {
@@ -530,6 +530,7 @@ git_config_backend_php::git_config_backend_php(zend_object* obj)
     // Assign zend_object to local zval to keep object alive while backend is in
     // use in the library.
     ZVAL_OBJ(&thisobj,obj);
+    Z_ADDREF(thisobj);
 
     version = GIT_CONFIG_BACKEND_VERSION;
 

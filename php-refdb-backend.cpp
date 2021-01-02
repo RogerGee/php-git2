@@ -359,7 +359,7 @@ void php_refdb_backend_object::assign_owner(php_git_refdb* newOwner)
         // Return method call return value.
 
         convert_to_boolean(retval);
-        *exists = Z_LVAL_P(retval);
+        *exists = Z_TYPE_P(retval) == IS_TRUE;
     }
 
     return result;
@@ -565,7 +565,7 @@ void php_refdb_backend_object::assign_owner(php_git_refdb* newOwner)
         zval* retval = method.retval();
 
         convert_to_boolean(retval);
-        result = Z_LVAL_P(retval);
+        result = Z_TYPE_P(retval) == IS_TRUE;
     }
 
     return result;
@@ -829,6 +829,7 @@ php_refdb_backend_object::git_refdb_backend_php::git_refdb_backend_php(zend_obje
     // Assign zval to keep object alive while the backend is in use in the
     // library.
     ZVAL_OBJ(&thisobj,obj);
+    Z_ADDREF(thisobj);
 
     ZVAL_UNDEF(&lockobj);
     version = GIT_REFDB_BACKEND_VERSION;
