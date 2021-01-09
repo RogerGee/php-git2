@@ -479,15 +479,15 @@ void php_git2::convert_diff_file(zval* zv,const git_diff_file* file)
     uint16_t idlen = file->id_abbrev;
     char buf[GIT_OID_HEXSZ + 1];
 
-    if (idlen > GIT_OID_HEXSZ) {
+    if (idlen == 0 || idlen > GIT_OID_HEXSZ) {
         idlen = GIT_OID_HEXSZ;
     }
-
-    array_init(zv);
     git_oid_tostr(buf,sizeof(buf),&file->id);
     buf[idlen] = 0;
-    add_assoc_stringl(zv,"id",buf,GIT_OID_HEXSZ);
-    add_assoc_const_string(zv,"path",file->path);
+
+    array_init(zv);
+    add_assoc_stringl(zv,"id",buf,idlen);
+    add_assoc_string(zv,"path",file->path);
     add_assoc_long_ex(zv,"size",sizeof("size")-1,file->size);
     add_assoc_long_ex(zv,"flags",sizeof("flags")-1,file->flags);
     add_assoc_long_ex(zv,"mode",sizeof("mode")-1,file->mode);
@@ -566,7 +566,7 @@ void php_git2::convert_diff_line(zval* zv,const git_diff_line* line)
     add_assoc_long_ex(zv,"content_offset",sizeof("content_offset")-1,line->content_offset);
     add_assoc_stringl_ex(zv,
         "content",
-        sizeof("content"),
+        sizeof("content")-1,
         const_cast<char*>(line->content),
         line->content_len);
 }

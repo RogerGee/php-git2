@@ -60,9 +60,6 @@ ZEND_EXTERN_MODULE_GLOBALS(git2)
 
 #define UNUSED(var) ((void)var)
 
-#define add_assoc_const_string(zv,key,str)                  \
-    add_assoc_string_ex(zv,key,sizeof(key),(char*)str)
-
 // Create a macro for managing bailout context regions.
 
 #define BAILOUT_ENTER_REGION(ctx)                   \

@@ -141,7 +141,7 @@ namespace php_git2
 
     template<typename CallbackType>
     class php_git_diff_callback_base:
-        public php_callback_base
+        public php_callback_sync_nullable
     {
     public:
         typedef php_git_diff_callback_payload connect_t;
