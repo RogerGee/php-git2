@@ -52,6 +52,11 @@ void php_git2::php_git2_make_odb_stream(zval* zp,git_odb_stream* stream,php_git_
 template<>
 void php_zend_object<php_odb_stream_internal_object>::init(zend_class_entry* ce)
 {
+    auto& parentHandlers = php_zend_object<php_odb_stream_object>::handlers;
+
+    handlers.read_property = parentHandlers.read_property;
+    handlers.write_property = parentHandlers.write_property;
+    handlers.has_property = parentHandlers.has_property;
     handlers.get_constructor = php_git2::not_allowed_get_constructor;
 
     UNUSED(ce);
