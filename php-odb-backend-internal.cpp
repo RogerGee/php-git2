@@ -151,7 +151,7 @@ PHP_METHOD(GitODBBackend_Internal,read)
 
     // Grab parameters. The first parameter is passed by reference so we have to
     // extract its zval.
-    if (zend_parse_parameters(ZEND_NUM_ARGS(),"zs",&ztype,&strOid,&strOidLen) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS(),"z/s",&ztype,&strOid,&strOidLen) == FAILURE) {
         return;
     }
 
@@ -203,7 +203,7 @@ PHP_METHOD(GitODBBackend_Internal,read_prefix)
     // have to extract their zvals.
     if (zend_parse_parameters(
             ZEND_NUM_ARGS(),
-            "zzs",
+            "z/z/s",
             &zoid,
             &ztype,
             &strOid,
@@ -238,7 +238,7 @@ PHP_METHOD(GitODBBackend_Internal,read_prefix)
         }
         else {
             // Copy the result into the return zval. Then set the out
-            // parameters.  Finally we have to free the buffer allocated by the
+            // parameters. Finally we have to free the buffer allocated by the
             // call to read_prefix().
             RETVAL_STRINGL((const char*)data,size);
             convert_oid(zoid,&full);
@@ -281,7 +281,7 @@ PHP_METHOD(GitODBBackend_Internal,read_header)
     // Grab parameters. The first two parameters are passed by reference so we
     // have to extract their zvals.
     if (zend_parse_parameters(ZEND_NUM_ARGS(),
-            "zzs",
+            "z/z/s",
             &zsize,
             &ztype,
             &strOid,
@@ -530,7 +530,7 @@ PHP_METHOD(GitODBBackend_Internal,exists_prefix)
         return;
     }
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS(),"zs",&zoid,&uoid,&uoidSize) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS(),"z/s",&zoid,&uoid,&uoidSize) == FAILURE) {
         return;
     }
 

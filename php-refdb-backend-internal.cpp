@@ -251,7 +251,7 @@ PHP_METHOD(GitRefDBBackend_Internal,iterator_next)
     php_bailer bailer;
     php_refdb_backend_internal_object* object;
 
-    zval znameout;
+    zval* znameout;
 
     object = php_zend_object<php_refdb_backend_internal_object>::get_storage(getThis());
 
@@ -264,7 +264,7 @@ PHP_METHOD(GitRefDBBackend_Internal,iterator_next)
     }
 
     // Parse method parameters.
-    if (zend_parse_parameters(ZEND_NUM_ARGS(),"z",&znameout) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS(),"z/",&znameout) == FAILURE) {
         return;
     }
 
@@ -289,7 +289,7 @@ PHP_METHOD(GitRefDBBackend_Internal,iterator_next)
         }
 
         // Write reference name to out parameter.
-        ZVAL_STRING(&znameout,git_reference_name(ref));
+        ZVAL_STRING(znameout,git_reference_name(ref));
 
         // Write reference value to the return value.
         oid = git_reference_target(ref);
@@ -323,9 +323,9 @@ PHP_METHOD(GitRefDBBackend_Internal,write)
     php_bailer bailer;
     php_refdb_backend_object* object;
 
-    zval zref;
+    zval* zref;
     zend_bool force;
-    zval zwho;
+    zval* zwho;
     char* message = nullptr;
     size_t message_len = 0;
     char* old;
@@ -342,7 +342,8 @@ PHP_METHOD(GitRefDBBackend_Internal,write)
     }
 
     // Parse method parameters.
-    if (zend_parse_parameters(ZEND_NUM_ARGS(),"rba!sss",
+    if (zend_parse_parameters(ZEND_NUM_ARGS(),
+            "rba!sss",
             &zref,
             &force,
             &zwho,
@@ -363,8 +364,8 @@ PHP_METHOD(GitRefDBBackend_Internal,write)
         git_signature* sig;
         php_resource<php_git_reference> ref;
 
-        ref.set_value(&zref);
-        sig = convert_signature(&zwho);
+        ref.set_value(zref);
+        sig = convert_signature(zwho);
         if (sig == nullptr) {
             throw php_git2_error_exception(
                 "GitRefDBBackend_Internal::write(): signature array is incorrect");
@@ -405,7 +406,7 @@ PHP_METHOD(GitRefDBBackend_Internal,rename)
     char* newname;
     size_t newname_len;
     zend_bool force;
-    zval zwho;
+    zval* zwho;
     char* message = nullptr;
     size_t message_len = 0;
 
@@ -438,7 +439,7 @@ PHP_METHOD(GitRefDBBackend_Internal,rename)
         git_signature* sig;
         php_resource_ref<php_git_reference> ref;
 
-        sig = convert_signature(&zwho);
+        sig = convert_signature(zwho);
         if (sig == nullptr) {
             throw php_git2_exception(
                 "GitRefDBBackend_Internal::rename(): signature array is incorrect");
@@ -492,7 +493,8 @@ PHP_METHOD(GitRefDBBackend_Internal,del)
     }
 
     // Parse method parameters.
-    if (zend_parse_parameters(ZEND_NUM_ARGS(),"sss",
+    if (zend_parse_parameters(ZEND_NUM_ARGS(),
+            "sss",
             &refname,
             &refname_len,
             &oldid,
