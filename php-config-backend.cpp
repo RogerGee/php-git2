@@ -197,6 +197,8 @@ zend_function_entry php_git2::config_backend_methods[] = {
 template<>
 void php_zend_object<php_config_backend_object>::init(zend_class_entry* ce)
 {
+    handlers.offset = offset();
+
     UNUSED(ce);
 }
 

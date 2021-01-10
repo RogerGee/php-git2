@@ -57,7 +57,7 @@ namespace php_git2
     {
         php_zend_object(zend_class_entry* ce)
         {
-            void* ptr = ecalloc(1,sizeof(StorageType));
+            void* ptr = emalloc(sizeof(StorageType));
             storage = new(ptr) StorageType();
 
             zend_object_std_init(&std,ce);
@@ -329,7 +329,7 @@ namespace php_git2
         git_odb_writepack* writepack;
         php_git_odb* owner;
 
-        void create_custom_writepack(zval* zobj,zval* zbackend);
+        void create_custom_writepack(zval* zobj,zval* backend);
         void assign_owner(php_git_odb* newOwner);
         void unset_writepack()
         {
@@ -374,6 +374,7 @@ namespace php_git2
 
         git_transfer_progress prog;
         php_callback_sync* cb;
+        zval backend;
 
         constexpr static php_git2_object_t get_type()
         {
@@ -397,9 +398,9 @@ namespace php_git2
         git_odb_stream* stream;
         stream_kind kind;
         php_git_odb* owner;
-        zval* zbackend;
+        zval backend;
 
-        void create_custom_stream(zval* zobj,zval* zbackendObject,unsigned int mode);
+        void create_custom_stream(zval* zobj,zval* backendObject,unsigned int mode);
         void assign_owner(php_git_odb* owner);
         void unset_stream()
         {
@@ -658,7 +659,7 @@ namespace php_git2
     void php_git2_make_odb_writepack(zval* zp,
         git_odb_writepack* writepack,
         php_callback_sync* cb,
-        zval* zbackend,
+        zval* backend,
         php_git_odb* owner);
     void php_git2_make_odb_stream(zval* zp,
         git_odb_stream* stream,

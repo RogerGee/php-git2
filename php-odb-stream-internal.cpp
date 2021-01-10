@@ -28,7 +28,7 @@ void php_git2::php_git2_make_odb_stream(zval* zp,git_odb_stream* stream,php_git_
 
     // Create object zval.
     object_init_ex(zp,php_git2::class_entry[php_git2_odb_stream_internal_obj]);
-    obj = php_zend_object<php_odb_stream_internal_object>::get_storage(Z_OBJ_P(zp));
+    obj = php_zend_object<php_odb_stream_internal_object>::get_storage(zp);
 
     // Assign the stream handle.
     obj->stream = stream;
@@ -58,6 +58,8 @@ void php_zend_object<php_odb_stream_internal_object>::init(zend_class_entry* ce)
     handlers.write_property = parentHandlers.write_property;
     handlers.has_property = parentHandlers.has_property;
     handlers.get_constructor = php_git2::not_allowed_get_constructor;
+
+    handlers.offset = offset();
 
     UNUSED(ce);
 }

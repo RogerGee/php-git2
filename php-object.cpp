@@ -18,13 +18,14 @@ using namespace php_git2;
 template<typename StorageType>
 static zend_object* php_create_object_handler(zend_class_entry* ce)
 {
-    void* ptr;
-    php_zend_object<StorageType>* object;
+    using php_object_t = php_zend_object<StorageType>;
+    php_object_t* object;
 
     // TODO Update to use zend_object_alloc().
 
-    ptr = ecalloc(1,sizeof(php_zend_object<StorageType>) + zend_object_properties_size(ce));
-    object = new(ptr) php_zend_object<StorageType>(ce);
+    const size_t nbytes = sizeof(php_object_t) + zend_object_properties_size(ce);
+
+    object = new(emalloc(nbytes)) php_object_t(ce);
 
     return &object->std;
 }
@@ -32,9 +33,8 @@ static zend_object* php_create_object_handler(zend_class_entry* ce)
 template<typename StorageType>
 static void php_free_object(zend_object* zo)
 {
-    php_zend_object<StorageType>* object = php_zend_object<StorageType>::get_wrapper(zo);
-    object->~php_zend_object<StorageType>();
-    efree(object);
+    using php_object_t = php_zend_object<StorageType>;
+    php_object_t::get_wrapper(zo)->~php_object_t();
 }
 
 template<typename StorageType>

@@ -77,7 +77,10 @@ zend_function_entry php_git2::odb_backend_internal_methods[] = {
 
 // Make function implementation
 
-void php_git2::php_git2_make_odb_backend(zval* zp,git_odb_backend* backend,php_git_odb* owner)
+void php_git2::php_git2_make_odb_backend(
+    zval* zp,
+    git_odb_backend* backend,
+    php_git_odb* owner)
 {
     php_odb_backend_object* storage;
 
@@ -112,6 +115,8 @@ void php_zend_object<php_odb_backend_internal_object>::init(zend_class_entry* ce
     handlers.write_property = parentHandlers.write_property;
     handlers.has_property = parentHandlers.has_property;
     handlers.get_constructor = php_git2::not_allowed_get_constructor;
+
+    handlers.offset = offset();
 
     UNUSED(ce);
 }
@@ -662,12 +667,17 @@ PHP_METHOD(GitODBBackend_Internal,writepack)
         return;
     }
 
-    callback = new (emalloc(sizeof(php_callback_sync_nullable))) php_callback_sync_nullable;
+    callback = new (emalloc(sizeof(php_callback_sync_nullable)))
+        php_callback_sync_nullable;
     callback->set_members(zcallback,zpayload);
 
     try {
+        using handler_t = php_callback_handler_nullable_connector<
+            transfer_progress_callback
+            >;
+
         int retval;
-        php_callback_handler_nullable_connector<transfer_progress_callback> handler(*callback);
+        handler_t handler(*callback);
 
         // Call the underlying function.
         retval = object->backend->writepack(

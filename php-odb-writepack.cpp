@@ -46,6 +46,8 @@ void php_zend_object<php_odb_writepack_object>::init(zend_class_entry* ce)
     handlers.write_property = odb_writepack_write_property;
     handlers.has_property = odb_writepack_has_property;
 
+    handlers.offset = offset();
+
     UNUSED(ce);
 }
 
@@ -201,7 +203,7 @@ zval* odb_writepack_read_property(
     void** cache_slot,
     zval* rv)
 {
-    zval* retval;
+    zval* retval = rv;
     zval tmp_member;
     php_odb_writepack_object* storage;
 
@@ -217,11 +219,10 @@ zval* odb_writepack_read_property(
     storage = php_zend_object<php_odb_writepack_object>::get_storage(Z_OBJ_P(object));
 
     if (strcmp(Z_STRVAL_P(member),"backend") == 0) {
-        retval = zend_hash_find(Z_OBJPROP_P(object),Z_STR_P(member));
+        zval* lookup;
+        lookup = zend_hash_find(Z_OBJPROP_P(object),Z_STR_P(member));
 
-        if (retval == nullptr) {
-            retval = rv;
-
+        if (lookup == nullptr) {
             // NOTE: We can only safely create a backend object if an owner is
             // set on the writepack.
 
@@ -237,6 +238,9 @@ zval* odb_writepack_read_property(
                 Z_ADDREF_P(retval);
                 zend_hash_add(Z_OBJPROP_P(object),Z_STR_P(member),retval);
             }
+        }
+        else {
+            retval = lookup;
         }
     }
     else {

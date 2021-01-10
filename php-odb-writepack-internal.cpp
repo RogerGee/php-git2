@@ -43,13 +43,12 @@ void php_git2::php_git2_make_odb_writepack(
     zval* zp,
     git_odb_writepack* writepack,
     php_callback_sync* cb,
-    zval* zbackend,
+    zval* backend,
     php_git_odb* owner)
 {
     php_odb_writepack_internal_object* obj;
-    zend_class_entry* ce = php_git2::class_entry[php_git2_odb_writepack_internal_obj];
 
-    object_init_ex(zp,ce);
+    object_init_ex(zp,php_git2::class_entry[php_git2_odb_writepack_internal_obj]);
     obj = php_zend_object<php_odb_writepack_internal_object>::get_storage(Z_OBJ_P(zp));
 
     // Assign the writepack and callback. The callback is merely along for the
@@ -61,11 +60,12 @@ void php_git2::php_git2_make_odb_writepack(
     // during the lifetime of the writepack.
     obj->assign_owner(owner);
 
-    // Assign backend property if we have a backend specified. This will prevent
-    // the parent backend from freeing while the writepack is in use.
-    if (zbackend != nullptr) {
-        Z_ADDREF_P(zbackend);
-        zend_hash_str_add(Z_OBJPROP_P(zp),"backend",sizeof("backend")-1,zbackend);
+    // Assign backend if we have a backend specified. This will prevent the
+    // parent backend object from freeing while the writepack is in use. We keep
+    // this reference so we can refer to the same backend used to create the
+    // writepack instead of creating a new one via the ODB.
+    if (backend != nullptr) {
+        ZVAL_COPY(&obj->backend,backend);
     }
 }
 
@@ -79,6 +79,8 @@ void php_zend_object<php_odb_writepack_internal_object>::init(zend_class_entry* 
     handlers.has_property = odb_writepack_internal_has_property;
     handlers.get_constructor = php_git2::not_allowed_get_constructor;
 
+    handlers.offset = offset();
+
     UNUSED(ce);
 }
 
@@ -86,6 +88,7 @@ php_odb_writepack_internal_object::php_odb_writepack_internal_object():
     php_odb_writepack_object(), cb(nullptr)
 {
     memset(&prog,0,sizeof(git_transfer_progress));
+    ZVAL_UNDEF(&backend);
 }
 
 php_odb_writepack_internal_object::~php_odb_writepack_internal_object()
@@ -101,6 +104,8 @@ php_odb_writepack_internal_object::~php_odb_writepack_internal_object()
         cb->~php_callback_sync();
         efree(cb);
     }
+
+    zval_ptr_dtor(&backend);
 }
 
 // Implementation of custom class handlers.
@@ -112,7 +117,7 @@ zval* odb_writepack_internal_read_property(
     void** cache_slot,
     zval* rv)
 {
-    zval* retval;
+    zval* retval = rv;
     zval tmp_member;
     php_odb_writepack_internal_object* storage;
 
@@ -129,8 +134,12 @@ zval* odb_writepack_internal_read_property(
     storage = zend_object_t::get_storage(Z_OBJ_P(object));
 
     if (strcmp(Z_STRVAL_P(member),"progress") == 0) {
-        retval = rv;
         php_git2::convert_transfer_progress(retval,&storage->prog);
+    }
+    else if (strcmp(Z_STRVAL_P(member),"backend") == 0
+        && Z_TYPE(storage->backend) != IS_UNDEF)
+    {
+        ZVAL_COPY_VALUE(retval,&storage->backend);
     }
     else {
         // Invoke base class handler.

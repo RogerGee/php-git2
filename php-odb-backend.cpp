@@ -91,6 +91,8 @@ void php_zend_object<php_odb_backend_object>::init(zend_class_entry* ce)
     handlers.write_property = odb_backend_write_property;
     handlers.has_property = odb_backend_has_property;
 
+    handlers.offset = offset();
+
     UNUSED(ce);
 }
 
@@ -132,7 +134,8 @@ void php_odb_backend_object::create_custom_backend(zval* obj)
 
     // Create custom backend. Custom backends are always passed off to git2, so
     // we are not responsible for calling its free function.
-    backend = new (emalloc(sizeof(git_odb_backend_php))) git_odb_backend_php(Z_OBJ_P(obj));
+    backend = new (emalloc(sizeof(git_odb_backend_php)))
+        git_odb_backend_php(Z_OBJ_P(obj));
 
     // Custom ODB backends never have a direct owner. We always assume the
     // would-be owner is kept alive circularly since the custom backend stores a

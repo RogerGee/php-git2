@@ -28,6 +28,8 @@ void php_zend_object<php_closure_object>::init(zend_class_entry* ce)
     handlers.get_closure = closure_get_closure;
     handlers.get_constructor = php_git2::not_allowed_get_constructor;
 
+    handlers.offset = offset();
+
     UNUSED(ce);
 }
 

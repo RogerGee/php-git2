@@ -34,6 +34,8 @@ template<>
 void php_zend_object<php_writestream_object>::init(zend_class_entry* ce)
 {
     handlers.get_constructor = php_git2::not_allowed_get_constructor;
+
+    handlers.offset = offset();
 }
 
 // Implementation of php_writestream_object
