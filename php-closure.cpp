@@ -23,6 +23,9 @@ zend_function_entry php_git2::closure_methods[] = {
 // php_zend_object init function
 
 template<>
+zend_object_handlers php_git2::php_zend_object<php_closure_object>::handlers;
+
+template<>
 void php_zend_object<php_closure_object>::init(zend_class_entry* ce)
 {
     handlers.get_closure = closure_get_closure;

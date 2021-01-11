@@ -31,6 +31,9 @@ void php_git2::php_git2_make_writestream(zval* zp,git_writestream* ws)
 // php_zend_object init function
 
 template<>
+zend_object_handlers php_git2::php_zend_object<php_writestream_object>::handlers;
+
+template<>
 void php_zend_object<php_writestream_object>::init(zend_class_entry* ce)
 {
     handlers.get_constructor = php_git2::not_allowed_get_constructor;

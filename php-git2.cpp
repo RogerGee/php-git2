@@ -487,7 +487,7 @@ void php_git2::convert_diff_file(zval* zv,const git_diff_file* file)
 
     array_init(zv);
     add_assoc_stringl(zv,"id",buf,idlen);
-    add_assoc_string(zv,"path",file->path);
+    add_assoc_string(zv,"path",const_cast<char*>(file->path));
     add_assoc_long_ex(zv,"size",sizeof("size")-1,file->size);
     add_assoc_long_ex(zv,"flags",sizeof("flags")-1,file->flags);
     add_assoc_long_ex(zv,"mode",sizeof("mode")-1,file->mode);

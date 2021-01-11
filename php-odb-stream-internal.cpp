@@ -50,6 +50,12 @@ void php_git2::php_git2_make_odb_stream(zval* zp,git_odb_stream* stream,php_git_
 // php_zend_object init function
 
 template<>
+zend_object_handlers php_git2::php_zend_object<php_odb_stream_object>::handlers;
+
+template<>
+zend_object_handlers php_git2::php_zend_object<php_odb_stream_internal_object>::handlers;
+
+template<>
 void php_zend_object<php_odb_stream_internal_object>::init(zend_class_entry* ce)
 {
     auto& parentHandlers = php_zend_object<php_odb_stream_object>::handlers;

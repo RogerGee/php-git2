@@ -102,7 +102,7 @@ namespace php_git2
                 reinterpret_cast<char*>(Z_OBJ_P(zv)) - offset()
                 )->storage;
         }
-   };
+    };
 
     // Define base class for object PHP values.
 

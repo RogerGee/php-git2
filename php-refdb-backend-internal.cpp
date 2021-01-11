@@ -80,6 +80,12 @@ void php_git2::php_git2_make_refdb_backend(zval* zp,git_refdb_backend* backend,p
 // php_zend_object init function
 
 template<>
+zend_object_handlers php_git2::php_zend_object<php_refdb_backend_object>::handlers;
+
+template<>
+zend_object_handlers php_git2::php_zend_object<php_refdb_backend_internal_object>::handlers;
+
+template<>
 void php_zend_object<php_refdb_backend_internal_object>::init(zend_class_entry* ce)
 {
     auto& parentHandlers = php_zend_object<php_refdb_backend_object>::handlers;

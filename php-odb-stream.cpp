@@ -39,6 +39,9 @@ zend_function_entry php_git2::odb_stream_methods[] = {
 // php_zend_object init function
 
 template<>
+zend_object_handlers php_git2::php_zend_object<php_odb_stream_object>::handlers;
+
+template<>
 void php_zend_object<php_odb_stream_object>::init(zend_class_entry* ce)
 {
     handlers.read_property = odb_stream_read_property;

@@ -241,6 +241,9 @@ zend_function_entry php_git2::refdb_backend_methods[] = {
 // php_zend_object init function
 
 template<>
+zend_object_handlers php_git2::php_zend_object<php_refdb_backend_object>::handlers;
+
+template<>
 void php_zend_object<php_refdb_backend_object>::init(zend_class_entry* ce)
 {
     handlers.read_property = refdb_backend_read_property;

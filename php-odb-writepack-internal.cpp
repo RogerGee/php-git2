@@ -72,6 +72,12 @@ void php_git2::php_git2_make_odb_writepack(
 // php_zend_object init function
 
 template<>
+zend_object_handlers php_git2::php_zend_object<php_odb_writepack_object>::handlers;
+
+template<>
+zend_object_handlers php_git2::php_zend_object<php_odb_writepack_internal_object>::handlers;
+
+template<>
 void php_zend_object<php_odb_writepack_internal_object>::init(zend_class_entry* ce)
 {
     handlers.read_property = odb_writepack_internal_read_property;
