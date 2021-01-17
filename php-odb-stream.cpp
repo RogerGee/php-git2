@@ -232,15 +232,15 @@ git_odb_stream_php::git_odb_stream_php(zend_object* obj,unsigned int newMode)
     // Make sure the class provided overridden methods needed for the requested
     // mode. If not we raise an error.
     if (mode == GIT_STREAM_RDONLY) {
-        if (!is_method_overridden(obj->ce,"read",sizeof("read"))) {
+        if (!is_method_overridden(obj->ce,"read",sizeof("read")-1)) {
             throw php_git2_error_exception("Custom GitODBStream must override read()");
         }
     }
     else if (mode == GIT_STREAM_WRONLY) {
-        if (!is_method_overridden(obj->ce,"write",sizeof("write"))) {
+        if (!is_method_overridden(obj->ce,"write",sizeof("write")-1)) {
             throw php_git2_error_exception("Custom GitODBStream must override write()");
         }
-        if (!is_method_overridden(obj->ce,"finalize_write",sizeof("finalize_write"))) {
+        if (!is_method_overridden(obj->ce,"finalize_write",sizeof("finalize_write")-1)) {
             throw php_git2_error_exception(
                 "Custom GitODBStream must override finalize_write()");
         }

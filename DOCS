@@ -2813,9 +2813,9 @@ abstract class GitODBWritepack:
               GitODBWritepack_Internal, then use the method signatures
               documented for GitODBWritepack_Internal.
 
-        void append(string,&array)
+        void append(string $data,array &$stats)
 
-        void commit(&array)
+        void commit(array &$stats)
 
 final class GitODBWritepack_Internal extends GitODBBackend
 
@@ -2835,11 +2835,11 @@ final class GitODBWritepack_Internal extends GitODBBackend
 
     methods:
 
-        NOTE: In this class, the signature for the append() and commit() methods
-              is different since you do not have to pass in the
+        NOTE: In this class, the signatures for the append() and commit()
+              methods aredifferent since you do not have to pass in the
               git_transfer_progress.
 
-        void append(string)
+        void append(string $data)
 
         void commit()
 

@@ -130,9 +130,14 @@ namespace php_git2
             return php_git2_invoke_callback(obj,func,ret,Count,params);
         }
 
+        void unref(unsigned index)
+        {
+            ZVAL_UNREF(&params[index]);
+        }
+
         zval* operator [](unsigned index)
         {
-            return params + index;
+            return &params[index];
         }
         const zval* operator [](unsigned index) const
         {

@@ -127,12 +127,13 @@ void php_odb_writepack_object::assign_owner(php_git_odb* newOwner)
     method_wrapper method("append",writepack);
 
     ZVAL_STRINGL(params[0],reinterpret_cast<const char*>(data),length);
-    convert_transfer_progress(params[1],prog);
+    ZVAL_MAKE_REF(params[1]);
+    convert_transfer_progress(Z_REFVAL_P(params[1]),prog);
 
     result = method.call(params);
     if (result == GIT_OK) {
         // Write back transfer progress to library structure.
-        convert_transfer_progress(*prog,params[1]);
+        convert_transfer_progress(*prog,Z_REFVAL_P(params[1]));
     }
 
     return result;
@@ -146,12 +147,13 @@ void php_odb_writepack_object::assign_owner(php_git_odb* newOwner)
     zval_array<1> params;
     method_wrapper method("commit",writepack);
 
-    convert_transfer_progress(params[0],prog);
+    ZVAL_MAKE_REF(params[0]);
+    convert_transfer_progress(Z_REFVAL_P(params[0]),prog);
 
     result = method.call(params);
     if (result == GIT_OK) {
         // Write back transfer progress to library structure.
-        convert_transfer_progress(*prog,params[0]);
+        convert_transfer_progress(*prog,Z_REFVAL_P(params[0]));
     }
 
     return result;

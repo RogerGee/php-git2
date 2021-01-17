@@ -185,6 +185,7 @@ void php_odb_backend_object::unset_backend(zval* obj)
 
     // Prepare parameters.
 
+    ZVAL_MAKE_REF(params[0]);
     convert_oid(params[1],oid);
 
     // Call userspace method.
@@ -201,9 +202,13 @@ void php_odb_backend_object::unset_backend(zval* obj)
         memcpy(data,Z_STRVAL_P(retval),Z_STRLEN_P(retval));
 
         // Return values to caller.
+
         *datap = data;
         *sizep = Z_STRLEN_P(retval);
+
+        params.unref(0);
         convert_to_long(params[0]);
+
         *typep = (git_otype)Z_LVAL_P(params[0]);
     }
 
@@ -225,6 +230,8 @@ void php_odb_backend_object::unset_backend(zval* obj)
 
     // Prepare parameters.
 
+    ZVAL_MAKE_REF(params[0]);
+    ZVAL_MAKE_REF(params[1]);
     convert_oid_prefix(params[2],prefix,len);
 
     // Call userspace method.
@@ -241,12 +248,17 @@ void php_odb_backend_object::unset_backend(zval* obj)
         memcpy(data,Z_STRVAL_P(retval),Z_STRLEN_P(retval));
 
         // Return values to caller.
+
         *datap = data;
         *sizep = Z_STRLEN_P(retval);
-        convert_to_long(params[1]);
-        *typep = (git_otype)Z_LVAL_P(params[1]);
+
+        params.unref(0);
+        params.unref(1);
         convert_to_string(params[0]);
+        convert_to_long(params[1]);
+
         convert_oid_fromstr(oidp,Z_STRVAL_P(params[0]),Z_STRLEN_P(params[0]));
+        *typep = (git_otype)Z_LVAL_P(params[1]);
     }
 
     return result;
@@ -264,6 +276,8 @@ void php_odb_backend_object::unset_backend(zval* obj)
 
     // Prepare parameters.
 
+    ZVAL_MAKE_REF(params[0]);
+    ZVAL_MAKE_REF(params[1]);
     convert_oid(params[2],oid);
 
     // Call userspace method.
@@ -271,6 +285,8 @@ void php_odb_backend_object::unset_backend(zval* obj)
     result = method.call(params);
     if (result == GIT_OK) {
         // Return values to caller.
+        params.unref(0);
+        params.unref(1);
         convert_to_long(params[0]);
         convert_to_long(params[1]);
         *sizep = Z_LVAL_P(params[0]);
@@ -453,6 +469,7 @@ void php_odb_backend_object::unset_backend(zval* obj)
 
     // Prepare parameters.
 
+    ZVAL_MAKE_REF(params[0]);
     convert_oid_prefix(params[1],prefix,len);
 
     // Call userspace method.
@@ -465,6 +482,7 @@ void php_odb_backend_object::unset_backend(zval* obj)
         // (i.e. found) and the GIT_ENOTFOUND error when the element is not
         // found.
 
+        params.unref(0);
         convert_to_string(params[0]);
         convert_oid_fromstr(oidp,Z_STRVAL_P(params[0]),Z_STRLEN_P(params[0]));
 
@@ -662,37 +680,37 @@ git_odb_backend_php::git_odb_backend_php(zend_object* obj)
 
     // We now must select which functions we are going to include in the
     // backend. We do this by determining which ones were overloaded.
-    if (is_method_overridden(obj->ce,"read",sizeof("read"))) {
+    if (is_method_overridden(obj->ce,"read",sizeof("read")-1)) {
         read = php_odb_backend_object::read;
     }
-    if (is_method_overridden(obj->ce,"read_prefix",sizeof("read_prefix"))) {
+    if (is_method_overridden(obj->ce,"read_prefix",sizeof("read_prefix")-1)) {
         read_prefix = php_odb_backend_object::read_prefix;
     }
-    if (is_method_overridden(obj->ce,"read_header",sizeof("read_header"))) {
+    if (is_method_overridden(obj->ce,"read_header",sizeof("read_header")-1)) {
         read_header = php_odb_backend_object::read_header;
     }
-    if (is_method_overridden(obj->ce,"write",sizeof("write"))) {
+    if (is_method_overridden(obj->ce,"write",sizeof("write")-1)) {
         write = php_odb_backend_object::write;
     }
-    if (is_method_overridden(obj->ce,"writestream",sizeof("writestream"))) {
+    if (is_method_overridden(obj->ce,"writestream",sizeof("writestream")-1)) {
         writestream = php_odb_backend_object::writestream;
     }
-    if (is_method_overridden(obj->ce,"readstream",sizeof("readstream"))) {
+    if (is_method_overridden(obj->ce,"readstream",sizeof("readstream")-1)) {
         readstream = php_odb_backend_object::readstream;
     }
-    if (is_method_overridden(obj->ce,"exists",sizeof("exists"))) {
+    if (is_method_overridden(obj->ce,"exists",sizeof("exists")-1)) {
         exists = php_odb_backend_object::exists;
     }
-    if (is_method_overridden(obj->ce,"exists_prefix",sizeof("exists_prefix"))) {
+    if (is_method_overridden(obj->ce,"exists_prefix",sizeof("exists_prefix")-1)) {
         exists_prefix = php_odb_backend_object::exists_prefix;
     }
-    if (is_method_overridden(obj->ce,"refresh",sizeof("refresh"))) {
+    if (is_method_overridden(obj->ce,"refresh",sizeof("refresh")-1)) {
         refresh = php_odb_backend_object::refresh;
     }
-    if (is_method_overridden(obj->ce,"for_each",sizeof("for_each"))) {
+    if (is_method_overridden(obj->ce,"for_each",sizeof("for_each")-1)) {
         foreach = php_odb_backend_object::foreach;
     }
-    if (is_method_overridden(obj->ce,"writepack",sizeof("writepack"))) {
+    if (is_method_overridden(obj->ce,"writepack",sizeof("writepack")-1)) {
         writepack = php_odb_backend_object::writepack;
     }
 }

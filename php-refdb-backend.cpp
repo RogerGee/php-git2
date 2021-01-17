@@ -130,6 +130,8 @@ static int custom_backend_iterator_next(git_reference** ref,custom_backend_itera
     zval_array<1> params;
     custom_backend_iterator::method_wrapper method("iterator_next",iter);
 
+    ZVAL_MAKE_REF(params[0]);
+
     // Call userspace method implementation corresponding to refdb operation.
 
     result = method.call(params);
@@ -143,7 +145,7 @@ static int custom_backend_iterator_next(git_reference** ref,custom_backend_itera
         else {
             // Deep copy the name into a zval that is kept alive by the iterator.
             zval_ptr_dtor(&iter->zlast);
-            ZVAL_COPY(&iter->zlast,params[0]);
+            ZVAL_COPY(&iter->zlast,Z_REFVAL_P(params[0]));
             convert_to_string(&iter->zlast);
 
             // Return values.
@@ -859,8 +861,8 @@ php_refdb_backend_object::git_refdb_backend_php::git_refdb_backend_php(zend_obje
     reflog_write = php_refdb_backend_object::reflog_write;
     reflog_rename = php_refdb_backend_object::reflog_rename;
     reflog_delete = php_refdb_backend_object::reflog_delete;
-    if (is_method_overridden(obj->ce,"iterator_new",sizeof("iterator_new"))) {
-        if (!is_method_overridden(obj->ce,"iterator_next",sizeof("iterator_next"))) {
+    if (is_method_overridden(obj->ce,"iterator_new",sizeof("iterator_new")-1)) {
+        if (!is_method_overridden(obj->ce,"iterator_next",sizeof("iterator_next")-1)) {
             throw php_git2_error_exception(
                 "Cannot create custom refdb backend: "
                 "must implement iterator_next() with iterator_new()");
@@ -868,16 +870,16 @@ php_refdb_backend_object::git_refdb_backend_php::git_refdb_backend_php(zend_obje
 
         iterator = php_refdb_backend_object::iterator;
     }
-    if (is_method_overridden(obj->ce,"compress",sizeof("compress"))) {
+    if (is_method_overridden(obj->ce,"compress",sizeof("compress")-1)) {
         compress = php_refdb_backend_object::compress;
     }
-    if (is_method_overridden(obj->ce,"lock",sizeof("lock"))) {
+    if (is_method_overridden(obj->ce,"lock",sizeof("lock")-1)) {
         lock = php_refdb_backend_object::lock;
 
         // Require unlock if lock is provided. This seems to be in line with
         // what happens in git2 source code: unlock is not checked but only
         // called when lock is present.
-        if (!is_method_overridden(obj->ce,"unlock",sizeof("unlock"))) {
+        if (!is_method_overridden(obj->ce,"unlock",sizeof("unlock")-1)) {
             throw php_git2_error_exception(
                 "Cannot create custom refdb backend: unlock() must be "
                 "implemented with lock()");
