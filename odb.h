@@ -44,7 +44,7 @@ namespace php_git2
         using target_t = git_odb_writepack**;
 
         php_git_odb_writepack(connect_t& conn):
-            writepack(nullptr), ownerWrapper(conn)
+            writepack(nullptr), cb(nullptr), ownerWrapper(conn)
         {
         }
 

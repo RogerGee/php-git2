@@ -528,9 +528,6 @@ void php_odb_backend_object::unset_backend(zval* obj)
         sizeof("php_odb_backend_object_foreach_internal_callback")-1,
         0
         );
-    closure->func.common.fn_flags |= ZEND_ACC_CLOSURE;
-    closure->func.common.num_args = 2;
-    closure->func.common.required_num_args = 2;
     closure->func.common.scope = php_git2::class_entry[php_git2_closure_obj];
     closure->func.internal_function.handler = ZEND_FN(backend_foreach_callback);
     closure->hasPayload = true;
@@ -539,7 +536,6 @@ void php_odb_backend_object::unset_backend(zval* obj)
     // Call userspace method. NOTE: The payload (i.e. params[1]) will be NULL.
 
     result = method.call(params);
-    zend_string_release(closure->func.common.function_name);
 
     return result;
 }
@@ -584,11 +580,7 @@ void php_odb_backend_object::unset_backend(zval* obj)
     closure->func.common.function_name = zend_string_init(
         "php_odb_backend_object_writepack_internal_callback",
         sizeof("php_odb_backend_object_writepack_internal_callback")-1,
-        0
-        );
-    closure->func.common.fn_flags |= ZEND_ACC_CLOSURE;
-    closure->func.common.num_args = 2;
-    closure->func.common.required_num_args = 2;
+        0);
     closure->func.common.scope = php_git2::class_entry[php_git2_closure_obj];
     closure->func.internal_function.handler = ZEND_FN(backend_transfer_progress_callback);
     closure->hasPayload = true;
@@ -598,7 +590,6 @@ void php_odb_backend_object::unset_backend(zval* obj)
     // Invoke method on odb_backend.
 
     result = method.call(params);
-    zend_string_release(closure->func.common.function_name);
     if (result != GIT_OK) {
         return result;
     }

@@ -46,6 +46,9 @@ php_closure_object::php_closure_object():
 
 php_closure_object::~php_closure_object()
 {
+    if (func.type != 0) {
+        destroy_zend_function(&func);
+    }
     if (payloadDestructor != nullptr) {
         (*payloadDestructor)(payload);
     }

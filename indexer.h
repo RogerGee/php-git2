@@ -36,7 +36,8 @@ namespace php_git2
         friend class php_git_indexer_connector;
         friend indexer_progress_callback_async;
     public:
-        php_git_indexer_with_stats()
+        php_git_indexer_with_stats():
+            cb(nullptr)
         {
             memset(&stats,0,sizeof(git_transfer_progress));
         }
@@ -103,6 +104,7 @@ static constexpr auto ZIF_GIT_INDEXER_NEW = zif_php_git2_function_setdeps<
             php_git2::indexer_progress_callback_async
             >,
         php_git2::connector_wrapper<php_git2::indexer_progress_callback_async>,
+        // Create a php_git_indexer_with_stats instance
         php_git2::php_resource_ref<php_git2::php_git_indexer_with_stats>,
         php_git2::php_string,
         php_git2::php_long,
