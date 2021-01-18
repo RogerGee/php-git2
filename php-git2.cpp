@@ -16,10 +16,11 @@ ZEND_DECLARE_MODULE_GLOBALS(git2)
 static PHP_GINIT_FUNCTION(git2);
 static PHP_GSHUTDOWN_FUNCTION(git2);
 static PHP_MINIT_FUNCTION(git2);
-static PHP_RINIT_FUNCTION(git2);
-static PHP_MINFO_FUNCTION(git2);
 static PHP_MSHUTDOWN_FUNCTION(git2);
+static PHP_MINFO_FUNCTION(git2);
+static PHP_RINIT_FUNCTION(git2);
 static PHP_RSHUTDOWN_FUNCTION(git2);
+static int php_git2_post_deactivate();
 
 // Module entry table.
 zend_module_entry git2_module_entry = {
@@ -35,13 +36,17 @@ zend_module_entry git2_module_entry = {
     PHP_MODULE_GLOBALS(git2),
     PHP_GINIT(git2),
     PHP_GSHUTDOWN(git2),
-    NULL,
+    php_git2_post_deactivate,
     STANDARD_MODULE_PROPERTIES_EX
 };
 
 #ifdef COMPILE_DL_GIT2
 ZEND_GET_MODULE(git2)
 #endif
+
+// Create php.ini settings.
+PHP_INI_BEGIN()
+PHP_INI_END()
 
 // Implementation of internal functions.
 
@@ -56,9 +61,7 @@ PHP_GSHUTDOWN_FUNCTION(git2)
 PHP_MINIT_FUNCTION(git2)
 {
     php_git2_globals_init();
-
-    // Initialize git2 library.
-    git_libgit2_init();
+    REGISTER_INI_ENTRIES();
 
     // Call the function to register all resource types. Whenever a resource
     // type is added, the libgit2 data type name should be added to the list of
@@ -111,9 +114,11 @@ PHP_MINIT_FUNCTION(git2)
     return SUCCESS;
 }
 
-PHP_RINIT_FUNCTION(git2)
+PHP_MSHUTDOWN_FUNCTION(git2)
 {
-    php_git2_globals_request_init();
+#ifndef ZTS
+    php_git2_globals_dtor(&git2_globals);
+#endif
 
     return SUCCESS;
 }
@@ -135,16 +140,12 @@ PHP_MINFO_FUNCTION(git2)
     DISPLAY_INI_ENTRIES();
 }
 
-PHP_MSHUTDOWN_FUNCTION(git2)
+PHP_RINIT_FUNCTION(git2)
 {
-#ifndef ZTS
-    php_git2_globals_dtor(&git2_globals);
-#endif
+    php_git2_globals_request_init();
 
-    // Deinitialize libgit2. At this point, all resources should have been
-    // freed. This means they would call their destructors and all libgit2
-    // memory should be freed.
-    git_libgit2_shutdown();
+    // Initialize git2 library.
+    git_libgit2_init();
 
     return SUCCESS;
 }
@@ -152,6 +153,16 @@ PHP_MSHUTDOWN_FUNCTION(git2)
 PHP_RSHUTDOWN_FUNCTION(git2)
 {
     php_git2_globals_request_shutdown();
+
+    return SUCCESS;
+}
+
+int php_git2_post_deactivate()
+{
+    // Deinitialize libgit2. At this point, all resources should have been
+    // freed. This means they would call their destructors and all libgit2
+    // memory should be freed.
+    git_libgit2_shutdown();
 
     return SUCCESS;
 }
