@@ -754,7 +754,9 @@ git_odb_exists_prefix(resource,string)
 
 git_odb_foreach(resource,callable,mixed)
 
-    Callback signature: void callback(string $oid,mixed $payload)
+    Callback signature: bool callback(string $oid,mixed $payload)
+
+        To stop iteration, the callback should return false.
 
         The callback should throw on error.
 
@@ -2778,9 +2780,8 @@ abstract class GitODBBackend:
             payload as the second parameter to the callback so that a userspace
             payload is routed correctly.
 
-            If the callback returns a non-zero value, the implementation should
-            stop looping. The method should return 0 or the non-zero callback
-            value upon return.
+            If the callback returns FALSE (exactly), then the implementation
+            should stop the iteration.
 
         GitODBWritepack writepack(resource $odb,callable $func,mixed $payload)
 

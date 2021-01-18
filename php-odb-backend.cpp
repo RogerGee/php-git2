@@ -64,7 +64,6 @@ static PHP_EMPTY_METHOD(GitODBBackend,readstream);
 static PHP_EMPTY_METHOD(GitODBBackend,exists);
 static PHP_EMPTY_METHOD(GitODBBackend,exists_prefix);
 static PHP_EMPTY_METHOD(GitODBBackend,refresh);
-static PHP_EMPTY_METHOD(GitODBBackend,for_each);
 static PHP_EMPTY_METHOD(GitODBBackend,writepack);
 
 zend_function_entry php_git2::odb_backend_methods[] = {
@@ -77,7 +76,7 @@ zend_function_entry php_git2::odb_backend_methods[] = {
     PHP_ME(GitODBBackend,exists,NULL,ZEND_ACC_PUBLIC)
     PHP_ME(GitODBBackend,exists_prefix,NULL,ZEND_ACC_PUBLIC)
     PHP_ME(GitODBBackend,refresh,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitODBBackend,for_each,NULL,ZEND_ACC_PUBLIC)
+    PHP_ABSTRACT_ME(GitODBBackend,for_each,NULL)
     PHP_ME(GitODBBackend,writepack,NULL,ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
@@ -669,6 +668,9 @@ git_odb_backend_php::git_odb_backend_php(zend_object* obj)
     // userspace or not).
     free = php_odb_backend_object::free;
 
+    // Include functions that must be implemented by the custom class.
+    foreach = php_odb_backend_object::foreach;
+
     // We now must select which functions we are going to include in the
     // backend. We do this by determining which ones were overloaded.
     if (is_method_overridden(obj->ce,"read",sizeof("read")-1)) {
@@ -697,9 +699,6 @@ git_odb_backend_php::git_odb_backend_php(zend_object* obj)
     }
     if (is_method_overridden(obj->ce,"refresh",sizeof("refresh")-1)) {
         refresh = php_odb_backend_object::refresh;
-    }
-    if (is_method_overridden(obj->ce,"for_each",sizeof("for_each")-1)) {
-        foreach = php_odb_backend_object::foreach;
     }
     if (is_method_overridden(obj->ce,"writepack",sizeof("writepack")-1)) {
         writepack = php_odb_backend_object::writepack;
@@ -885,8 +884,15 @@ ZEND_FUNCTION(backend_foreach_callback)
         // Convert string representation to git2 OID struct.
         php_git2::convert_oid_fromstr(&oid,oidS,oidL);
 
-        // Invoke callback.
+        // Invoke callback. GIT_EUSER value means that the iteration should stop
+        // without an exception. We communicate this to userspace by returning
+        // false.
         result = (*info->callback)(&oid,info->payload);
+
+        if (result == GIT_EUSER) {
+            RETURN_FALSE;
+        }
+
         if (result != GIT_OK) {
             php_git2::git_error(result);
         }

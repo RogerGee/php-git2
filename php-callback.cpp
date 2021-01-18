@@ -216,6 +216,14 @@ odb_foreach_callback::callback(const git_oid* oid,void* payload)
     params.assign<1>(cb->get_payload());
 
     result = params.call(cb->get_value(),&retval);
+
+    if (result == GIT_OK) {
+        // False means stop iteration.
+        if (Z_TYPE(retval) == IS_FALSE) {
+            result = GIT_EUSER;
+        }
+    }
+
     zval_ptr_dtor(&retval);
 
     return result;

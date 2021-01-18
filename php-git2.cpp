@@ -255,15 +255,19 @@ void php_exception_wrapper::throw_error() const
 template<>
 void php_git2::git_error(int code)
 {
+    // Treat EUSER as handled in user space. This will not generate an
+    // exception.
+    if (code == GIT_EUSER) {
+        return;
+    }
+
     // Pull libgit2 exception.
     const ::git_error* err = giterr_last();
     if (err == nullptr) {
         throw php_git2_exception("libgit2 no error");
     }
 
-    // User errors (indicated from userspace callbacks) and internal PHP errors
-    // are passed off as normal exceptions. These generate PHP exceptions.
-    if (code == GIT_EUSER || code == GIT_EPHP) {
+    if (code == GIT_EPHP) {
         php_git2_exception ex("%s",err->message);
         ex.code = code;
         giterr_clear();
@@ -292,7 +296,7 @@ void php_git2::git_error(int code)
     }
 
     // Library errors are passed off as normal exceptions that we annotate as
-    // "libgit2 error". These generate PHP exceptions.
+    // "libgit2 error: (code): message".
     php_git2_exception ex("libgit2 error: (%d): %s",err->klass,err->message);
     ex.code = code;
     giterr_clear();
