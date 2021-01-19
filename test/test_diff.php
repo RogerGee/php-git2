@@ -6,47 +6,47 @@ require_once 'test_base.php';
 
 function diff_notify_callback($diff,array $delta,$matchedPathspec,$payload) {
     echo "---DIFF_NOTIFY---\n";
-    var_dump($diff);
-    var_dump($delta);
-    var_dump($matchedPathspec);
-    var_dump($payload);
+    var_export($diff);
+    var_export($delta);
+    var_export($matchedPathspec);
+    var_export($payload);
 }
 
 function diff_progress_callback($diff,$oldPath,$newPath,$payload) {
     echo "---DIFF_PROGRESS---\n";
-    var_dump($diff);
-    var_dump($oldPath);
-    var_dump($newPath);
-    var_dump($payload);
+    var_export($diff);
+    var_export($oldPath);
+    var_export($newPath);
+    var_export($payload);
 }
 
 function diff_file_callback($delta,$progress,$payload) {
     echo "---DIFF_FILE---\n";
-    var_dump($delta);
-    var_dump($progress);
-    var_dump($payload);
+    var_export($delta);
+    var_export($progress);
+    var_export($payload);
 }
 
 function diff_binary_callback($delta,$binary,$payload) {
     echo "---DIFF_BINARY---\n";
-    var_dump($delta);
-    var_dump($binary);
-    var_dump($payload);
+    var_export($delta);
+    var_export($binary);
+    var_export($payload);
 }
 
 function diff_hunk_callback($delta,$hunk,$payload) {
     echo "---DIFF_HUNK---\n";
-    var_dump($delta);
-    var_dump($hunk);
-    var_dump($payload);
+    var_export($delta);
+    var_export($hunk);
+    var_export($payload);
 }
 
 function diff_line_callback($delta,$hunk,$line,$payload) {
     echo "---DIFF_LINE---\n";
-    var_dump($delta);
-    var_dump($hunk);
-    var_dump($line);
-    var_dump($payload);
+    var_export($delta);
+    var_export($hunk);
+    var_export($line);
+    var_export($payload);
 }
 
 function accumulate_diff_by_line($delta,$hunk,$line,$ctx) {
@@ -135,9 +135,9 @@ function test_from_buffer() {
 
     //git_diff_print($diff,GIT_DIFF_FORMAT_PATCH,$printer,$ctx);
 
-    var_dump(git_diff_get_delta($diff,0));
-    //var_dump(git_diff_get_perfdata($diff)); // This fails due to same bug.
-    var_dump(git_diff_is_sorted_icase($diff));
+    var_export(git_diff_get_delta($diff,0));
+    //var_export(git_diff_get_perfdata($diff)); // This fails due to same bug.
+    var_export(git_diff_is_sorted_icase($diff));
 }
 
 function test_tree() {

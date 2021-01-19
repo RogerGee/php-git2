@@ -21,13 +21,13 @@ function do_clone($path,array $opts) {
 
 function test_clone() {
     $opts1 = array(
-        'base' => true,
+        'bare' => true,
     );
 
     $opts2 = array(
-        'base' => false,
+        'bare' => false,
         'remote_cb' => function($repo,$name,$url,$payload) {
-            testbed_unit('remote_create_cb', [
+            testbed_dump('remote_create_cb', [
                 'repo' => $repo,
                 'name' => $name,
                 'url' => $url,
@@ -44,7 +44,7 @@ function test_clone() {
     $opts3 = array(
         'bare' => true,
         'repository_cb' => function($path,$bare,$payload) {
-            testbed_unit('repository_create_cb', [
+            testbed_dump('repository_create_cb', [
                 'path' => $path,
                 'bare' => $bare,
                 'payload' => $payload,
@@ -54,8 +54,8 @@ function test_clone() {
             $odb = git_odb_new();
 
             $store = new PHPSQLiteStore("$path/odb.sqlite3",true);
-
             $backend = new PHPSQLiteODB($store);
+
             git_odb_add_backend($odb,$backend,1);
             git_repository_set_odb($repo,$odb);
 
@@ -73,6 +73,7 @@ function test_clone() {
 
     do_clone("$basePath/php-git2-1",$opts1);
     do_clone("$basePath/php-git2-2",$opts2);
+    do_clone("$basePath/php-git2-3",$opts3);
 }
 
 testbed_test('Cloning\test_clone','\Git2Test\Cloning\test_clone');

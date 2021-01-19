@@ -13,8 +13,8 @@ function test_builtin() {
     $backend = git_refdb_backend_fs($repo);
 
     $ref = $backend->lookup('refs/heads/test/testbed');
-    testbed_unit('lookup.name',git_reference_name($ref));
-    testbed_unit('lookup.oid',git_reference_target($ref));
+    testbed_dump('lookup.name',git_reference_name($ref));
+    testbed_dump('lookup.oid',git_reference_target($ref));
 }
 
 function test_compress() {
@@ -63,8 +63,8 @@ function test_custom() {
         $ref = git_reference_create($repo,"refs/test/r$i",$commitId,true,"");
 
         testbed_do_once('refdb/custom',function() use ($ref) {
-            testbed_unit('created ref name',git_reference_name($ref));
-            testbed_unit('created ref target',git_reference_target($ref));
+            testbed_dump('created ref name',git_reference_name($ref));
+            testbed_dump('created ref target',git_reference_target($ref));
         });
     }
 
@@ -73,7 +73,7 @@ function test_custom() {
         'name' => git_reference_name($ref),
         'target' => git_reference_target($ref),
     ];
-    testbed_unit('custom lookup',$result);
+    testbed_dump('custom lookup',$result);
 }
 
 function test_custom_iteration() {
@@ -95,7 +95,7 @@ function test_custom_iteration() {
         $name = git_reference_name($ref);
         $target = git_reference_target($ref);
 
-        testbed_unit('callback ref',"$name => $target");
+        testbed_dump('callback ref',"$name => $target");
     };
 
     git_reference_foreach($repo,$callback,null);

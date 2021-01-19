@@ -58,7 +58,7 @@ function test_read_stream() {
         $oid = '69d56efa8f56450c00041bd523dd19b24e7a39ec';
         $stream = git_odb_open_rstream($odb,$oid);
     } catch (\Exception $ex) {
-        testbed_unit('Exception',$ex->getMessage());
+        testbed_dump('Exception',$ex->getMessage());
     }
 }
 
@@ -68,17 +68,18 @@ function test_write_stream() {
     $odb = git_repository_odb($repo);
 
     $stream = git_odb_open_wstream($odb,120,GIT_OBJ_BLOB);
-    testbed_unit('stream->mode',$stream->mode);
-    testbed_unit('stream->declared_size',$stream->declared_size);
-    testbed_unit('stream->received_bytes',$stream->received_bytes);
+    testbed_dump('stream',$stream);
+    testbed_dump('stream->mode',$stream->mode);
+    testbed_dump('stream->declared_size',$stream->declared_size);
+    testbed_dump('stream->received_bytes',$stream->received_bytes);
 
     // NOTE: We apparently have to use the high-level function in this case.
     git_odb_stream_write($stream,str_repeat('roger',24));
 
-    testbed_unit('stream->received_bytes',$stream->received_bytes);
+    testbed_dump('stream->received_bytes',$stream->received_bytes);
 
     $oid = git_odb_stream_finalize_write($stream);
-    testbed_unit('result',$oid);
+    testbed_dump('result',$oid);
 }
 
 function test_stream_lifetime() {
@@ -87,24 +88,55 @@ function test_stream_lifetime() {
         $repo = git_repository_open($repoPath);
         $odb = git_repository_odb($repo);
 
-        testbed_unit('odb:before',$odb);
+        testbed_dump('odb:before',$odb);
 
         $stream = git_odb_open_wstream($odb,120,GIT_OBJ_BLOB);
         git_odb_free($odb);
 
-        testbed_unit('odb:before:free',$odb);
+        testbed_dump('odb:after',$odb);
 
         return $stream;
     };
 
     $stream = $lambda();
 
-    testbed_unit('odb:after',$stream->backend->odb);
+    testbed_dump('stream',$stream);
+    testbed_dump('stream:backend',$stream->backend);
+    testbed_dump('stream:backend:odb',$stream->backend->odb);
 
     git_odb_stream_write($stream,str_repeat('aaaaa',24));
     $oid = git_odb_stream_finalize_write($stream);
 
-    testbed_unit('result',$oid);
+    testbed_dump('result',$oid);
+}
+
+function test_foreach() {
+    $repoPath = testbed_get_repo_path();
+    $repo = git_repository_open($repoPath);
+    $odb = git_repository_odb($repo);
+
+    $iters = 0;
+    $lambda = function($oid,$payload) use (&$iters) {
+        $iters += 1;
+    };
+
+    git_odb_foreach($odb,$lambda,new \stdClass);
+    testbed_dump('iterations',$iters);
+}
+
+function test_foreach_break() {
+    $repoPath = testbed_get_repo_path();
+    $repo = git_repository_open($repoPath);
+    $odb = git_repository_odb($repo);
+
+    $iters = 0;
+    $lambda = function($oid,$payload) use (&$iters) {
+        $iters += 1;
+        return false;
+    };
+
+    git_odb_foreach($odb,$lambda,new \stdClass);
+    testbed_dump('iterations',$iters);
 }
 
 testbed_test('ODB/Read Header','Git2Test\ODB\test_read_header');
@@ -113,3 +145,5 @@ testbed_test('ODB/Exists Prefix','Git2Test\ODB\test_exists_prefix');
 testbed_test('ODB/Read Stream','Git2Test\ODB\test_read_stream');
 testbed_test('ODB/Write Stream','Git2Test\ODB\test_write_stream');
 testbed_test('ODB/Stream Lifetime','Git2Test\ODB\test_stream_lifetime');
+testbed_test('ODB/Foreach','Git2Test\ODB\test_foreach');
+testbed_test('ODB/Foreach Break','Git2Test\ODB\test_foreach_break');

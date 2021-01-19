@@ -189,7 +189,7 @@ function test_callback_error_handling() {
 
         var_dump($id);
     } catch (\Exception $ex) {
-        testbed_unit('Caught exception',$ex);
+        testbed_dump('Caught exception',$ex);
     }
 }
 

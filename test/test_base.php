@@ -38,6 +38,11 @@ function testbed_path($suffix,$ensure = false) {
     return $path;
 }
 
+function testbed_path_mangle($suffix,$ensure = false) {
+    $suffix .= mt_rand();
+    return testbed_path($suffix,$ensure);
+}
+
 function testbed_create_clone_remote($repo,$name,$url,$payload) {
     $fetchspec = '+refs/heads/test/*:refs/remotes/origin/test/*';
     $remote = git_remote_create_with_fetchspec(
@@ -92,7 +97,7 @@ define('COLOR_RED',31);
 define('COLOR_GREEN',32);
 define('COLOR_YELLOW',33);
 define('COLOR_BLUE',34);
-function color_echo($message,$color = COLOR_BLUE,$prefix = 'git2: test: ') {
+function color_echo($message,$color = COLOR_BLUE,$prefix = '') {
     static $hasTerminal = null;
 
     if (is_null($hasTerminal)) {
@@ -112,7 +117,12 @@ function color_echo($message,$color = COLOR_BLUE,$prefix = 'git2: test: ') {
     }
 }
 
-function testbed_unit($section,$mixed) {
+function testbed_message($format,...$values) {
+    $message = '  ' . sprintf($format,...$values) . PHP_EOL;
+    color_echo("$message",COLOR_GREEN);
+}
+
+function testbed_dump($section,$mixed) {
     $tab = '  ';
     color_echo("$section",COLOR_GREEN,"{$tab}unit: ");
     $tab = "$tab$tab";
@@ -143,17 +153,18 @@ function testbed_unit($section,$mixed) {
     }
     else {
         $id = intval($mixed);
-        $text = 'Resource of type "' . get_resource_type($mixed) . '"' . " (ID=$id)" . PHP_EOL;
+        $text = 'Resource of type "' . get_resource_type($mixed) . '"'
+              . " (ID=$id)" . PHP_EOL;
     }
 
     echo "$tab => ";
-    $lines = explode("\n",$text);
+    $lines = explode("\n",trim($text));
     if (count($lines) == 1) {
         echo $lines[0] . PHP_EOL;
     }
     else {
-        echo PHP_EOL;
-        for ($i = 0;$i < count($lines);++$i) {
+        echo $lines[0] . PHP_EOL;
+        for ($i = 1;$i < count($lines);++$i) {
             echo "$tab$tab" . $lines[$i] . PHP_EOL;
         }
     }
@@ -170,16 +181,25 @@ function testbed_modify_file($repo,$path) {
 }
 
 function testbed_test($title,callable $lambda) {
-    color_echo("task '$title': started");
+    color_echo("task '$title': started",COLOR_BLUE,'php-git2: test: ');
 
     try {
         $ret = $lambda();
     } catch (Exception $ex) {
-        $error = 'An exception was thrown with message: ' . $ex->getMessage();
+        $error = '    An exception was thrown with message: ' . $ex->getMessage() . "\n";
+        $trace = $ex->getTraceAsString();
+        $error .= implode(
+            "\n",
+            array_map(
+                function($line){ return "    $line"; },
+                explode("\n",$trace
+                )
+            )
+        );
     }
 
     if (isset($error)) {
-        color_echo("task '$title': failed\n    $error",COLOR_RED);
+        color_echo("task '$title': failed\n$error",COLOR_RED);
         exit(1);
     }
     else {
@@ -214,4 +234,12 @@ function testbed_remove_recursive($path) {
 
         rmdir($path);
     }
+}
+
+function testbed_store($key,$value) {
+    $GLOBALS['php-git2']['testbed'][$key] = $value;
+}
+
+function testbed_store_get($key) {
+    return $GLOBALS['php-git2']['testbed'][$key];
 }

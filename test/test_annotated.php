@@ -10,7 +10,7 @@ function test_create() {
     $ref = git_repository_head($repo);
     $annotated = git_annotated_commit_from_ref($repo,$ref);
 
-    var_dump(git_annotated_commit_id($annotated));
+    testbed_dump('create:id',git_annotated_commit_id($annotated));
     git_annotated_commit_free($annotated);
 }
 
@@ -20,8 +20,8 @@ function test_lookup() {
     $id = git_reference_target($ref);
 
     $annotated = git_annotated_commit_lookup($repo,$id);
-    var_dump($annotated);
-    var_dump(git_annotated_commit_id($annotated));
+    testbed_dump('lookup',$annotated);
+    testbed_dump('lookup:id',git_annotated_commit_id($annotated));
 }
 
 testbed_test('Annotated/create','Git2Test\Annotated\test_create');

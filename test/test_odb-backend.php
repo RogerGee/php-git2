@@ -83,7 +83,7 @@ function test_foreach() {
 
     $callback = function($oid,$payload){
         static $n = 1;
-        echo "$oid ($payload $n)\n";
+        echo "$oid ($payload$n)\n";
         $n += 1;
     };
 
@@ -107,12 +107,13 @@ function test_writepack() {
         . '348cdc9c9d75128cf2fca4951e4020024f20494afed7ccfb9056fe89ef493d1983c26'
         . 'd10f291f39';
 
-    testbed_unit('writepack',$wp);
-    testbed_unit('writepack->backend->version',$wp->backend->version);
-    testbed_unit('writepack->progress (before)',$wp->progress);
-    testbed_unit('writepack->append()',$wp->append(hex2bin($pack)));
-    testbed_unit('writepack->commit()',$wp->commit());
-    testbed_unit('writeback->progress (after)',$wp->progress);
+    testbed_dump('writepack',$wp);
+    return;
+    testbed_dump('writepack->backend->version',$wp->backend->version);
+    testbed_dump('writepack->progress (before)',$wp->progress);
+    testbed_dump('writepack->append()',$wp->append(hex2bin($pack)));
+    testbed_dump('writepack->commit()',$wp->commit());
+    testbed_dump('writeback->progress (after)',$wp->progress);
 }
 
 function test_writepack2() {
@@ -137,11 +138,11 @@ function test_writepack2() {
         . 'd10f291f39';
 
     // These should be the same object.
-    testbed_unit('backend (original)',$backend);
-    testbed_unit('backend (from writepack)',$wp->backend);
+    testbed_dump('backend (original)',$backend);
+    testbed_dump('backend (from writepack)',$wp->backend);
 
-    testbed_unit('wp->append()',$wp->append(hex2bin($pack)));
-    testbed_unit('wp->commit()',$wp->commit());
+    testbed_dump('wp->append()',$wp->append(hex2bin($pack)));
+    testbed_dump('wp->commit()',$wp->commit());
 }
 
 function make_backend_for_lifetime_test() {
@@ -149,20 +150,20 @@ function make_backend_for_lifetime_test() {
     $repo = git_repository_open($path);
     $odb = git_repository_odb($repo);
 
-    testbed_unit('odb:before',$odb);
+    testbed_dump('odb:before',$odb);
 
     $backend = git_odb_get_backend($odb,0);
 
     git_odb_free($odb);
-    testbed_unit('odb:before:free)',$odb);
+    testbed_dump('odb:before:free)',$odb);
 
     return $backend;
 }
 
 function test_lifetime() {
     $backend = make_backend_for_lifetime_test();
-    testbed_unit('backend',$backend);
-    testbed_unit('backend:odb:after',$backend->odb);
+    testbed_dump('backend',$backend);
+    testbed_dump('backend:odb:after',$backend->odb);
 }
 
 testbed_test('ODB Backend read object','Git2Test\ODBBackend\test_read');

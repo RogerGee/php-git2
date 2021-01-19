@@ -10,28 +10,26 @@ function test_create() {
     $commit = git_commit_lookup($repo,git_reference_target($ref));
 
     $newbranch = git_branch_create($repo,"life-and-limb",$commit,true);
-    var_dump($newbranch);
-    var_dump(git_branch_is_head($newbranch));
+    testbed_dump('create',$newbranch);
+    testbed_dump('create:is_head',git_branch_is_head($newbranch));
 
     $delete = git_branch_create($repo,"delete-me",$commit,true);
-    var_dump($delete);
-    $cpy = $delete;
+    testbed_dump('create:delete-me:before',$delete);
     git_branch_delete($delete);
-    var_dump($delete);
-    var_dump($cpy);
+    testbed_dump('create:delete-me:after',$delete);
 }
 
 function test_lookup() {
     $repo = git_repository_open_bare(testbed_get_repo_path());
     $branch = git_branch_lookup($repo,"life-and-limb",GIT_BRANCH_ALL);
-    var_dump($branch);
+    testbed_dump('lookup',$branch);
 
-    var_dump(git_branch_is_head($branch));
-    var_dump(git_branch_name($branch));
+    testbed_dump('lookup:is_head',git_branch_is_head($branch));
+    testbed_dump('lookup:name',git_branch_name($branch));
 
     $cpy = git_branch_move($branch,"life-and-limb-born-again",true);
-    var_dump($cpy);
-    var_dump(git_branch_name($cpy));
+    testbed_dump('lookup:moved',$cpy);
+    testbed_dump('lookup:moved:name',git_branch_name($cpy));
 }
 
 function test_iterate() {
@@ -44,9 +42,9 @@ function test_iterate() {
             break;
         }
 
-        var_dump($type);
-        var_dump($branch);
-        var_dump(git_branch_name($branch));
+        testbed_dump('iterate:type',$type);
+        testbed_dump('iterate:branch',$branch);
+        testbed_dump('iterate:branch:name',git_branch_name($branch));
     }
 }
 
@@ -56,22 +54,22 @@ function test_upstream() {
 
     // Test looking up initial upstream (i.e. tracking branch). It should be
     // empty (i.e. return FALSE).
-    var_dump(git_branch_upstream($branch));
+    testbed_dump('upstream',git_branch_upstream($branch));
     $name = git_branch_upstream_name($repo,"refs/heads/test/testbed");
-    var_dump($name);
+    testbed_dump('upstream:name',$name);
 
     // Apply tracking branch and print to verify.
     git_branch_set_upstream($branch,"origin/test/testbed");
     $name = git_branch_upstream_name($repo,"refs/heads/test/testbed");
-    var_dump($name);
+    testbed_dump('upstream:set:name',$name);
     $name = git_branch_upstream_remote($repo,"refs/heads/test/testbed");
-    var_dump($name);
+    testbed_dump('upstream:remote:name',$name);
 
     // Unset remote tracking and print to verify.
     git_branch_set_upstream($branch,null);
-    var_dump(git_branch_upstream($branch));
+    testbed_dump('upstream:set:null',git_branch_upstream($branch));
     $name = git_branch_upstream_name($repo,"refs/heads/test/testbed");
-    var_dump($name);
+    testbed_dump('upstream:set:null:restore',$name);
 }
 
 testbed_test('Branch/create','Git2Test\Branch\test_create');

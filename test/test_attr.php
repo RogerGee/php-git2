@@ -5,8 +5,8 @@ namespace Git2Test\Attr;
 require_once 'test_base.php';
 
 function test_misc() {
-    testbed_unit('git_attr_value(asdf)',git_attr_value('asdf'));
-    testbed_unit('git_attr_value(eol)',git_attr_value('eol'));
+    testbed_dump('git_attr_value(asdf)',git_attr_value('asdf'));
+    testbed_dump('git_attr_value(eol)',git_attr_value('eol'));
 }
 
 function test_repo() {
@@ -19,7 +19,7 @@ function test_repo() {
     };
     git_attr_foreach($repo,GIT_ATTR_CHECK_FILE_THEN_INDEX,'php-git2.cpp',$lambda,33);
 
-    testbed_unit('git_attr_get()',git_attr_get($repo,
+    testbed_dump('git_attr_get()',git_attr_get($repo,
                                                GIT_ATTR_CHECK_FILE_THEN_INDEX,
                                                'php-git2.cpp',
                                                'eol'));

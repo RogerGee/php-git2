@@ -5,20 +5,19 @@ namespace Git2Test\Indexer;
 require_once 'test_base.php';
 
 function make_pack($repo,$path) {
-    if (!is_file($path)) {
-        $build = git_packbuilder_new($repo);
+    $builder = git_packbuilder_new($repo);
 
-        $commits[] = 'b12e60c8e3701d11fe78c27d67fa4343619d067b';
-        $commits[] = '4cc0ee059fc5c949c3715bd0fca5357acff2323a';
-        $commits[] = 'd129836a41a15fce409debb36c0d2a5503070b17';
+    $commits[] = 'b12e60c8e3701d11fe78c27d67fa4343619d067b';
+    $commits[] = '4cc0ee059fc5c949c3715bd0fca5357acff2323a';
+    $commits[] = 'd129836a41a15fce409debb36c0d2a5503070b17';
 
-        foreach ($commits as $oid) {
-            git_packbuilder_insert_commit($build,$oid);
-        }
-
-        $pack = fopen($path,'w');
-        git_packbuilder_foreach($build,null,$pack);
+    foreach ($commits as $oid) {
+        git_packbuilder_insert_commit($builder,$oid);
     }
+
+    $pack = fopen($path,'w');
+    git_packbuilder_foreach($builder,null,$pack);
+    fclose($pack);
 
     return fopen($path,'r');
 }
@@ -31,7 +30,7 @@ function test_general() {
 
     $indexerPath = testbed_path('indexer-storage',true);
     $progressfn = function($stats,$payload) {
-        testbed_unit('transfer_progress_callback',[
+        testbed_dump('transfer_progress_callback',[
             'stats' => $stats,
             'payload' => $payload,
         ]);
@@ -50,8 +49,8 @@ function test_general() {
 
     git_indexer_commit($indexer);
 
-    testbed_unit('hash',git_indexer_hash($indexer));
-    testbed_unit('stats',git2_indexer_stats($indexer));
+    testbed_dump('hash',git_indexer_hash($indexer));
+    testbed_dump('stats',git2_indexer_stats($indexer));
 
     git_indexer_free($indexer);
 }
@@ -77,8 +76,8 @@ function test_null_callback() {
 
     git_indexer_commit($indexer);
 
-    testbed_unit('hash',git_indexer_hash($indexer));
-    testbed_unit('stats',git2_indexer_stats($indexer));
+    testbed_dump('hash',git_indexer_hash($indexer));
+    testbed_dump('stats',git2_indexer_stats($indexer));
 
     git_indexer_free($indexer);
 }

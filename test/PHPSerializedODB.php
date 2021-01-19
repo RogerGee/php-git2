@@ -49,7 +49,9 @@ class PHPSerializedODB extends GitODBBackend {
 
     public function for_each($callback,$payload) {
         foreach (array_keys($this->vars) as $oid) {
-            $callback($oid,$payload);
+            if ($callback($oid,$payload) === false) {
+                break;
+            }
         }
     }
 }

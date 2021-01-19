@@ -45,14 +45,14 @@ function test_free() {
 
     $ref = $lambda();
 
-    testbed_unit('ref-name',git_reference_name($ref));
-    testbed_unit('ref-shorthand',git_reference_shorthand($ref));
+    testbed_dump('ref-name',git_reference_name($ref));
+    testbed_dump('ref-shorthand',git_reference_shorthand($ref));
 }
 
 function test_misc() {
     $repo = git_repository_open_bare(testbed_get_repo_path());
 
-    $ref = git_reference__alloc('name',str_repeat('0',40),null);
+    $nullRef = git_reference__alloc('name',str_repeat('0',40),null);
 
     $ref = git_reference_lookup($repo,'refs/heads/test/testbed');
     $cpy = git_reference_resolve($ref);

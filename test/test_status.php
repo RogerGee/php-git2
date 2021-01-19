@@ -9,15 +9,15 @@ function test_status() {
     $index = git_repository_index($repo);
 
     $entry = git_index_get_bypath($index,'README',0);
-    testbed_unit('Modifying Entry',$entry);
+    testbed_dump('Modifying Entry',$entry);
 
     $status = git_status_file($repo,$entry['path']);
-    testbed_unit('Status Before',$status);
+    testbed_dump('Status Before',$status);
 
     testbed_modify_file($repo,$entry['path']);
 
     $status = git_status_file($repo,$entry['path']);
-    testbed_unit('Status After',$status);
+    testbed_dump('Status After',$status);
 
     $opts = array(
         'checkout_strategy' => GIT_CHECKOUT_FORCE,
@@ -33,10 +33,10 @@ function test_foreach() {
     testbed_modify_file($repo,'php-git2.cpp');
 
     $lambda = function($path,$flags,$payload) {
-        testbed_unit('path',$path);
-        testbed_unit('flags',$flags);
+        testbed_dump('path',$path);
+        testbed_dump('flags',$flags);
         testbed_do_once('test_status_payload',function() use ($payload) {
-            testbed_unit('payload',$payload);
+            testbed_dump('payload',$payload);
         });
     };
 
