@@ -3,7 +3,7 @@
 #
 
 PHP_ARG_WITH(git2, Whether to include "git2" support,
-    [  --with-git2 [=DIR]        Include "git2" extension support; DIR is the install
+    [  --with-git2[=DIR]         Include "git2" extension support; DIR is the install
                           prefix for the libgit2 library])
 
 PHP_ARG_WITH(git2-static, Whether to include "git2" support (static libraries),
@@ -38,7 +38,7 @@ if test "$PHP_GIT2" != "no"; then
         AC_MSG_RESULT([yes])
 
         PHP_ADD_INCLUDE($GIT2_LIBGIT2_DIR/include)
-        LDFLAGS+="$GIT2_LIBGIT2_DIR/lib/libgit2.a"
+        LDFLAGS="$GIT2_LIBGIT2_DIR/lib/libgit2.a $LDFLAGS"
     else
         # Find shared library and add to build.
         PHP_CHECK_LIBRARY(git2,git_libgit2_version,
