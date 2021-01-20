@@ -1,7 +1,7 @@
 /*
  * tree.h
  *
- * This file is a part of php-git2.
+ * Copyright (C) Roger P. Gee
  */
 
 #ifndef PHPGIT2_TREE_H
@@ -23,15 +23,9 @@ namespace php_git2
 
     // Provide rethandler for returning git_tree_entry.
     template<typename... Ts>
-    class php_git_tree_entry_rethandler:
-        private php_zts_base
+    class php_git_tree_entry_rethandler
     {
     public:
-        php_git_tree_entry_rethandler(TSRMLS_D):
-            php_zts_base(TSRMLS_C)
-        {
-        }
-
         bool ret(const git_tree_entry* retval,zval* return_value,local_pack<Ts...>& pack)
         {
             // The functions that target this return handler return NULL if the
@@ -43,7 +37,7 @@ namespace php_git2
             }
 
             auto&& tree = pack.template get<0>();
-            const php_resource_ref<php_git_tree_entry_nofree> entry ZTS_CTOR;
+            const php_resource_ref<php_git_tree_entry_nofree> entry;
 
             // Set return value. This will create a resource for the new
             // git_tree_entry handle.
@@ -56,7 +50,8 @@ namespace php_git2
             return true;
         }
     };
-}
+
+} // namespace php_git2
 
 // Template declarations for bindings:
 
@@ -92,8 +87,7 @@ static constexpr auto ZIF_GIT_TREE_LOOKUP = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_TREE_LOOKUP_PREFIX = zif_php_git2_function_setdeps<
@@ -114,8 +108,7 @@ static constexpr auto ZIF_GIT_TREE_LOOKUP_PREFIX = zif_php_git2_function_setdeps
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,3>,
-    php_git2::sequence<0,1,3,2>,
-    php_git2::sequence<0,0,1,0>
+    php_git2::sequence<0,1,3,2>
     >;
 
 static constexpr auto ZIF_GIT_TREE_OWNER = zif_php_git2_function_rethandler<
@@ -128,7 +121,6 @@ static constexpr auto ZIF_GIT_TREE_OWNER = zif_php_git2_function_rethandler<
         php_git2::php_resource_ref<php_git2::php_git_repository_nofree>
         >,
     php_git2::php_owner_rethandler<php_git2::php_git_tree>,
-    php_git2::sequence<0>,
     php_git2::sequence<0>,
     php_git2::sequence<0>
     >;
@@ -146,8 +138,7 @@ static constexpr auto ZIF_GIT_TREE_DUP = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_TREE_ENTRYCOUNT = zif_php_git2_function<
@@ -226,8 +217,7 @@ static constexpr auto ZIF_GIT_TREE_ENTRY_BYPATH = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_TREE_ENTRY_DUP = zif_php_git2_function_setdeps<
@@ -242,8 +232,7 @@ static constexpr auto ZIF_GIT_TREE_ENTRY_DUP = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_TREE_ENTRY_FILEMODE = zif_php_git2_function<
@@ -290,8 +279,7 @@ static constexpr auto ZIF_GIT_TREE_ENTRY_TO_OBJECT = zif_php_git2_function_setde
     php_git2::sequence<0,1>, // set dependency to repository, not tree_entry
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_TREE_ENTRY_CMP = zif_php_git2_function<
@@ -341,8 +329,7 @@ static constexpr auto ZIF_GIT_TREE_WALK = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<0,1,3,3>, // pass callback in twice for callable and payload
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,1,0,2>
+    php_git2::sequence<0,1,2,3>
     >;
 
 // PHP function entry macro for this module:

@@ -1,7 +1,7 @@
 /*
  * diff.h
  *
- * This file is a part of php-git2.
+ * Copyright (C) Roger P. Gee
  */
 
 #ifndef PHPGIT2_DIFF_H
@@ -23,17 +23,12 @@ namespace php_git2
     // Define type to wrap git_diff_options.
 
     class php_git_diff_options:
-        public php_value_base
+        public php_option_array
     {
     public:
-        php_git_diff_options(TSRMLS_D):
-            callbacks(TSRMLS_C), strarray(TSRMLS_C)
+        const git_diff_options* byval_git2()
         {
-        }
-
-        const git_diff_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
-        {
-            if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
+            if (!is_null()) {
                 array_wrapper arr(value);
                 git_diff_init_options(&opts,GIT_DIFF_OPTIONS_VERSION);
 
@@ -62,18 +57,11 @@ namespace php_git2
                     payload,
                     opts);
 
-                // Force payload to be pair of callbacks and check callable zval
-                // type.
+                // Force payload to be pair of callbacks.
                 if (opts.notify_cb != nullptr) {
-                    if (!callbacks.notifyCallback.is_callable()) {
-                        error_custom("Element 'notify_cb' must be a callable",argno);
-                    }
                     opts.payload = reinterpret_cast<void*>(&callbacks);
                 }
                 if (opts.progress_cb != nullptr) {
-                    if (!callbacks.progressCallback.is_callable()) {
-                        error_custom("Element 'progress_cb' must be a callable",argno);
-                    }
                     opts.payload = reinterpret_cast<void*>(&callbacks);
                 }
 
@@ -92,14 +80,12 @@ namespace php_git2
     // Define type to wrap git_diff_find_options.
 
     class php_git_diff_find_options:
-        public php_value_base
+        public php_option_array
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_diff_find_options)
-
-        const git_diff_find_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        const git_diff_find_options* byval_git2()
         {
-            if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
+            if (!is_null()) {
                 array_wrapper arr(value);
                 git_diff_find_init_options(&opts,GIT_DIFF_FIND_OPTIONS_VERSION);
 
@@ -124,212 +110,151 @@ namespace php_git2
         git_diff_find_options opts;
     };
 
-    // Define types for grabbing callback functions. All callbacks target the
-    // same git_diff_callback_info object which is obtained by chaining
-    // connectors through a local pack. The types are specialized for each
-    // callback. Each object is also used to obtain the underlying
-    // ptr-to-function for each callback if a valid PHP callback was obtained.
-
-    template<typename ConnectType,typename CallbackType>
-    class php_git_diff_callback_base
+    class php_git_diff_callback_payload:
+        public php_value_generic
     {
     public:
-        typedef ConnectType connect_t;
+        php_git_diff_callback_payload():
+            info(get_value())
+        {
+        }
+
+        void* byval_git2()
+        {
+            return reinterpret_cast<void*>(&info);
+        }
+
+        git_diff_callback_info& get_info()
+        {
+            return info;
+        }
+
+    private:
+        git_diff_callback_info info;
+    };
+
+    // Define types for grabbing callback functions. All callbacks target the
+    // same git_diff_callback_info object which is obtained via connectors. The
+    // types are specialized for each callback. Each object is also used to
+    // obtain the underlying ptr-to-function for each callback if a valid PHP
+    // callback was obtained.
+
+    template<typename CallbackType>
+    class php_git_diff_callback_base:
+        public php_callback_sync_nullable
+    {
+    public:
+        typedef php_git_diff_callback_payload connect_t;
         typedef typename CallbackType::type target_t;
 
-        php_git_diff_callback_base(git_diff_callback_info& obj TSRMLS_DC):
-           info(obj)
+        php_git_diff_callback_base(php_git_diff_callback_payload& obj):
+           info(obj.get_info())
         {
         }
 
-        operator git_diff_callback_info&()
+        typename CallbackType::type byval_git2()
         {
-            return this->info;
-        }
-
-    protected:
-        target_t get_cfunc(unsigned argno,const php_callback_base& cb)
-        {
-            if (cb.is_null()) {
+            if (is_null()) {
                 return nullptr;
-            }
-
-            if (!cb.is_callable()) {
-                php_value_base::error("callable",argno);
             }
 
             return CallbackType::callback;
         }
 
+    protected:
         git_diff_callback_info& info;
     };
 
-    template<typename ConnectType,typename CallbackType>
-    class php_git_diff_callback : public php_git_diff_callback_base<ConnectType,CallbackType> {};
+    template<typename CallbackType>
+    class php_git_diff_callback:
+        public php_git_diff_callback_base<CallbackType>
+    {
+    };
 
-    template<typename ConnectType>
-    class php_git_diff_callback<ConnectType,diff_file_callback>:
-        public php_git_diff_callback_base<ConnectType,diff_file_callback>
+    template<>
+    class php_git_diff_callback<diff_file_callback>:
+        public php_git_diff_callback_base<diff_file_callback>
     {
     public:
-        using my_base = php_git_diff_callback_base<ConnectType,diff_file_callback>;
-        using typename my_base::connect_t;
-        using typename my_base::target_t;
+        using base_t = php_git_diff_callback_base<diff_file_callback>;
+        using typename base_t::connect_t;
+        using typename base_t::target_t;
 
-        using my_base::my_base;
-
-        zval** byref_php(unsigned pos)
+        php_git_diff_callback(php_git_diff_callback_payload& obj):
+           base_t(obj)
         {
-            return &this->info.fileCallback.func;
-        }
-
-        target_t byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
-        {
-            return this->get_cfunc(argno,this->info.fileCallback);
+            info.fileCallback = this;
         }
     };
 
-    template<typename ConnectType>
-    class php_git_diff_callback<ConnectType,diff_binary_callback>:
-        public php_git_diff_callback_base<ConnectType,diff_binary_callback>
+    template<>
+    class php_git_diff_callback<diff_binary_callback>:
+        public php_git_diff_callback_base<diff_binary_callback>
     {
+        using base_t = php_git_diff_callback_base<diff_binary_callback>;
     public:
-        using my_base = php_git_diff_callback_base<ConnectType,diff_binary_callback>;
-        using typename my_base::connect_t;
-        using typename my_base::target_t;
+        using typename base_t::connect_t;
+        using typename base_t::target_t;
 
-        using my_base::my_base;
-
-        zval** byref_php(unsigned pos)
+        php_git_diff_callback(php_git_diff_callback_payload& obj):
+           base_t(obj)
         {
-            return &this->info.binaryCallback.func;
-        }
-
-        target_t byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
-        {
-            return this->get_cfunc(argno,this->info.binaryCallback);
+            info.binaryCallback = this;
         }
     };
 
-    template<typename ConnectType>
-    class php_git_diff_callback<ConnectType,diff_hunk_callback>:
-        public php_git_diff_callback_base<ConnectType,diff_hunk_callback>
+    template<>
+    class php_git_diff_callback<diff_hunk_callback>:
+        public php_git_diff_callback_base<diff_hunk_callback>
     {
+        using base_t = php_git_diff_callback_base<diff_hunk_callback>;
     public:
-        using my_base = php_git_diff_callback_base<ConnectType,diff_hunk_callback>;
-        using typename my_base::connect_t;
-        using typename my_base::target_t;
+        using typename base_t::connect_t;
+        using typename base_t::target_t;
 
-        using my_base::my_base;
-
-        zval** byref_php(unsigned pos)
+        php_git_diff_callback(php_git_diff_callback_payload& obj):
+           base_t(obj)
         {
-            return &this->info.hunkCallback.func;
-        }
-
-        target_t byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
-        {
-            return this->get_cfunc(argno,this->info.hunkCallback);
+            info.hunkCallback = this;
         }
     };
 
-    template<typename ConnectType>
-    class php_git_diff_callback<ConnectType,diff_line_callback>:
-        public php_git_diff_callback_base<ConnectType,diff_line_callback>
+    template<>
+    class php_git_diff_callback<diff_line_callback>:
+        public php_git_diff_callback_base<diff_line_callback>
     {
     public:
-        using my_base = php_git_diff_callback_base<ConnectType,diff_line_callback>;
-        using typename my_base::connect_t;
-        using typename my_base::target_t;
+        using base_t = php_git_diff_callback_base<diff_line_callback>;
+        using typename base_t::connect_t;
+        using typename base_t::target_t;
 
-        using my_base::my_base;
-
-        zval** byref_php(unsigned pos)
+        php_git_diff_callback(php_git_diff_callback_payload& obj):
+           base_t(obj)
         {
-            return &this->info.lineCallback.func;
-        }
-
-        target_t byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
-        {
-            return this->get_cfunc(argno,this->info.lineCallback);
+            info.lineCallback = this;
         }
     };
 
-    class php_git_diff_callback_payload
-    {
-    public:
-        php_git_diff_callback_payload(TSRMLS_D):
-            info(TSRMLS_C)
-        {
-        }
+    // Enumerate connector types for the git_diff callback specializations. The
+    // callbacks always have the same parameter order, so we can parameterize
+    // the connector pack offsets here.
 
-        zval** byref_php(unsigned pos)
-        {
-            return &info.zpayload;
-        }
+    using diff_line_callback_info = php_git_diff_callback<diff_line_callback>;
+    using diff_line_callback_connector = connector_wrapper<diff_line_callback_info,1>;
 
-        void* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
-        {
-            // Check types of all callbacks. All callbacks are allowed to be
-            // null.
-            if (!info.fileCallback.is_null() && !info.fileCallback.is_callable()) {
-                php_value_base::error_custom("Expected 'callable' for file callback",
-                    std::numeric_limits<unsigned>::max());
-            }
-            if (!info.binaryCallback.is_null() && !info.binaryCallback.is_callable()) {
-                php_value_base::error_custom("Expected 'callable' for binary callback",
-                    std::numeric_limits<unsigned>::max());
-            }
-            if (!info.hunkCallback.is_null() && !info.hunkCallback.is_callable()) {
-                php_value_base::error_custom("Expected 'callable' for hunk callback",
-                    std::numeric_limits<unsigned>::max());
-            }
-            if (!info.lineCallback.is_null() && !info.lineCallback.is_callable()) {
-                php_value_base::error_custom("Expected 'callable' for line callback",
-                    std::numeric_limits<unsigned>::max());
-            }
+    using diff_hunk_callback_info = php_git_diff_callback<diff_hunk_callback>;
+    using diff_hunk_callback_connector = connector_wrapper<diff_hunk_callback_info,2>;
 
-            return reinterpret_cast<void*>(&info);
-        }
+    using diff_binary_callback_info = php_git_diff_callback<diff_binary_callback>;
+    using diff_binary_callback_connector = connector_wrapper<diff_binary_callback_info,3>;
 
-        operator git_diff_callback_info&()
-        {
-            return info;
-        }
-    private:
-        git_diff_callback_info info;
-    };
-
-    // Enumerate connector types for the git_diff callback specializations.
-
-    using diff_line_callback_info = php_git_diff_callback<
-        php_git_diff_callback_payload,
-        diff_line_callback
-        >;
-    using diff_line_callback_connector = connector_wrapper<diff_line_callback_info>;
-
-    using diff_hunk_callback_info = php_git_diff_callback<
-        diff_line_callback_info,
-        diff_hunk_callback
-        >;
-    using diff_hunk_callback_connector = connector_wrapper_ex<diff_hunk_callback_info>;
-
-    using diff_binary_callback_info = php_git_diff_callback<
-        diff_hunk_callback_info,
-        diff_binary_callback
-        >;
-    using diff_binary_callback_connector = connector_wrapper_ex<diff_binary_callback_info>;
-
-    using diff_file_callback_info = php_git_diff_callback<
-        diff_binary_callback_info,
-        diff_file_callback
-        >;
-    using diff_file_callback_connector = connector_wrapper_ex<diff_file_callback_info>;
+    using diff_file_callback_info = php_git_diff_callback<diff_file_callback>;
+    using diff_file_callback_connector = connector_wrapper<diff_file_callback_info,4>;
 
     // Misc. helper types
 
     using diff_nullable_buffer_length_connector = php_git2::connector_wrapper<
-        php_git2::php_string_length_connector<size_t,php_git2::php_nullable_string>
+        php_git2::php_string_length_connector<size_t,php_git2::php_string_nullable>
         >;
 
     using diff_buffer_length_connector = php_git2::connector_wrapper<
@@ -340,8 +265,6 @@ namespace php_git2
     class php_git_diff_delta_rethandler
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_diff_delta_rethandler)
-
         bool ret(const git_diff_delta* delta,zval* return_value,local_pack<Ts...>& pack)
         {
             if (delta == nullptr) {
@@ -358,9 +281,7 @@ namespace php_git2
     class php_git_diff_perfdata
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_diff_perfdata)
-
-        git_diff_perfdata* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_diff_perfdata* byval_git2()
         {
             return &perfdata;
         }
@@ -377,12 +298,11 @@ namespace php_git2
     // Define type to wrap git_diff_format_email_options.
 
     class php_git_diff_format_email_options:
-        public php_value_base,
-        private php_zts_base
+        public php_option_array
     {
     public:
-        php_git_diff_format_email_options(TSRMLS_D):
-            php_zts_base(TSRMLS_C), oid(TSRMLS_C), sig(nullptr)
+        php_git_diff_format_email_options():
+            sig(nullptr)
         {
             git_diff_format_email_init_options(&opts,GIT_DIFF_FORMAT_EMAIL_OPTIONS_VERSION);
         }
@@ -394,12 +314,8 @@ namespace php_git2
             }
         }
 
-        const git_diff_format_email_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        const git_diff_format_email_options* byval_git2()
         {
-            if (Z_TYPE_P(value) != IS_ARRAY) {
-                error("array",argno);
-            }
-
             array_wrapper arr(value);
 
             GIT2_ARRAY_LOOKUP_LONG(arr,version,opts);
@@ -410,25 +326,28 @@ namespace php_git2
             GIT2_ARRAY_LOOKUP_STRING(arr,summary,opts);
             GIT2_ARRAY_LOOKUP_STRING(arr,body,opts);
 
-            if (arr.query("author",sizeof("author"))) {
-                zval* zv = arr.get_zval();
+            if (arr.query("author",sizeof("author")-1)) {
+                zval* zv = arr.get_value();
                 git_signature* author;
 
                 if (Z_TYPE_P(zv) == IS_ARRAY) {
-                    sig = convert_signature(arr.get_zval());
+                    sig = convert_signature(zv);
                     if (sig == nullptr) {
-                        error_custom("Element 'author' must be git_signature array",argno);
+                        throw php_git2_exception(
+                            "Cannot parse 'author' from "
+                            "git_diff_format_email_options array");
                     }
                     author = sig;
                 }
                 else if (Z_TYPE_P(zv) == IS_RESOURCE) {
-                    php_resource<php_git_signature> sigres ZTS_CTOR;
+                    php_resource<php_git_signature> sigres;
 
-                    sigres.set_zval(zv);
+                    sigres.parse_with_context(zv,"author");
                     author = sigres.get_object()->get_handle();
                 }
                 else {
-                    error_custom("Expected resource or array for 'author' option",argno);
+                    throw php_git2_exception(
+                        "Field 'author' is invalid in git_diff_format_email_options array");
                 }
 
                 opts.author = author;
@@ -468,11 +387,11 @@ static constexpr auto ZIF_GIT_DIFF_BLOB_TO_BUFFER = zif_php_git2_function<
         git_diff_line_cb,
         void*>::func<git_diff_blob_to_buffer>,
     php_git2::local_pack<
-        php_git2::php_resource_null<php_git2::php_git_blob>,
-        php_git2::php_nullable_string,
+        php_git2::php_resource_nullable<php_git2::php_git_blob>,
+        php_git2::php_string_nullable,
         php_git2::diff_nullable_buffer_length_connector,
-        php_git2::php_nullable_string,
-        php_git2::php_nullable_string,
+        php_git2::php_string_nullable,
+        php_git2::php_string_nullable,
         php_git2::php_git_diff_options,
 
         // Callback info
@@ -486,8 +405,7 @@ static constexpr auto ZIF_GIT_DIFF_BLOB_TO_BUFFER = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<0,1,3,4,5,6,7,8,9,10>,
-    php_git2::sequence<0,1,3,2,4,5,6,7,8,9,10>,
-    php_git2::sequence<0,1,2,0,3,4,5,6,7,8,9>
+    php_git2::sequence<0,1,3,2,4,5,6,7,8,9,10>
     >;
 
 static constexpr auto ZIF_GIT_DIFF_BLOBS = zif_php_git2_function<
@@ -504,10 +422,10 @@ static constexpr auto ZIF_GIT_DIFF_BLOBS = zif_php_git2_function<
         git_diff_line_cb,
         void*>::func<git_diff_blobs>,
     php_git2::local_pack<
-        php_git2::php_resource_null<php_git2::php_git_blob>,
-        php_git2::php_nullable_string,
-        php_git2::php_resource_null<php_git2::php_git_blob>,
-        php_git2::php_nullable_string,
+        php_git2::php_resource_nullable<php_git2::php_git_blob>,
+        php_git2::php_string_nullable,
+        php_git2::php_resource_nullable<php_git2::php_git_blob>,
+        php_git2::php_string_nullable,
         php_git2::php_git_diff_options,
 
         // Callback info
@@ -538,11 +456,11 @@ static constexpr auto ZIF_GIT_DIFF_BUFFERS = zif_php_git2_function<
         void*>::func<git_diff_buffers>,
     php_git2::local_pack<
         php_git2::diff_nullable_buffer_length_connector,
-        php_git2::php_nullable_string,
-        php_git2::php_nullable_string,
+        php_git2::php_string_nullable,
+        php_git2::php_string_nullable,
         php_git2::diff_nullable_buffer_length_connector,
-        php_git2::php_nullable_string,
-        php_git2::php_nullable_string,
+        php_git2::php_string_nullable,
+        php_git2::php_string_nullable,
         php_git2::php_git_diff_options,
 
         // Callback info
@@ -556,8 +474,7 @@ static constexpr auto ZIF_GIT_DIFF_BUFFERS = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<1,2,4,5,6,7,8,9,10,11>,
-    php_git2::sequence<1,0,2,4,3,5,6,7,8,9,10,11>,
-    php_git2::sequence<0,0,1,0,2,3,4,5,6,7,8,9>
+    php_git2::sequence<1,0,2,4,3,5,6,7,8,9,10,11>
     >;
 
 static constexpr auto ZIF_GIT_DIFF_COMMIT_AS_EMAIL = zif_php_git2_function<
@@ -581,8 +498,7 @@ static constexpr auto ZIF_GIT_DIFF_COMMIT_AS_EMAIL = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3,4,5,6>,
-    php_git2::sequence<0,1,2,3,4,5,6>,
-    php_git2::sequence<0,0,1,2,3,4,5>
+    php_git2::sequence<0,1,2,3,4,5,6>
     >;
 
 static constexpr auto ZIF_GIT_DIFF_FROM_BUFFER = zif_php_git2_function<
@@ -598,8 +514,7 @@ static constexpr auto ZIF_GIT_DIFF_FROM_BUFFER = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<2>,
-    php_git2::sequence<0,2,1>,
-    php_git2::sequence<0,0,0>
+    php_git2::sequence<0,2,1>
     >;
 
 static constexpr auto ZIF_GIT_DIFF_PRINT = zif_php_git2_function<
@@ -631,7 +546,6 @@ static constexpr auto ZIF_GIT_DIFF_GET_DELTA = zif_php_git2_function_rethandler<
         php_git2::php_long_cast<size_t>
         >,
     php_git2::sequence<0,1>,
-    php_git2::sequence<0,1>,
     php_git2::sequence<0,1>
     >;
 
@@ -646,8 +560,7 @@ static constexpr auto ZIF_GIT_DIFF_GET_PERFDATA = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_DIFF_IS_SORTED_ICASE = zif_php_git2_function_rethandler<
@@ -708,8 +621,7 @@ static constexpr auto ZIF_GIT_DIFF_TO_BUF = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_DIFF_TREE_TO_TREE = zif_php_git2_function_setdeps<
@@ -723,15 +635,14 @@ static constexpr auto ZIF_GIT_DIFF_TREE_TO_TREE = zif_php_git2_function_setdeps<
     php_git2::local_pack<
         php_git2::php_resource_ref<php_git2::php_git_diff>,
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_resource_null<php_git2::php_git_tree>,
-        php_git2::php_resource_null<php_git2::php_git_tree>,
+        php_git2::php_resource_nullable<php_git2::php_git_tree>,
+        php_git2::php_resource_nullable<php_git2::php_git_tree>,
         php_git2::php_git_diff_options
         >,
     php_git2::sequence<0,1>, // Make the git_diff dependent on the git_repository
     1,
     php_git2::sequence<1,2,3,4>,
-    php_git2::sequence<0,1,2,3,4>,
-    php_git2::sequence<0,0,1,2,3>
+    php_git2::sequence<0,1,2,3,4>
     >;
 
 static constexpr auto ZIF_GIT_DIFF_TREE_TO_WORKDIR = zif_php_git2_function_setdeps<
@@ -744,14 +655,13 @@ static constexpr auto ZIF_GIT_DIFF_TREE_TO_WORKDIR = zif_php_git2_function_setde
     php_git2::local_pack<
         php_git2::php_resource_ref<php_git2::php_git_diff>,
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_resource_null<php_git2::php_git_tree>,
+        php_git2::php_resource_nullable<php_git2::php_git_tree>,
         php_git2::php_git_diff_options
         >,
     php_git2::sequence<0,1>, // Make the git_diff dependent on the git_repository
     1,
     php_git2::sequence<1,2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_DIFF_TREE_TO_WORKDIR_WITH_INDEX = zif_php_git2_function_setdeps<
@@ -764,14 +674,13 @@ static constexpr auto ZIF_GIT_DIFF_TREE_TO_WORKDIR_WITH_INDEX = zif_php_git2_fun
     php_git2::local_pack<
         php_git2::php_resource_ref<php_git2::php_git_diff>,
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_resource_null<php_git2::php_git_tree>,
+        php_git2::php_resource_nullable<php_git2::php_git_tree>,
         php_git2::php_git_diff_options
         >,
     php_git2::sequence<0,1>, // Make the git_diff dependent on the git_repository
     1,
     php_git2::sequence<1,2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_DIFF_STATUS_CHAR = zif_php_git2_function<
@@ -828,8 +737,7 @@ static constexpr auto ZIF_GIT_DIFF_GET_STATS = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_DIFF_STATS_FREE = zif_php_git2_function_free<
@@ -883,8 +791,7 @@ static constexpr auto ZIF_GIT_DIFF_STATS_TO_BUF = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_DIFF_FORMAT_EMAIL = zif_php_git2_function<
@@ -900,8 +807,7 @@ static constexpr auto ZIF_GIT_DIFF_FORMAT_EMAIL = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_DIFF_INDEX_TO_INDEX = zif_php_git2_function_setdeps<
@@ -915,15 +821,14 @@ static constexpr auto ZIF_GIT_DIFF_INDEX_TO_INDEX = zif_php_git2_function_setdep
     php_git2::local_pack<
         php_git2::php_resource_ref<php_git2::php_git_diff>,
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_resource_null<php_git2::php_git_index>,
-        php_git2::php_resource_null<php_git2::php_git_index>,
+        php_git2::php_resource_nullable<php_git2::php_git_index>,
+        php_git2::php_resource_nullable<php_git2::php_git_index>,
         php_git2::php_git_diff_options
         >,
     php_git2::sequence<0,1>, // Make the git_diff dependent on the git_repository
     1,
     php_git2::sequence<1,2,3,4>,
-    php_git2::sequence<0,1,2,3,4>,
-    php_git2::sequence<0,0,1,2,3>
+    php_git2::sequence<0,1,2,3,4>
     >;
 
 static constexpr auto ZIF_GIT_DIFF_TREE_TO_INDEX = zif_php_git2_function_setdeps<
@@ -937,15 +842,14 @@ static constexpr auto ZIF_GIT_DIFF_TREE_TO_INDEX = zif_php_git2_function_setdeps
     php_git2::local_pack<
         php_git2::php_resource_ref<php_git2::php_git_diff>,
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_resource_null<php_git2::php_git_tree>,
-        php_git2::php_resource_null<php_git2::php_git_index>,
+        php_git2::php_resource_nullable<php_git2::php_git_tree>,
+        php_git2::php_resource_nullable<php_git2::php_git_index>,
         php_git2::php_git_diff_options
         >,
     php_git2::sequence<0,1>, // Make the git_diff dependent on the git_repository
     1,
     php_git2::sequence<1,2,3,4>,
-    php_git2::sequence<0,1,2,3,4>,
-    php_git2::sequence<0,0,1,2,3>
+    php_git2::sequence<0,1,2,3,4>
     >;
 
 static constexpr auto ZIF_GIT_DIFF_INDEX_TO_WORKDIR = zif_php_git2_function_setdeps<
@@ -958,14 +862,13 @@ static constexpr auto ZIF_GIT_DIFF_INDEX_TO_WORKDIR = zif_php_git2_function_setd
     php_git2::local_pack<
         php_git2::php_resource_ref<php_git2::php_git_diff>,
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_resource_null<php_git2::php_git_index>,
+        php_git2::php_resource_nullable<php_git2::php_git_index>,
         php_git2::php_git_diff_options
         >,
     php_git2::sequence<0,1>, // Make the git_diff dependent on the git_repository
     1,
     php_git2::sequence<1,2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 
 // Function Entries:

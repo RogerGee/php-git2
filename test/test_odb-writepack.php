@@ -29,12 +29,12 @@ function test_basic() {
         . '348cdc9c9d75128cf2fca4951e4020024f20494afed7ccfb9056fe89ef493d1983c26'
         . 'd10f291f39';
 
-    testbed_unit('writepack',$wp);
-    testbed_unit('writepack->backend->version',$wp->backend->version);
-    testbed_unit('writepack->progress (before)',$wp->progress);
-    testbed_unit('writepack->append()',$wp->append(hex2bin($pack)));
-    testbed_unit('writepack->commit()',$wp->commit());
-    testbed_unit('writeback->progress (after)',$wp->progress);
+    testbed_dump('writepack',$wp);
+    testbed_dump('writepack->backend->version',$wp->backend->version);
+    testbed_dump('writepack->progress (before)',$wp->progress);
+    testbed_dump('writepack->append()',$wp->append(hex2bin($pack)));
+    testbed_dump('writepack->commit()',$wp->commit());
+    testbed_dump('writeback->progress (after)',$wp->progress);
 }
 
 function test_lifetime() {
@@ -53,16 +53,16 @@ function test_lifetime() {
             . '348cdc9c9d75128cf2fca4951e4020024f20494afed7ccfb9056fe89ef493d1983c26'
             . 'd10f291f39';
 
-        testbed_unit('writepack->append',$wp->append(hex2bin($pack)));
-        testbed_unit('writepack->commit',$wp->commit());
+        testbed_dump('writepack->append',$wp->append(hex2bin($pack)));
+        testbed_dump('writepack->commit',$wp->commit());
 
         // Return before freeing.
         return $wp;
     };
 
     $wp = $lambda();
-    testbed_unit('writepack->backend',$wp->backend);
-    testbed_unit('writepack->progress',$wp->progress);
+    testbed_dump('writepack->backend',$wp->backend);
+    testbed_dump('writepack->progress',$wp->progress);
 }
 
 function test_callback_errors() {
@@ -94,7 +94,7 @@ function test_callback_errors() {
         $wp->append(hex2bin($pack));
         $wp->commit();
     } catch (\Exception $ex) {
-        testbed_unit('Caught exception',$ex);
+        testbed_dump('Caught exception',$ex);
     }
 }
 
@@ -119,12 +119,12 @@ function test_custom() {
         . '348cdc9c9d75128cf2fca4951e4020024f20494afed7ccfb9056fe89ef493d1983c26'
         . 'd10f291f39';
 
-    testbed_unit('writepack',$wp);
-    testbed_unit('writepack->backend->version',$wp->backend->version);
-    testbed_unit('writepack->progress (before)',$wp->progress);
-    testbed_unit('writepack->append()',$wp->append(hex2bin($pack)));
-    testbed_unit('writepack->commit()',$wp->commit());
-    testbed_unit('writeback->progress (after)',$wp->progress);
+    testbed_dump('writepack',$wp);
+    testbed_dump('writepack->backend->version',$wp->backend->version);
+    testbed_dump('writepack->progress (before)',$wp->progress);
+    testbed_dump('writepack->append()',$wp->append(hex2bin($pack)));
+    testbed_dump('writepack->commit()',$wp->commit());
+    testbed_dump('writeback->progress (after)',$wp->progress);
 }
 
 function do_fail($stats,$payload) {

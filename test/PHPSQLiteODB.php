@@ -21,6 +21,9 @@ class PHPSQLiteODB extends GitODBBackend {
 
         $query = 'select type from odb where oid = :oid';
         $this->stmt['exists'] = $this->conn->prepare($query);
+
+        $query = 'select oid from odb';
+        $this->stmt['list'] = $this->conn->prepare($query);
     }
 
     public function read(&$type,$oid) {
@@ -34,11 +37,11 @@ class PHPSQLiteODB extends GitODBBackend {
     }
 
     public function write($oid,$data,$type) {
-        $this->stmtWrite->bindValue(':oid',$oid,SQLITE3_TEXT);
-        $this->stmtWrite->bindValue(':type',$type,SQLITE3_INTEGER);
-        $this->stmtWrite->bindValue(':data',$data,SQLITE3_BLOB);
-        $this->stmtWrite->execute();
-        $this->stmtWrite->reset();
+        $this->stmt['write']->bindValue(':oid',$oid,SQLITE3_TEXT);
+        $this->stmt['write']->bindValue(':type',$type,SQLITE3_INTEGER);
+        $this->stmt['write']->bindValue(':data',$data,SQLITE3_BLOB);
+        $this->stmt['write']->execute();
+        $this->stmt['write']->reset();
     }
 
     public function exists($oid) {
@@ -50,7 +53,30 @@ class PHPSQLiteODB extends GitODBBackend {
         return $arr !== false;
     }
 
+    public function for_each(callable $callback,$payload) {
+        $result = $this->stmt['list']->execute();
+        while (true) {
+            $row = $result->fetchArray();
+            if ($row === false) {
+                break;
+            }
+            if ($callback($row[0],$payload) === false) {
+                break;
+            }
+        }
+    }
+
     public function writepack($progressCallback,$payload) {
-        // TODO
+        require_once 'PHPProxyWritepack.php';
+        return new PHPProxyWritepack($this->odb);
+    }
+
+    public function count() {
+        $query = 'select count(oid) from odb';
+        $stmt = $this->conn->prepare($query);
+        $result = $stmt->execute();
+        $row = $result->fetchArray();
+
+        return (int)$row[0];
     }
 }

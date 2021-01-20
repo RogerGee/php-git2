@@ -754,7 +754,9 @@ git_odb_exists_prefix(resource,string)
 
 git_odb_foreach(resource,callable,mixed)
 
-    Callback signature: void callback(string $oid,mixed $payload)
+    Callback signature: bool callback(string $oid,mixed $payload)
+
+        To stop iteration, the callback should return false.
 
         The callback should throw on error.
 
@@ -2778,9 +2780,8 @@ abstract class GitODBBackend:
             payload as the second parameter to the callback so that a userspace
             payload is routed correctly.
 
-            If the callback returns a non-zero value, the implementation should
-            stop looping. The method should return 0 or the non-zero callback
-            value upon return.
+            If the callback returns FALSE (exactly), then the implementation
+            should stop the iteration.
 
         GitODBWritepack writepack(resource $odb,callable $func,mixed $payload)
 
@@ -2813,9 +2814,9 @@ abstract class GitODBWritepack:
               GitODBWritepack_Internal, then use the method signatures
               documented for GitODBWritepack_Internal.
 
-        void append(string,&array)
+        void append(string $data,array &$stats)
 
-        void commit(&array)
+        void commit(array &$stats)
 
 final class GitODBWritepack_Internal extends GitODBBackend
 
@@ -2835,11 +2836,11 @@ final class GitODBWritepack_Internal extends GitODBBackend
 
     methods:
 
-        NOTE: In this class, the signature for the append() and commit() methods
-              is different since you do not have to pass in the
+        NOTE: In this class, the signatures for the append() and commit()
+              methods aredifferent since you do not have to pass in the
               git_transfer_progress.
 
-        void append(string)
+        void append(string $data)
 
         void commit()
 

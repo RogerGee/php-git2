@@ -1,7 +1,7 @@
 /*
  * php-closure.cpp
  *
- * This file is a part of php-git2.
+ * Copyright (C) Roger P. Gee
  */
 
 #include "php-object.h"
@@ -9,8 +9,10 @@ using namespace php_git2;
 
 // Custom class handlers
 
-static int closure_get_closure(zval* obj,zend_class_entry** ce_ptr,zend_function** fptr_ptr,
-    zval** zobj_ptr TSRMLS_DC);
+static int closure_get_closure(zval* obj,
+    zend_class_entry** ce_ptr,
+    zend_function** fptr_ptr,
+    zend_object** obj_ptr);
 
 // Class method entries
 
@@ -18,49 +20,58 @@ zend_function_entry php_git2::closure_methods[] = {
     PHP_FE_END
 };
 
+// php_zend_object init function
+
+template<>
+zend_object_handlers php_git2::php_zend_object<php_closure_object>::handlers;
+
+template<>
+void php_zend_object<php_closure_object>::init(zend_class_entry* ce)
+{
+    handlers.get_closure = closure_get_closure;
+    handlers.get_constructor = php_git2::not_allowed_get_constructor;
+
+    handlers.offset = offset();
+
+    UNUSED(ce);
+}
+
 // Implementation of php_closure_object
 
-/*static*/ zend_object_handlers php_closure_object::handlers;
-php_closure_object::php_closure_object(zend_class_entry* ce TSRMLS_DC):
-    payload(nullptr), hasPayload(false), payloadDestructor(nullptr), zts(TSRMLS_C)
+php_closure_object::php_closure_object():
+    payload(nullptr), hasPayload(false), payloadDestructor(nullptr)
 {
-    zend_object_std_init(this,ce TSRMLS_CC);
-    object_properties_init(this,ce);
     memset(&func,0,sizeof(zend_function));
 }
 
 php_closure_object::~php_closure_object()
 {
+    if (func.type != 0) {
+        destroy_zend_function(&func);
+    }
     if (payloadDestructor != nullptr) {
         (*payloadDestructor)(payload);
     }
-
-    zend_object_std_dtor(this ZTS_MEMBER_CC(this->zts));
-}
-
-/*static*/ void php_closure_object::init(zend_class_entry* ce)
-{
-    handlers.get_closure = closure_get_closure;
-    handlers.get_constructor = php_git2::not_allowed_get_constructor;
-
-    UNUSED(ce);
 }
 
 // Implementation of custom class handlers
 
-int closure_get_closure(zval* obj,zend_class_entry** ce_ptr,zend_function** fptr_ptr,
-    zval** zobj_ptr TSRMLS_DC)
+int closure_get_closure(zval* obj,
+    zend_class_entry** ce_ptr,
+    zend_function** fptr_ptr,
+    zend_object** obj_ptr)
 {
     if (Z_TYPE_P(obj) != IS_OBJECT) {
         return FAILURE;
     }
 
-    php_closure_object* closure = LOOKUP_OBJECT(php_closure_object,obj);
+    php_closure_object* closure;
+    closure = php_zend_object<php_closure_object>::get_storage(obj);
 
     *fptr_ptr = &closure->func;
-    *ce_ptr = Z_OBJCE_P(obj); // i.e. php_git2::class_entry[php_git2_closure_obj]
-    if (zobj_ptr) {
-        *zobj_ptr = obj;
+    *ce_ptr = Z_OBJCE_P(obj);
+    if (obj_ptr) {
+        *obj_ptr = Z_OBJ_P(obj);
     }
 
     return SUCCESS;

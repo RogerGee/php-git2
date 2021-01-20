@@ -1,7 +1,7 @@
 /*
  * indexer.h
  *
- * This file is a part of php-git2.
+ * Copyright (C) Roger P. Gee
  */
 
 #ifndef PHPGIT2_INDEXER_H
@@ -9,7 +9,6 @@
 
 namespace php_git2
 {
-
     // Specialize resource type destructor.
 
     template<> php_git_indexer::~git2_resource()
@@ -37,7 +36,8 @@ namespace php_git2
         friend class php_git_indexer_connector;
         friend indexer_progress_callback_async;
     public:
-        php_git_indexer_with_stats()
+        php_git_indexer_with_stats():
+            cb(nullptr)
         {
             memset(&stats,0,sizeof(git_transfer_progress));
         }
@@ -52,9 +52,14 @@ namespace php_git2
         }
 
         git_transfer_progress* get_stats()
-        { return &stats; }
+        {
+            return &stats;
+        }
         const git_transfer_progress* get_stats() const
-        { return &stats; }
+        {
+            return &stats;
+        }
+
     private:
         git_transfer_progress stats;
         php_callback_sync* cb;
@@ -66,15 +71,16 @@ namespace php_git2
         using connect_t = php_resource<php_git_indexer_with_stats>;
         typedef git_transfer_progress* target_t;
 
-        php_git_indexer_connector(connect_t& obj TSRMLS_DC):
+        php_git_indexer_connector(connect_t& obj):
             conn(obj)
         {
         }
 
-        target_t byval_git2(unsigned argno)
+        target_t byval_git2()
         {
-            return &conn.get_object(argno)->stats;
+            return &conn.get_object()->stats;
         }
+
     private:
         connect_t& conn;
     };
@@ -98,16 +104,16 @@ static constexpr auto ZIF_GIT_INDEXER_NEW = zif_php_git2_function_setdeps<
             php_git2::indexer_progress_callback_async
             >,
         php_git2::connector_wrapper<php_git2::indexer_progress_callback_async>,
+        // Create a php_git_indexer_with_stats instance
         php_git2::php_resource_ref<php_git2::php_git_indexer_with_stats>,
         php_git2::php_string,
         php_git2::php_long,
-        php_git2::php_resource_null<php_git2::php_git_odb>
+        php_git2::php_resource_nullable<php_git2::php_git_odb>
         >,
     php_git2::sequence<2,5>,
     3,
     php_git2::sequence<3,4,5,1,1>, // pass callback in twice
-    php_git2::sequence<2,3,4,5,0,1>,
-    php_git2::sequence<0,0,1,2,3,4>
+    php_git2::sequence<2,3,4,5,0,1>
     >;
 
 static constexpr auto ZIF_GIT_INDEXER_HASH = zif_php_git2_function<
@@ -135,8 +141,7 @@ static constexpr auto ZIF_GIT_INDEXER_APPEND = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<1,3>,
-    php_git2::sequence<1,3,2,0>,
-    php_git2::sequence<0,0,1,0>
+    php_git2::sequence<1,3,2,0>
     >;
 
 static constexpr auto ZIF_GIT_INDEXER_COMMIT = zif_php_git2_function<
@@ -150,8 +155,7 @@ static constexpr auto ZIF_GIT_INDEXER_COMMIT = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<1>,
-    php_git2::sequence<1,0>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<1,0>
     >;
 
 static constexpr auto ZIF_GIT_INDEXER_FREE = zif_php_git2_function_free<
@@ -165,25 +169,28 @@ static constexpr auto ZIF_GIT_INDEXER_FREE = zif_php_git2_function_free<
 // git_transfer_progress members.
 static PHP_FUNCTION(git2_indexer_stats)
 {
-    php_git2::php_bailer bailer ZTS_CTOR;
+    php_git2::php_bailer bailer;
 
     {
         git_transfer_progress* stats;
-        php_git2::php_resource<php_git2::php_git_indexer_with_stats> indexer ZTS_CTOR;
-        php_git2::php_bailout_context ctx(bailer TSRMLS_CC);
+        php_git2::php_resource<php_git2::php_git_indexer_with_stats> indexer;
+        php_git2::php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"z",indexer.byref_php()) == FAILURE) {
+            zval* zvp;
+            if (zend_parse_parameters(ZEND_NUM_ARGS(),"z",&zvp) == FAILURE) {
                 return;
             }
 
             try {
-                stats = indexer.get_object(1)->get_stats();
+                indexer.parse(zvp,1);
+                stats = indexer.get_object()->get_stats();
+
             } catch (php_git2::php_git2_exception_base& ex) {
-                php_git2::php_bailout_context ctx2(bailer TSRMLS_CC);
+                php_git2::php_bailout_context ctx2(bailer);
 
                 if (BAILOUT_ENTER_REGION(ctx2)) {
-                    ex.handle(TSRMLS_C);
+                    ex.handle();
                 }
 
                 return;

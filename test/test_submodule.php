@@ -27,8 +27,8 @@ function test_create() {
     $repo = git_repository_open(testbed_get_localrepo_path());
     $submodule = lookup_test_submodule($repo);
 
-    testbed_unit('test_create',$submodule);
-    testbed_unit('test_url',git_submodule_url($submodule));
+    testbed_dump('test_create',$submodule);
+    testbed_dump('test_url',git_submodule_url($submodule));
 
     git_submodule_free($submodule);
 }

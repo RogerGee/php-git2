@@ -11,8 +11,8 @@ function test_callback() {
 
     $lambda = function($commitId,$payload) {
         testbed_do_once('Hide Callback',function() use($commitId,$payload) {
-            testbed_unit('callback:oid',$commitId);
-            testbed_unit('callback:payload',$payload);
+            testbed_dump('callback:oid',$commitId);
+            testbed_dump('callback:payload',$payload);
         });
 
         return $commitId[0] == 'a';

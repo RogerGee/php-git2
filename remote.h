@@ -1,7 +1,7 @@
 /*
  * remote.h
  *
- * This file is a part of php-git2.
+ * Copyright (C) Roger P. Gee
  */
 
 #ifndef PHPGIT2_REMOTE_H
@@ -16,18 +16,17 @@ namespace php_git2
     }
 
     class php_git_remote_callbacks:
-        public php_value_base
+        public php_option_array
     {
     public:
-        php_git_remote_callbacks(TSRMLS_D):
-            info(TSRMLS_C)
+        php_git_remote_callbacks()
         {
             git_remote_init_callbacks(&opts,GIT_REMOTE_CALLBACKS_VERSION);
         }
 
-        const git_remote_callbacks* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        const git_remote_callbacks* byval_git2()
         {
-            if (Z_TYPE_P(value) == IS_ARRAY) {
+            if (!is_null()) {
                 array_wrapper arr(value);
 
                 GIT2_ARRAY_LOOKUP_CALLBACK_NULLABLE(
@@ -106,9 +105,6 @@ namespace php_git2
 
                 opts.payload = &info;
             }
-            else if (Z_TYPE_P(value) != IS_NULL) {
-                error("array",argno);
-            }
 
             return &opts;
         }
@@ -119,18 +115,17 @@ namespace php_git2
     };
 
     class php_git_proxy_options:
-        public php_value_base
+        public php_option_array
     {
     public:
-        php_git_proxy_options(TSRMLS_D):
-            info(TSRMLS_C)
+        php_git_proxy_options()
         {
             git_proxy_init_options(&opts,GIT_PROXY_OPTIONS_VERSION);
         }
 
-        const git_proxy_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        const git_proxy_options* byval_git2()
         {
-            if (Z_TYPE_P(value) == IS_ARRAY) {
+            if (!is_null()) {
                 array_wrapper arr(value);
 
                 GIT2_ARRAY_LOOKUP_LONG(arr,version,opts);
@@ -155,9 +150,6 @@ namespace php_git2
 
                 opts.payload = &info;
             }
-            else if (Z_TYPE_P(value) != IS_NULL) {
-                error("array",argno);
-            }
 
             return &opts;
         }
@@ -168,22 +160,20 @@ namespace php_git2
     };
 
     class php_git_fetch_options:
-        public php_value_base,
-        private php_zts_base
+        public php_option_array
     {
     public:
-        php_git_fetch_options(TSRMLS_D):
-            php_zts_base(TSRMLS_C), custom_headers(TSRMLS_C)
+        php_git_fetch_options()
         {
             git_fetch_init_options(&opts,GIT_FETCH_OPTIONS_VERSION);
         }
 
-        const git_fetch_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        const git_fetch_options* byval_git2()
         {
-            if (Z_TYPE_P(value) == IS_ARRAY) {
+            if (!is_null()) {
                 array_wrapper arr(value);
-                php_git_remote_callbacks callbacks ZTS_CTOR;
-                php_git_proxy_options proxy_opts ZTS_CTOR;
+                php_git_remote_callbacks callbacks;
+                php_git_proxy_options proxy_opts;
 
                 GIT2_ARRAY_LOOKUP_LONG(arr,version,opts);
                 GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(
@@ -208,9 +198,6 @@ namespace php_git2
                     custom_headers,
                     opts);
             }
-            else if (Z_TYPE_P(value) != IS_NULL) {
-                error("array",argno);
-            }
 
             return &opts;
         }
@@ -221,22 +208,20 @@ namespace php_git2
     };
 
     class php_git_push_options:
-        public php_value_base,
-        private php_zts_base
+        public php_option_array
     {
     public:
-        php_git_push_options(TSRMLS_D):
-            php_zts_base(TSRMLS_C), custom_headers(TSRMLS_C)
+        php_git_push_options()
         {
             git_push_init_options(&opts,GIT_PUSH_OPTIONS_VERSION);
         }
 
-        const git_push_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        const git_push_options* byval_git2()
         {
-            if (Z_TYPE_P(value) == IS_ARRAY) {
+            if (!is_null()) {
                 array_wrapper arr(value);
-                php_git_remote_callbacks callbacks ZTS_CTOR;
-                php_git_proxy_options proxy_opts ZTS_CTOR;
+                php_git_remote_callbacks callbacks;
+                php_git_proxy_options proxy_opts;
 
                 GIT2_ARRAY_LOOKUP_LONG(arr,version,opts);
                 GIT2_ARRAY_LOOKUP_LONG(arr,pb_parallelism,opts);
@@ -259,9 +244,6 @@ namespace php_git2
                     custom_headers,
                     opts);
             }
-            else if (Z_TYPE_P(value) != IS_NULL) {
-                error("array",argno);
-            }
 
             return &opts;
         }
@@ -275,16 +257,15 @@ namespace php_git2
     {
     public:
         using connect_t = php_long_ref<size_t>;
-        typedef const git_remote_head*** target_t;
-
+        using target_t = const git_remote_head***;
         using connector_type = connector_wrapper<php_git_remote_head>;
 
-        php_git_remote_head(connect_t& obj TSRMLS_DC):
+        php_git_remote_head(connect_t& obj):
             conn(obj)
         {
         }
 
-        target_t byval_git2(unsigned p)
+        target_t byval_git2()
         {
             return &arr;
         }
@@ -295,11 +276,10 @@ namespace php_git2
 
             array_init(return_value);
             for (size_t i = 0;i < n;++i) {
-                zval* zv;
-                MAKE_STD_ZVAL(zv);
-                convert_remote_head(zv,arr[i]);
+                zval zv;
+                convert_remote_head(&zv,arr[i]);
 
-                add_next_index_zval(return_value,zv);
+                add_next_index_zval(return_value,&zv);
             }
         }
 
@@ -308,15 +288,9 @@ namespace php_git2
         connect_t& conn;
     };
 
-    class php_refspec_rethandler:
-        private php_zts_base
+    class php_refspec_rethandler
     {
     public:
-        php_refspec_rethandler(TSRMLS_D):
-            php_zts_base(TSRMLS_C)
-        {
-        }
-
         template<typename... Ts>
         bool ret(const git_refspec* refspec,zval* return_value,local_pack<Ts...>&)
         {
@@ -325,7 +299,7 @@ namespace php_git2
                 return true;
             }
 
-            php_resource_ref<php_git_refspec> res ZTS_CTOR;
+            php_resource_ref<php_git_refspec> res;
 
             *res.byval_git2() = refspec;
             res.ret(return_value);
@@ -337,8 +311,6 @@ namespace php_git2
     class php_transfer_progress_rethandler
     {
     public:
-        ZTS_CONSTRUCTOR(php_transfer_progress_rethandler)
-
         template<typename... Ts>
         bool ret(const git_transfer_progress* stats,zval* return_value,local_pack<Ts...>&)
         {
@@ -433,8 +405,7 @@ static constexpr auto ZIF_GIT_REMOTE_CREATE = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>, // Make the remote depend on the repository
     1,
     php_git2::sequence<1,2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_REMOTE_CREATE_ANONYMOUS = zif_php_git2_function_setdeps<
@@ -451,8 +422,7 @@ static constexpr auto ZIF_GIT_REMOTE_CREATE_ANONYMOUS = zif_php_git2_function_se
     php_git2::sequence<0,1>, // Make the remote depend on the repository
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_REMOTE_CREATE_WITH_FETCHSPEC = zif_php_git2_function_setdeps<
@@ -473,8 +443,7 @@ static constexpr auto ZIF_GIT_REMOTE_CREATE_WITH_FETCHSPEC = zif_php_git2_functi
     php_git2::sequence<0,1>, // Make the remote depend on the repository
     1,
     php_git2::sequence<1,2,3,4>,
-    php_git2::sequence<0,1,2,3,4>,
-    php_git2::sequence<0,0,1,2,3>
+    php_git2::sequence<0,1,2,3,4>
     >;
 
 static constexpr auto ZIF_GIT_REMOTE_DEFAULT_BRANCH = zif_php_git2_function<
@@ -488,8 +457,7 @@ static constexpr auto ZIF_GIT_REMOTE_DEFAULT_BRANCH = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_REMOTE_DELETE = zif_php_git2_function<
@@ -536,8 +504,7 @@ static constexpr auto ZIF_GIT_REMOTE_DUP = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_REMOTE_FETCH = zif_php_git2_function<
@@ -551,7 +518,7 @@ static constexpr auto ZIF_GIT_REMOTE_FETCH = zif_php_git2_function<
         php_git2::php_resource<php_git2::php_git_remote>,
         php_git2::php_strarray_array_nullable,
         php_git2::php_git_fetch_options,
-        php_git2::php_nullable_string
+        php_git2::php_string_nullable
         >
     >;
 
@@ -572,8 +539,7 @@ static constexpr auto ZIF_GIT_REMOTE_GET_FETCH_REFSPECS = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_REMOTE_GET_PUSH_REFSPECS = zif_php_git2_function<
@@ -587,8 +553,7 @@ static constexpr auto ZIF_GIT_REMOTE_GET_PUSH_REFSPECS = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_REMOTE_GET_REFSPEC = zif_php_git2_function_rethandler<
@@ -624,8 +589,7 @@ static constexpr auto ZIF_GIT_REMOTE_LIST = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_REMOTE_LOOKUP = zif_php_git2_function<
@@ -641,8 +605,7 @@ static constexpr auto ZIF_GIT_REMOTE_LOOKUP = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_REMOTE_LS = zif_php_git2_function<
@@ -658,8 +621,7 @@ static constexpr auto ZIF_GIT_REMOTE_LS = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,0>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_REMOTE_NAME = zif_php_git2_function<
@@ -681,7 +643,6 @@ static constexpr auto ZIF_GIT_REMOTE_OWNER = zif_php_git2_function_rethandler<
         php_git2::php_resource_ref<php_git2::php_git_repository_nofree>
         >,
     php_git2::php_owner_rethandler<php_git2::php_git_remote>,
-    php_git2::sequence<0>,
     php_git2::sequence<0>,
     php_git2::sequence<0>
     >;
@@ -754,8 +715,7 @@ static constexpr auto ZIF_GIT_REMOTE_RENAME = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_REMOTE_SET_AUTOTAG = zif_php_git2_function<
@@ -829,7 +789,7 @@ static constexpr auto ZIF_GIT_REMOTE_UPDATE_TIPS = zif_php_git2_function<
         php_git2::php_git_remote_callbacks,
         php_git2::php_bool,
         php_git2::php_long_cast<git_remote_autotag_option_t>,
-        php_git2::php_nullable_string
+        php_git2::php_string_nullable
         >
     >;
 

@@ -1,7 +1,7 @@
 /*
  * reset.h
  *
- * This file is a part of php-git2.
+ * Copyright (C) Roger P. Gee
  */
 
 #ifndef PHPGIT2_RESET_H
@@ -37,7 +37,7 @@ static constexpr auto ZIF_GIT_RESET_DEFAULT = zif_php_git2_function<
         git_strarray*>::func<git_reset_default>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_resource_null<php_git2::php_git_object>,
+        php_git2::php_resource_nullable<php_git2::php_git_object>,
         php_git2::php_strarray_array
         >
     >;

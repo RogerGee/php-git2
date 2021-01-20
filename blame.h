@@ -1,7 +1,7 @@
 /*
  * blame.h
  *
- * This file is a part of php-git2.
+ * Copyright (C) Roger P. Gee
  */
 
 #ifndef PHPGIT2_BLAME_H
@@ -9,7 +9,6 @@
 
 namespace php_git2
 {
-
     // Explicitly specialize git2_resource destructor for git_blame.
 
     template<> php_git_blame::~git2_resource()
@@ -21,17 +20,17 @@ namespace php_git2
     // struct.
 
     class php_git2_blame_options:
-        public php_value_base
+        public php_option_array
     {
     public:
-        php_git2_blame_options(TSRMLS_D)
+        php_git2_blame_options()
         {
             git_blame_init_options(&opts,GIT_BLAME_OPTIONS_VERSION);
         }
 
-        git_blame_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_blame_options* byval_git2()
         {
-            if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
+            if (!is_null()) {
                 array_wrapper arr(value);
 
                 GIT2_ARRAY_LOOKUP_LONG(arr,flags,opts);
@@ -44,6 +43,7 @@ namespace php_git2
 
             return &opts;
         }
+
     private:
         git_blame_options opts;
     };
@@ -54,8 +54,6 @@ namespace php_git2
     class php_git_blame_hunk_rethandler
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_blame_hunk_rethandler)
-
         bool ret(const git_blame_hunk* hunk,zval* return_value,local_pack<Ts...>& pack)
         {
             if (hunk == nullptr) {
@@ -89,8 +87,7 @@ static constexpr auto ZIF_GIT_BLAME_FILE = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_BLAME_GET_HUNK_BYINDEX = zif_php_git2_function_rethandler<
@@ -151,8 +148,7 @@ static constexpr auto ZIF_GIT_BLAME_BUFFER = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,3>,
-    php_git2::sequence<0,1,3,2>,
-    php_git2::sequence<0,0,1,0>
+    php_git2::sequence<0,1,3,2>
     >;
 
 static constexpr auto ZIF_GIT_BLAME_FREE = zif_php_git2_function_free<

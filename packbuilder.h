@@ -1,7 +1,7 @@
 /*
  * packbuilder.h
  *
- * This file is a part of php-git2.
+ * Copyright (C) Roger P. Gee
  */
 
 #ifndef PHPGIT2_PACKBUILDER_H
@@ -63,8 +63,7 @@ static constexpr auto ZIF_GIT_PACKBUILDER_NEW = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_PACKBUILDER_FREE = zif_php_git2_function_free<
@@ -115,7 +114,7 @@ static constexpr auto ZIF_GIT_PACKBUILDER_INSERT_RECUR = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_packbuilder_with_callback>,
         php_git2::php_git_oid_fromstr,
-        php_git2::php_nullable_string
+        php_git2::php_string_nullable
         >
     >;
 
@@ -140,7 +139,7 @@ static constexpr auto ZIF_GIT_PACKBUILDER_INSERT = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_packbuilder_with_callback>,
         php_git2::php_git_oid_fromstr,
-        php_git2::php_nullable_string
+        php_git2::php_string_nullable
         >
     >;
 
@@ -163,7 +162,6 @@ static constexpr auto ZIF_GIT_PACKBUILDER_FOREACH = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<0,2,2>, // pass callback in twice for function and payload
-    php_git2::sequence<0,1,2>,
     php_git2::sequence<0,1,2>
     >;
 
@@ -195,8 +193,7 @@ static constexpr auto ZIF_GIT_PACKBUILDER_SET_CALLBACKS = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<2,1,1>, // pass callback twice
-    php_git2::sequence<2,0,1>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<2,0,1>
     >;
 
 static constexpr auto ZIF_GIT_PACKBUILDER_OBJECT_COUNT = zif_php_git2_function<
@@ -227,8 +224,7 @@ static constexpr auto ZIF_GIT_PACKBUILDER_WRITE = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<0,1,2,3,3>, // pass callback in twice
-    php_git2::sequence<0,1,2,4,3>,
-    php_git2::sequence<0,1,2,0,3>
+    php_git2::sequence<0,1,2,4,3>
     >;
 
 static constexpr auto ZIF_GIT_PACKBUILDER_WRITTEN = zif_php_git2_function<

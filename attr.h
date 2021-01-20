@@ -1,7 +1,7 @@
 /*
  * attr.h
  *
- * This file is a part of php-git2.
+ * Copyright (C) Roger P. Gee
  */
 
 #ifndef PHPGIT2_ATTR_H
@@ -50,7 +50,6 @@ static constexpr auto ZIF_GIT_ATTR_FOREACH = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<0,1,2,4,4>,
-    php_git2::sequence<0,1,2,3,4>,
     php_git2::sequence<0,1,2,3,4>
     >;
 
@@ -71,8 +70,7 @@ static constexpr auto ZIF_GIT_ATTR_GET = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3,4>,
-    php_git2::sequence<0,1,2,3,4>,
-    php_git2::sequence<0,0,1,2,3>
+    php_git2::sequence<0,1,2,3,4>
     >;
 
 // static constexpr auto ZIF_GIT_ATTR_GET_MANY = zif_php_git2_function<

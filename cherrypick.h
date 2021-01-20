@@ -1,7 +1,7 @@
 /*
  * cherrypick.h
  *
- * This file is a part of php-git2.
+ * Copyright (C) Roger P. Gee
  */
 
 #ifndef PHPGIT2_CHERRYPICK_H
@@ -11,28 +11,27 @@
 
 namespace php_git2
 {
-
     // Provide a type for converting a PHP array into a git_cherrypick_options
     // struct.
 
     class php_git_cherrypick_options:
-        public php_value_base
+        public php_option_array
     {
     public:
-        php_git_cherrypick_options(TSRMLS_D):
-            strarray(TSRMLS_C), mergeOpts(TSRMLS_C), checkoutOpts(TSRMLS_C)
+        php_git_cherrypick_options()
         {
             git_cherrypick_init_options(&opts,GIT_CHERRYPICK_OPTIONS_VERSION);
         }
 
-        git_cherrypick_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_cherrypick_options* byval_git2()
         {
-            if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
+            if (!is_null()) {
                 array_wrapper arr(value);
 
                 GIT2_ARRAY_LOOKUP_LONG(arr,mainline,opts);
                 GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(arr,mergeOpts,merge_opts,opts);
                 GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(arr,checkoutOpts,checkout_opts,opts);
+
                 return &opts;
             }
 
@@ -80,8 +79,7 @@ static constexpr auto ZIF_GIT_CHERRYPICK_COMMIT = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3,4,5>,
-    php_git2::sequence<0,1,2,3,4,5>,
-    php_git2::sequence<0,0,1,2,3,4>
+    php_git2::sequence<0,1,2,3,4,5>
     >;
 
 #define GIT_CHERRYPICK_FE                                               \

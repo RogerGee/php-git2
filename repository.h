@@ -1,7 +1,7 @@
 /*
  * repository.h
  *
- * This file is a part of php-git2.
+ * Copyright (C) Roger P. Gee
  */
 
 #ifndef PHPGIT2_REPOSITORY_H
@@ -12,7 +12,6 @@ extern "C" {
 
 namespace php_git2
 {
-
     // Explicitly specialize git2_resource destructor for git_repository.
     template<> php_git_repository::~git2_resource()
     {
@@ -20,17 +19,17 @@ namespace php_git2
     }
 
     class php_git_repository_init_options:
-        public php_value_base
+        public php_option_array
     {
     public:
-        php_git_repository_init_options(TSRMLS_D)
+        php_git_repository_init_options()
         {
             git_repository_init_init_options(&opts,GIT_REPOSITORY_INIT_OPTIONS_VERSION);
         }
 
-        git_repository_init_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_repository_init_options* byval_git2()
         {
-            if (value != nullptr && Z_TYPE_P(value) == IS_ARRAY) {
+            if (!is_null()) {
                 array_wrapper arr(value);
 
                 GIT2_ARRAY_LOOKUP_LONG(arr,flags,opts);
@@ -45,6 +44,7 @@ namespace php_git2
 
             return &opts;
         }
+
     private:
         git_repository_init_options opts;
     };
@@ -66,8 +66,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_INIT = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_REPOSITORY_NEW = zif_php_git2_function<
@@ -79,7 +78,6 @@ static constexpr auto ZIF_GIT_REPOSITORY_NEW = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<>,
-    php_git2::sequence<0>,
     php_git2::sequence<0>
     >;
 
@@ -99,8 +97,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_OPEN = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_REPOSITORY_OPEN_BARE = zif_php_git2_function<
@@ -113,8 +110,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_OPEN_BARE = zif_php_git2_function<
         php_git2::php_string>,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_REPOSITORY__CLEANUP = zif_php_git2_function_void<
@@ -146,12 +142,11 @@ static constexpr auto ZIF_GIT_REPOSITORY_DISCOVER = zif_php_git2_function<
         php_git2::php_git_buf,
         php_git2::php_string,
         php_git2::php_bool,
-        php_git2::php_nullable_string
+        php_git2::php_string_nullable
         >,
     1,
     php_git2::sequence<1,2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_REPOSITORY_GET_NAMESPACE = zif_php_git2_function<
@@ -186,12 +181,11 @@ static constexpr auto ZIF_GIT_REPOSITORY_HASHFILE = zif_php_git2_function<
         php_git2::php_resource<php_git2::php_git_repository>,
         php_git2::php_string,
         php_git2::php_long_cast<git_otype>,
-        php_git2::php_nullable_string
+        php_git2::php_string_nullable
         >,
     1,
     php_git2::sequence<1,2,3,4>,
-    php_git2::sequence<0,1,2,3,4>,
-    php_git2::sequence<0,0,1,2,3>
+    php_git2::sequence<0,1,2,3,4>
     >;
 
 static constexpr auto ZIF_GIT_REPOSITORY_ODB = zif_php_git2_function_setdeps<
@@ -206,8 +200,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_ODB = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>, // Make the ODB dependent on the repository.
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_REPOSITORY_SET_ODB = zif_php_git2_function_void<
@@ -258,8 +251,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_HEAD = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>, // Make the reference dependent on the repository.
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_REPOSITORY_IS_EMPTY = zif_php_git2_function_rethandler<
@@ -325,8 +317,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_IDENT = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 ZEND_BEGIN_ARG_INFO_EX(git_repository_ident_arginfo,0,0,2)
     ZEND_ARG_PASS_INFO(1)
@@ -345,8 +336,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_INIT_EXT = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_REPOSITORY_MESSAGE = zif_php_git2_function_rethandler<
@@ -360,8 +350,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_MESSAGE = zif_php_git2_function_rethand
         >,
     php_git2::php_notfound_rethandler<0>,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_REPOSITORY_MESSAGE_REMOVE = zif_php_git2_function<
@@ -382,14 +371,13 @@ static constexpr auto ZIF_GIT_REPOSITORY_OPEN_EXT = zif_php_git2_function<
         const char*>::func<git_repository_open_ext>,
     php_git2::local_pack<
         php_git2::php_resource_ref<php_git2::php_git_repository>,
-        php_git2::php_nullable_string,
+        php_git2::php_string_nullable,
         php_git2::php_long_cast<unsigned int>,
         php_git2::php_string
         >,
     1,
     php_git2::sequence<1,2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_REPOSITORY_REINIT_FILESYSTEM = zif_php_git2_function<
@@ -500,8 +488,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_WRAP_ODB = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_REPOSITORY_CONFIG = zif_php_git2_function_setdeps<
@@ -516,8 +503,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_CONFIG = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>, // Make the git_config dependent on the repository.
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_REPOSITORY_CONFIG_SNAPSHOT = zif_php_git2_function_setdeps<
@@ -532,8 +518,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_CONFIG_SNAPSHOT = zif_php_git2_function
     php_git2::sequence<0,1>, // Make the git_config dependent on the repository.
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_REPOSITORY_SET_CONFIG = zif_php_git2_function_void<
@@ -558,8 +543,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_INDEX = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_REPOSITORY_SET_INDEX = zif_php_git2_function_void<
@@ -585,8 +569,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_REFDB = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>, // Make the git_refdb dependent on the repository.
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_REPOSITORY_SET_REFDB = zif_php_git2_function_void<
@@ -613,7 +596,6 @@ static constexpr auto ZIF_GIT_REPOSITORY_FETCHHEAD_FOREACH = zif_php_git2_functi
         >,
     -1,
     php_git2::sequence<0,2,2>, // pass callback in twice for function and payload
-    php_git2::sequence<0,1,2>,
     php_git2::sequence<0,1,2>
     >;
 
@@ -630,7 +612,6 @@ static constexpr auto ZIF_GIT_REPOSITORY_MERGEHEAD_FOREACH = zif_php_git2_functi
         >,
     -1,
     php_git2::sequence<0,2,2>, // pass callback in twice for function and payload
-    php_git2::sequence<0,1,2>,
     php_git2::sequence<0,1,2>
     >;
 

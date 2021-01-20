@@ -6,27 +6,27 @@ require_once 'test_base.php';
 
 function test_general() {
     $testfn = function($remote) {
-        testbed_unit('git_remote_autotag', git_remote_autotag($remote));
-        testbed_unit('git_remote_connected', git_remote_connected($remote));
+        testbed_dump('git_remote_autotag', git_remote_autotag($remote));
+        testbed_dump('git_remote_connected', git_remote_connected($remote));
         try {
-            testbed_unit('git_remote_default_branch', git_remote_default_branch($remote));
+            testbed_dump('git_remote_default_branch', git_remote_default_branch($remote));
         } catch (\Exception $ex) {
-            testbed_unit('EX: git_remote_default_branch',$ex->getMessage());
+            testbed_dump('EX: git_remote_default_branch',$ex->getMessage());
         }
         try {
-            testbed_unit('git_remote_ls', git_remote_ls($remote));
+            testbed_dump('git_remote_ls', git_remote_ls($remote));
         } catch (\Exception $ex) {
-            testbed_unit('EX: git_remote_ls', $ex->getMessage());
+            testbed_dump('EX: git_remote_ls', $ex->getMessage());
         }
         try {
-            testbed_unit('git_remote_get_fetch_refspecs', git_remote_get_fetch_refspecs($remote));
+            testbed_dump('git_remote_get_fetch_refspecs', git_remote_get_fetch_refspecs($remote));
         } catch (\Exception $ex) {
-            testbed_unit('EX: git_remote_get_fetch_refspecs', $ex->getMessage());
+            testbed_dump('EX: git_remote_get_fetch_refspecs', $ex->getMessage());
         }
         try {
-            testbed_unit('git_remote_get_push_refspecs', git_remote_get_push_refspecs($remote));
+            testbed_dump('git_remote_get_push_refspecs', git_remote_get_push_refspecs($remote));
         } catch (\Exception $ex) {
-            testbed_unit('EX: git_remote_get_push_refspecs', $ex->getMessage());
+            testbed_dump('EX: git_remote_get_push_refspecs', $ex->getMessage());
         }
     };
     
@@ -50,8 +50,8 @@ function test_general() {
     $remote = git_remote_lookup($repo,'origin');
     $testfn($remote);
 
-    testbed_unit('git_remote_is_valid_name', git_remote_is_valid_name('roger'));
-    testbed_unit('git_remote_is_valid_name', git_remote_is_valid_name('+--=-=-'));
+    testbed_dump('git_remote_is_valid_name', git_remote_is_valid_name('roger'));
+    testbed_dump('git_remote_is_valid_name', git_remote_is_valid_name('+--=-=-'));
 }
 
 function test_fetch() {

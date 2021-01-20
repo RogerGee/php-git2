@@ -1,7 +1,7 @@
 /*
  * trace.h
  *
- * This file is a part of php-git2.
+ * Copyright (C) Roger P. Gee
  */
 
 #ifndef PHPGIT2_TRACE_H
@@ -22,8 +22,7 @@ static constexpr auto ZIF_GIT_TRACE_SET = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<0>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 #define GIT_TRACE_FE                                    \

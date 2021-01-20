@@ -1,7 +1,7 @@
 /*
  * note.h
  *
- * This file is a part of php-git2.
+ * Copyright (C) Roger P. Gee
  */
 
 #ifndef PHPGIT2_NOTE_H
@@ -67,7 +67,7 @@ static constexpr auto ZIF_GIT_NOTE_CREATE = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_git_oid,
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_nullable_string,
+        php_git2::php_string_nullable,
         php_git2::php_resource<php_git2::php_git_signature>,
         php_git2::php_resource<php_git2::php_git_signature>,
         php_git2::php_git_oid_fromstr,
@@ -76,8 +76,7 @@ static constexpr auto ZIF_GIT_NOTE_CREATE = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3,4,5,6,7>,
-    php_git2::sequence<0,1,2,3,4,5,6,7>,
-    php_git2::sequence<0,0,1,2,3,4,5,6>
+    php_git2::sequence<0,1,2,3,4,5,6,7>
     >;
 
 static constexpr auto ZIF_GIT_NOTE_FOREACH = zif_php_git2_function<
@@ -89,13 +88,12 @@ static constexpr auto ZIF_GIT_NOTE_FOREACH = zif_php_git2_function<
         void*>::func<git_note_foreach>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_nullable_string,
+        php_git2::php_string_nullable,
         php_git2::php_callback_handler<php_git2::note_foreach_callback>,
         php_git2::php_callback_sync
         >,
     -1,
     php_git2::sequence<0,1,3,3>, // pass callback in twice for function and payload
-    php_git2::sequence<0,1,2,3>,
     php_git2::sequence<0,1,2,3>
     >;
 
@@ -130,12 +128,11 @@ static constexpr auto ZIF_GIT_NOTE_ITERATOR_NEW = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_resource_ref<php_git2::php_git_note_iterator>,
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_nullable_string
+        php_git2::php_string_nullable
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_NOTE_MESSAGE = zif_php_git2_function<
@@ -161,8 +158,7 @@ static constexpr auto ZIF_GIT_NOTE_NEXT = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 ZEND_BEGIN_ARG_INFO_EX(git_note_next_arginfo,0,0,2)
     ZEND_ARG_PASS_INFO(1)
@@ -178,13 +174,12 @@ static constexpr auto ZIF_GIT_NOTE_READ = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_resource_ref<php_git2::php_git_note>,
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_nullable_string,
+        php_git2::php_string_nullable,
         php_git2::php_git_oid_fromstr
         >,
     1,
     php_git2::sequence<1,2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_NOTE_REMOVE = zif_php_git2_function<
@@ -197,7 +192,7 @@ static constexpr auto ZIF_GIT_NOTE_REMOVE = zif_php_git2_function<
         const git_oid*>::func<git_note_remove>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_nullable_string,
+        php_git2::php_string_nullable,
         php_git2::php_resource<php_git2::php_git_signature>,
         php_git2::php_resource<php_git2::php_git_signature>,
         php_git2::php_git_oid_fromstr

@@ -1,7 +1,7 @@
 /*
  * rebase.h
  *
- * This file is a part of php-git2.
+ * Copyright (C) Roger P. Gee
  */
 
 #ifndef PHPGIT2_REBASE_H
@@ -11,7 +11,6 @@
 
 namespace php_git2
 {
-
     // Explicitly specialize git2_resource destructor for git_rebase.
     template<> php_git_rebase::~git2_resource()
     {
@@ -19,17 +18,12 @@ namespace php_git2
     }
 
     class php_git_rebase_options:
-        public php_value_base
+        public php_option_array
     {
     public:
-        php_git_rebase_options(TSRMLS_D):
-            mergeOpts(TSRMLS_C), checkoutOpts(TSRMLS_C)
+        const git_rebase_options* byval_git2()
         {
-        }
-
-        const git_rebase_options* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
-        {
-            if (Z_TYPE_P(value) == IS_ARRAY) {
+            if (!is_null()) {
                 array_wrapper arr(value);
 
                 git_rebase_init_options(&opts,GIT_REBASE_OPTIONS_VERSION);
@@ -56,9 +50,7 @@ namespace php_git2
     class php_git_rebase_operation
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_rebase_operation)
-
-        git_rebase_operation** byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_rebase_operation** byval_git2()
         {
             return &operation;
         }
@@ -72,21 +64,14 @@ namespace php_git2
         git_rebase_operation* operation;
     };
 
-    class php_git_rebase_operation_rethandler:
-        private php_zts_base
+    class php_git_rebase_operation_rethandler
     {
     public:
-        php_git_rebase_operation_rethandler(TSRMLS_D):
-            php_zts_base(TSRMLS_C)
-        {
-        }
-
         template<typename... Ts>
         bool ret(git_rebase_operation* retval,zval* return_value,local_pack<Ts...>& pack)
         {
-            php_git_rebase_operation oper ZTS_CTOR;
+            php_git_rebase_operation oper;
             *oper.byval_git2() = retval;
-
             oper.ret(return_value);
 
             return true;
@@ -98,8 +83,6 @@ namespace php_git2
     class php_git_rebase_commit_rethandler
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_rebase_commit_rethandler)
-
         template<typename... Ts>
         bool ret(int retval,zval* return_value,local_pack<Ts...>& pack)
         {
@@ -136,10 +119,10 @@ static constexpr auto ZIF_GIT_REBASE_COMMIT = zif_php_git2_function_rethandler<
     php_git2::local_pack<
         php_git2::php_git_oid_out,
         php_git2::php_resource<php_git2::php_git_rebase>,
-        php_git2::php_resource_null<php_git2::php_git_signature>,
+        php_git2::php_resource_nullable<php_git2::php_git_signature>,
         php_git2::php_resource<php_git2::php_git_signature>,
-        php_git2::php_nullable_string,
-        php_git2::php_nullable_string
+        php_git2::php_string_nullable,
+        php_git2::php_string_nullable
         >,
     php_git2::php_git_rebase_commit_rethandler
     >;
@@ -154,7 +137,7 @@ static constexpr auto ZIF_GIT_REBASE_FINISH = zif_php_git2_function<
         const git_signature*>::func<git_rebase_finish>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_rebase>,
-        php_git2::php_resource_null<php_git2::php_git_signature>
+        php_git2::php_resource_nullable<php_git2::php_git_signature>
         >
     >;
 
@@ -176,15 +159,14 @@ static constexpr auto ZIF_GIT_REBASE_INIT = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_resource_ref<php_git2::php_git_rebase>,
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_resource_null<php_git2::php_git_annotated_commit>,
-        php_git2::php_resource_null<php_git2::php_git_annotated_commit>,
-        php_git2::php_resource_null<php_git2::php_git_annotated_commit>,
+        php_git2::php_resource_nullable<php_git2::php_git_annotated_commit>,
+        php_git2::php_resource_nullable<php_git2::php_git_annotated_commit>,
+        php_git2::php_resource_nullable<php_git2::php_git_annotated_commit>,
         php_git2::php_git_rebase_options
         >,
     1,
     php_git2::sequence<1,2,3,4,5>,
-    php_git2::sequence<0,1,2,3,4,5>,
-    php_git2::sequence<0,0,1,2,3,4>
+    php_git2::sequence<0,1,2,3,4,5>
     >;
 
 static constexpr auto ZIF_GIT_REBASE_INMEMORY_INDEX = zif_php_git2_function<
@@ -198,8 +180,7 @@ static constexpr auto ZIF_GIT_REBASE_INMEMORY_INDEX = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_REBASE_NEXT = zif_php_git2_function<
@@ -213,8 +194,7 @@ static constexpr auto ZIF_GIT_REBASE_NEXT = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_REBASE_OPEN = zif_php_git2_function<
@@ -230,8 +210,7 @@ static constexpr auto ZIF_GIT_REBASE_OPEN = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_REBASE_OPERATION_BYINDEX = zif_php_git2_function_rethandler<

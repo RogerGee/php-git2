@@ -1,7 +1,7 @@
 /*
- * git2-resource.h
+ * php-resource.h
  *
- * This file is a part of php-git2.
+ * Copyright (C) Roger P. Gee
  */
 
 #ifndef PHPGIT2_GIT2_RESOURCE_H
@@ -9,6 +9,7 @@
 #include "php-git2.h"
 #include <new>
 #include <typeinfo>
+#include <iostream>
 
 namespace php_git2
 {
@@ -47,6 +48,7 @@ namespace php_git2
                 efree(self);
             }
         }
+
     protected:
         git2_resource_base():
             ref(1), parent(nullptr)
@@ -57,6 +59,7 @@ namespace php_git2
         {
             return (--ref <= 0);
         }
+
     private:
         virtual bool free_handle() = 0;
 
@@ -81,7 +84,7 @@ namespace php_git2
         typedef const git_type* const_git2_type;
 
         git2_resource(bool isOwner = true):
-            handle(nullptr), isowned(isOwner)
+            handle(nullptr), isowner(isOwner)
         {
         }
 
@@ -89,8 +92,11 @@ namespace php_git2
         {
             // The destructor should be specialized for the git_type used by the
             // particular template class instantiation.
-            throw php_git2_exception(
-                "Resource type was not implemented correctly: no destructor provided");
+
+            std::cerr << "Resource type '" << resource_name()
+                      << "' was not implemented correctly: no destructor provided"
+                      << std::endl;
+            std::terminate();
         }
 
         git2_type get_handle()
@@ -116,20 +122,23 @@ namespace php_git2
             handle = ptr;
         }
 
-        bool is_owned() const
+        bool is_owner() const
         {
-            return isowned;
+            return isowner;
         }
 
         void revoke_ownership()
         {
-            isowned = false;
+            isowner = false;
         }
 
         static void define_resource_type(int moduleNumber)
         {
             le = zend_register_list_destructors_ex(
-                destroy_resource, nullptr, typeid(git2_type).name(), moduleNumber);
+                destroy_resource,
+                nullptr,
+                resource_name(),
+                moduleNumber);
         }
 
         static int resource_le()
@@ -141,12 +150,13 @@ namespace php_git2
         {
             return typeid(git2_type).name();
         }
+
     private:
         static int le;
 
-        static void destroy_resource(zend_rsrc_list_entry* rsrc TSRMLS_DC)
+        static void destroy_resource(zend_resource* res)
         {
-            git2_resource* self = reinterpret_cast<git2_resource*>(rsrc->ptr);
+            git2_resource* self = reinterpret_cast<git2_resource*>(res->ptr);
             free_recursive(self);
         }
 
@@ -158,13 +168,14 @@ namespace php_git2
             // be cleaned up (i.e. all references have been decremented).
 
             if (down_ref()) {
-                if (handle != nullptr && isowned) {
+                if (handle != nullptr && isowner) {
                     this->~git2_resource();
                 }
 
                 handle = nullptr;
                 return true;
             }
+
             return false;
         }
 
@@ -173,10 +184,11 @@ namespace php_git2
         // libgit2 routines.
         git2_type handle;
 
-        // Indicates whether or not the handle may be freed by this object.
-        bool isowned;
-
+        // Indicates whether or not the instance is the owner of the handle. If
+        // so, then the instance may free the handle.
+        bool isowner;
     };
+
     template<typename git_type>
     int git2_resource<git_type>::le = 0;
 

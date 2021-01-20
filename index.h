@@ -1,7 +1,7 @@
 /*
  * index.h
  *
- * This file is a part of php-git2.
+ * Copyright (C) Roger P. Gee
  */
 
 #ifndef PHPGIT2_INDEX_H
@@ -25,24 +25,18 @@ namespace php_git2
     // git_index_entry.
 
     class php_git_index_entry:
-        public php_value_base,
-        private php_zts_base
+        public php_array_base
     {
     public:
-        php_git_index_entry(TSRMLS_D):
-            php_zts_base(TSRMLS_C)
+        php_git_index_entry()
         {
             memset(&ent,0,sizeof(git_index_entry));
         }
 
-        const git_index_entry* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        const git_index_entry* byval_git2()
         {
-            if (!Z_TYPE_P(value)) {
-                error("array",argno);
-            }
-
             array_wrapper arr(value);
-            php_git_index_time tm ZTS_CTOR;
+            php_git_index_time tm;
 
             GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(arr,tm,ctime,ent);
             GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(arr,tm,mtime,ent);
@@ -59,22 +53,21 @@ namespace php_git2
 
             return &ent;
         }
+
     private:
         git_index_entry ent;
 
         class php_git_index_time:
-            public php_value_base
+            public php_array_base
         {
         public:
-            php_git_index_time(TSRMLS_D)
+            php_git_index_time()
             {
                 memset(&tv,0,sizeof(git_index_time));
             }
 
-            const git_index_time* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+            const git_index_time* byval_git2()
             {
-                assert(Z_TYPE_P(value) == IS_ARRAY);
-
                 array_wrapper arr(value);
 
                 GIT2_ARRAY_LOOKUP_LONG(arr,seconds,tv);
@@ -93,9 +86,7 @@ namespace php_git2
     class php_git_index_entry_ref
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_index_entry_ref)
-
-        const git_index_entry** byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        const git_index_entry** byval_git2()
         {
             return &ent;
         }
@@ -104,20 +95,19 @@ namespace php_git2
         {
             php_git2::convert_index_entry(return_value,ent);
         }
+
     private:
         const git_index_entry* ent;
     };
 
     class php_git_index_entry_out:
-        public php_value_base,
+        public php_output_parameter,
         public php_git_index_entry_ref
     {
     public:
-        ZTS_CONSTRUCTOR_WITH_BASE(php_git_index_entry_out,php_git_index_entry_ref)
-
         ~php_git_index_entry_out()
         {
-            ret(value);
+            ret(get_value());
         }
     };
 
@@ -126,8 +116,6 @@ namespace php_git2
     class php_git_index_entry_rethandler
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_index_entry_rethandler)
-
         template<typename... Ts>
         bool ret(const git_index_entry* entry,zval* return_value,local_pack<Ts...>& pack)
         {
@@ -171,8 +159,7 @@ static constexpr auto ZIF_GIT_INDEX_ADD_ALL = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<0,1,2,4,4>,
-    php_git2::sequence<0,1,2,3,4>,
-    php_git2::sequence<0,1,2,0,3>
+    php_git2::sequence<0,1,2,3,4>
     >;
 
 static constexpr auto ZIF_GIT_INDEX_ADD_BYPATH = zif_php_git2_function<
@@ -201,8 +188,7 @@ static constexpr auto ZIF_GIT_INDEX_ADD_FROMBUFFER = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<0,1,3>,
-    php_git2::sequence<0,1,3,2>,
-    php_git2::sequence<0,1,2,0>
+    php_git2::sequence<0,1,3,2>
     >;
 
 static constexpr auto ZIF_GIT_INDEX_CAPS = zif_php_git2_function<
@@ -299,8 +285,7 @@ static constexpr auto ZIF_GIT_INDEX_CONFLICT_ITERATOR_NEW = zif_php_git2_functio
     php_git2::sequence<0,1>, // Make the iterator depend on the index.
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_INDEX_CONFLICT_NEXT = zif_php_git2_function_rethandler<
@@ -378,8 +363,7 @@ static constexpr auto ZIF_GIT_INDEX_FIND = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_INDEX_FIND_PREFIX = zif_php_git2_function<
@@ -395,8 +379,7 @@ static constexpr auto ZIF_GIT_INDEX_FIND_PREFIX = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_INDEX_FREE = zif_php_git2_function_free<
@@ -450,7 +433,6 @@ static constexpr auto ZIF_GIT_INDEX_NEW = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<>,
-    php_git2::sequence<0>,
     php_git2::sequence<0>
     >;
 
@@ -465,8 +447,7 @@ static constexpr auto ZIF_GIT_INDEX_OPEN = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_INDEX_OWNER = zif_php_git2_function_rethandler<
@@ -478,7 +459,6 @@ static constexpr auto ZIF_GIT_INDEX_OWNER = zif_php_git2_function_rethandler<
         php_git2::php_resource_ref<php_git2::php_git_repository_nofree>
         >,
     php_git2::php_owner_rethandler<php_git2::php_git_index>,
-    php_git2::sequence<0>,
     php_git2::sequence<0>,
     php_git2::sequence<0>
     >;
@@ -543,8 +523,7 @@ static constexpr auto ZIF_GIT_INDEX_REMOVE_ALL = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<0,1,3,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,1,0,2>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_INDEX_REMOVE_BYPATH = zif_php_git2_function<
@@ -608,8 +587,7 @@ static constexpr auto ZIF_GIT_INDEX_UPDATE_ALL = zif_php_git2_function<
         >,
     -1,
     php_git2::sequence<0,1,3,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,1,0,2>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_INDEX_VERSION = zif_php_git2_function<
@@ -643,8 +621,7 @@ static constexpr auto ZIF_GIT_INDEX_WRITE_TREE = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_INDEX_WRITE_TREE_TO = zif_php_git2_function<
@@ -660,8 +637,7 @@ static constexpr auto ZIF_GIT_INDEX_WRITE_TREE_TO = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 #define GIT_INDEX_FE                                                    \

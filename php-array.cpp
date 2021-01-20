@@ -1,18 +1,24 @@
 /*
  * php-array.cpp
  *
- * This file is a part of php-git2.
+ * Copyright (C) Roger P. Gee
  */
 
 #include "php-array.h"
 using namespace php_git2;
 
-array_wrapper::array_wrapper(zval* zarray):
-    ht(Z_ARRVAL_P(zarray)), zvp(nullptr), usesTmp(false)
+array_wrapper::array_wrapper(zval& zv):
+    ht(Z_ARRVAL(zv)), zvp(nullptr), usesTmp(false)
 {
     // Give 'tmp' an initial value so that we have it in a known state
     // initially.
-    INIT_ZVAL(tmp);
+    ZVAL_UNDEF(&tmp);
+}
+
+array_wrapper::array_wrapper(zval* zvp):
+    ht(Z_ARRVAL_P(zvp)), zvp(nullptr), usesTmp(false)
+{
+    ZVAL_UNDEF(&tmp);
 }
 
 array_wrapper::~array_wrapper()
@@ -23,22 +29,22 @@ array_wrapper::~array_wrapper()
 bool array_wrapper::query(const char* key,size_t keysz)
 {
     usesTmp = false;
-    if (zend_hash_find(ht,key,keysz,(void**)&zvp) != FAILURE) {
+    zvp = zend_hash_str_find(ht,key,keysz);
+    if (zvp != nullptr) {
         return true;
     }
 
-    zvp = nullptr;
     return false;
 }
 
 bool array_wrapper::query(int index)
 {
     usesTmp = false;
-    if (zend_hash_index_find(ht,index,(void**)&zvp) != FAILURE) {
+    zvp = zend_hash_index_find(ht,index);
+    if (zvp != nullptr) {
         return true;
     }
 
-    zvp = nullptr;
     return false;
 }
 
@@ -89,22 +95,23 @@ long array_wrapper::get_long() const
 bool array_wrapper::get_bool() const
 {
     if (found()) {
-        zval* zv = copy_if_not_type(IS_BOOL);
+        zval* zv = copy_if_not_type(_IS_BOOL);
 
-        return Z_BVAL_P(zv);
+        return Z_TYPE_P(zv) == IS_TRUE;
     }
 
     return false;
 }
 
-zval* array_wrapper::get_zval() const
+zval* array_wrapper::get_value() const
 {
     if (found()) {
-        return *zvp;
+        return zvp;
     }
 
     zval_dtor(&tmp);
     ZVAL_NULL(&tmp);
+
     return &tmp;
 }
 
@@ -127,7 +134,7 @@ zval* array_wrapper::copy_if_not_type(int type) const
         return &tmp;
     }
 
-    zval* zv = *zvp;
+    zval* zv = zvp;
 
     if (Z_TYPE_P(zv) != type) {
         // Use the temporary zval to store the converted, copied zval.
@@ -135,8 +142,7 @@ zval* array_wrapper::copy_if_not_type(int type) const
         zval_dtor(zv);
 
         // Copy the zval into the temporary zval.
-        ZVAL_COPY_VALUE(zv,*zvp);
-        zval_copy_ctor(zv);
+        ZVAL_DUP(zv,zvp);
 
         // Convert the copied zval.
         convert_to_explicit_type(zv,type);

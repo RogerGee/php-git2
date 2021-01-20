@@ -1,7 +1,7 @@
 /*
  * branch.h
  *
- * This file is a part of php-git2.
+ * Copyright (C) Roger P. Gee
  */
 
 #ifndef PHPGIT2_BRANCH_H
@@ -38,8 +38,7 @@ static constexpr auto ZIF_GIT_BRANCH_CREATE = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,2,3,4>,
-    php_git2::sequence<0,1,2,3,4>,
-    php_git2::sequence<0,0,1,2,3>
+    php_git2::sequence<0,1,2,3,4>
     >;
 
 static constexpr auto ZIF_GIT_BRANCH_CREATE_FROM_ANNOTATED = zif_php_git2_function_setdeps<
@@ -60,8 +59,7 @@ static constexpr auto ZIF_GIT_BRANCH_CREATE_FROM_ANNOTATED = zif_php_git2_functi
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,2,3,4>,
-    php_git2::sequence<0,1,2,3,4>,
-    php_git2::sequence<0,0,1,2,3>
+    php_git2::sequence<0,1,2,3,4>
     >;
 
 static constexpr auto ZIF_GIT_BRANCH_DELETE = zif_php_git2_function<
@@ -99,8 +97,7 @@ static constexpr auto ZIF_GIT_BRANCH_ITERATOR_NEW = zif_php_git2_function_setdep
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_BRANCH_ITERATOR_FREE = zif_php_git2_function_free<
@@ -120,8 +117,7 @@ static constexpr auto ZIF_GIT_BRANCH_NEXT = zif_php_git2_function_rethandler<
         >,
     php_git2::php_resource_iterover_rethandler<0,php_git2::sequence<0,2> >,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 ZEND_BEGIN_ARG_INFO_EX(git_branch_next_arginfo,0,0,2)
     ZEND_ARG_PASS_INFO(1)
@@ -143,8 +139,7 @@ static constexpr auto ZIF_GIT_BRANCH_LOOKUP = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_BRANCH_MOVE = zif_php_git2_function_setdeps<
@@ -163,8 +158,7 @@ static constexpr auto ZIF_GIT_BRANCH_MOVE = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_BRANCH_NAME = zif_php_git2_function<
@@ -178,8 +172,7 @@ static constexpr auto ZIF_GIT_BRANCH_NAME = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_BRANCH_SET_UPSTREAM = zif_php_git2_function<
@@ -189,7 +182,7 @@ static constexpr auto ZIF_GIT_BRANCH_SET_UPSTREAM = zif_php_git2_function<
         const char*>::func<git_branch_set_upstream>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_reference>,
-        php_git2::php_nullable_string
+        php_git2::php_string_nullable
         >,
     -1
     >;
@@ -205,8 +198,7 @@ static constexpr auto ZIF_GIT_BRANCH_UPSTREAM = zif_php_git2_function_rethandler
         >,
     php_git2::php_resource_notfound_rethandler<0,php_git2::sequence<0,1> >,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_BRANCH_UPSTREAM_NAME = zif_php_git2_function_rethandler<
@@ -222,8 +214,7 @@ static constexpr auto ZIF_GIT_BRANCH_UPSTREAM_NAME = zif_php_git2_function_retha
         >,
     php_git2::php_notfound_rethandler<0>,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_BRANCH_UPSTREAM_REMOTE = zif_php_git2_function<
@@ -239,8 +230,7 @@ static constexpr auto ZIF_GIT_BRANCH_UPSTREAM_REMOTE = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 // Function Entries:

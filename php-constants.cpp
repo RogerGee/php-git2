@@ -1,7 +1,7 @@
 /*
  * php-constants.cpp
  *
- * This file is a part of php-git2.
+ * Copyright (C) Roger P. Gee
  */
 
 #include "php-git2.h"
@@ -18,7 +18,7 @@ using namespace php_git2;
 #define PHP_GIT2_CONSTANT_S(name)                                   \
     REGISTER_STRING_CONSTANT(#name,const_cast<char*>(name),CONST_CS|CONST_PERSISTENT)
 
-void php_git2::php_git2_register_constants(int module_number TSRMLS_DC)
+void php_git2::php_git2_register_constants(int module_number)
 {
     // GIT_*
     PHP_GIT2_CONSTANT(GIT_OK);

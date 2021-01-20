@@ -1,7 +1,7 @@
 /*
  * php-refdb-backend-internal.cpp
  *
- * This file is a part of php-git2.
+ * Copyright (C) Roger P. Gee
  */
 
 #include "php-object.h"
@@ -53,14 +53,13 @@ zend_function_entry php_git2::refdb_backend_internal_methods[] = {
 
 // Make function implementation
 
-void php_git2::php_git2_make_refdb_backend(zval* zp,git_refdb_backend* backend,php_git_refdb* owner TSRMLS_DC)
+void php_git2::php_git2_make_refdb_backend(zval* zp,git_refdb_backend* backend,php_git_refdb* owner)
 {
-    php_refdb_backend_object* obj;
-    zend_class_entry* ce = php_git2::class_entry[php_git2_refdb_backend_internal_obj];
+    php_refdb_backend_internal_object* obj;
 
     // Create object zval.
-    object_init_ex(zp,ce);
-    obj = reinterpret_cast<php_refdb_backend_object*>(zend_objects_get_address(zp TSRMLS_CC));
+    object_init_ex(zp,php_git2::class_entry[php_git2_refdb_backend_internal_obj]);
+    obj = php_zend_object<php_refdb_backend_internal_object>::get_storage(zp);
 
     // Assign the backend.
     obj->backend = backend;
@@ -78,11 +77,33 @@ void php_git2::php_git2_make_refdb_backend(zval* zp,git_refdb_backend* backend,p
     }
 }
 
+// php_zend_object init function
+
+template<>
+zend_object_handlers php_git2::php_zend_object<php_refdb_backend_object>::handlers;
+
+template<>
+zend_object_handlers php_git2::php_zend_object<php_refdb_backend_internal_object>::handlers;
+
+template<>
+void php_zend_object<php_refdb_backend_internal_object>::init(zend_class_entry* ce)
+{
+    auto& parentHandlers = php_zend_object<php_refdb_backend_object>::handlers;
+
+    handlers.read_property = parentHandlers.read_property;
+    handlers.write_property = parentHandlers.write_property;
+    handlers.has_property = parentHandlers.has_property;
+    handlers.get_constructor = php_git2::not_allowed_get_constructor;
+
+    handlers.offset = offset();
+
+    UNUSED(ce);
+}
+
 // Implementation of php_refdb_backend_internal_object
 
-/*static*/ zend_object_handlers php_refdb_backend_internal_object::handlers;
-php_refdb_backend_internal_object::php_refdb_backend_internal_object(zend_class_entry* ce TSRMLS_DC):
-    php_refdb_backend_object(ce TSRMLS_CC), iter(nullptr)
+php_refdb_backend_internal_object::php_refdb_backend_internal_object():
+    iter(nullptr)
 {
 }
 
@@ -93,30 +114,26 @@ php_refdb_backend_internal_object::~php_refdb_backend_internal_object()
     }
 }
 
-/*static*/ void php_refdb_backend_internal_object::init(zend_class_entry* ce)
-{
-    handlers.get_constructor = php_git2::not_allowed_get_constructor;
-    UNUSED(ce);
-}
-
 // Class method implementation.
 
 PHP_METHOD(GitRefDBBackend_Internal,exists)
 {
-    php_bailer bailer ZTS_CTOR;
-    php_refdb_backend_object* object = LOOKUP_OBJECT(php_refdb_backend_object,getThis());
+    php_bailer bailer;
+    php_refdb_backend_object* object;
 
     char* refname;
-    int refname_len;
+    size_t refname_len;
+
+    object = php_zend_object<php_refdb_backend_internal_object>::get_storage(getThis());
 
     // Verfiy the backend exists and the function is implemented.
     if (object->backend == nullptr || object->backend->exists == nullptr) {
-        php_error(E_ERROR,"GitRefDBBackend_Internal::exists(): method is not available");
+        zend_throw_error(nullptr,"GitRefDBBackend_Internal::exists(): method is not available");
         return;
     }
 
     // Parse method parameters.
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&refname,&refname_len) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS(),"s",&refname,&refname_len) == FAILURE) {
         return;
     }
 
@@ -132,38 +149,41 @@ PHP_METHOD(GitRefDBBackend_Internal,exists)
         else {
             RETVAL_BOOL(result);
         }
+
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer TSRMLS_CC);
+        php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle(TSRMLS_C);
+            ex.handle();
         }
     }
 }
 
 PHP_METHOD(GitRefDBBackend_Internal,lookup)
 {
-    php_bailer bailer ZTS_CTOR;
-    php_refdb_backend_object* object = LOOKUP_OBJECT(php_refdb_backend_object,getThis());
+    php_bailer bailer;
+    php_refdb_backend_internal_object* object;
 
     char* refname;
-    int refname_len;
+    size_t refname_len;
+
+    object = php_zend_object<php_refdb_backend_internal_object>::get_storage(getThis());
 
     // Verfiy the backend exists and the function is implemented.
     if (object->backend == nullptr || object->backend->lookup == nullptr) {
-        php_error(E_ERROR,"GitRefDBBackend_Internal::lookup(): method is not available");
+        zend_throw_error(nullptr,"GitRefDBBackend_Internal::lookup(): method is not available");
         return;
     }
 
     // Parse method parameters.
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&refname,&refname_len) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS(),"s",&refname,&refname_len) == FAILURE) {
         return;
     }
 
     // Call underlying backend function.
     try {
         int retval;
-        php_resource_ref<php_git_reference> res ZTS_CTOR;
+        php_resource_ref<php_git_reference> res;
 
         retval = object->backend->lookup(res.byval_git2(),object->backend,refname);
         if (retval < 0) {
@@ -172,32 +192,36 @@ PHP_METHOD(GitRefDBBackend_Internal,lookup)
         else {
             res.ret(return_value);
         }
+
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer TSRMLS_CC);
+        php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle(TSRMLS_C);
+            ex.handle();
         }
     }
 }
 
 PHP_METHOD(GitRefDBBackend_Internal,iterator_new)
 {
-    php_bailer bailer ZTS_CTOR;
-    php_refdb_backend_internal_object* object =
-        LOOKUP_OBJECT(php_refdb_backend_internal_object,getThis());
+    php_bailer bailer;
+    php_refdb_backend_internal_object* object;
 
     char* glob;
-    int glob_len;
+    size_t glob_len;
+
+    object = php_zend_object<php_refdb_backend_internal_object>::get_storage(getThis());
 
     // Verfiy the backend exists and the function is implemented.
     if (object->backend == nullptr || object->backend->iterator == nullptr) {
-        php_error(E_ERROR,"GitRefDBBackend_Internal::iterator_new(): method is not available");
+        zend_throw_error(
+            nullptr,
+            "GitRefDBBackend_Internal::iterator_new(): method is not available");
         return;
     }
 
     // Parse method parameters.
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"!s",&glob,&glob_len) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS(),"!s",&glob,&glob_len) == FAILURE) {
         return;
     }
 
@@ -218,31 +242,35 @@ PHP_METHOD(GitRefDBBackend_Internal,iterator_new)
 
             object->iter = iter;
         }
+
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer TSRMLS_CC);
+        php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle(TSRMLS_C);
+            ex.handle();
         }
     }
 }
 
 PHP_METHOD(GitRefDBBackend_Internal,iterator_next)
 {
-    php_bailer bailer ZTS_CTOR;
-    php_refdb_backend_internal_object* object =
-        LOOKUP_OBJECT(php_refdb_backend_internal_object,getThis());
+    php_bailer bailer;
+    php_refdb_backend_internal_object* object;
 
     zval* znameout;
 
+    object = php_zend_object<php_refdb_backend_internal_object>::get_storage(getThis());
+
     // Verfiy the backend exists and the function is implemented.
     if (object->backend == nullptr || object->backend->iterator == nullptr) {
-        php_error(E_ERROR,"GitRefDBBackend_Internal::iterator_next(): method is not available");
+        zend_throw_error(
+            nullptr,
+            "GitRefDBBackend_Internal::iterator_next(): method is not available");
         return;
     }
 
     // Parse method parameters.
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"z",&znameout) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS(),"z/",&znameout) == FAILURE) {
         return;
     }
 
@@ -267,7 +295,7 @@ PHP_METHOD(GitRefDBBackend_Internal,iterator_next)
         }
 
         // Write reference name to out parameter.
-        ZVAL_STRING(znameout,git_reference_name(ref),1);
+        ZVAL_STRING(znameout,git_reference_name(ref));
 
         // Write reference value to the return value.
         oid = git_reference_target(ref);
@@ -275,48 +303,53 @@ PHP_METHOD(GitRefDBBackend_Internal,iterator_next)
             const char* target = git_reference_symbolic_target(ref);
             if (target == nullptr) {
                 git_reference_free(ref);
-                throw php_git2_fatal_exception("GitRefDBBackend_Internal::iterator_next(): next reference is invalid");
+                throw php_git2_error_exception(
+                    "GitRefDBBackend_Internal::iterator_next(): next reference is invalid");
             }
 
-            RETVAL_STRING(target,1);
+            RETVAL_STRING(target);
         }
         else {
             convert_oid(return_value,oid);
         }
 
         git_reference_free(ref);
+
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer TSRMLS_CC);
+        php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle(TSRMLS_C);
+            ex.handle();
         }
     }
 }
 
 PHP_METHOD(GitRefDBBackend_Internal,write)
 {
-    php_bailer bailer ZTS_CTOR;
-    php_refdb_backend_object* object = LOOKUP_OBJECT(php_refdb_backend_object,getThis());
+    php_bailer bailer;
+    php_refdb_backend_object* object;
 
     zval* zref;
     zend_bool force;
     zval* zwho;
     char* message = nullptr;
-    int message_len = 0;
+    size_t message_len = 0;
     char* old;
-    int old_len;
+    size_t old_len;
     char* oldtarget;
-    int oldtarget_len;
+    size_t oldtarget_len;
+
+    object = php_zend_object<php_refdb_backend_internal_object>::get_storage(getThis());
 
     // Verfiy the backend exists and the function is implemented.
     if (object->backend == nullptr || object->backend->write == nullptr) {
-        php_error(E_ERROR,"GitRefDBBackend_Internal::write(): method is not available");
+        zend_throw_error(nullptr,"GitRefDBBackend_Internal::write(): method is not available");
         return;
     }
 
     // Parse method parameters.
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"rba!sss",
+    if (zend_parse_parameters(ZEND_NUM_ARGS(),
+            "rba!sss",
             &zref,
             &force,
             &zwho,
@@ -335,12 +368,13 @@ PHP_METHOD(GitRefDBBackend_Internal,write)
         int retval;
         git_oid oid;
         git_signature* sig;
-        php_resource<php_git_reference> ref ZTS_CTOR;
+        php_resource<php_git_reference> ref;
 
-        ref.set_zval(zref);
+        ref.set_value(zref);
         sig = convert_signature(zwho);
         if (sig == nullptr) {
-            throw php_git2_fatal_exception("GitRefDBBackend_Internal::write(): signature array is incorrect");
+            throw php_git2_error_exception(
+                "GitRefDBBackend_Internal::write(): signature array is incorrect");
         }
         convert_oid_fromstr(&oid,old,old_len);
 
@@ -358,37 +392,41 @@ PHP_METHOD(GitRefDBBackend_Internal,write)
         if (retval < 0) {
             php_git2::git_error(retval);
         }
+
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer TSRMLS_CC);
+        php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle(TSRMLS_C);
+            ex.handle();
         }
     }
 }
 
 PHP_METHOD(GitRefDBBackend_Internal,rename)
 {
-    php_bailer bailer ZTS_CTOR;
-    php_refdb_backend_object* object = LOOKUP_OBJECT(php_refdb_backend_object,getThis());
+    php_bailer bailer;
+    php_refdb_backend_object* object;
 
     char* oldname;
-    int oldname_len;
+    size_t oldname_len;
     char* newname;
-    int newname_len;
+    size_t newname_len;
     zend_bool force;
     zval* zwho;
     char* message = nullptr;
-    int message_len = 0;
+    size_t message_len = 0;
+
+    object = php_zend_object<php_refdb_backend_internal_object>::get_storage(getThis());
 
     // Verfiy the backend exists and the function is implemented.
     if (object->backend == nullptr || object->backend->rename == nullptr) {
-        php_error(E_ERROR,"GitRefDBBackend_Internal::rename(): method is not available");
+        zend_throw_error(nullptr,"GitRefDBBackend_Internal::rename(): method is not available");
         return;
     }
 
     // Parse method parameters.
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"ssba!s",
+    if (zend_parse_parameters(ZEND_NUM_ARGS(),
+            "ssba!s",
             &oldname,
             &oldname_len,
             &newname,
@@ -405,11 +443,12 @@ PHP_METHOD(GitRefDBBackend_Internal,rename)
     try {
         int retval;
         git_signature* sig;
-        php_resource_ref<php_git_reference> ref ZTS_CTOR;
+        php_resource_ref<php_git_reference> ref;
 
         sig = convert_signature(zwho);
         if (sig == nullptr) {
-            throw php_git2_exception("GitRefDBBackend_Internal::rename(): signature array is incorrect");
+            throw php_git2_exception(
+                "GitRefDBBackend_Internal::rename(): signature array is incorrect");
         }
 
         retval = object->backend->rename(
@@ -429,35 +468,39 @@ PHP_METHOD(GitRefDBBackend_Internal,rename)
         else {
             ref.ret(return_value);
         }
+
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer TSRMLS_CC);
+        php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle(TSRMLS_C);
+            ex.handle();
         }
     }
 }
 
 PHP_METHOD(GitRefDBBackend_Internal,del)
 {
-    php_bailer bailer ZTS_CTOR;
-    php_refdb_backend_object* object = LOOKUP_OBJECT(php_refdb_backend_object,getThis());
+    php_bailer bailer;
+    php_refdb_backend_object* object;
 
     char* refname;
-    int refname_len;
+    size_t refname_len;
     char* oldid;
-    int oldid_len;
+    size_t oldid_len;
     char* oldtarget;
-    int oldtarget_len;
+    size_t oldtarget_len;
+
+    object = php_zend_object<php_refdb_backend_internal_object>::get_storage(getThis());
 
     // Verfiy the backend exists and the function is implemented.
     if (object->backend == nullptr || object->backend->del == nullptr) {
-        php_error(E_ERROR,"GitRefDBBackend_Internal::del(): method is not available");
+        zend_throw_error(nullptr,"GitRefDBBackend_Internal::del(): method is not available");
         return;
     }
 
     // Parse method parameters.
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"sss",
+    if (zend_parse_parameters(ZEND_NUM_ARGS(),
+            "sss",
             &refname,
             &refname_len,
             &oldid,
@@ -481,23 +524,28 @@ PHP_METHOD(GitRefDBBackend_Internal,del)
         if (retval < 0) {
             php_git2::git_error(retval);
         }
+
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer TSRMLS_CC);
+        php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle(TSRMLS_C);
+            ex.handle();
         }
     }
 }
 
 PHP_METHOD(GitRefDBBackend_Internal,compress)
 {
-    php_bailer bailer ZTS_CTOR;
-    php_refdb_backend_object* object = LOOKUP_OBJECT(php_refdb_backend_object,getThis());
+    php_bailer bailer;
+    php_refdb_backend_object* object;
+
+    object = php_zend_object<php_refdb_backend_internal_object>::get_storage(getThis());
 
     // Verfiy the backend exists and the function is implemented.
     if (object->backend == nullptr || object->backend->compress == nullptr) {
-        php_error(E_ERROR,"GitRefDBBackend_Internal::compress(): method is not available");
+        zend_throw_error(
+            nullptr,
+            "GitRefDBBackend_Internal::compress(): method is not available");
         return;
     }
 
@@ -509,31 +557,36 @@ PHP_METHOD(GitRefDBBackend_Internal,compress)
         if (retval < 0) {
             php_git2::git_error(retval);
         }
+
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer TSRMLS_CC);
+        php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle(TSRMLS_C);
+            ex.handle();
         }
     }
 }
 
 PHP_METHOD(GitRefDBBackend_Internal,has_log)
 {
-    php_bailer bailer ZTS_CTOR;
-    php_refdb_backend_object* object = LOOKUP_OBJECT(php_refdb_backend_object,getThis());
+    php_bailer bailer;
+    php_refdb_backend_object* object;
+
+    object = php_zend_object<php_refdb_backend_internal_object>::get_storage(getThis());
 
     // Verfiy the backend exists and the function is implemented.
     if (object->backend == nullptr || object->backend->has_log == nullptr) {
-        php_error(E_ERROR,"GitRefDBBackend_Internal::has_log(): method is not available");
+        zend_throw_error(
+            nullptr,
+            "GitRefDBBackend_Internal::has_log(): method is not available");
         return;
     }
 
     char* refname;
-    int refname_len;
+    size_t refname_len;
 
     // Parse method parameters.
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&refname,&refname_len) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS(),"s",&refname,&refname_len) == FAILURE) {
         return;
     }
 
@@ -548,31 +601,36 @@ PHP_METHOD(GitRefDBBackend_Internal,has_log)
         else {
             RETVAL_BOOL(retval);
         }
+
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer TSRMLS_CC);
+        php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle(TSRMLS_C);
+            ex.handle();
         }
     }
 }
 
 PHP_METHOD(GitRefDBBackend_Internal,ensure_log)
 {
-    php_bailer bailer ZTS_CTOR;
-    php_refdb_backend_object* object = LOOKUP_OBJECT(php_refdb_backend_object,getThis());
+    php_bailer bailer;
+    php_refdb_backend_object* object;
+
+    object = php_zend_object<php_refdb_backend_internal_object>::get_storage(getThis());
 
     // Verfiy the backend exists and the function is implemented.
     if (object->backend == nullptr || object->backend->ensure_log == nullptr) {
-        php_error(E_ERROR,"GitRefDBBackend_Internal::ensure_log(): method is not available");
+        zend_throw_error(
+            nullptr,
+            "GitRefDBBackend_Internal::ensure_log(): method is not available");
         return;
     }
 
     char* refname;
-    int refname_len;
+    size_t refname_len;
 
     // Parse method parameters.
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&refname,&refname_len) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS(),"s",&refname,&refname_len) == FAILURE) {
         return;
     }
 
@@ -584,31 +642,36 @@ PHP_METHOD(GitRefDBBackend_Internal,ensure_log)
         if (retval < 0) {
             php_git2::git_error(retval);
         }
+
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer TSRMLS_CC);
+        php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle(TSRMLS_C);
+            ex.handle();
         }
     }
 }
 
 PHP_METHOD(GitRefDBBackend_Internal,reflog_read)
 {
-    php_bailer bailer ZTS_CTOR;
-    php_refdb_backend_object* object = LOOKUP_OBJECT(php_refdb_backend_object,getThis());
+    php_bailer bailer;
+    php_refdb_backend_object* object;
+
+    object = php_zend_object<php_refdb_backend_internal_object>::get_storage(getThis());
 
     // Verfiy the backend exists and the function is implemented.
     if (object->backend == nullptr || object->backend->reflog_read == nullptr) {
-        php_error(E_ERROR,"GitRefDBBackend_Internal::reflog_read(): method is not available");
+        zend_throw_error(
+            nullptr,
+            "GitRefDBBackend_Internal::reflog_read(): method is not available");
         return;
     }
 
     char* name;
-    int name_len;
+    size_t name_len;
 
     // Parse method parameters.
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&name,&name_len) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS(),"s",&name,&name_len) == FAILURE) {
         return;
     }
 
@@ -616,7 +679,7 @@ PHP_METHOD(GitRefDBBackend_Internal,reflog_read)
     try {
         int retval;
         php_git_reflog* reflog;
-        php_resource_ref<php_git_reflog> reflogResource ZTS_CTOR;
+        php_resource_ref<php_git_reflog> reflogResource;
 
         retval = object->backend->reflog_read(
             reflogResource.byval_git2(),
@@ -630,71 +693,82 @@ PHP_METHOD(GitRefDBBackend_Internal,reflog_read)
             convert_reflog(return_value,reflog->get_handle());
             git2_resource_base::free_recursive(reflog);
         }
+
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer TSRMLS_CC);
+        php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle(TSRMLS_C);
+            ex.handle();
         }
     }
 }
 
 PHP_METHOD(GitRefDBBackend_Internal,reflog_write)
 {
-    php_bailer bailer ZTS_CTOR;
-    php_refdb_backend_object* object = LOOKUP_OBJECT(php_refdb_backend_object,getThis());
+    php_bailer bailer;
+    php_refdb_backend_object* object;
 
     zval* zreflog;
 
+    object = php_zend_object<php_refdb_backend_internal_object>::get_storage(getThis());
+
     // Verfiy the backend exists and the function is implemented.
     if (object->backend == nullptr || object->backend->reflog_write == nullptr) {
-        php_error(E_ERROR,"GitRefDBBackend_Internal::reflog_write(): method is not available");
+        zend_throw_error(
+            nullptr,
+            "GitRefDBBackend_Internal::reflog_write(): method is not available");
         return;
     }
 
     // Parse method parameters.
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"r",&zreflog) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS(),"r",&zreflog) == FAILURE) {
         return;
     }
 
     // Call underlying backend function.
     try {
         int retval;
-        php_resource<php_git_reflog> reflog ZTS_CTOR;
+        php_resource<php_git_reflog> reflog;
 
-        reflog.set_zval(zreflog);
+        reflog.set_value(zreflog);
 
         retval = object->backend->reflog_write(object->backend,reflog.byval_git2());
         if (retval < 0) {
             php_git2::git_error(retval);
         }
+
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer TSRMLS_CC);
+        php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle(TSRMLS_C);
+            ex.handle();
         }
     }
 }
 
 PHP_METHOD(GitRefDBBackend_Internal,reflog_rename)
 {
-    php_bailer bailer ZTS_CTOR;
-    php_refdb_backend_object* object = LOOKUP_OBJECT(php_refdb_backend_object,getThis());
+    php_bailer bailer;
+    php_refdb_backend_object* object;
 
     char* oldname;
-    int oldname_len;
+    size_t oldname_len;
     char* newname;
-    int newname_len;
+    size_t newname_len;
+
+    object = php_zend_object<php_refdb_backend_internal_object>::get_storage(getThis());
 
     // Verfiy the backend exists and the function is implemented.
     if (object->backend == nullptr || object->backend->reflog_rename == nullptr) {
-        php_error(E_ERROR,"GitRefDBBackend_Internal::reflog_rename(): method is not available");
+        zend_throw_error(
+            nullptr,
+            "GitRefDBBackend_Internal::reflog_rename(): method is not available");
         return;
     }
 
     // Parse method parameters.
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"ss",
+    if (zend_parse_parameters(ZEND_NUM_ARGS(),
+            "ss",
             &oldname,
             &oldname_len,
             &newname,
@@ -711,31 +785,36 @@ PHP_METHOD(GitRefDBBackend_Internal,reflog_rename)
         if (retval < 0) {
             php_git2::git_error(retval);
         }
+
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer TSRMLS_CC);
+        php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle(TSRMLS_C);
+            ex.handle();
         }
     }
 }
 
 PHP_METHOD(GitRefDBBackend_Internal,reflog_delete)
 {
-    php_bailer bailer ZTS_CTOR;
-    php_refdb_backend_object* object = LOOKUP_OBJECT(php_refdb_backend_object,getThis());
+    php_bailer bailer;
+    php_refdb_backend_object* object;
 
     char* name;
-    int name_len;
+    size_t name_len;
+
+    object = php_zend_object<php_refdb_backend_internal_object>::get_storage(getThis());
 
     // Verfiy the backend exists and the function is implemented.
     if (object->backend == nullptr || object->backend->reflog_delete == nullptr) {
-        php_error(E_ERROR,"GitRefDBBackend_Internal::reflog_delete(): method is not available");
+        zend_throw_error(
+            nullptr,
+            "GitRefDBBackend_Internal::reflog_delete(): method is not available");
         return;
     }
 
     // Parse method parameters.
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s",&name,&name_len) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS(),"s",&name,&name_len) == FAILURE) {
         return;
     }
 
@@ -747,23 +826,24 @@ PHP_METHOD(GitRefDBBackend_Internal,reflog_delete)
         if (retval < 0) {
             php_git2::git_error(retval);
         }
+
     } catch (php_git2::php_git2_exception_base& ex) {
-        php_bailout_context ctx(bailer TSRMLS_CC);
+        php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            ex.handle(TSRMLS_C);
+            ex.handle();
         }
     }
 }
 
 PHP_METHOD(GitRefDBBackend_Internal,lock)
 {
-    php_error(E_ERROR,"GitRefDBBackend_Internal::lock(): method is inaccessible");
+    zend_throw_error(nullptr,"GitRefDBBackend_Internal::lock(): method is inaccessible");
 }
 
 PHP_METHOD(GitRefDBBackend_Internal,unlock)
 {
-    php_error(E_ERROR,"GitRefDBBackend_Internal::unlock(): method is inaccessible");
+    zend_throw_error(nullptr,"GitRefDBBackend_Internal::unlock(): method is inaccessible");
 }
 
 /*

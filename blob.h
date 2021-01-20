@@ -1,7 +1,7 @@
 /*
  * blob.h
  *
- * This file is a part of php-git2.
+ * Copyright (C) Roger P. Gee
  */
 
 #ifndef PHPGIT2_BLOB_H
@@ -9,7 +9,6 @@
 
 namespace php_git2
 {
-
     // Explicitly specialize git2_resource destructor for git_blob.
 
     template<> php_git_blob::~git2_resource()
@@ -22,16 +21,14 @@ namespace php_git2
     {
         using PackType = local_pack<php_resource<php_git_blob> >;
     public:
-        ZTS_CONSTRUCTOR(php_git_blob_rawcontent_rethandler)
-
         bool ret(const void* retval,zval* return_value,PackType& pack)
         {
             if (retval != nullptr) {
                 // Make a binary string for the return value. The length is
                 // obtained from the blob attached to the local_pack.
                 size_t length;
-                length = git_blob_rawsize(pack.get<0>().get_object(1)->get_handle());
-                RETVAL_STRINGL((const char*)retval,length,1);
+                length = git_blob_rawsize(pack.get<0>().get_object()->get_handle());
+                RETVAL_STRINGL((const char*)retval,length);
             }
             else {
                 RETVAL_NULL();
@@ -44,28 +41,12 @@ namespace php_git2
     // Provide types for getting/returning git_writestream objects.
 
     class php_git_writestream_byval:
-        public php_value_base,
-        private php_zts_base
+        public php_object<php_writestream_object>
     {
     public:
-        php_git_writestream_byval(TSRMLS_D):
-            php_zts_base(TSRMLS_C)
+        git_writestream* byval_git2()
         {
-        }
-
-        git_writestream* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
-        {
-            // Make sure zval is object derived from GitWritestream.
-            if (Z_TYPE_P(value) != IS_OBJECT
-                || !is_subclass_of(Z_OBJCE_P(value),
-                        class_entry[php_git2_writestream_obj]))
-            {
-                error("GitWritestream",argno);
-            }
-
-            // Extract the git_writestream from the object zval.
-            php_writestream_object* object;
-            object = reinterpret_cast<php_writestream_object*>(zend_objects_get_address(value TSRMLS_CC));
+            php_writestream_object* object = get_storage();
 
             if (object->ws == nullptr) {
                 throw php_git2_exception("The writestream has already been closed");
@@ -75,16 +56,15 @@ namespace php_git2
         }
     };
 
-    class php_git_writestream_byref:
-        private php_zts_base
+    class php_git_writestream_byref
     {
     public:
-        php_git_writestream_byref(TSRMLS_D):
-            php_zts_base(TSRMLS_C), ws(nullptr)
+        php_git_writestream_byref():
+            ws(nullptr)
         {
         }
 
-        git_writestream** byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_writestream** byval_git2()
         {
             return &ws;
         }
@@ -92,8 +72,9 @@ namespace php_git2
         void ret(zval* return_value)
         {
             // Wrap the git_writestream in an object zval.
-            php_git2_make_writestream(return_value,ws TSRMLS_CC);
+            php_git2_make_writestream(return_value,ws);
         }
+
     private:
         git_writestream* ws;
     };
@@ -102,34 +83,18 @@ namespace php_git2
     // passing it to git2.
 
     class php_git_writestream_release:
-        public php_value_base,
-        private php_zts_base
+        public php_git_writestream_byval
     {
     public:
-        php_git_writestream_release(TSRMLS_D):
-            php_zts_base(TSRMLS_C)
+        git_writestream* byval_git2()
         {
-        }
-
-        git_writestream* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
-        {
-            // Make sure zval is object derived from GitWritestream.
-            if (Z_TYPE_P(value) != IS_OBJECT
-                || !is_subclass_of(Z_OBJCE_P(value),
-                        class_entry[php_git2_writestream_obj]))
-            {
-                error("GitWritestream",argno);
-            }
-
-            // Extract the git_writestream from the object zval.
-            php_writestream_object* object;
-            git_writestream* ws;
-            object = reinterpret_cast<php_writestream_object*>(zend_objects_get_address(value TSRMLS_CC));
+            php_writestream_object* object = get_storage();
 
             if (object->ws == nullptr) {
                 throw php_git2_exception("The writestream has already been closed");
             }
-            ws = object->ws;
+
+            auto ws = object->ws;
             object->ws = nullptr;
 
             return ws;
@@ -156,8 +121,7 @@ static constexpr auto ZIF_GIT_BLOB_CREATE_FROMBUFFER = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,3>,
-    php_git2::sequence<0,1,3,2>,
-    php_git2::sequence<0,0,1,0>
+    php_git2::sequence<0,1,3,2>
     >;
 
 static constexpr auto ZIF_GIT_BLOB_CREATE_FROMDISK = zif_php_git2_function<
@@ -174,8 +138,7 @@ static constexpr auto ZIF_GIT_BLOB_CREATE_FROMDISK = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_BLOB_CREATE_FROMWORKDIR = zif_php_git2_function<
@@ -192,8 +155,7 @@ static constexpr auto ZIF_GIT_BLOB_CREATE_FROMWORKDIR = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_BLOB_FILTERED_CONTENT = zif_php_git2_function<
@@ -212,8 +174,7 @@ static constexpr auto ZIF_GIT_BLOB_FILTERED_CONTENT = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 
 static constexpr auto ZIF_GIT_BLOB_FREE = zif_php_git2_function_free<
@@ -259,8 +220,7 @@ static constexpr auto ZIF_GIT_BLOB_LOOKUP = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_BLOB_LOOKUP_PREFIX = zif_php_git2_function_setdeps<
@@ -281,8 +241,7 @@ static constexpr auto ZIF_GIT_BLOB_LOOKUP_PREFIX = zif_php_git2_function_setdeps
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,3>,
-    php_git2::sequence<0,1,3,2>,
-    php_git2::sequence<0,0,1,0>
+    php_git2::sequence<0,1,3,2>
     >;
 
 static constexpr auto ZIF_GIT_BLOB_OWNER = zif_php_git2_function_rethandler<
@@ -295,7 +254,6 @@ static constexpr auto ZIF_GIT_BLOB_OWNER = zif_php_git2_function_rethandler<
         php_git2::php_resource_ref<php_git2::php_git_repository_nofree>
         >,
     php_git2::php_owner_rethandler<php_git2::php_git_blob>,
-    php_git2::sequence<0>,
     php_git2::sequence<0>,
     php_git2::sequence<0>
     >;
@@ -335,8 +293,7 @@ static constexpr auto ZIF_GIT_BLOB_DUP = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_BLOB_CREATE_FROMSTREAM = zif_php_git2_function<
@@ -349,12 +306,11 @@ static constexpr auto ZIF_GIT_BLOB_CREATE_FROMSTREAM = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_git_writestream_byref,
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_nullable_string
+        php_git2::php_string_nullable
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_BLOB_CREATE_FROMSTREAM_COMMIT = zif_php_git2_function<
@@ -369,8 +325,7 @@ static constexpr auto ZIF_GIT_BLOB_CREATE_FROMSTREAM_COMMIT = zif_php_git2_funct
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 #define GIT_BLOB_FE                                                     \

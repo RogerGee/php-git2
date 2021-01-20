@@ -10,8 +10,13 @@ class PHPSQLiteStore {
         // Open SQLite database file.
 
         if (!$globalPath) {
-            $sqlite3Path = testbed_path('SQLiteODBs');
-            $path = implode(DIRECTORY_SEPARATOR,$sqlite3Path,$dbname);
+            $sqlite3Path = testbed_path('SQLiteODBs',true);
+            $path = implode(DIRECTORY_SEPARATOR,[$sqlite3Path,$dbname]);
+
+            $suffix = ".db";
+            if (substr($path,strlen($path)-strlen($suffix)) != $suffix) {
+                $path .= $suffix;
+            }
         }
         else {
             $path = $dbname;

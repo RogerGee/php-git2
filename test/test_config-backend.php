@@ -52,7 +52,7 @@ function test_custom_backend_lifetime() {
         git_config_add_backend($config,$backend,GIT_CONFIG_LEVEL_APP,true);
 
         $val = git_config_get_string_buf($config,"user.name");
-        testbed_unit('get user.name',$val);
+        testbed_dump('get user.name',$val);
     };
 
     // Open the existing config store from a previous test.
@@ -79,7 +79,7 @@ function test_custom_backend_lifetime2() {
     $config = $inner();
 
     $val = git_config_get_string_buf($config,'user.name');
-    testbed_unit('get user.name',$val);
+    testbed_dump('get user.name',$val);
 }
 
 testbed_test('Config Backend','Git2Test\ConfigBackend\test_custom_backend');

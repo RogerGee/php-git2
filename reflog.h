@@ -1,7 +1,7 @@
 /*
  * reflog.h
  *
- * This file is a part of php-git2.
+ * Copyright (C) Roger P. Gee
  */
 
 #ifndef PHPGIT2_REFLOG_H
@@ -9,7 +9,6 @@
 
 namespace php_git2
 {
-
     // Explicitly specialize git2_resource destructor for git_reference.
     template<> php_git_reflog::~git2_resource()
     {
@@ -25,8 +24,6 @@ namespace php_git2
     class php_git_reflog_entry_rethandler
     {
     public:
-        ZTS_CONSTRUCTOR(php_git_reflog_entry_rethandler)
-
         template<typename... Ts>
         bool ret(const git_reflog_entry* retval,zval* return_value,local_pack<Ts...>& pack)
         {
@@ -53,7 +50,7 @@ static constexpr auto ZIF_GIT_REFLOG_APPEND = zif_php_git2_function<
         php_git2::php_resource<php_git2::php_git_reflog>,
         php_git2::php_git_oid_fromstr,
         php_git2::php_resource<php_git2::php_git_signature>,
-        php_git2::php_nullable_string
+        php_git2::php_string_nullable
         >
     >;
 
@@ -123,8 +120,7 @@ static constexpr auto ZIF_GIT_REFLOG_READ = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_REFLOG_RENAME = zif_php_git2_function<

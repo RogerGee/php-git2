@@ -1,7 +1,7 @@
 /*
  * signature.h
  *
- * This file is a part of php-git2.
+ * Copyright (C) Roger P. Gee
  */
 
 #ifndef PHPGIT2_SIGNATURE_H
@@ -9,7 +9,6 @@
 
 namespace php_git2
 {
-
     // Explicitly specialize git2_resource destructor for git_signature.
     template<> php_git_signature::~git2_resource()
     {
@@ -37,8 +36,7 @@ static constexpr auto ZIF_GIT_SIGNATURE_NEW = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2,3,4>,
-    php_git2::sequence<0,1,2,3,4>,
-    php_git2::sequence<0,0,1,2,3>
+    php_git2::sequence<0,1,2,3,4>
     >;
 
 static constexpr auto ZIF_GIT_SIGNATURE_FREE = zif_php_git2_function_free<
@@ -58,8 +56,7 @@ static constexpr auto ZIF_GIT_SIGNATURE_DUP = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_SIGNATURE_DEFAULT = zif_php_git2_function<
@@ -73,8 +70,7 @@ static constexpr auto ZIF_GIT_SIGNATURE_DEFAULT = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_SIGNATURE_NOW = zif_php_git2_function<
@@ -90,8 +86,7 @@ static constexpr auto ZIF_GIT_SIGNATURE_NOW = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_SIGNATURE_FROM_BUFFER = zif_php_git2_function<
@@ -105,31 +100,33 @@ static constexpr auto ZIF_GIT_SIGNATURE_FROM_BUFFER = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static PHP_FUNCTION(git2_signature_convert)
 {
-    php_git2::php_bailer bailer ZTS_CTOR;
+    php_git2::php_bailer bailer;
 
     {
         git_signature* handle;
-        php_git2::php_resource<php_git2::php_git_signature> signature ZTS_CTOR;
-        php_git2::php_bailout_context ctx(bailer TSRMLS_CC);
+        php_git2::php_resource<php_git2::php_git_signature> signature;
+        php_git2::php_bailout_context ctx(bailer);
 
         if (BAILOUT_ENTER_REGION(ctx)) {
-            if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"z",signature.byref_php()) == FAILURE) {
+            zval* zvp;
+            if (zend_parse_parameters(ZEND_NUM_ARGS(),"z",&zvp) == FAILURE) {
                 return;
             }
+
+            signature.parse(zvp,1);
 
             try {
                 handle = signature.byval_git2();
             } catch (php_git2::php_git2_exception_base& ex) {
-                php_git2::php_bailout_context ctx2(bailer TSRMLS_CC);
+                php_git2::php_bailout_context ctx2(bailer);
 
                 if (BAILOUT_ENTER_REGION(ctx2)) {
-                    ex.handle(TSRMLS_C);
+                    ex.handle();
                 }
 
                 return;

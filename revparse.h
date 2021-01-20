@@ -1,7 +1,7 @@
 /*
  * revparse.h
  *
- * This file is a part of php-git2.
+ * Copyright (C) Roger P. Gee
  */
 
 #ifndef PHPGIT2_REVPARSE_H
@@ -9,21 +9,18 @@
 
 namespace php_git2
 {
-
     // Define a type for creating a new refspec and converting it to a PHP array
     // for userspace.
 
-    class php_git2_revspec_ref:
-        private php_zts_base
+    class php_git2_revspec_ref
     {
     public:
-        php_git2_revspec_ref(TSRMLS_D):
-            php_zts_base(TSRMLS_C)
+        php_git2_revspec_ref()
         {
             memset(&revspec,0,sizeof(git_revspec));
         }
 
-        git_revspec* byval_git2(unsigned argno = std::numeric_limits<unsigned>::max())
+        git_revspec* byval_git2()
         {
             return &revspec;
         }
@@ -32,10 +29,8 @@ namespace php_git2
         {
             // Convert the revspec into a PHP array.
 
-            zval* zfrom = nullptr;
-            zval* zto = nullptr;
-            php_resource_ref<php_git_object> fieldFrom ZTS_CTOR;
-            php_resource_ref<php_git_object> fieldTo ZTS_CTOR;
+            php_resource_ref<php_git_object> fieldFrom;
+            php_resource_ref<php_git_object> fieldTo;
 
             array_init(return_value);
 
@@ -44,20 +39,20 @@ namespace php_git2
             // imply a range.
 
             if (revspec.from != nullptr) {
-                MAKE_STD_ZVAL(zfrom);
+                zval zfrom;
                 *fieldFrom.byval_git2() = revspec.from;
-                fieldFrom.ret(zfrom);
-                add_assoc_zval(return_value,"from",zfrom);
+                fieldFrom.ret(&zfrom);
+                add_assoc_zval(return_value,"from",&zfrom);
             }
             else {
                 add_assoc_null(return_value,"from");
             }
 
             if (revspec.to != nullptr) {
-                MAKE_STD_ZVAL(zto);
+                zval zto;
                 *fieldTo.byval_git2() = revspec.to;
-                fieldTo.ret(zto);
-                add_assoc_zval(return_value,"to",zto);
+                fieldTo.ret(&zto);
+                add_assoc_zval(return_value,"to",&zto);
             }
             else {
                 add_assoc_null(return_value,"to");
@@ -87,8 +82,7 @@ static constexpr auto ZIF_GIT_REVPARSE = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_REVPARSE_EXT = zif_php_git2_function_setdeps2<
@@ -108,8 +102,7 @@ static constexpr auto ZIF_GIT_REVPARSE_EXT = zif_php_git2_function_setdeps2<
     php_git2::sequence<1,2>, // Make the reference dependent on the repository.
     1,
     php_git2::sequence<1,2,3>,
-    php_git2::sequence<0,1,2,3>,
-    php_git2::sequence<0,0,1,2>
+    php_git2::sequence<0,1,2,3>
     >;
 ZEND_BEGIN_ARG_INFO_EX(git_revparse_ext_arginfo,0,0,2)
     ZEND_ARG_PASS_INFO(1)
@@ -129,8 +122,7 @@ static constexpr auto ZIF_GIT_REVPARSE_SINGLE = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>, // Make the object dependent on the repository.
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 // Function Entries:

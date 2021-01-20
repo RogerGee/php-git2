@@ -45,8 +45,8 @@ function test_create_fromstream() {
 
     $ws = git_blob_create_fromstream($repo,null);
 
-    $ws->write("targ");
-    $ws->write(" and foo and bar and barg\n");
+    $ws->write("sheer");
+    $ws->write(" and utter nonsense\n");
 
     $oid = git_blob_create_fromstream_commit($ws);
     echo "Wrote a blob created from stream. It has OID=$oid.\n";

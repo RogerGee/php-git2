@@ -1,7 +1,7 @@
 /*
  * treebuilder.h
  *
- * This file is a part of php-git2.
+ * Copyright (C) Roger P. Gee
  */
 
 #ifndef PHPGIT2_TREEBUILDER_H
@@ -10,7 +10,6 @@
 
 namespace php_git2
 {
-
     // Provide specialization of git2_resource destructor for treebuilder.
 
     template<> php_git_treebuilder::~git2_resource()
@@ -37,13 +36,12 @@ static constexpr auto ZIF_GIT_TREEBUILDER_NEW = zif_php_git2_function_setdeps<
     php_git2::local_pack<
         php_git2::php_resource_ref<php_git2::php_git_treebuilder>,
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_resource_null<php_git2::php_git_tree>
+        php_git2::php_resource_nullable<php_git2::php_git_tree>
         >,
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_TREEBUILDER_WRITE = zif_php_git2_function<
@@ -57,8 +55,7 @@ static constexpr auto ZIF_GIT_TREEBUILDER_WRITE = zif_php_git2_function<
         >,
     1,
     php_git2::sequence<1>,
-    php_git2::sequence<0,1>,
-    php_git2::sequence<0,0>
+    php_git2::sequence<0,1>
     >;
 
 static constexpr auto ZIF_GIT_TREEBUILDER_INSERT = zif_php_git2_function_setdeps<
@@ -79,8 +76,7 @@ static constexpr auto ZIF_GIT_TREEBUILDER_INSERT = zif_php_git2_function_setdeps
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,2,3,4>,
-    php_git2::sequence<0,1,2,3,4>,
-    php_git2::sequence<0,0,1,2,3>
+    php_git2::sequence<0,1,2,3,4>
     >;
 
 static constexpr auto ZIF_GIT_TREEBUILDER_GET = zif_php_git2_function_rethandler<
@@ -141,7 +137,6 @@ static constexpr auto ZIF_GIT_TREEBUILDER_FILTER = zif_php_git2_function_void<
         php_git2::php_callback_sync
         >,
     php_git2::sequence<0,2,2>, // pass callback in twice for function and payload
-    php_git2::sequence<0,1,2>,
     php_git2::sequence<0,1,2>
     >;
 

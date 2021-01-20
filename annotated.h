@@ -1,7 +1,7 @@
 /*
  * annotated.h
  *
- * This file is a part of php-git2.
+ * Copyright (C) Roger P. Gee
  */
 
 #ifndef PHPGIT2_ANNOTATED_H
@@ -38,8 +38,7 @@ static constexpr auto ZIF_GIT_ANNOTATED_COMMIT_FROM_FETCHHEAD = zif_php_git2_fun
     php_git2::sequence<0,1>, // Make the annotated commit dependent on the repository
     1,
     php_git2::sequence<1,2,3,4>,
-    php_git2::sequence<0,1,2,3,4>,
-    php_git2::sequence<0,0,1,2,3>
+    php_git2::sequence<0,1,2,3,4>
     >;
 
 static constexpr auto ZIF_GIT_ANNOTATED_COMMIT_FROM_REF = zif_php_git2_function_setdeps<
@@ -56,8 +55,7 @@ static constexpr auto ZIF_GIT_ANNOTATED_COMMIT_FROM_REF = zif_php_git2_function_
     php_git2::sequence<0,1>, // Make the annotated commit dependent on the repository
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_ANNOTATED_COMMIT_FROM_REVSPEC = zif_php_git2_function_setdeps<
@@ -74,8 +72,7 @@ static constexpr auto ZIF_GIT_ANNOTATED_COMMIT_FROM_REVSPEC = zif_php_git2_funct
     php_git2::sequence<0,1>, // Make the annotated commit dependent on the repository
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_ANNOTATED_COMMIT_LOOKUP = zif_php_git2_function_setdeps<
@@ -92,8 +89,7 @@ static constexpr auto ZIF_GIT_ANNOTATED_COMMIT_LOOKUP = zif_php_git2_function_se
     php_git2::sequence<0,1>, // Make the annotated commit dependent on the repository
     1,
     php_git2::sequence<1,2>,
-    php_git2::sequence<0,1,2>,
-    php_git2::sequence<0,0,1>
+    php_git2::sequence<0,1,2>
     >;
 
 static constexpr auto ZIF_GIT_ANNOTATED_COMMIT_ID = zif_php_git2_function<
@@ -108,7 +104,9 @@ static constexpr auto ZIF_GIT_ANNOTATED_COMMIT_ID = zif_php_git2_function<
 
 static constexpr auto ZIF_GIT_ANNOTATED_COMMIT_FREE = zif_php_git2_function_free<
     php_git2::local_pack<
-        php_git2::php_resource_cleanup<php_git2::php_git_annotated_commit> > >;
+        php_git2::php_resource_cleanup<php_git2::php_git_annotated_commit>
+        >
+    >;
 
 // Function entries:
 
