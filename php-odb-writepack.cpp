@@ -249,7 +249,7 @@ zval* odb_writepack_read_property(
         }
     }
     else {
-        zend_object_handlers* std = zend_get_std_object_handlers();
+        const zend_object_handlers* std = zend_get_std_object_handlers();
         retval = std->read_property(object,member,type,cache_slot,rv);
     }
 
@@ -282,7 +282,7 @@ void odb_writepack_write_property(
             Z_STRVAL_P(member));
     }
     else {
-        zend_object_handlers* std = zend_get_std_object_handlers();
+        const zend_object_handlers* std = zend_get_std_object_handlers();
         std->write_property(object,member,value,cache_slot);
     }
 
@@ -320,7 +320,7 @@ int odb_writepack_has_property(
         }
     }
     else {
-        zend_object_handlers* std = zend_get_std_object_handlers();
+        const zend_object_handlers* std = zend_get_std_object_handlers();
         result = std->has_property(object,member,has_set_exists,cache_slot);
     }
 
