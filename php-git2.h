@@ -273,7 +273,7 @@ namespace php_git2
 
         virtual void handle() const noexcept
         {
-            zend_throw_error(nullptr,what());
+            zend_throw_exception(nullptr,what(),0);
         }
     };
 

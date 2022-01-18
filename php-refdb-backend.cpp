@@ -201,10 +201,17 @@ static zval* refdb_backend_read_property(zval* object,
     int type,
     void** cache_slot,
     zval* rv);
+#if PHP_API_VERSION >= 20190902
+static zval* refdb_backend_write_property(zval* object,
+    zval* member,
+    zval* value,
+    void** cache_slot);
+#else
 static void refdb_backend_write_property(zval* object,
     zval* member,
     zval* value,
     void** cache_slot);
+#endif
 static int refdb_backend_has_property(zval* object,
     zval* member,
     int has_set_exists,
@@ -265,25 +272,40 @@ zval* refdb_backend_read_property(zval* object,
     void** cache_slot,
     zval* rv)
 {
-    zend_object_handlers* std = zend_get_std_object_handlers();
+    const zend_object_handlers* std = zend_get_std_object_handlers();
     return std->read_property(object,member,type,cache_slot,rv);
 }
+
+#if PHP_API_VERSION >= 20190902
+
+zval* refdb_backend_write_property(zval* object,
+    zval* member,
+    zval* value,
+    void** cache_slot)
+{
+    const zend_object_handlers* std = zend_get_std_object_handlers();
+    return std->write_property(object,member,value,cache_slot);
+}
+
+#else
 
 void refdb_backend_write_property(zval* object,
     zval* member,
     zval* value,
     void** cache_slot)
 {
-    zend_object_handlers* std = zend_get_std_object_handlers();
+    const zend_object_handlers* std = zend_get_std_object_handlers();
     std->write_property(object,member,value,cache_slot);
 }
+
+#endif
 
 int refdb_backend_has_property(zval* object,
     zval* member,
     int has_set_exists,
     void** cache_slot)
 {
-    zend_object_handlers* std = zend_get_std_object_handlers();
+    const zend_object_handlers* std = zend_get_std_object_handlers();
     return std->has_property(object,member,has_set_exists,cache_slot);
 }
 

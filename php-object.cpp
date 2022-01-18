@@ -41,7 +41,7 @@ template<typename StorageType>
 static void php_init_object_handlers(zend_class_entry* ce)
 {
     using php_object_t = php_zend_object<StorageType>;
-    zend_object_handlers* stdhandlers = zend_get_std_object_handlers();
+    const zend_object_handlers* stdhandlers = zend_get_std_object_handlers();
 
     // Store class entry for later global lookup and set create_object function.
     php_git2::class_entry[StorageType::get_type()] = ce;
