@@ -46,9 +46,12 @@ php_closure_object::php_closure_object():
 
 php_closure_object::~php_closure_object()
 {
-    if (func.type != 0) {
-        destroy_zend_function(&func);
+    // NOTE: Currently, the only allocated item from 'func' is the function name
+    // string.
+    if (func.common.function_name) {
+        zend_string_release(func.common.function_name);
     }
+
     if (payloadDestructor != nullptr) {
         (*payloadDestructor)(payload);
     }
