@@ -167,6 +167,8 @@ git_repository__cleanup(resource)
 
 git_repository_detach_head(resource)
 
+    Returns int
+
 git_repository_discover(string,bool,string)
 
     Returns string

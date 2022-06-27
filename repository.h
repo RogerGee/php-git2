@@ -128,7 +128,8 @@ static constexpr auto ZIF_GIT_REPOSITORY_DETACH_HEAD = zif_php_git2_function<
         git_repository*>::func<git_repository_detach_head>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_repository>
-        >
+        >,
+    0
     >;
 
 static constexpr auto ZIF_GIT_REPOSITORY_DISCOVER = zif_php_git2_function<
