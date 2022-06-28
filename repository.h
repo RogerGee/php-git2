@@ -401,7 +401,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_SET_BARE = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_SET_HEAD_DETACHED_FROM_ANNOTATED = zif_php_git2_function<
+static constexpr auto ZIF_GIT_REPOSITORY_SET_HEAD_DETACHED_FROM_ANNOTATED = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -409,7 +409,8 @@ static constexpr auto ZIF_GIT_REPOSITORY_SET_HEAD_DETACHED_FROM_ANNOTATED = zif_
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_repository>,
         php_git2::php_resource<php_git2::php_git_annotated_commit>
-        >
+        >,
+    php_git2::php_boolean_notfound_rethandler
     >;
 
 static constexpr auto ZIF_GIT_REPOSITORY_SET_IDENT = zif_php_git2_function<

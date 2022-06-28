@@ -252,6 +252,8 @@ git_repository_set_bare(resource)
 
 git_repository_set_head_detached_from_annotated(resource,resource)
 
+    Returns bool
+
 git_repository_set_ident(resource,string,string)
 
 git_repository_set_namespace(resource,string)
