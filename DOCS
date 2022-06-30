@@ -169,6 +169,14 @@ git_repository_detach_head(resource)
 
     Returns int
 
+git_repository_fetchhead_foreach(resource,callable,mixed)
+
+  Callback signature: void callback(string $refName,string $remoteUrl,string $oid,bool $isMerge,mixed $payload)
+
+git_repository_mergehead_foreach(resource,callable,mixed)
+
+  Callback signature: void callback(string $oid,mixed $payload)
+
 git_repository_discover(string,bool,string)
 
     Returns string
@@ -231,8 +239,14 @@ git_repository_ident(&string,repo)
 git_repository_init_ext(string,array|null)
 
     The final parameter is an array of options with keys corresponding to the
-    git_repository_init_options struct. It may be null if you want to use the
-    defaults.
+    git_repository_init_options struct. If you do not specify an option key, it
+    will be filled in with the default value supplied via
+    git_repository_init_init_options. It may be null if you want to purely use
+    the defaults.
+
+    NOTE: the git2 extension does not implement
+    git_repository_init_init_options(). Just use an array to pass in init
+    options and it will be initialized for you behind-the-scenes.
 
     Returns git_repository resource
 
