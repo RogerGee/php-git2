@@ -3,8 +3,8 @@
 namespace PhpGit2\Test;
 
 use PhpGit2\RepositoryTestCase;
-use PhpGit2\Misc\CallbackReturnValue;
 use PhpGit2\Misc\CallbackPayload;
+use PhpGit2\Misc\CallbackReturnValue;
 
 /**
  * Performs tests on 'repository' instances for a non-bare, non-empty git
@@ -15,7 +15,7 @@ final class RepositoryTest extends RepositoryTestCase {
      * @phpGitTest git_repository_open
      */
     public function testOpen() {
-        $path = $this->makePath('repo');
+        $path = static::makePath('repo');
         $repo = git_repository_open($path);
 
         $this->assertResourceHasType($repo,'git_repository');
@@ -27,7 +27,7 @@ final class RepositoryTest extends RepositoryTestCase {
      * @phpGitTest git_repository_open_exit
      */
     public function testOpenExt() {
-        $path = $this->makePath('repo');
+        $path = static::makePath('repo');
         $flags = GIT_REPOSITORY_OPEN_NO_SEARCH;
         $ceilingDirs = implode(GIT_PATH_LIST_SEPARATOR,['/']);
         $repo = git_repository_open_ext($path,$flags,$ceilingDirs);
@@ -101,7 +101,7 @@ final class RepositoryTest extends RepositoryTestCase {
      * @phpGitTest git_repository_hashfile
      */
     public function testHashfile($repo) {
-        $path = $this->makePath('test.file');
+        $path = static::makePath('test.file');
         $file = fopen($path,'w');
         fwrite($file,"Test file contents");
         fclose($file);
@@ -220,7 +220,7 @@ final class RepositoryTest extends RepositoryTestCase {
      * @phpGitTest git_repository_path
      */
     public function testPath($repo) {
-        $expectedPath = $this->makePath('repo','.git');
+        $expectedPath = static::makePath('repo','.git');
         $path = git_repository_path($repo);
 
         $this->assertIsString($path);
@@ -335,7 +335,7 @@ final class RepositoryTest extends RepositoryTestCase {
      * @phpGitTest git_repository_set_workdir
      */
     public function testSetWorkdir($repo) {
-        $workDir = $this->makePath('workdir');
+        $workDir = static::makePath('workdir');
         mkdir($workDir);
         $result = git_repository_set_workdir($repo,$workDir,true);
 

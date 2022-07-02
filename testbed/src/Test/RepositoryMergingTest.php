@@ -15,7 +15,7 @@ final class RepositoryMergingTest extends RepositoryMergingTestCase {
      * @phpGitTest git_repository_open
      */
     public function testOpen() {
-        $path = $this->makePath('repo-merging');
+        $path = static::makePath('repo-merging');
         $repo = git_repository_open($path);
 
         $this->assertResourceHasType($repo,'git_repository');

@@ -10,6 +10,19 @@ class TestCase extends \PHPUnit\Framework\TestCase {
 
     }
 
+    public static function setUpBeforeClass() : void {
+        $basePath = self::makePath();
+        if (is_dir($basePath)) {
+            self::rmdirRecursive($basePath,$basePath);
+        }
+        mkdir($basePath);
+    }
+
+    public static function tearDownAfterClass() : void {
+        $basePath = self::makePath();
+        self::rmdirRecursive($basePath,$basePath);
+    }
+
     /**
      * Asserts that the value is either a string variable or NULL.
      *
@@ -41,30 +54,17 @@ class TestCase extends \PHPUnit\Framework\TestCase {
         $this->assertStringContainsString($resourceType,$type);
     }
 
-    protected function makePath(string ...$parts) : string {
+    protected static function makePath(string ...$parts) : string {
         $tmp = sys_get_temp_dir();
         $ps = array_merge([$tmp,self::DIRNAME],$parts);
         $ps = array_filter($ps);
         return implode(DIRECTORY_SEPARATOR,$ps);
     }
 
-    protected function setUp() : void {
-        $basePath = $this->makePath();
-        if (is_dir($basePath)) {
-            self::rmdirRecursive($basePath,$basePath);
-        }
-        mkdir($basePath);
-    }
-
-    protected function tearDown() : void {
-        $basePath = $this->makePath();
-        self::rmdirRecursive($basePath,$basePath);
-    }
-
-    protected function copyNonBareRepoToEnvironment(string $repoNameSrc,string $repoNameDst) {
-        $basePath = $this->makePath();
+    protected static function copyNonBareRepoToEnvironment(string $repoNameSrc,string $repoNameDst) {
+        $basePath = self::makePath();
         $src = $repoNameSrc;
-        $dst = $this->makePath($repoNameDst);
+        $dst = self::makePath($repoNameDst);
 
         self::copyRecursive($src,$dst,$basePath);
 
@@ -75,7 +75,7 @@ class TestCase extends \PHPUnit\Framework\TestCase {
         rename($gitted,$git);
     }
 
-    static protected function copyRecursive(string $pSrc,string $pDst,string $basePath) {
+    protected static function copyRecursive(string $pSrc,string $pDst,string $basePath) {
         $src = rtrim($pSrc,DIRECTORY_SEPARATOR);
         $dst = rtrim($pDst,DIRECTORY_SEPARATOR);
         assert(substr($dst,0,strlen($basePath)) == $basePath);
@@ -105,7 +105,7 @@ class TestCase extends \PHPUnit\Framework\TestCase {
         }
     }
 
-    static protected function rmdirRecursive(string $pPath,string $basePath) {
+    protected static function rmdirRecursive(string $pPath,string $basePath) {
         $path = rtrim($pPath,DIRECTORY_SEPARATOR);
         assert(substr($path,0,strlen($basePath)) == $basePath);
         assert(is_dir($path));

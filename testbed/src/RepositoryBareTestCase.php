@@ -3,8 +3,8 @@
 namespace PhpGit2;
 
 class RepositoryBareTestCase extends TestCase {
-    protected function setUp() : void {
-        parent::setUp();
+    public static function setUpBeforeClass() : void {
+        parent::setUpBeforeClass();
 
         $opts = [
             'bare' => true,
@@ -12,12 +12,8 @@ class RepositoryBareTestCase extends TestCase {
             'checkout_branch' => 'master'
         ];
 
-        $path = $this->makePath('repo.git');
+        $path = static::makePath('repo.git');
         $repo = git_clone("repos/general.git",$path,$opts);
         git_repository_free($repo);
     }
-
-    // protected function tearDown() : void {
-    //     parent::tearDown();
-    // }
 }

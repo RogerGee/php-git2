@@ -5,7 +5,7 @@ use PHPUnit\TextUI\Command as PHPUnitCommand;
 require_once('vendor/autoload.php');
 define('PHPGIT2_BRANCH_VERSION',7);
 
-function run_php_unit() : int {
+function run_php_unit(array $userArgs) : int {
     $hasGit2 = extension_loaded('git2');
     if (!$hasGit2) {
         error_log("");
@@ -16,9 +16,13 @@ function run_php_unit() : int {
     $testdir = getenv('PHPGIT2_TESTDIR');
     chdir($testdir);
 
+    if (empty($userArgs)) {
+        $userArgs[] = 'src/Test';
+    }
+
     $args = [
         'phpunit',
-        'src/Test',
+        ...$userArgs,
     ];
 
     $app = new PHPUnitCommand;
@@ -29,18 +33,21 @@ function run_php_unit() : int {
     return $result;
 }
 
-function run_php_unit_with_ini(string $php,array $args) : int {
+function run_php_unit_with_ini(string $php,array $userArgs) : int {
     $original = getcwd();
     $testdir = getenv('PHPGIT2_TESTDIR');
     assert(is_dir($testdir));
 
+    if (empty($userArgs)) {
+        $userArgs[] = 'src/Test';
+    }
+
     $args = [
         $php,
-        ...$args,
         '-c',
         "$testdir/php.ini",
         'vendor/bin/phpunit',
-        'src/Test',
+        ...$userArgs,
     ];
 
     $descriptors = [
@@ -83,7 +90,7 @@ function set_test_env(string $projectdir) : string {
     return $testdir;
 }
 
-function main(string $php = "php",string ...$args) : int {
+function main(string $php = 'php',string ...$args) : int {
     if (PHP_MAJOR_VERSION < PHPGIT2_BRANCH_VERSION) {
         throw new RuntimeError('This project does not support PHP ' . PHP_MAJOR_VERSION . '.');
     }
@@ -112,7 +119,7 @@ function main(string $php = "php",string ...$args) : int {
     set_test_env($projectdir);
     if ($hasGit2) {
         // Run under current environment if the extension is already loaded.
-        return run_php_unit();
+        return run_php_unit($args);
     }
 
     // Run under environment configured via our php.ini file. This will ensure
@@ -121,7 +128,7 @@ function main(string $php = "php",string ...$args) : int {
 }
 
 try {
-    $status = main(...array_slice($argv,1));
+    $status = main('php',...array_slice($argv,1));
     exit($status);
 } catch (\Exception $ex) {
     error_log($argv[0] . ': ' . $ex->getMessage());

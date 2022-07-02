@@ -13,7 +13,7 @@ final class RepositoryBareTest extends RepositoryBareTestCase {
      * @phpGitTest git_repository_open_bare
      */
     public function testOpen() {
-        $path = $this->makePath('repo.git');
+        $path = static::makePath('repo.git');
         $repo = git_repository_open_bare($path);
 
         $this->assertResourceHasType($repo,'git_repository');

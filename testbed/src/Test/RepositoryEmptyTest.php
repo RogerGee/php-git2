@@ -28,7 +28,7 @@ final class RepositoryEmptyTest extends TestCase {
      * @phpGitTest git_repository_init
      */
     public function testInit() {
-        $path = $this->makePath('repo');
+        $path = static::makePath('repo');
 
         $this->assertThat($path,$this->logicalNot($this->directoryExists()));
 
@@ -44,7 +44,7 @@ final class RepositoryEmptyTest extends TestCase {
      * @phpGitTest git_repository_init
      */
     public function testInitBare() {
-        $path = $this->makePath('repo.git');
+        $path = static::makePath('repo.git');
 
         $this->assertThat($path,$this->logicalNot($this->directoryExists()));
 
@@ -60,8 +60,8 @@ final class RepositoryEmptyTest extends TestCase {
      * @phpGitTest git_repository_init_ext
      */
     public function testInitExt() {
-        $path = $this->makePath('repo-with-opts');
-        $workdirPath = $this->makePath('repo-with-opts','workdir');
+        $path = static::makePath('repo-with-opts');
+        $workdirPath = static::makePath('repo-with-opts','workdir');
         $options = [
             'flags' => GIT_REPOSITORY_INIT_MKDIR | GIT_REPOSITORY_INIT_MKPATH,
             'workdir_path' => $workdirPath,
@@ -98,10 +98,10 @@ final class RepositoryEmptyTest extends TestCase {
     }
 
     /**
-     * @depends testNew
      * @phpGitTest git_repository_free
      */
-    public function testFree($repo) {
+    public function testFree() {
+        $repo = git_repository_new();
         git_repository_free($repo);
 
         $this->expectError();
@@ -113,7 +113,7 @@ final class RepositoryEmptyTest extends TestCase {
     }
 
     /**
-     * @depends testInit
+     * @depends testNew
      * @phpGitTest git_repository_head
      */
     public function testHead($repo) {
