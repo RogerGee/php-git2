@@ -23,7 +23,7 @@ namespace php_git2
 
 static constexpr auto ZIF_GIT_TREEBUILDER_FREE = zif_php_git2_function_free<
     php_git2::local_pack<
-        php_git2::php_resource<php_git2::php_git_treebuilder>
+        php_git2::php_resource_cleanup<php_git2::php_git_treebuilder>
         >
     >;
 

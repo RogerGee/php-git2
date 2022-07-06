@@ -179,7 +179,7 @@ static constexpr auto ZIF_GIT_BLOB_FILTERED_CONTENT = zif_php_git2_function<
 
 static constexpr auto ZIF_GIT_BLOB_FREE = zif_php_git2_function_free<
     php_git2::local_pack<
-        php_git2::php_resource<php_git2::php_git_blob>
+        php_git2::php_resource_cleanup<php_git2::php_git_blob>
         >
     >;
 
