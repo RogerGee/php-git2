@@ -2,11 +2,11 @@
 
 namespace PhpGit2\Test;
 
-use PhpGit2\RepositoryTestCase;
+use PhpGit2\RepositoryBareTestCase;
 use PhpGit2\Misc\CallbackPayload;
 use PhpGit2\Misc\CallbackReturnValue;
 
-final class ReferenceTest extends RepositoryTestCase {
+final class ReferenceTest extends RepositoryBareTestCase {
     /**
      * @phpGitTest git_reference_create
      */
@@ -208,6 +208,36 @@ final class ReferenceTest extends RepositoryTestCase {
     }
 
     /**
+     * @depends testCreate
+     * @phpGitTest git_reference_shorthand
+     */
+    public function testShorthand($ref) {
+        $result = git_reference_shorthand($ref);
+
+        $this->assertIsString($result);
+    }
+
+    /**
+     * @depends testCreate
+     * @phpGitTest git_reference_target
+     */
+    public function testTarget($ref) {
+        $result = git_reference_target($ref);
+
+        $this->assertIsString($result);
+    }
+
+    /**
+     * @depends testCreate
+     * @phpGitTest git_reference_type
+     */
+    public function testType($ref) {
+        $result = git_reference_type($ref);
+
+        $this->assertIsInt($result);
+    }
+
+    /**
      * @phpGitTest git_reference_delete
      */
     public function testDelete() {
@@ -249,7 +279,7 @@ final class ReferenceTest extends RepositoryTestCase {
         $n = 0;
 
         $repo = static::getRepository();
-        $glob = 'refs/remotes/origin/i[0-9]';
+        $glob = 'refs/heads/i[0-9]';
         $callback = function($name,$payload) use(&$n) {
             $n += 1;
             $this->assertIsString($name);
@@ -356,7 +386,7 @@ final class ReferenceTest extends RepositoryTestCase {
      */
     public function testIteratorGlobNew() {
         $repo = static::getRepository();
-        $glob = 'refs/remotes/origin/i[0-9]';
+        $glob = 'refs/heads/i[0-9]';
         $result = git_reference_iterator_glob_new($repo,$glob);
 
         $this->assertResourceHasType($result,'git_reference_iterator');
@@ -416,9 +446,33 @@ final class ReferenceTest extends RepositoryTestCase {
      */
     public function testLookup() {
         $repo = static::getRepository();
-        $result = git_reference_lookup($repo,'refs/remotes/origin/i1');
+        $result = git_reference_lookup($repo,'refs/heads/i1');
 
         $this->assertResourceHasType($result,'git_reference');
+
+        return $result;
+    }
+
+    /**
+     * @depends testLookup
+     * @phpGitTest git_reference_set_target
+     */
+    public function testSetTarget($ref) {
+        $id = '2cd82ceaee5897c72eb8fded83632569c80c69c5';
+        $logMessage = 'Update branch head i1';
+        $result = git_reference_set_target($ref,$id,$logMessage);
+
+        $this->assertResourceHasType($result,'git_reference');
+    }
+
+    /**
+     * @depends testLookup
+     * @phpGitTest git_reference_symbolic_target
+     */
+    public function testSymbolicTarget_NULL($ref) {
+        $result = git_reference_symbolic_target($ref);
+
+        $this->assertNull($result);
     }
 
     /**
@@ -430,7 +484,7 @@ final class ReferenceTest extends RepositoryTestCase {
         $this->expectExceptionCode(GIT_ENOTFOUND);
 
         $repo = static::getRepository();
-        $result = git_reference_lookup($repo,'refs/remotes/origin/idonotexist');
+        $result = git_reference_lookup($repo,'refs/heads/idonotexist');
     }
 
     /**
@@ -462,7 +516,7 @@ final class ReferenceTest extends RepositoryTestCase {
      */
     public function testRemove() {
         $repo = static::getRepository();
-        $result = git_reference_remove($repo,'refs/remotes/origin/i7');
+        $result = git_reference_remove($repo,'refs/heads/i7');
 
         $this->assertNull($result);
     }
@@ -486,7 +540,7 @@ final class ReferenceTest extends RepositoryTestCase {
         $newName = 'i55';
 
         $repo = static::getRepository();
-        $ref = git_reference_lookup($repo,"refs/remotes/origin/$oldName");
+        $ref = git_reference_lookup($repo,"refs/heads/$oldName");
         $newName = "refs/heads/$newName";
         $force = true;
         $logMessage = "Rename branch '$oldName' to $newName";
@@ -507,10 +561,147 @@ final class ReferenceTest extends RepositoryTestCase {
         $newName = 'i3';
 
         $repo = static::getRepository();
-        $ref = git_reference_lookup($repo,"refs/remotes/origin/$oldName");
-        $newName = "refs/remotes/origin/$newName";
+        $ref = git_reference_lookup($repo,"refs/heads/$oldName");
+        $newName = "refs/heads/$newName";
         $force = false;
         $logMessage = "Rename branch '$oldName' to $newName";
         $result = git_reference_rename($ref,$newName,$force,$logMessage);
+    }
+
+    /**
+     * @phpGitTest git_reference_symbolic_create
+     */
+    public function testSymbolicCreate() {
+        $repo = static::getRepository();
+        $name = 'refs/sym/frosty_meninsky';
+        $target = 'refs/heads/i2';
+        $force = true;
+        $logMessage = 'If you would prefer to receive a printed copy';
+        $result = git_reference_symbolic_create($repo,$name,$target,$force,$logMessage);
+
+        $this->assertResourceHasType($result,'git_reference');
+
+        return $result;
+    }
+
+    /**
+     * @depends testSymbolicCreate
+     * @phpGitTest git_reference_symbolic_create
+     */
+    public function testSymbolicCreate_EEXISTS($ref) {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage("a reference with that name already exists");
+        $this->expectExceptionCode(GIT_EEXISTS);
+
+        $repo = static::getRepository();
+        $name = 'refs/sym/frosty_meninsky';
+        $target = 'refs/heads/i3';
+        $force = false;
+        $logMessage = 'Trying to overwrite frosty_meninsky';
+        $result = git_reference_symbolic_create($repo,$name,$target,$force,$logMessage);
+    }
+
+    /**
+     * @depends testSymbolicCreate
+     * @phpGitTest git_reference_resolve
+     */
+    public function testResolve($ref) {
+        $result = git_reference_resolve($ref);
+
+        $this->assertResourceHasType($result,'git_reference');
+    }
+
+    /**
+     * @depends testSymbolicCreate
+     * @phpGitTest git_reference_symbolic_target
+     */
+    public function testSymbolicTarget($ref) {
+        $result = git_reference_symbolic_target($ref);
+
+        $this->assertIsString($result);
+    }
+
+    /**
+     * @depends testSymbolicCreate
+     * @phpGitTest git_reference_target
+     */
+    public function testTarget_NULL($ref) {
+        $result = git_reference_target($ref);
+
+        $this->assertNull($result);
+    }
+
+    /**
+     * @depends testSymbolicCreate
+     * @phpGitTest git_reference_symbolic_create_matching
+     */
+    public function testSymbolicCreateMatching($ref) {
+        $repo = static::getRepository();
+        $name = 'refs/sym/frosty_meninsky';
+        $target = 'refs/heads/i3';
+        $force = true;
+        $currentValue = 'refs/heads/i2';
+        $logMessage = 'If you would prefer to receive a printed copy';
+        $result = git_reference_symbolic_create_matching($repo,$name,$target,$force,$currentValue,$logMessage);
+
+        $this->assertResourceHasType($result,'git_reference');
+
+        return $result;
+    }
+
+    /**
+     * @depends testSymbolicCreateMatching
+     * @phpGitTest git_reference_symbolic_create_matching
+     */
+    public function testSymbolicCreateMatching_EMODIFIED($ref) {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('old reference value does not match');
+        $this->expectExceptionCode(GIT_EMODIFIED);
+
+        $repo = static::getRepository();
+        $name = 'refs/sym/frosty_meninsky';
+        $target = 'refs/heads/i1';
+        $force = true;
+        $currentValue = 'refs/heads/master';
+        $logMessage = 'If you would prefer to receive a printed copy';
+        $result = git_reference_symbolic_create_matching($repo,$name,$target,$force,$currentValue,$logMessage);
+    }
+
+    /**
+     * @depends testSymbolicCreateMatching
+     * @phpGitTest git_reference_symbolic_set_target
+     */
+    public function testSymbolicSetTarget($ref) {
+        $target = 'refs/heads/i2';
+        $logMessage = 'Revert back to original target';
+        $result = git_reference_symbolic_set_target($ref,$target,$logMessage);
+
+        $this->assertResourceHasType($result,'git_reference');
+    }
+
+    /**
+     * @depends testSymbolicCreateMatching
+     * @phpGitTest git_reference_symbolic_set_target
+     */
+    public function testSymbolicSetTarget_EINVALIDSPEC($ref) {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessageMatches("/given reference name '.*' is not valid/");
+        $this->expectExceptionCode(GIT_EINVALIDSPEC);
+
+        $target = '~~refs/BAD?/name';
+        $logMessage = 'Revert back to original target';
+        $result = git_reference_symbolic_set_target($ref,$target,$logMessage);
+    }
+
+    /**
+     * @phpGitTest git_reference_target_peel
+     */
+    public function testTargetPeel() {
+        $repo = static::getRepository();
+        $ref = git_reference_lookup($repo,'refs/tags/t1');
+
+        $result = git_reference_target_peel($ref);
+
+        $this->assertIsString($result);
     }
 }
