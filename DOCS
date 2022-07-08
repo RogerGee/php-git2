@@ -983,7 +983,7 @@ git_blob_id(resource)
 
 git_blob_is_binary(resource)
 
-    Returns int
+    Returns bool
 
 git_blob_lookup(resource,string)
 
