@@ -2,6 +2,8 @@
 
 namespace PhpGit2;
 
+use RuntimeError;
+
 class TestCase extends \PHPUnit\Framework\TestCase {
     const DIRNAME = '.php-git2-testbed';
 
@@ -61,6 +63,14 @@ class TestCase extends \PHPUnit\Framework\TestCase {
         return implode(DIRECTORY_SEPARATOR,$ps);
     }
 
+    protected static function makeFile(string $contents,string ...$pathParts) : string {
+        $filePath = self::makePath(...$pathParts);
+        $f = fopen($filePath,'w');
+        fwrite($f,$contents);
+        fclose($f);
+        return $filePath;
+    }
+
     protected static function copyNonBareRepoToEnvironment(string $repoNameSrc,string $repoNameDst) {
         $basePath = self::makePath();
         $src = $repoNameSrc;
@@ -99,7 +109,7 @@ class TestCase extends \PHPUnit\Framework\TestCase {
             }
             else {
                 if (copy($srcEntry,$dstEntry) === false) {
-                    throw new Exception("Could not copy file '$srcEntry'");
+                    throw new RuntimeError("Could not copy file '$srcEntry'");
                 }
             }
         }
@@ -124,13 +134,13 @@ class TestCase extends \PHPUnit\Framework\TestCase {
             }
             else {
                 if (unlink($entryPath) === false) {
-                    throw new Exception("Could not remove file '$entryPath'");
+                    throw new RuntimeError("Could not remove file '$entryPath'");
                 }
             }
         }
 
         if (rmdir($path) === false) {
-            throw new Exception("Could not remove directory '$entryPath'");
+            throw new RuntimeError("Could not remove directory '$entryPath'");
         }
     }
 }
