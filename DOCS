@@ -1378,7 +1378,7 @@ git_config_set_int32(resource,string,int)
 
 git_config_set_int64(resource,string,int)
 
-git_config_set_multivar(resource,string,string,strin)
+git_config_set_multivar(resource,string,string,string)
 
 git_config_set_string(resource,string,string)
 
@@ -1462,6 +1462,10 @@ git_config_get_mapped(resource,string,array)
        integer. **
 
     Returns int
+
+git_config_get_multivar_foreach(resource,string,string|null,callable,mixed)
+
+    Callback signature: bool callback(array $entry,mixed $payload)
 
 git_config_add_backend(resource,object,int,bool)
 
