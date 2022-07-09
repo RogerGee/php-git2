@@ -71,6 +71,14 @@ class TestCase extends \PHPUnit\Framework\TestCase {
         return $filePath;
     }
 
+    protected static function copyFile(string $src,string ...$dstParts) : string {
+        $dst = self::makePath(...$dstParts);
+        if (!copy($src,$dst)) {
+            throw new RuntimeError("Failed to copy '$src' to '$dst'");
+        }
+        return $dst;
+    }
+
     protected static function copyNonBareRepoToEnvironment(string $repoNameSrc,string $repoNameDst) {
         $basePath = self::makePath();
         $src = $repoNameSrc;
