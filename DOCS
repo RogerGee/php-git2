@@ -27,43 +27,43 @@ purpose) are determined by the C++ compiler via 'typeid'.
     git2 type
     ---------
 
-    git_repository
-    git_reference
-    git_object
-    git_revwalk
-    git_packbuilder
-    git_indexer
-    git_odb
-    git_odb_object
-    git_commit
-    git_blob
-    git_tree
-    git_tree_entry
-    git_signature
-    git_treebuilder
-    git_blame
     git_annotated_commit
+    git_blame
+    git_blob
     git_branch_iterator
-    git_reference_iterator
+    git_commit
     git_config
     git_config_iterator
-    git_tag
+    git_cred
+    git_describe_result
     git_diff
     git_diff_stats
     git_index
     git_index_conflict_iterator
-    git_status_list
+    git_indexer
     git_note
     git_note_iterator
-    git_reflog
-    git_refdb
+    git_object
+    git_odb
+    git_odb_object
+    git_packbuilder
     git_patch
-    git_describe_result
     git_rebase
-    git_remote
+    git_refdb
+    git_reference
+    git_reference_iterator
+    git_reflog
     git_refspec
-    git_cred
+    git_remote
+    git_repository
+    git_revwalk
+    git_signature
+    git_status_list
     git_submodule
+    git_tag
+    git_tree
+    git_tree_entry
+    git_treebuilder
 
 The following structures are not represented as resources in the PHP
 API. Instead a scalar, array or object type is used:
@@ -71,36 +71,36 @@ API. Instead a scalar, array or object type is used:
    git2 type                                      PHP type
    ---------                                      --------
 
-    git_buf                                        string
-    git_oid                                        string
-    git_odb_writepack                              object
-    git_odb_backend                                object
-    git_odb_stream                                 object
-    git_writestream                                object
-    git_config_backend                             object
-    git_refdb_backend                              object
     git_blame_hunk                                 array
-    git_revspec                                    array
+    git_buf                                        string
+    git_cherrypick_options                         array
+    git_config_backend                             object
     git_config_entry                               array
-    git_diff_options                               array
-    git_diff_delta                                 array
-    git_diff_file                                  array
+    git_describe_format_options                    array
+    git_describe_options                           array
     git_diff_binary                                array
     git_diff_binary_file                           array
+    git_diff_delta                                 array
+    git_diff_file                                  array
+    git_diff_format_email_options                  array
     git_diff_hunk                                  array
     git_diff_line                                  array
-    git_diff_format_email_options                  array
+    git_diff_options                               array
     git_index_entry                                array
-    git_status_options                             array
-    git_status_entry                               array
-    git_cherrypick_options                         array
-    git_merge_options                              array
-    git_merge_file_options                         array
     git_merge_file_input                           array
+    git_merge_file_options                         array
     git_merge_file_result                          array
+    git_merge_options                              array
+    git_odb_backend                                object
+    git_odb_stream                                 object
+    git_odb_writepack                              object
+    git_oid                                        string
+    git_refdb_backend                              object
     git_reflog_entry                               array
-    git_describe_options                           array
-    git_describe_format_options                    array
+    git_revspec                                    array
+    git_status_entry                               array
+    git_status_options                             array
+    git_writestream                                object
 
 For objects, see the later section regarding Classes.
 

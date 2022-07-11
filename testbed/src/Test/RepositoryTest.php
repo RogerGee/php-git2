@@ -213,6 +213,18 @@ final class RepositoryTest extends RepositoryTestCase {
         $odb = git_repository_odb($repo);
 
         $this->assertResourceHasType($odb,'git_odb');
+
+        return $odb;
+    }
+
+    /**
+     * @depends testOdb
+     * @phpGitTest git_repository_wrap_odb
+     */
+    public function testWrapOdb($odb) {
+        $result = git_repository_wrap_odb($odb);
+
+        $this->assertResourceHasType($result,'git_repository');
     }
 
     /**
