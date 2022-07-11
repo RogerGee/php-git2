@@ -3,8 +3,8 @@
 namespace PhpGit2\Test;
 
 use PhpGit2\RepositoryTestCase;
-use PhpGit2\Misc\CallbackPayload;
-use PhpGit2\Misc\CallbackReturnValue;
+use PhpGit2\Callback\CallbackPayload;
+use PhpGit2\Callback\CallbackReturnValue;
 
 /**
  * Performs tests on 'repository' instances for a non-bare, non-empty git

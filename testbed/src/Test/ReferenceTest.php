@@ -3,8 +3,8 @@
 namespace PhpGit2\Test;
 
 use PhpGit2\RepositoryBareTestCase;
-use PhpGit2\Misc\CallbackPayload;
-use PhpGit2\Misc\CallbackReturnValue;
+use PhpGit2\Callback\CallbackPayload;
+use PhpGit2\Callback\CallbackReturnValue;
 
 final class ReferenceTest extends RepositoryBareTestCase {
     /**

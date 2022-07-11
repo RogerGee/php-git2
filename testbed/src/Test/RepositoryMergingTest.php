@@ -3,8 +3,8 @@
 namespace PhpGit2\Test;
 
 use PhpGit2\RepositoryMergingTestCase;
-use PhpGit2\Misc\CallbackReturnValue;
-use PhpGit2\Misc\CallbackPayload;
+use PhpGit2\Callback\CallbackReturnValue;
+use PhpGit2\Callback\CallbackPayload;
 
 /**
  * Performs tests on 'git_repository' functionality for a repository that is
