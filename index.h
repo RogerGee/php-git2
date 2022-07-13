@@ -81,6 +81,26 @@ namespace php_git2
         };
     };
 
+    // Provide a nullable version of git_index_entry.
+
+    class php_git_index_entry_nullable:
+        public php_option_array
+    {
+    public:
+        const git_index_entry* byval_git2()
+        {
+            if (is_null()) {
+                return nullptr;
+            }
+
+            entry.set_value(get_value());
+            return entry.byval_git2();
+        }
+
+    private:
+        php_git_index_entry entry;
+    };
+
     // Provide a type for converting git_index_entry to PHP array.
 
     class php_git_index_entry_ref
@@ -229,9 +249,9 @@ static constexpr auto ZIF_GIT_INDEX_CONFLICT_ADD = zif_php_git2_function<
         const git_index_entry*>::func<git_index_conflict_add>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_index>,
-        php_git2::php_git_index_entry,
-        php_git2::php_git_index_entry,
-        php_git2::php_git_index_entry
+        php_git2::php_git_index_entry_nullable,
+        php_git2::php_git_index_entry_nullable,
+        php_git2::php_git_index_entry_nullable
         >
     >;
 
