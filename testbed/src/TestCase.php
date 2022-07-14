@@ -63,6 +63,38 @@ class TestCase extends \PHPUnit\Framework\TestCase {
         return implode(DIRECTORY_SEPARATOR,$ps);
     }
 
+    protected static function makeDirectory(string ...$pathParts) : string {
+        $base = self::makePath();
+        $dir = self::makePath(...$pathParts);
+        assert( is_dir($base) );
+
+        $n = strlen($base);
+        while ($n < strlen($dir) && $dir[$n] == DIRECTORY_SEPARATOR) {
+            $n += 1;
+        }
+        while ($n < strlen($dir)) {
+            $n = strpos($dir,DIRECTORY_SEPARATOR,$n);
+            if ($n === false) {
+                $d = $dir;
+                $n = strlen($dir);
+            }
+            else {
+                $d = substr($dir,0,$n);
+                while ($n < strlen($dir) && $dir[$n] == DIRECTORY_SEPARATOR) {
+                    $n += 1;
+                }
+            }
+
+            if (!is_dir($d)) {
+                if (mkdir($d) === false) {
+                    throw new RuntimeError("Cannot create testbed directory '$d'");
+                }
+            }
+        }
+
+        return $dir;
+    }
+
     protected static function makeFile(string $contents,string ...$pathParts) : string {
         $filePath = self::makePath(...$pathParts);
         $f = fopen($filePath,'w');
