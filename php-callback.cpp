@@ -704,6 +704,23 @@ int index_matched_path_callback::callback(const char* path,
 
     params.assign<0>(path,matched_pathspec,cb->get_payload());
     result = params.call(cb->get_value(),&retval);
+
+    // Handle errors. It is unclear how this callback is to report errors (if at
+    // all), so we just report end of operation.
+    if (result < 0) {
+        // Flag propagated errors globally so they can be issued later on
+        // by a bailout context. We do this since libgit2 will NOT report the
+        // error to the calling PHP context.
+        if (result == GIT_EPHP_PROP_BAILOUT) {
+            GIT2_G(propagateError) = true;
+        }
+
+        /* Abort scan */
+        return -1;
+    }
+
+    convert_to_long(&retval);
+    result = static_cast<int>(Z_LVAL(retval));
     zval_ptr_dtor(&retval);
 
     return result;

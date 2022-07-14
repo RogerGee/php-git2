@@ -1783,7 +1783,13 @@ git_index_add_all(resource,array,int,callable,mixed)
 
     Callback signature: void callback(string $path,string $matched_pathspec,mixed $payload)
 
-        The callback should throw on error.
+        The callback should throw on error and return less than zero to stop
+        iteration early.
+
+    This function returns FALSE if the scan was aborted (i.e. iteration
+    stopped).
+
+    Returns bool
 
 git_index_add_bypath(resource,string)
 
@@ -1828,7 +1834,7 @@ git_index_entrycount(resource)
 
     Returns int
 
-git_index_is_conflict(array)
+git_index_entry_is_conflict(array)
 
     Returns boolean
 
@@ -1884,6 +1890,8 @@ git_index_remove_all(resource,array,callable,mixed)
 
     ** See git_index_add_all() for callback description. **
 
+    Returns bool
+
 git_index_remove_bypath(resource,string)
 
 git_index_remove_directory(resource,string,int)
@@ -1895,6 +1903,8 @@ git_index_set_version(resource,int)
 git_index_update_all(resource,array,callable,mixed)
 
     ** See git_index_add_all() for callback description. **
+
+    Returns bool
 
 git_index_version(resource)
 
