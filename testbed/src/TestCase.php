@@ -57,7 +57,7 @@ class TestCase extends \PHPUnit\Framework\TestCase {
     }
 
     protected static function makePath(string ...$parts) : string {
-        $tmp = sys_get_temp_dir();
+        $tmp = realpath(sys_get_temp_dir());
         $ps = array_merge([$tmp,self::DIRNAME],$parts);
         $ps = array_filter($ps);
         return implode(DIRECTORY_SEPARATOR,$ps);
