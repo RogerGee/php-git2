@@ -298,7 +298,7 @@ namespace php_git2
     // Define type to wrap git_diff_format_email_options.
 
     class php_git_diff_format_email_options:
-        public php_option_array
+        public php_array_base
     {
     public:
         php_git_diff_format_email_options():
