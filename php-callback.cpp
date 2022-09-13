@@ -497,6 +497,26 @@ int repository_create_callback::callback(git_repository** out,
     return GIT_OK;
 }
 
+// checkout_progress_callback
+
+void checkout_progress_callback::callback(
+    const char* path,
+    size_t completedSteps,
+    size_t totalSteps,
+    void* payload)
+{
+    php_callback_sync* cb = reinterpret_cast<php_callback_sync*>(payload);
+
+    int result;
+    zval retval;
+    zval_array<4> params;
+
+    params.assign<0>(path,completedSteps,totalSteps,cb->get_payload());
+    result = params.call(cb->get_value(),&retval);
+
+    UNUSED(result);
+}
+
 // diff_notify_callback
 
 int diff_notify_callback::callback(
