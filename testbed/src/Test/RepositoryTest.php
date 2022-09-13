@@ -93,7 +93,7 @@ final class RepositoryTest extends RepositoryTestCase {
     public function testGetNamespace($repo) {
         $namespace = git_repository_get_namespace($repo);
 
-        $this->assertIsStringOrIsNull($namespace);
+        $this->assertIsStringOrNull($namespace);
     }
 
     /**
@@ -150,8 +150,8 @@ final class RepositoryTest extends RepositoryTestCase {
         $email = 0;
         $name = git_repository_ident($email,$repo);
 
-        $this->assertIsStringOrIsNull($name);
-        $this->assertIsStringOrIsNull($email);
+        $this->assertIsStringOrNull($name);
+        $this->assertIsStringOrNull($email);
     }
 
     /**

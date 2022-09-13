@@ -45,7 +45,7 @@ class TestCase extends \PHPUnit\Framework\TestCase {
      *
      * @param mixed $value
      */
-    public function assertIsStringOrIsNull($value) {
+    public function assertIsStringOrNull($value) {
         $this->assertThat(
             $value,
             $this->logicalOr(
