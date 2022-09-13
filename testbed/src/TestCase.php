@@ -26,6 +26,21 @@ class TestCase extends \PHPUnit\Framework\TestCase {
     }
 
     /**
+     * Asserts that the value is either an array variable or NULL.
+     *
+     * @param mixed $value
+     */
+    public function assertIsArrayOrNull($value) {
+        $this->assertThat(
+            $value,
+            $this->logicalOr(
+                $this->isNull(),
+                $this->isType('array')
+            )
+        );
+    }
+
+    /**
      * Asserts that the value is either a string variable or NULL.
      *
      * @param mixed $value
