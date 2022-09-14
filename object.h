@@ -81,7 +81,7 @@ static constexpr auto ZIF_GIT_OBJECT_DUP = zif_php_git2_function<
         php_git2::php_resource_ref<php_git2::php_git_object>,
         php_git2::php_resource<php_git2::php_git_object>
         >,
-    -1,
+    1,
     php_git2::sequence<1>,
     php_git2::sequence<0,1>
     >;
