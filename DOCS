@@ -1148,6 +1148,13 @@ git_treebuilder_new(resource,resource|null)
 
 git_treebuilder_free(resource)
 
+git_treebuilder_filter(callable,mixed)
+
+    Callback signature:
+        bool callback(array $entry,mixed $payload)
+
+        Returns FALSE to filter (i.e. remove) the entry.
+
 git_treebuilder_write(resource)
 
     Returns string

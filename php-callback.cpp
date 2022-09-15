@@ -1382,6 +1382,10 @@ int treebuilder_filter_callback::callback(
     params.assign<1>(cb->get_payload());
 
     result = params.call(cb->get_value(),&retval);
+    if (result == GIT_OK) {
+        convert_to_boolean(&retval);
+        result = ( Z_TYPE(retval) != IS_TRUE );
+    }
     zval_ptr_dtor(&retval);
 
     return result;
