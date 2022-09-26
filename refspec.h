@@ -9,6 +9,11 @@
 
 namespace php_git2
 {
+    // Explicitly specialize git2_resource destructor for git_refspec.
+    template<> php_git_refspec::~git2_resource()
+    {
+        // Nothing to do here since the git_refspec is always used read-only.
+    }
 
 } // namespace php_git2
 
