@@ -832,7 +832,7 @@ int note_foreach_callback::callback(const git_oid* blob_id,
 
     int result;
     zval retval;
-    zval_array<2> params;
+    zval_array<3> params;
     char buf[GIT_OID_HEXSZ + 1];
 
     git_oid_tostr(buf,sizeof(buf),blob_id);
