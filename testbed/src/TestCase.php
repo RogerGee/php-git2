@@ -72,6 +72,15 @@ class TestCase extends \PHPUnit\Framework\TestCase {
         return $filePath;
     }
 
+    public static function makeFileStream(string ...$pathParts) {
+        $filePath = self::makePath(...$pathParts);
+        $f = fopen($filePath,'w');
+        if (!$f) {
+            throw new RuntimeError("Cannot open file stream for writing: $filePath");
+        }
+        return $f;
+    }
+
     public static function copyFile(string $src,string ...$dstParts) : string {
         $dst = self::makePath(...$dstParts);
         if (!copy($src,$dst)) {
