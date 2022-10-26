@@ -458,6 +458,16 @@ final class OdbTest extends RepositoryBareTestCase {
 
     /**
      * @depends testRead
+     * @phpGitTest git_odb_object_id
+     */
+    public function testOdbObjectId($object) {
+        $result = git_odb_object_id($object);
+
+        $this->assertIsString($result);
+    }
+
+    /**
+     * @depends testRead
      * @phpGitTest git_odb_object_dup
      */
     public function testOdbObjectDup($object) {

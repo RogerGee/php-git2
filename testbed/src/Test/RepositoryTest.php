@@ -343,6 +343,17 @@ final class RepositoryTest extends RepositoryTestCase {
     }
 
     /**
+     * @phpGitTest git_repository_set_odb
+     */
+    public function testSetOdb() {
+        $repo = git_repository_new();
+        $odb = git_odb_new();
+        $result = git_repository_set_odb($repo,$odb);
+
+        $this->assertNull($result);
+    }
+
+    /**
      * @depends testOpen
      * @phpGitTest git_repository_set_workdir
      */
