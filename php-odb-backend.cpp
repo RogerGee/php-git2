@@ -752,6 +752,9 @@ zval* odb_backend_read_property(
         if (storage->backend != nullptr) {
             ZVAL_LONG(rv,storage->backend->version);
         }
+        else {
+            ZVAL_NULL(rv);
+        }
         retval = rv;
     }
     else if (strcmp(Z_STRVAL_P(member),"odb") == 0) {
@@ -781,6 +784,9 @@ zval* odb_backend_read_property(
 
                 Z_ADDREF_P(retval);
                 zend_hash_add(Z_OBJPROP_P(object),Z_STR_P(member),retval);
+            }
+            else {
+                ZVAL_NULL(retval);
             }
         }
     }
