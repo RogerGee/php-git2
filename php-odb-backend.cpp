@@ -201,6 +201,10 @@ void php_odb_backend_object::unset_backend(zval* obj)
         void* data;
         zval* retval = method.retval();
 
+        if (Z_TYPE_P(retval) == IS_FALSE) {
+            return GIT_ENOTFOUND;
+        }
+
         // Copy the returned data to a persistent memory buffer that git2 can
         // free later on.
         convert_to_string(retval);
@@ -247,6 +251,10 @@ void php_odb_backend_object::unset_backend(zval* obj)
         void* data;
         zval* retval = method.retval();
 
+        if (Z_TYPE_P(retval) == IS_FALSE) {
+            return GIT_ENOTFOUND;
+        }
+
         // Copy the returned data to a persistent memory buffer that git2 can
         // free later on.
         convert_to_string(retval);
@@ -290,6 +298,10 @@ void php_odb_backend_object::unset_backend(zval* obj)
 
     result = method.call(params);
     if (result == GIT_OK) {
+        if (Z_TYPE_P(method.retval()) == IS_FALSE) {
+            return GIT_ENOTFOUND;
+        }
+
         // Return values to caller.
         params.unref(0);
         params.unref(1);
