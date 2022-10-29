@@ -2,19 +2,14 @@
 
 namespace PhpGit2\Backend;
 
-use PhpGit2\TestCase;
+use PhpGit2\Utility\TestWrapperTrait;
 
 /**
  * Provides a custom ODB backend that wraps the in-memory serialized odb backend
  * in order to perform test assertions.
  */
 class TestODBBackend extends PHPSerializedODBBackend {
-    private $unit;
-    private $called = [];
-
-    public function __construct(TestCase $unit) {
-        $this->unit = $unit;
-    }
+    use TestWrapperTrait;
 
     public function read(&$type,$oid) {
         $this->called[] = 'read';
@@ -58,9 +53,5 @@ class TestODBBackend extends PHPSerializedODBBackend {
         $this->called[] = 'for_each';
         $this->unit->assertIsCallable($callback);
         return parent::for_each($callback,$payload);
-    }
-
-    public function wasCalled(string $methodName) : bool {
-        return in_array($methodName,$this->called);
     }
 }

@@ -3,6 +3,7 @@
 namespace PhpGit2\Test;
 
 use PhpGit2\RepositoryBareTestCase;
+use PhpGit2\Backend\TestRefDbBackend;
 
 final class RefDbTest extends RepositoryBareTestCase {
     /**
@@ -53,6 +54,8 @@ final class RefDbTest extends RepositoryBareTestCase {
         $result = git_refdb_new($repo);
 
         $this->assertResourceHasType($result,'git_refdb');
+
+        return $result;
     }
 
     /**
@@ -65,5 +68,16 @@ final class RefDbTest extends RepositoryBareTestCase {
         $this->assertResourceHasType($result,'git_refdb');
 
         return $result;
+    }
+
+    /**
+     * @depends testNew
+     * @phpGitTest git_refdb_set_backend
+     */
+    public function testSetBackend($refdb) {
+        $backend = new TestRefDbBackend($this);
+        $result = git_refdb_set_backend($refdb,$backend);
+
+        $this->assertNull($result);
     }
 }
