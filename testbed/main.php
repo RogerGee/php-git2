@@ -20,10 +20,8 @@ function run_php_unit(array $userArgs) : int {
         $userArgs[] = 'src/Test';
     }
 
-    $args = [
-        'phpunit',
-        ...$userArgs,
-    ];
+    $args = ['phpunit'];
+    $args = array_merge($args,$userArgs);
 
     $app = new PHPUnitCommand;
     $result = $app->run($args,false);
@@ -47,8 +45,8 @@ function run_php_unit_with_ini(string $php,array $userArgs) : int {
         '-c',
         "$testdir/php.ini",
         'vendor/bin/phpunit',
-        ...$userArgs,
     ];
+    $args = array_merge($args,$userArgs);
 
     $descriptors = [
         0 => STDIN,
