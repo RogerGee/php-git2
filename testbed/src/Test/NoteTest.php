@@ -5,6 +5,9 @@ namespace PhpGit2\Test;
 use PhpGit2\RepositoryBareTestCase;
 use PhpGit2\Callback\CallbackPayload;
 
+/**
+ * @phpGitTest git_note_default_ref
+ */
 final class NoteTest extends RepositoryBareTestCase {
     /**
      * @phpGitTest git_note_create

@@ -6,6 +6,9 @@ use PhpGit2\RepositoryTestCase;
 use PhpGit2\Callback\CallbackException;
 use PhpGit2\Callback\CallbackPayload;
 
+/**
+ * @phpGitRemoved git_checkout_init_options
+ */
 final class CheckoutTest extends RepositoryTestCase {
     /**
      * @phpGitTest git_checkout_head

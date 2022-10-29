@@ -6,6 +6,11 @@ use PhpGit2\TestCase;
 use PhpGit2\Callback\CallbackPayload;
 use PhpGit2\Callback\CallbackReturnValue;
 
+/**
+ * @phpGitRemoved git_config_entry_free
+ * @phpGitRemoved git_config_init_backend
+ * @phpGitRemoved git_config_lock
+ */
 final class ConfigTest extends TestCase {
     /**
      * @phpGitTest git_config_new

@@ -5,6 +5,12 @@ namespace PhpGit2\Test;
 use PhpGit2\RepositoryTestCase;
 use PhpGit2\Callback\CallbackPayload;
 
+/**
+ * @phpGitRemoved git_diff_find_init_options
+ * @phpGitRemoved git_diff_init_options
+ * @phpGitRemoved git_diff_print_callback__to_buf
+ * @phpGitRemoved git_diff_print_callback__to_file_handle
+ */
 final class DiffTest extends RepositoryTestCase {
     /**
      * @phpGitTest git_diff_blob_to_buffer

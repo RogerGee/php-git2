@@ -4,6 +4,9 @@ namespace PhpGit2\Test;
 
 use PhpGit2\RepositoryBareTestCase;
 
+/**
+ * @phpGitRemoved git_blame_init_options
+ */
 final class BlameTest extends RepositoryBareTestCase {
     /**
      * @phpGitTest git_blame_file

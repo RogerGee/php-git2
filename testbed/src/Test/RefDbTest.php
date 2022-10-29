@@ -5,6 +5,9 @@ namespace PhpGit2\Test;
 use PhpGit2\RepositoryBareTestCase;
 use PhpGit2\Backend\TestRefDbBackend;
 
+/**
+ * @phpGitRemoved git_refdb_init_backend
+ */
 final class RefDbTest extends RepositoryBareTestCase {
     /**
      * @phpGitTest git_refdb_backend_fs

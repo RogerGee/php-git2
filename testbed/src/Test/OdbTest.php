@@ -5,6 +5,12 @@ namespace PhpGit2\Test;
 use PhpGit2\RepositoryBareTestCase;
 use PhpGit2\Callback\CallbackPayload;
 
+/**
+ * @phpGitRemoved git_odb_backend_malloc
+ * @phpGitRemoved git_odb_expand_ids
+ * @phpGitRemoved git_odb_init_backend
+ * @phpGitRemoved git_odb_stream_free
+ */
 final class OdbTest extends RepositoryBareTestCase {
     /**
      * @phpGitTest git_odb_new

@@ -9,6 +9,8 @@ use PhpGit2\Callback\CallbackReturnValue;
 /**
  * Performs tests on 'repository' instances for a non-bare, non-empty git
  * repository.
+ *
+ * @phpGitRemoved git_repository_init_init_options
  */
 final class RepositoryTest extends RepositoryTestCase {
     /**

@@ -4,6 +4,9 @@ namespace PhpGit2\Test;
 
 use PhpGit2\RepositoryBareTestCase;
 
+/**
+ * @phpGitRemoved git_remote_init_callbacks
+ */
 final class RemoteTest extends RepositoryBareTestCase {
     /**
      * @phpGitTest git_remote_create

@@ -2864,7 +2864,7 @@ abstract class GitODBWritepack:
 
         void commit(array &$stats)
 
-final class GitODBWritepack_Internal extends GitODBBackend
+final class GitODBWritepack_Internal extends GitODBWritepack
 
     This class is used to represent an internal ODB writepack. It cannot be
     instantiated directly.

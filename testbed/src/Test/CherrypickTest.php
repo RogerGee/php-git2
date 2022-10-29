@@ -4,6 +4,9 @@ namespace PhpGit2\Test;
 
 use PhpGit2\RepositoryTestCase;
 
+/**
+ * @phpGitRemoved git_cherrypick_init_options
+ */
 final class CherrypickTest extends RepositoryTestCase {
     /**
      * @phpGitTest git_cherrypick

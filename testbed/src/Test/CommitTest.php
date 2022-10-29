@@ -4,6 +4,9 @@ namespace PhpGit2\Test;
 
 use PhpGit2\RepositoryBareTestCase;
 
+/**
+ * @phpGitRemoved git_commit_create_v
+ */
 final class CommitTest extends RepositoryBareTestCase {
     /**
      * @phpGitTest git_commit_create

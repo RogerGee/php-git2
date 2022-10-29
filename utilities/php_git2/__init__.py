@@ -64,6 +64,8 @@ def get_regex(key):
         regex = re.compile("PHP_GIT2_FE\(([^)]+)\)")
     elif key == "php_file":
         regex = re.compile("^(.+)\.php$")
+    elif key == "php_unit_class":
+        regex = re.compile("/\*\*(.+?)\*/\s*final\s*class",re.DOTALL)
     elif key == "php_unit_test":
         regex = re.compile("/\*\*(.+?)\*/\s*(?:public)?\s*function\s*(\S+?)\s*\(([^)]*)\)",re.DOTALL)
     elif key == "docblock":
@@ -136,6 +138,42 @@ def collect_bindings():
             }
 
     search_dir_recursive(basepath,collect_fn,depth=0)
+
+    return results
+
+
+def collect_removed():
+    basepath = "./testbed/src/Test"
+    regex = get_regex("php_unit_class")
+
+    def parse_tags(docblock):
+        docblock_parser = get_regex("docblock")
+        tags = {
+            "phpGitRemoved": []
+        }
+        for tag in docblock_parser.findall(docblock):
+            if tag[0] in tags:
+                tags[tag[0]].append(tag[1])
+            else:
+                tags[tag[0]] = [tag[1]]
+
+        return tags
+
+    results = {}
+    def collect_fn(name,path,contents):
+        m = get_regex("php_file").match(name)
+        if not m:
+            return
+
+        m = regex.search(contents)
+        if not m:
+            return
+        tags = parse_tags(m[1])
+
+        for fn in tags["phpGitRemoved"]:
+            results[fn] = True
+
+    search_dir_recursive(basepath,collect_fn)
 
     return results
 

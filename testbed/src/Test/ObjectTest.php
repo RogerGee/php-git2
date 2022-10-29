@@ -4,6 +4,9 @@ namespace PhpGit2\Test;
 
 use PhpGit2\RepositoryBareTestCase;
 
+/**
+ * @phpGitRemoved git_object__size
+ */
 final class ObjectTest extends RepositoryBareTestCase {
     /**
      * @phpGitTest git_object_lookup
