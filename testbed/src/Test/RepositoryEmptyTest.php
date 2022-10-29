@@ -10,21 +10,6 @@ use PhpGit2\TestCase;
  */
 final class RepositoryEmptyTest extends TestCase {
     /**
-     * @phpGitTest git_repository_discover
-     */
-    public function testDiscover() {
-        $path = git_repository_discover('.',false,null);
-
-        $this->assertIsString($path);
-
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Failed to resolve path');
-
-        $randnum = rand();
-        $path = git_repository_discover("/phpgit2nonexistentdirectory/$randnum",false,null);
-    }
-
-    /**
      * @phpGitTest git_repository_init
      */
     public function testInit() {

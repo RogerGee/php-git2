@@ -26,6 +26,23 @@ final class RepositoryTest extends RepositoryTestCase {
     }
 
     /**
+     * @depends testOpen
+     * @phpGitTest git_repository_discover
+     */
+    public function testDiscover($repo) {
+        $path = static::makePath('repo');
+        $path = git_repository_discover($path,false,null);
+
+        $this->assertIsString($path);
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Failed to resolve path');
+
+        $randnum = rand();
+        $path = git_repository_discover("/phpgit2nonexistentdirectory/$randnum",false,null);
+    }
+
+    /**
      * @phpGitTest git_repository_open_exit
      */
     public function testOpenExt() {
