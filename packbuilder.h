@@ -219,12 +219,16 @@ static constexpr auto ZIF_GIT_PACKBUILDER_WRITE = zif_php_git2_function<
         php_git2::php_resource<php_git2::php_git_packbuilder>,
         php_git2::php_string,
         php_git2::php_long,
-        php_git2::php_callback_sync,
-        php_git2::php_callback_handler<php_git2::transfer_progress_callback>
+        php_git2::connector_wrapper<
+            php_git2::php_callback_handler_nullable_connector<
+                php_git2::transfer_progress_callback
+                >
+            >,
+        php_git2::php_callback_sync_nullable
         >,
     -1,
-    php_git2::sequence<0,1,2,3,3>, // pass callback in twice
-    php_git2::sequence<0,1,2,4,3>
+    php_git2::sequence<0,1,2,4,4>, // pass callback in twice
+    php_git2::sequence<0,1,2,3,4>
     >;
 
 static constexpr auto ZIF_GIT_PACKBUILDER_WRITTEN = zif_php_git2_function<

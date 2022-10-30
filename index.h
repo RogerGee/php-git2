@@ -81,11 +81,36 @@ namespace php_git2
         };
     };
 
+    // Provide a nullable version of git_index_entry.
+
+    class php_git_index_entry_nullable:
+        public php_option_array
+    {
+    public:
+        const git_index_entry* byval_git2()
+        {
+            if (is_null()) {
+                return nullptr;
+            }
+
+            entry.set_value(get_value());
+            return entry.byval_git2();
+        }
+
+    private:
+        php_git_index_entry entry;
+    };
+
     // Provide a type for converting git_index_entry to PHP array.
 
     class php_git_index_entry_ref
     {
     public:
+        php_git_index_entry_ref():
+            ent(nullptr)
+        {
+        }
+
         const git_index_entry** byval_git2()
         {
             return &ent;
@@ -93,7 +118,12 @@ namespace php_git2
 
         void ret(zval* return_value)
         {
-            php_git2::convert_index_entry(return_value,ent);
+            if (ent != nullptr) {
+                php_git2::convert_index_entry(return_value,ent);
+            }
+            else {
+                ZVAL_NULL(return_value);
+            }
         }
 
     private:
@@ -142,7 +172,7 @@ static constexpr auto ZIF_GIT_INDEX_ADD = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_INDEX_ADD_ALL = zif_php_git2_function<
+static constexpr auto ZIF_GIT_INDEX_ADD_ALL = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         git_index*,
@@ -157,7 +187,7 @@ static constexpr auto ZIF_GIT_INDEX_ADD_ALL = zif_php_git2_function<
         php_git2::php_callback_handler_nullable<php_git2::index_matched_path_callback>,
         php_git2::php_callback_sync_nullable
         >,
-    -1,
+    php_git2::php_git_callback_error_rethandler,
     php_git2::sequence<0,1,2,4,4>,
     php_git2::sequence<0,1,2,3,4>
     >;
@@ -229,9 +259,9 @@ static constexpr auto ZIF_GIT_INDEX_CONFLICT_ADD = zif_php_git2_function<
         const git_index_entry*>::func<git_index_conflict_add>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_index>,
-        php_git2::php_git_index_entry,
-        php_git2::php_git_index_entry,
-        php_git2::php_git_index_entry
+        php_git2::php_git_index_entry_nullable,
+        php_git2::php_git_index_entry_nullable,
+        php_git2::php_git_index_entry_nullable
         >
     >;
 
@@ -508,7 +538,7 @@ static constexpr auto ZIF_GIT_INDEX_REMOVE = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_INDEX_REMOVE_ALL = zif_php_git2_function<
+static constexpr auto ZIF_GIT_INDEX_REMOVE_ALL = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         git_index*,
@@ -521,7 +551,7 @@ static constexpr auto ZIF_GIT_INDEX_REMOVE_ALL = zif_php_git2_function<
         php_git2::php_callback_handler<php_git2::index_matched_path_callback>,
         php_git2::php_callback_sync
         >,
-    -1,
+    php_git2::php_git_callback_error_rethandler,
     php_git2::sequence<0,1,3,3>,
     php_git2::sequence<0,1,2,3>
     >;
@@ -572,7 +602,7 @@ static constexpr auto ZIF_GIT_INDEX_SET_VERSION = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_INDEX_UPDATE_ALL = zif_php_git2_function<
+static constexpr auto ZIF_GIT_INDEX_UPDATE_ALL = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         git_index*,
@@ -585,7 +615,7 @@ static constexpr auto ZIF_GIT_INDEX_UPDATE_ALL = zif_php_git2_function<
         php_git2::php_callback_handler<php_git2::index_matched_path_callback>,
         php_git2::php_callback_sync
         >,
-    -1,
+    php_git2::php_git_callback_error_rethandler,
     php_git2::sequence<0,1,3,3>,
     php_git2::sequence<0,1,2,3>
     >;

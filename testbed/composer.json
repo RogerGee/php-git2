@@ -1,0 +1,21 @@
+{
+    "name": "php-git2/test",
+    "description": "Testbed for php-git2 extension project",
+    "type": "project",
+    "require": {
+        "phpunit/phpunit": "^9"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "PhpGit2\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Roger Gee",
+            "email": "rpg11a@acu.edu"
+        }
+    ],
+    "minimum-stability": "stable"
+}

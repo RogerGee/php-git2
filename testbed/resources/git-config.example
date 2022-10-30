@@ -1,0 +1,24 @@
+[core]
+	kint32 = 33
+	kint64 = 9223372036854775807
+	kstring = jovial_wilson
+	kbool = 0
+	kmapped1 = yes
+	kmapped2 = no
+	kmapped3 = value
+	kmulti = value1
+	kmulti = value2
+	kmulti = value3
+	kpath = ~/code
+[a]
+	key = a
+[a "b"]
+	key = ab
+[delete]
+	a = 1
+	b = 2
+	c = 3
+	m = m0
+	m = m1
+	m = m2
+	m = m3

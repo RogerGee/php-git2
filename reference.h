@@ -665,6 +665,7 @@ static constexpr auto ZIF_GIT_REFERENCE_SYMBOLIC_TARGET = zif_php_git2_function<
     PHP_GIT2_FE(git_reference_is_remote,ZIF_GIT_REFERENCE_IS_REMOTE,NULL) \
     PHP_GIT2_FE(git_reference_is_tag,ZIF_GIT_REFERENCE_IS_TAG,NULL)     \
     PHP_GIT2_FE(git_reference_is_valid_name,ZIF_GIT_REFERENCE_IS_VALID_NAME,NULL) \
+    PHP_GIT2_FE(git_reference_iterator_free,ZIF_GIT_REFERENCE_ITERATOR_FREE,NULL) \
     PHP_GIT2_FE(git_reference_iterator_new,ZIF_GIT_REFERENCE_ITERATOR_NEW,NULL) \
     PHP_GIT2_FE(git_reference_iterator_glob_new,ZIF_GIT_REFERENCE_ITERATOR_GLOB_NEW,NULL) \
     PHP_GIT2_FE(git_reference_next,ZIF_GIT_REFERENCE_NEXT,NULL)         \

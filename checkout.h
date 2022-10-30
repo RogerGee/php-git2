@@ -30,7 +30,15 @@ namespace php_git2
                 GIT2_ARRAY_LOOKUP_LONG(arr,file_open_flags,opts);
                 GIT2_ARRAY_LOOKUP_SUBOBJECT(arr,strarray,paths,opts);
                 // TODO Handle git_checkout_notify_cb and payload properties.
-                // TODO Handle git_checkout_progress_cb and payload properties.
+
+                GIT2_ARRAY_LOOKUP_CALLBACK_NULLABLE(
+                    arr,
+                    checkout_progress_callback,
+                    checkoutProgressCallback,
+                    progress_cb,
+                    progress_payload,
+                    opts);
+
                 GIT2_ARRAY_LOOKUP_RESOURCE(arr,php_git_tree,baseline,opts);
                 // TODO Handle baseline_index property
                 GIT2_ARRAY_LOOKUP_STRING(arr,target_directory,opts);
@@ -48,6 +56,7 @@ namespace php_git2
     private:
         git_checkout_options opts;
         php_strarray_byval_array strarray;
+        php_callback_sync checkoutProgressCallback;
     };
 
 } // namespace php_git2

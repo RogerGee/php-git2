@@ -153,7 +153,7 @@ static constexpr auto ZIF_GIT_BLAME_BUFFER = zif_php_git2_function_setdeps<
 
 static constexpr auto ZIF_GIT_BLAME_FREE = zif_php_git2_function_free<
     php_git2::local_pack<
-        php_git2::php_resource<php_git2::php_git_blame>
+        php_git2::php_resource_cleanup<php_git2::php_git_blame>
         >
     >;
 

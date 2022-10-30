@@ -202,8 +202,8 @@ static constexpr auto ZIF_GIT_NOTE_REMOVE = zif_php_git2_function<
 // Function Entries
 
 #define GIT_NOTE_FE                                                     \
-    PHP_GIT2_FE(git_note_author,ZIF_GIT_NOTE_CREATE,NULL)               \
-    PHP_GIT2_FE(git_note_committer,ZIF_GIT_NOTE_CREATE,NULL)            \
+    PHP_GIT2_FE(git_note_author,ZIF_GIT_NOTE_AUTHOR,NULL)               \
+    PHP_GIT2_FE(git_note_committer,ZIF_GIT_NOTE_COMMITTER,NULL)         \
     PHP_GIT2_FE(git_note_create,ZIF_GIT_NOTE_CREATE,NULL)               \
     PHP_GIT2_FE(git_note_foreach,ZIF_GIT_NOTE_FOREACH,NULL)             \
     PHP_GIT2_FE(git_note_free,ZIF_GIT_NOTE_FREE,NULL)                   \

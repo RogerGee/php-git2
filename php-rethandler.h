@@ -346,6 +346,29 @@ namespace php_git2
         }
     };
 
+    // Provide a rethandler for converting GIT_ERROR_CALLBACK into returning
+    // false.
+
+    class php_git_callback_error_rethandler
+    {
+    public:
+        template<typename... Ts>
+        bool ret(int retval,zval* return_value,local_pack<Ts...>& pack)
+        {
+            if (retval < 0) {
+                const ::git_error* e = giterr_last();
+                if (!e || e->klass == GITERR_CALLBACK) {
+                    RETVAL_FALSE;
+                    return true;
+                }
+                return false;
+            }
+
+            RETVAL_TRUE;
+            return true;
+        }
+    };
+
 } // php_git2
 
 #endif

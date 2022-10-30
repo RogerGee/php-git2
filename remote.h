@@ -658,13 +658,14 @@ static constexpr auto ZIF_GIT_REMOTE_PRUNE = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_PRUNE_REFS = zif_php_git2_function<
+static constexpr auto ZIF_GIT_REMOTE_PRUNE_REFS = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         const git_remote*>::func<git_remote_prune_refs>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_remote>
-        >
+        >,
+    php_git2::php_boolean_rethandler<int>
     >;
 
 static constexpr auto ZIF_GIT_REMOTE_PUSH = zif_php_git2_function<

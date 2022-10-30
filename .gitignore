@@ -34,3 +34,4 @@ modules
 run-tests.php
 
 .libs/
+__pycache__/

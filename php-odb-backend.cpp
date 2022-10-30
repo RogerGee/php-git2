@@ -201,6 +201,10 @@ void php_odb_backend_object::unset_backend(zval* obj)
         void* data;
         zval* retval = method.retval();
 
+        if (Z_TYPE_P(retval) == IS_FALSE) {
+            return GIT_ENOTFOUND;
+        }
+
         // Copy the returned data to a persistent memory buffer that git2 can
         // free later on.
         convert_to_string(retval);
@@ -247,6 +251,10 @@ void php_odb_backend_object::unset_backend(zval* obj)
         void* data;
         zval* retval = method.retval();
 
+        if (Z_TYPE_P(retval) == IS_FALSE) {
+            return GIT_ENOTFOUND;
+        }
+
         // Copy the returned data to a persistent memory buffer that git2 can
         // free later on.
         convert_to_string(retval);
@@ -290,6 +298,10 @@ void php_odb_backend_object::unset_backend(zval* obj)
 
     result = method.call(params);
     if (result == GIT_OK) {
+        if (Z_TYPE_P(method.retval()) == IS_FALSE) {
+            return GIT_ENOTFOUND;
+        }
+
         // Return values to caller.
         params.unref(0);
         params.unref(1);
@@ -522,12 +534,14 @@ void php_odb_backend_object::unset_backend(zval* obj)
     method_wrapper method("for_each",backend);
     foreach_callback_info callbackInfo = { cb, payload };
 
-    // Set up the closure to call an internal function that will handle calling
-    // the function and passing the payload.
+    // Create GitClosure instance for handling the callback.
 
     object_init_ex(params[0],php_git2::class_entry[php_git2_closure_obj]);
-
     closure = php_zend_object<php_closure_object>::get_storage(Z_OBJ_P(params[0]));
+
+    // Set up the closure to call an internal function that will handle calling
+    // the callback function and passing the correct payload.
+
     closure->func.type = ZEND_INTERNAL_FUNCTION;
     closure->func.common.function_name = zend_string_init(
         "php_odb_backend_object_foreach_internal_callback",
@@ -568,20 +582,24 @@ void php_odb_backend_object::unset_backend(zval* obj)
         resourceWrapper.ret(params[0]);
     }
 
-    // Set up the closure to call an internal function that will handle calling
-    // the function and passing the payload.
+    // Create callback info passed via the closure's payload.
 
-    php_closure_object* closure;
     transfer_progress_callback_info* callbackInfo;
-
     callbackInfo = reinterpret_cast<transfer_progress_callback_info*>(
         emalloc(sizeof(transfer_progress_callback_info))
         );
     callbackInfo->callback = progress_cb;
     callbackInfo->payload = progress_payload;
 
+    // Create GitClosure object for handling the callback.
+
+    php_closure_object* closure;
     object_init_ex(params[1],php_git2::class_entry[php_git2_closure_obj]);
     closure = php_zend_object<php_closure_object>::get_storage(Z_OBJ_P(params[1]));
+
+    // Set up the closure to call an internal function that will handle calling
+    // the callback function and passing the correct payload.
+
     closure->func.type = ZEND_INTERNAL_FUNCTION;
     closure->func.common.function_name = zend_string_init(
         "php_odb_backend_object_writepack_internal_callback",
@@ -746,6 +764,9 @@ zval* odb_backend_read_property(
         if (storage->backend != nullptr) {
             ZVAL_LONG(rv,storage->backend->version);
         }
+        else {
+            ZVAL_NULL(rv);
+        }
         retval = rv;
     }
     else if (strcmp(Z_STRVAL_P(member),"odb") == 0) {
@@ -775,6 +796,9 @@ zval* odb_backend_read_property(
 
                 Z_ADDREF_P(retval);
                 zend_hash_add(Z_OBJPROP_P(object),Z_STR_P(member),retval);
+            }
+            else {
+                ZVAL_NULL(retval);
             }
         }
     }

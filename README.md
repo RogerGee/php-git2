@@ -19,8 +19,6 @@ Since we do not bundle the `libgit2` dependency, it's up to the user to provide 
 
 The entries in the table above denote the `libgit2` version requirement for a particular `php-git2` release. An entry is only added when a new version of `libgit2` is required. In theory, you should be able to use any version that fits the constraint. The minimum `libgit2` version denoted by the constraint is the one we use to develop and test the release.
 
-A new major version of `php-git2` is released whenever the extension interface changes to where a previous release would be backwards-incompatible. This backwards-incompatibility may be introduced by `libgit2` or extension-specific interface changes. A minor version is released whenever new API bindings are implemented or new helper functions, classes or class methods are added. A minor version only expands the interface; it does not deprecate it. Bug fixes may be included in minor version releases if they accompany new feature additions; otherwise pure bug fix releases increment the patch version.
-
 ### Branches
 
 This project maintains multiple branches for different major versions of PHP. Look for a branch named `phpX/master` for PHP version `X`. Branch `master` will point to the latest `phpX/master` that is supported. Maintenance and development branches are organized similarly (e.g. `php7/develop`).
@@ -29,9 +27,9 @@ A release is issued for each PHP version separately. Look for tags organized und
 
 ## API Coverage
 
-The [bindings](bindings) file contains a list of all bindings; this file documents which bindings have been covered.
+The [`docs/coverage.txt`](docs/coverage.txt) file contains a summary of library coverage and a list of all bindings with the implementation status of each binding.
 
-We document API specifics in the [`DOCS`](DOCS) file, including the major differences between the PHP userspace API and the original C library API. Please consult this documentation before using these bindings, as there are some differences that need to be understood.
+We document API specifics in the [`docs/DOCS.txt`](docs/DOCS.txt) file, including the major differences between the PHP userspace API and the original C library API. Please consult this documentation before using these bindings, as there are some differences that need to be understood.
 
 ## Design
 
@@ -134,3 +132,8 @@ This configuration will produce a huge binary, but it will be easier to trace. I
 
 This project does not officially support Windows at this time. With this said, there shouldn't be anything preventing the extension from building and running on Windows; we just haven't worked out any of the inevitable, platform-specific issues.
 
+## Roadmap
+
+- Improve unit testing (Fall 2022): COMPLETE
+- Update to `libgit2` version 1: IN PROGRESS
+- Add support for PHP 8: PENDING

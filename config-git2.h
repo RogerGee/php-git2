@@ -775,8 +775,8 @@ static constexpr auto ZIF_GIT_CONFIG_LOOKUP_MAP_VALUE = zif_php_git2_function<
     PHP_GIT2_FE(git_config_open_level,ZIF_GIT_CONFIG_OPEN_LEVEL,NULL)   \
     PHP_GIT2_FE(git_config_open_ondisk,ZIF_GIT_CONFIG_OPEN_ONDISK,NULL) \
     PHP_GIT2_FE(git_config_parse_bool,ZIF_GIT_CONFIG_PARSE_BOOL,NULL)   \
-    PHP_GIT2_FE(git_config_parse_int32,ZIF_GIT_CONFIG_PARSE_INT64,NULL) \
-    PHP_GIT2_FE(git_config_parse_int64,ZIF_GIT_CONFIG_PARSE_INT32,NULL) \
+    PHP_GIT2_FE(git_config_parse_int32,ZIF_GIT_CONFIG_PARSE_INT32,NULL) \
+    PHP_GIT2_FE(git_config_parse_int64,ZIF_GIT_CONFIG_PARSE_INT64,NULL) \
     PHP_GIT2_FE(git_config_parse_path,ZIF_GIT_CONFIG_PARSE_PATH,NULL)   \
     PHP_GIT2_FE(git_config_set_bool,ZIF_GIT_CONFIG_SET_BOOL,NULL)       \
     PHP_GIT2_FE(git_config_set_int32,ZIF_GIT_CONFIG_SET_INT32,NULL)     \
@@ -805,6 +805,7 @@ static constexpr auto ZIF_GIT_CONFIG_LOOKUP_MAP_VALUE = zif_php_git2_function<
     PHP_GIT2_FE(git_config_add_backend,ZIF_GIT_CONFIG_ADD_BACKEND,NULL) \
     PHP_GIT2_FE(git_config_backend_foreach_match,ZIF_GIT_CONFIG_BACKEND_FOREACH_MATCH,NULL) \
     PHP_GIT2_FE(git_config_iterator_new,ZIF_GIT_CONFIG_ITERATOR_NEW,NULL) \
+    PHP_GIT2_FE(git_config_iterator_free,ZIF_GIT_CONFIG_ITERATOR_FREE,NULL) \
     PHP_GIT2_FE(git_config_multivar_iterator_new,ZIF_GIT_CONFIG_MULTIVAR_ITERATOR_NEW,NULL) \
     PHP_GIT2_FE(git_config_iterator_glob_new,ZIF_GIT_CONFIG_ITERATOR_GLOB_NEW,NULL) \
     PHP_GIT2_FE(git_config_next,ZIF_GIT_CONFIG_NEXT,NULL)               \

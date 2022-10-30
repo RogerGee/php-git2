@@ -478,6 +478,16 @@ namespace php_git2
         static int callback(git_repository** out,const char* path,int bare,void* payload);
     };
 
+    struct checkout_progress_callback
+    {
+        typedef git_checkout_progress_cb type;
+        static void callback(
+            const char* path,
+            size_t completed_steps,
+            size_t total_steps,
+            void* payload);
+    };
+
     struct git_diff_options_callback_info
     {
         php_callback_sync notifyCallback;

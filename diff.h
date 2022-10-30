@@ -298,7 +298,7 @@ namespace php_git2
     // Define type to wrap git_diff_format_email_options.
 
     class php_git_diff_format_email_options:
-        public php_option_array
+        public php_array_base
     {
     public:
         php_git_diff_format_email_options():
@@ -893,7 +893,7 @@ static constexpr auto ZIF_GIT_DIFF_INDEX_TO_WORKDIR = zif_php_git2_function_setd
     PHP_GIT2_FE(git_diff_status_char,ZIF_GIT_DIFF_STATUS_CHAR,NULL)     \
     PHP_GIT2_FE(git_diff_num_deltas,ZIF_GIT_DIFF_NUM_DELTAS,NULL)       \
     PHP_GIT2_FE(git_diff_num_deltas_of_type,ZIF_GIT_DIFF_NUM_DELTAS_OF_TYPE,NULL) \
-    PHP_GIT2_FE(git_diff_find_options,ZIF_GIT_DIFF_FIND_SIMILAR,NULL)   \
+    PHP_GIT2_FE(git_diff_find_similar,ZIF_GIT_DIFF_FIND_SIMILAR,NULL)   \
     PHP_GIT2_FE(git_diff_get_stats,ZIF_GIT_DIFF_GET_STATS,NULL)         \
     PHP_GIT2_FE(git_diff_stats_free,ZIF_GIT_DIFF_STATS_FREE,NULL)       \
     PHP_GIT2_FE(git_diff_stats_deletions,ZIF_GIT_DIFF_STATS_DELETIONS,NULL) \

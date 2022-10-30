@@ -81,7 +81,7 @@ static constexpr auto ZIF_GIT_OBJECT_DUP = zif_php_git2_function<
         php_git2::php_resource_ref<php_git2::php_git_object>,
         php_git2::php_resource<php_git2::php_git_object>
         >,
-    -1,
+    1,
     php_git2::sequence<1>,
     php_git2::sequence<0,1>
     >;
@@ -100,7 +100,7 @@ static constexpr auto ZIF_GIT_OBJECT_LOOKUP_BYPATH = zif_php_git2_function_setde
         php_git2::php_long_cast<git_otype>
         >,
     php_git2::sequence<0,1>,
-    -1,
+    1,
     php_git2::sequence<1,2,3>,
     php_git2::sequence<0,1,2,3>
     >;
@@ -123,7 +123,7 @@ static constexpr auto ZIF_GIT_OBJECT_LOOKUP_PREFIX = zif_php_git2_function_setde
         php_git2::php_long_cast<git_otype>
         >,
     php_git2::sequence<0,1>,
-    -1,
+    1,
     php_git2::sequence<1,3,4>,
     php_git2::sequence<0,1,3,2,4>
     >;

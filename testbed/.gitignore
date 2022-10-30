@@ -1,0 +1,7 @@
+#
+# .gitignore - php-git2/testbed
+#
+
+.phpunit.result.cache
+
+/vendor/
