@@ -236,15 +236,20 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
     owner = newOwner;
 }
 
-/*static*/ int php_config_backend_object::open(git_config_backend* cfg,git_config_level_t level)
+/*static*/ int php_config_backend_object::open(git_config_backend* cfg,git_config_level_t level,const git_repository* repo)
 {
     int result;
-    zval_array<1> params;
+    zval_array<2> params;
     method_wrapper method("open",cfg);
 
     // Allocate/set zvals.
 
     ZVAL_LONG(params[0],level);
+    {
+        php_resource_ref<php_git_repository> resource;
+        resource.set_object(repo);
+        resource.ret(params[1]);
+    }
 
     // Call userspace method implementation corresponding to config backend
     // operation.

@@ -144,7 +144,7 @@ PHP_METHOD(GitODBBackend_Internal,read)
     php_odb_backend_object* object;
     void* data = NULL;
     size_t size = 0;
-    git_otype type = GIT_OBJ_ANY;
+    git_object_t type = GIT_OBJ_ANY;
     git_oid oid;
 
     // Grab object backing. Verify that the backend exists and the function is
@@ -221,7 +221,7 @@ PHP_METHOD(GitODBBackend_Internal,read_prefix)
 
     void* data = NULL;
     size_t size = 0;
-    git_otype type = GIT_OBJ_ANY;
+    git_object_t type = GIT_OBJ_ANY;
     git_oid prefix;
     git_oid full;
 
@@ -270,7 +270,7 @@ PHP_METHOD(GitODBBackend_Internal,read_header)
     size_t strOidLen;
     php_odb_backend_object* object;
     size_t size = 0;
-    git_otype type = GIT_OBJ_ANY;
+    git_object_t type = GIT_OBJ_ANY;
     git_oid oid;
 
     // Grab object backing. Verify that the backend exists and the function is
@@ -358,7 +358,7 @@ PHP_METHOD(GitODBBackend_Internal,write)
     try {
         int retval;
         convert_oid_fromstr(&oid,uoid,uoidSize);
-        retval = object->backend->write(object->backend,&oid,data,dataSize,(git_otype)type);
+        retval = object->backend->write(object->backend,&oid,data,dataSize,(git_object_t)type);
         if (retval < 0) {
             php_git2::git_error(retval);
         }
@@ -375,7 +375,7 @@ PHP_METHOD(GitODBBackend_Internal,write)
 PHP_METHOD(GitODBBackend_Internal,writestream)
 {
     php_bailer bailer;
-    zend_long offset;
+    zend_long length;
     zend_long objectType;
     git_odb_stream* outstream = nullptr;
     php_odb_backend_object* object;
@@ -391,15 +391,20 @@ PHP_METHOD(GitODBBackend_Internal,writestream)
     }
 
     // Grab parameters.
-    if (zend_parse_parameters(ZEND_NUM_ARGS(),"ll",&offset,&objectType) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS(),"ll",&length,&objectType) == FAILURE) {
         return;
     }
 
     // Call the underlying function.
     try {
         int retval;
-        retval = object->backend->writestream(&outstream,object->backend,
-            (git_off_t)offset,(git_otype)objectType);
+
+        retval = object->backend->writestream(
+            &outstream,
+            object->backend,
+            static_cast<git_object_size_t>(length),
+            static_cast<git_object_t>(objectType));
+
         if (retval < 0) {
             php_git2::git_error(retval);
         }
@@ -422,10 +427,10 @@ PHP_METHOD(GitODBBackend_Internal,writestream)
 PHP_METHOD(GitODBBackend_Internal,readstream)
 {
     php_bailer bailer;
+    zval* zsizeRef;
+    zval* ztypeRef;
     char* oidstr;
     size_t oidstr_len;
-    git_oid oid;
-    git_odb_stream* outstream = nullptr;
     php_odb_backend_object* object;
 
     // Backend must be created and write function must be available.
@@ -439,15 +444,27 @@ PHP_METHOD(GitODBBackend_Internal,readstream)
     }
 
     // Grab parameters.
-    if (zend_parse_parameters(ZEND_NUM_ARGS(),"s",&oidstr,&oidstr_len) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS(),"z/z/s",&zsizeRef,&ztypeRef,&oidstr,&oidstr_len) == FAILURE) {
         return;
     }
 
     // Call the underlying function.
     try {
         int retval;
+        git_oid oid;
+        git_odb_stream* outstream = nullptr;
+        size_t outsize = 0;
+        git_object_t outtype = GIT_OBJ_ANY;
+
         convert_oid_fromstr(&oid,oidstr,oidstr_len);
-        retval = object->backend->readstream(&outstream,object->backend,&oid);
+
+        retval = object->backend->readstream(
+            &outstream,
+            &outsize,
+            &outtype,
+            object->backend,
+            &oid);
+
         if (retval < 0) {
             php_git2::git_error(retval);
         }
@@ -457,6 +474,9 @@ PHP_METHOD(GitODBBackend_Internal,readstream)
             // using its free() function.
             php_git2_make_odb_stream(return_value,outstream,nullptr);
         }
+
+        ZVAL_LONG(zsizeRef,outsize);
+        ZVAL_LONG(ztypeRef,outtype);
 
     } catch (php_git2::php_git2_exception_base& ex) {
         php_bailout_context ctx(bailer);

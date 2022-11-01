@@ -179,9 +179,9 @@ void php_odb_backend_object::unset_backend(zval* obj)
 }
 
 /*static*/ int php_odb_backend_object::read(
-    void** datap,
+    void** bufferp,
     size_t* sizep,
-    git_otype* typep,
+    git_object_t* typep,
     git_odb_backend* backend,
     const git_oid* oid)
 {
@@ -191,7 +191,7 @@ void php_odb_backend_object::unset_backend(zval* obj)
 
     // Prepare parameters.
 
-    ZVAL_MAKE_REF(params[0]);
+    params.make_ref(0);
     convert_oid(params[1],oid);
 
     // Call userspace method.
@@ -213,13 +213,13 @@ void php_odb_backend_object::unset_backend(zval* obj)
 
         // Return values to caller.
 
-        *datap = data;
+        *bufferp = data;
         *sizep = Z_STRLEN_P(retval);
 
         params.unref(0);
         convert_to_long(params[0]);
 
-        *typep = (git_otype)Z_LVAL_P(params[0]);
+        *typep = (git_object_t)Z_LVAL_P(params[0]);
     }
 
     return result;
@@ -227,9 +227,9 @@ void php_odb_backend_object::unset_backend(zval* obj)
 
 /*static*/ int php_odb_backend_object::read_prefix(
     git_oid* oidp,
-    void** datap,
+    void** bufferp,
     size_t* sizep,
-    git_otype* typep,
+    git_object_t* typep,
     git_odb_backend* backend,
     const git_oid* prefix,
     size_t len)
@@ -240,8 +240,8 @@ void php_odb_backend_object::unset_backend(zval* obj)
 
     // Prepare parameters.
 
-    ZVAL_MAKE_REF(params[0]);
-    ZVAL_MAKE_REF(params[1]);
+    params.make_ref(0);
+    params.make_ref(1);
     convert_oid_prefix(params[2],prefix,len);
 
     // Call userspace method.
@@ -263,7 +263,7 @@ void php_odb_backend_object::unset_backend(zval* obj)
 
         // Return values to caller.
 
-        *datap = data;
+        *bufferp = data;
         *sizep = Z_STRLEN_P(retval);
 
         params.unref(0);
@@ -272,7 +272,7 @@ void php_odb_backend_object::unset_backend(zval* obj)
         convert_to_long(params[1]);
 
         convert_oid_fromstr(oidp,Z_STRVAL_P(params[0]),Z_STRLEN_P(params[0]));
-        *typep = (git_otype)Z_LVAL_P(params[1]);
+        *typep = (git_object_t)Z_LVAL_P(params[1]);
     }
 
     return result;
@@ -280,7 +280,7 @@ void php_odb_backend_object::unset_backend(zval* obj)
 
 /*static*/ int php_odb_backend_object::read_header(
     size_t* sizep,
-    git_otype* typep,
+    git_object_t* typep,
     git_odb_backend* backend,
     const git_oid* oid)
 {
@@ -290,8 +290,8 @@ void php_odb_backend_object::unset_backend(zval* obj)
 
     // Prepare parameters.
 
-    ZVAL_MAKE_REF(params[0]);
-    ZVAL_MAKE_REF(params[1]);
+    params.make_ref(0);
+    params.make_ref(1);
     convert_oid(params[2],oid);
 
     // Call userspace method.
@@ -308,7 +308,7 @@ void php_odb_backend_object::unset_backend(zval* obj)
         convert_to_long(params[0]);
         convert_to_long(params[1]);
         *sizep = Z_LVAL_P(params[0]);
-        *typep = (git_otype)Z_LVAL_P(params[1]);
+        *typep = (git_object_t)Z_LVAL_P(params[1]);
     }
 
     return result;
@@ -319,7 +319,7 @@ void php_odb_backend_object::unset_backend(zval* obj)
     const git_oid* oid,
     const void* data,
     size_t size,
-    git_otype type)
+    git_object_t type)
 {
     int result;
     zval_array<3> params;
@@ -341,8 +341,8 @@ void php_odb_backend_object::unset_backend(zval* obj)
 /*static*/ int php_odb_backend_object::writestream(
     git_odb_stream** streamp,
     git_odb_backend* backend,
-    git_off_t size,
-    git_otype type)
+    git_object_size_t length,
+    git_object_t type)
 {
     int result;
     zval_array<2> params;
@@ -350,7 +350,7 @@ void php_odb_backend_object::unset_backend(zval* obj)
 
     // Prepare parameters.
 
-    ZVAL_LONG(params[0],size);
+    ZVAL_LONG(params[0],length);
     ZVAL_LONG(params[1],type);
 
     // Call userspace method.
@@ -396,22 +396,30 @@ void php_odb_backend_object::unset_backend(zval* obj)
 
 /*static*/ int php_odb_backend_object::readstream(
     git_odb_stream** streamp,
+    size_t* sizep,
+    git_object_t *typep,
     git_odb_backend* backend,
     const git_oid* oid)
 {
     int result;
-    zval_array<1> params;
+    zval_array<3> params;
     method_wrapper method("readstream",backend);
 
     // Prepare parameters.
 
-    convert_oid(params[0],oid);
+    params.make_ref(0);
+    params.make_ref(1);
+    convert_oid(params[2],oid);
 
     // Call userspace method.
 
     result = method.call(params);
     if (result != GIT_OK) {
         return result;
+    }
+
+    if (Z_TYPE_P(method.retval()) == IS_FALSE) {
+        return GIT_ENOTFOUND;
     }
 
     try {
@@ -439,6 +447,12 @@ void php_odb_backend_object::unset_backend(zval* obj)
         // the returned object will survive until the free() function is called
         // on the git_odb_stream.
         *streamp = stream->stream;
+
+        // Return out parameters.
+        convert_to_long(params[0]);
+        convert_to_long(params[1]);
+        *sizep = static_cast<size_t>(Z_LVAL_P(params[0]));
+        *typep = static_cast<git_object_t>(Z_LVAL_P(params[1]));
 
     } catch (php_git2_exception_base& ex) {
         php_git2_giterr_set(GITERR_ODB,ex.what());
@@ -487,7 +501,7 @@ void php_odb_backend_object::unset_backend(zval* obj)
 
     // Prepare parameters.
 
-    ZVAL_MAKE_REF(params[0]);
+    params.make_ref(0);
     convert_oid_prefix(params[1],prefix,len);
 
     // Call userspace method.
