@@ -66,12 +66,12 @@ static constexpr auto ZIF_GIT_REFERENCE_PEEL = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_object**,
-        git_reference*,
-        git_otype>::func<git_reference_peel>,
+        const git_reference*,
+        git_object_t>::func<git_reference_peel>,
     php_git2::local_pack<
         php_git2::php_resource_ref<php_git2::php_git_object>,
         php_git2::php_resource<php_git2::php_git_reference>,
-        php_git2::php_long_cast<git_otype> >,
+        php_git2::php_long_cast<git_object_t> >,
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,2>,

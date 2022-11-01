@@ -65,6 +65,8 @@ namespace php_git2
         php_callback_sync* cb;
     };
 
+    // Create connector type for accessing the stats.
+
     class php_git_indexer_connector
     {
     public:
@@ -85,6 +87,49 @@ namespace php_git2
         connect_t& conn;
     };
 
+    // Create type for indexer options; it is also a connector type so it can
+    // access the indexer instance.
+
+    class php_git_indexer_options:
+        public php_option_array
+    {
+    public:
+        using connect_t = php_resource_ref<php_git_indexer_with_stats>;
+        using target_t = git_indexer_options*;
+
+        php_git_indexer_options(connect_t& obj):
+            conn(obj)
+        {
+            git_indexer_options_init(&opts,GIT_INDEXER_OPTIONS_VERSION);
+        }
+
+        target_t byval_git2()
+        {
+            if (!is_null()) {
+                array_wrapper arr(value);
+                indexer_progress_callback_async callback(conn);
+
+                GIT2_ARRAY_LOOKUP_BOOL(arr,verify,opts);
+
+                GIT2_ARRAY_LOOKUP_CALLBACK_NULLABLE(
+                    arr,
+                    transfer_progress_callback,
+                    (*callback.get_callback()),
+                    progress_cb,
+                    progress_cb_payload,
+                    opts);
+
+                return &opts;
+            }
+
+            return nullptr;
+        }
+
+    private:
+        connect_t& conn;
+        git_indexer_options opts;
+    };
+
 } // namespace php_git2
 
 // Functions:
@@ -96,24 +141,18 @@ static constexpr auto ZIF_GIT_INDEXER_NEW = zif_php_git2_function_setdeps<
         const char*,
         unsigned int,
         git_odb*,
-        git_transfer_progress_cb,
-        void*>::func<git_indexer_new>,
+        git_indexer_options*>::func<git_indexer_new>,
     php_git2::local_pack<
-        php_git2::php_callback_handler_nullable_async<
-            php_git2::transfer_progress_callback,
-            php_git2::indexer_progress_callback_async
-            >,
-        php_git2::connector_wrapper<php_git2::indexer_progress_callback_async>,
-        // Create a php_git_indexer_with_stats instance
+        php_git2::connector_wrapper<php_git2::php_git_indexer_options>,
         php_git2::php_resource_ref<php_git2::php_git_indexer_with_stats>,
         php_git2::php_string,
         php_git2::php_long,
         php_git2::php_resource_nullable<php_git2::php_git_odb>
         >,
-    php_git2::sequence<2,5>,
-    3,
-    php_git2::sequence<3,4,5,1,1>, // pass callback in twice
-    php_git2::sequence<2,3,4,5,0,1>
+    php_git2::sequence<1,4>,
+    2,
+    php_git2::sequence<2,3,4,0>,
+    php_git2::sequence<1,2,3,4,0>
     >;
 
 static constexpr auto ZIF_GIT_INDEXER_HASH = zif_php_git2_function<

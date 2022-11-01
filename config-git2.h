@@ -76,18 +76,18 @@ namespace php_git2
         }
     };
 
-    // Provide a type for converting a PHP array to a git_cvar_map.
+    // Provide a type for converting a PHP array to a git_configmap.
 
-    class php_git_cvar_map:
+    class php_git_configmap:
         public php_array_base
     {
     public:
-        git_cvar_map byval_git2()
+        git_configmap byval_git2()
         {
-            git_cvar_map result;
+            git_configmap result;
             array_wrapper arr(value);
 
-            GIT2_ARRAY_INDEX_LONG(arr,0,cvar_type,result);
+            GIT2_ARRAY_INDEX_LONG(arr,0,type,result);
             GIT2_ARRAY_INDEX_STRING_NULLABLE(arr,1,str_match,result);
             GIT2_ARRAY_INDEX_LONG(arr,2,map_value,result);
 
@@ -95,11 +95,11 @@ namespace php_git2
         }
     };
 
-    using php_cvar_map_array = php_array<php_git_cvar_map,git_cvar_map>;
+    using php_configmap_array = php_array<php_git_configmap,git_configmap>;
 
-    using php_cvar_map_array_length_connector = connector_wrapper<
+    using php_configmap_array_length_connector = connector_wrapper<
         php_array_length_connector<
-            size_t, php_cvar_map_array
+            size_t, php_configmap_array
             >
         >;
 
@@ -557,11 +557,13 @@ static constexpr auto ZIF_GIT_CONFIG_ADD_FILE_ONDISK = zif_php_git2_function<
         git_config*,
         const char*,
         git_config_level_t,
+        const git_repository*,
         int>::func<git_config_add_file_ondisk>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_config>,
         php_git2::php_string,
         php_git2::php_long_cast<git_config_level_t>,
+        php_git2::php_resource_nullable<php_git2::php_git_repository>,
         php_git2::php_bool
         >
     >;
@@ -626,14 +628,14 @@ static constexpr auto ZIF_GIT_CONFIG_GET_MAPPED = zif_php_git2_function<
         int*,
         const git_config*,
         const char*,
-        const git_cvar_map*,
+        const git_configmap*,
         size_t>::func<git_config_get_mapped>,
     php_git2::local_pack<
         php_git2::php_long_ref<int>,
         php_git2::php_resource<php_git2::php_git_config>,
         php_git2::php_string,
-        php_git2::php_cvar_map_array_length_connector,
-        php_git2::php_cvar_map_array
+        php_git2::php_configmap_array_length_connector,
+        php_git2::php_configmap_array
         >,
     1,
     php_git2::sequence<1,2,4>,
@@ -646,16 +648,18 @@ static constexpr auto ZIF_GIT_CONFIG_ADD_BACKEND = zif_php_git2_function<
         git_config*,
         git_config_backend*,
         git_config_level_t,
+        const git_repository*,
         int>::func<git_config_add_backend>,
     php_git2::local_pack<
         php_git2::connector_wrapper<php_git2::php_git_config_backend_owner_connector>,
         php_git2::php_resource<php_git2::php_git_config>,
         php_git2::php_long_cast<git_config_level_t>,
+        php_git2::php_resource_nullable<php_git2::php_git_repository>,
         php_git2::php_bool
         >,
     -1,
     php_git2::sequence<1,0,2,3>,
-    php_git2::sequence<1,0,2,3>
+    php_git2::sequence<1,0,2,3,4>
     >;
 
 static constexpr auto ZIF_GIT_CONFIG_BACKEND_FOREACH_MATCH = zif_php_git2_function<
@@ -751,13 +755,13 @@ static constexpr auto ZIF_GIT_CONFIG_LOOKUP_MAP_VALUE = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         int*,
-        const git_cvar_map*,
+        const git_configmap*,
         size_t,
         const char*>::func<git_config_lookup_map_value>,
     php_git2::local_pack<
         php_git2::php_long_ref<int>,
-        php_git2::php_cvar_map_array_length_connector,
-        php_git2::php_cvar_map_array,
+        php_git2::php_configmap_array_length_connector,
+        php_git2::php_configmap_array,
         php_git2::php_string
         >,
     1,

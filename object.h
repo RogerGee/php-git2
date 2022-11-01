@@ -36,12 +36,12 @@ static constexpr auto ZIF_GIT_OBJECT_LOOKUP = zif_php_git2_function_setdeps<
         git_object**,
         git_repository*,
         const git_oid*,
-        git_otype>::func<git_object_lookup>,
+        git_object_t>::func<git_object_lookup>,
     php_git2::local_pack<
         php_git2::php_resource_ref<php_git2::php_git_object>,
         php_git2::php_resource<php_git2::php_git_repository>,
         php_git2::php_git_oid_fromstr,
-        php_git2::php_long_cast<git_otype>
+        php_git2::php_long_cast<git_object_t>
         >,
     php_git2::sequence<0,1>,
     1,
@@ -54,11 +54,11 @@ static constexpr auto ZIF_GIT_OBJECT_PEEL = zif_php_git2_function_setdeps<
         int,
         git_object**,
         const git_object*,
-        git_otype>::func<git_object_peel>,
+        git_object_t>::func<git_object_peel>,
     php_git2::local_pack<
         php_git2::php_resource_ref<php_git2::php_git_object>,
         php_git2::php_resource<php_git2::php_git_object>,
-        php_git2::php_long_cast<git_otype>
+        php_git2::php_long_cast<git_object_t>
         >,
     php_git2::sequence<0,1>,
     1,
@@ -92,12 +92,12 @@ static constexpr auto ZIF_GIT_OBJECT_LOOKUP_BYPATH = zif_php_git2_function_setde
         git_object**,
         const git_object*,
         const char*,
-        git_otype>::func<git_object_lookup_bypath>,
+        git_object_t>::func<git_object_lookup_bypath>,
     php_git2::local_pack<
         php_git2::php_resource_ref<php_git2::php_git_object>,
         php_git2::php_resource<php_git2::php_git_object>,
         php_git2::php_string,
-        php_git2::php_long_cast<git_otype>
+        php_git2::php_long_cast<git_object_t>
         >,
     php_git2::sequence<0,1>,
     1,
@@ -112,7 +112,7 @@ static constexpr auto ZIF_GIT_OBJECT_LOOKUP_PREFIX = zif_php_git2_function_setde
         git_repository*,
         const git_oid*,
         size_t,
-        git_otype>::func<git_object_lookup_prefix>,
+        git_object_t>::func<git_object_lookup_prefix>,
     php_git2::local_pack<
         php_git2::php_resource_ref<php_git2::php_git_object>,
         php_git2::php_resource<php_git2::php_git_repository>,
@@ -120,7 +120,7 @@ static constexpr auto ZIF_GIT_OBJECT_LOOKUP_PREFIX = zif_php_git2_function_setde
             php_git2::php_string_length_connector<size_t,php_git2::php_git_oid_fromstr>
             >,
         php_git2::php_git_oid_fromstr,
-        php_git2::php_long_cast<git_otype>
+        php_git2::php_long_cast<git_object_t>
         >,
     php_git2::sequence<0,1>,
     1,
@@ -157,7 +157,7 @@ static constexpr auto ZIF_GIT_OBJECT_SHORT_ID = zif_php_git2_function<
 
 static constexpr auto ZIF_GIT_OBJECT_STRING2TYPE = zif_php_git2_function<
     php_git2::func_wrapper<
-        git_otype,
+        git_object_t,
         const char*>::func<git_object_string2type>,
     php_git2::local_pack<
         php_git2::php_string
@@ -167,7 +167,7 @@ static constexpr auto ZIF_GIT_OBJECT_STRING2TYPE = zif_php_git2_function<
 
 static constexpr auto ZIF_GIT_OBJECT_TYPE = zif_php_git2_function<
     php_git2::func_wrapper<
-        git_otype,
+        git_object_t,
         const git_object*>::func<git_object_type>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_object>
@@ -178,9 +178,9 @@ static constexpr auto ZIF_GIT_OBJECT_TYPE = zif_php_git2_function<
 static constexpr auto ZIF_GIT_OBJECT_TYPE2STRING = zif_php_git2_function<
     php_git2::func_wrapper<
         const char*,
-        git_otype>::func<git_object_type2string>,
+        git_object_t>::func<git_object_type2string>,
     php_git2::local_pack<
-        php_git2::php_long_cast<git_otype>
+        php_git2::php_long_cast<git_object_t>
         >,
     0
     >;
@@ -188,9 +188,9 @@ static constexpr auto ZIF_GIT_OBJECT_TYPE2STRING = zif_php_git2_function<
 static constexpr auto ZIF_GIT_OBJECT_TYPEISLOOSE = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
-        git_otype>::func<git_object_typeisloose>,
+        git_object_t>::func<git_object_typeisloose>,
     php_git2::local_pack<
-        php_git2::php_long_cast<git_otype>
+        php_git2::php_long_cast<git_object_t>
         >,
     php_git2::php_boolean_rethandler<int>
     >;

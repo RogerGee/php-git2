@@ -24,9 +24,9 @@ static constexpr auto ZIF_GIT_ATTR_ADD_MACRO = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_ATTR_CACHE_FLUSH = zif_php_git2_function_void<
+static constexpr auto ZIF_GIT_ATTR_CACHE_FLUSH = zif_php_git2_function<
     php_git2::func_wrapper<
-        void,
+        int,
         git_repository*>::func<git_attr_cache_flush>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_repository>

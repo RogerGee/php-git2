@@ -106,9 +106,9 @@ static constexpr auto ZIF_GIT_TREEBUILDER_REMOVE = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_TREEBUILDER_CLEAR = zif_php_git2_function_void<
+static constexpr auto ZIF_GIT_TREEBUILDER_CLEAR = zif_php_git2_function<
     php_git2::func_wrapper<
-        void,
+        int,
         git_treebuilder*>::func<git_treebuilder_clear>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_treebuilder>
@@ -117,7 +117,7 @@ static constexpr auto ZIF_GIT_TREEBUILDER_CLEAR = zif_php_git2_function_void<
 
 static constexpr auto ZIF_GIT_TREEBUILDER_ENTRYCOUNT = zif_php_git2_function<
     php_git2::func_wrapper<
-        unsigned int,
+        size_t,
         git_treebuilder*>::func<git_treebuilder_entrycount>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_treebuilder>
@@ -125,9 +125,9 @@ static constexpr auto ZIF_GIT_TREEBUILDER_ENTRYCOUNT = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_TREEBUILDER_FILTER = zif_php_git2_function_void<
+static constexpr auto ZIF_GIT_TREEBUILDER_FILTER = zif_php_git2_function<
     php_git2::func_wrapper<
-        void,
+        int,
         git_treebuilder*,
         git_treebuilder_filter_cb,
         void*>::func<git_treebuilder_filter>,
@@ -136,6 +136,7 @@ static constexpr auto ZIF_GIT_TREEBUILDER_FILTER = zif_php_git2_function_void<
         php_git2::php_callback_handler<php_git2::treebuilder_filter_callback>,
         php_git2::php_callback_sync
         >,
+    -1,
     php_git2::sequence<0,2,2>, // pass callback in twice for function and payload
     php_git2::sequence<0,1,2>
     >;

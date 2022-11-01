@@ -471,9 +471,9 @@ static constexpr auto ZIF_GIT_REMOTE_DELETE = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_DISCONNECT = zif_php_git2_function_void<
+static constexpr auto ZIF_GIT_REMOTE_DISCONNECT = zif_php_git2_function<
     php_git2::func_wrapper<
-        void,
+        int,
         git_remote*>::func<git_remote_disconnect>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_remote>
@@ -768,9 +768,9 @@ static constexpr auto ZIF_GIT_REMOTE_STATS = zif_php_git2_function_rethandler<
     php_git2::php_transfer_progress_rethandler
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_STOP = zif_php_git2_function_void<
+static constexpr auto ZIF_GIT_REMOTE_STOP = zif_php_git2_function<
     php_git2::func_wrapper<
-        void,
+        int,
         git_remote*>::func<git_remote_stop>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_remote>

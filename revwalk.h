@@ -127,9 +127,9 @@ static constexpr auto ZIF_GIT_REVWALK_HIDE = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REVWALK_SORTING = zif_php_git2_function_void<
+static constexpr auto ZIF_GIT_REVWALK_SORTING = zif_php_git2_function<
     php_git2::func_wrapper<
-        void,
+        int,
         git_revwalk*,
         unsigned int>::func<git_revwalk_sorting>,
     php_git2::local_pack<
@@ -138,9 +138,9 @@ static constexpr auto ZIF_GIT_REVWALK_SORTING = zif_php_git2_function_void<
         > 
     >;
 
-static constexpr auto ZIF_GIT_REVWALK_RESET = zif_php_git2_function_void<
+static constexpr auto ZIF_GIT_REVWALK_RESET = zif_php_git2_function<
     php_git2::func_wrapper<
-        void,
+        int,
         git_revwalk*>::func<git_revwalk_reset>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_revwalk>
@@ -255,9 +255,9 @@ static constexpr auto ZIF_GIT_REVWALK_REPOSITORY = zif_php_git2_function_rethand
     php_git2::sequence<0>
     >;
 
-static constexpr auto ZIF_GIT_REVWALK_SIMPLIFY_FIRST_PARENT = zif_php_git2_function_void<
+static constexpr auto ZIF_GIT_REVWALK_SIMPLIFY_FIRST_PARENT = zif_php_git2_function<
     php_git2::func_wrapper<
-        void,
+        int,
         git_revwalk*>::func<git_revwalk_simplify_first_parent>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_revwalk>

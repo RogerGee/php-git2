@@ -245,7 +245,7 @@ static constexpr auto ZIF_GIT_TAG_TAGGER = zif_php_git2_function_rethandler<
 
 static constexpr auto ZIF_GIT_TAG_TARGET_TYPE = zif_php_git2_function<
     php_git2::func_wrapper<
-        git_otype,
+        git_object_t,
         const git_tag*>::func<git_tag_target_type>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_tag>

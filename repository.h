@@ -113,9 +113,9 @@ static constexpr auto ZIF_GIT_REPOSITORY_OPEN_BARE = zif_php_git2_function<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY__CLEANUP = zif_php_git2_function_void<
+static constexpr auto ZIF_GIT_REPOSITORY__CLEANUP = zif_php_git2_function<
     php_git2::func_wrapper<
-        void,
+        int,
         git_repository*>::func<git_repository__cleanup>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_repository>
@@ -162,7 +162,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_GET_NAMESPACE = zif_php_git2_function<
 static constexpr auto ZIF_GIT_REPOSITORY_PATH = zif_php_git2_function<
     php_git2::func_wrapper<
         const char*,
-        git_repository*>::func<git_repository_path>,
+        const git_repository*>::func<git_repository_path>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_repository>
         >,
@@ -175,13 +175,13 @@ static constexpr auto ZIF_GIT_REPOSITORY_HASHFILE = zif_php_git2_function<
         git_oid*,
         git_repository*,
         const char*,
-        git_otype,
+        git_object_t,
         const char*>::func<git_repository_hashfile>,
     php_git2::local_pack<
         php_git2::php_git_oid,
         php_git2::php_resource<php_git2::php_git_repository>,
         php_git2::php_string,
-        php_git2::php_long_cast<git_otype>,
+        php_git2::php_long_cast<git_object_t>,
         php_git2::php_string_nullable
         >,
     1,
@@ -204,9 +204,9 @@ static constexpr auto ZIF_GIT_REPOSITORY_ODB = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_SET_ODB = zif_php_git2_function_void<
+static constexpr auto ZIF_GIT_REPOSITORY_SET_ODB = zif_php_git2_function<
     php_git2::func_wrapper<
-        void,
+        int,
         git_repository*,
         git_odb*>::func<git_repository_set_odb>,
     php_git2::local_pack<
@@ -268,7 +268,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_IS_EMPTY = zif_php_git2_function_rethan
 static constexpr auto ZIF_GIT_REPOSITORY_IS_BARE = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
-        git_repository*>::func<git_repository_is_bare>,
+        const git_repository*>::func<git_repository_is_bare>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_repository>
         >,
@@ -472,7 +472,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_STATE_CLEANUP = zif_php_git2_function<
 static constexpr auto ZIF_GIT_REPOSITORY_WORKDIR = zif_php_git2_function<
     php_git2::func_wrapper<
         const char*,
-        git_repository*>::func<git_repository_workdir>,
+        const git_repository*>::func<git_repository_workdir>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_repository>
         >,
@@ -523,9 +523,9 @@ static constexpr auto ZIF_GIT_REPOSITORY_CONFIG_SNAPSHOT = zif_php_git2_function
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_SET_CONFIG = zif_php_git2_function_void<
+static constexpr auto ZIF_GIT_REPOSITORY_SET_CONFIG = zif_php_git2_function<
     php_git2::func_wrapper<
-        void,
+        int,
         git_repository*,
         git_config*>::func<git_repository_set_config>,
     php_git2::local_pack<
@@ -548,9 +548,9 @@ static constexpr auto ZIF_GIT_REPOSITORY_INDEX = zif_php_git2_function<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_SET_INDEX = zif_php_git2_function_void<
+static constexpr auto ZIF_GIT_REPOSITORY_SET_INDEX = zif_php_git2_function<
     php_git2::func_wrapper<
-        void,
+        int,
         git_repository*,
         git_index*>::func<git_repository_set_index>,
     php_git2::local_pack<
@@ -574,9 +574,9 @@ static constexpr auto ZIF_GIT_REPOSITORY_REFDB = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_SET_REFDB = zif_php_git2_function_void<
+static constexpr auto ZIF_GIT_REPOSITORY_SET_REFDB = zif_php_git2_function<
     php_git2::func_wrapper<
-        void,
+        int,
         git_repository*,
         git_refdb*>::func<git_repository_set_refdb>,
     php_git2::local_pack<

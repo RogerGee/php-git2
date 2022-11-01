@@ -38,7 +38,6 @@ namespace php_git2
                 GIT2_ARRAY_LOOKUP_LONG(arr,version,opts);
                 GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(arr,checkoutOpts,checkout_opts,opts);
                 GIT2_ARRAY_LOOKUP_SUBOBJECT_DEREFERENCE(arr,fetchOpts,fetch_opts,opts);
-                GIT2_ARRAY_LOOKUP_LONG(arr,clone_checkout_strategy,opts);
                 GIT2_ARRAY_LOOKUP_BOOL(arr,allow_fetch,opts);
 
                 return &opts;
