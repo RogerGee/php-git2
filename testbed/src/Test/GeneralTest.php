@@ -1,4 +1,4 @@
-<?php
+?php
 
 namespace PhpGit2\Test;
 
@@ -43,7 +43,6 @@ use PhpGit2\RepositoryTestCase;
  * @phpGitRemoved git_strarray_copy
  * @phpGitRemoved git_strarray_free
  * @phpGitRemoved git_stream_register_tls
- * @phpGitRemoved git_time_monotonic
  * @phpGitRemoved git_transaction_commit
  * @phpGitRemoved git_transaction_free
  * @phpGitRemoved git_transaction_lock_ref

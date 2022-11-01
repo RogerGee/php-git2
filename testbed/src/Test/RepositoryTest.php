@@ -36,7 +36,7 @@ final class RepositoryTest extends RepositoryTestCase {
         $this->assertIsString($path);
 
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Failed to resolve path');
+        $this->expectExceptionCode(GIT_ENOTFOUND);
 
         $randnum = rand();
         $path = git_repository_discover("/phpgit2nonexistentdirectory/$randnum",false,null);
@@ -278,7 +278,7 @@ final class RepositoryTest extends RepositoryTestCase {
         $this->assertNull($result);
 
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage("The given reference name 'goodbye' is not valid");
+        $this->expectExceptionCode(GIT_EINVALIDSPEC);
 
         git_repository_set_head($repo,'goodbye');
     }

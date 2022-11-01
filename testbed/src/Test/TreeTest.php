@@ -218,7 +218,6 @@ final class TreeTest extends RepositoryBareTestCase {
      */
     public function testEntryBypath_ENOTFOUND($tree) {
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('does not exist in the given tree');
         $this->expectExceptionCode(GIT_ENOTFOUND);
 
         $path = 'i/do/not/exist';

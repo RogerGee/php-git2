@@ -2,7 +2,7 @@
 
 namespace PhpGit2\Test;
 
-use PhpGit2\TestCase;
+use PhpGit2\RepositoryBareTestCase;
 use PhpGit2\Callback\CallbackPayload;
 use PhpGit2\Callback\CallbackReturnValue;
 
@@ -11,7 +11,7 @@ use PhpGit2\Callback\CallbackReturnValue;
  * @phpGitRemoved git_config_init_backend
  * @phpGitRemoved git_config_lock
  */
-final class ConfigTest extends TestCase {
+final class ConfigTest extends RepositoryBareTestCase {
     /**
      * @phpGitTest git_config_new
      */
@@ -30,12 +30,27 @@ final class ConfigTest extends TestCase {
     public function testAddFileOndisk($config) {
         $path = static::copyFile('resources/git-config.example','git-config');
         $level = GIT_CONFIG_HIGHEST_LEVEL;
+        $repo = null;
         $force = true;
-        $result = git_config_add_file_ondisk($config,$path,$level,$force);
+        $result = git_config_add_file_ondisk($config,$path,$level,$repo,$force);
 
         $this->assertNull($result);
 
         return $config;
+    }
+
+    /**
+     * @phpGitTest git_config_add_file_ondisk
+     */
+    public function testAddFileOndisk_WithRepo() {
+        $config = git_config_new();
+        $path = static::copyFile('resources/git-config.example','git-config-other');
+        $level = GIT_CONFIG_HIGHEST_LEVEL;
+        $repo = static::getRepository();
+        $force = true;
+        $result = git_config_add_file_ondisk($config,$path,$level,$repo,$force);
+
+        $this->assertNull($result);
     }
 
     /**
@@ -48,23 +63,9 @@ final class ConfigTest extends TestCase {
 
         $path = static::makePath('git-config');
         $level = GIT_CONFIG_HIGHEST_LEVEL;
+        $repo = null;
         $force = false;
-        $result = git_config_add_file_ondisk($config,$path,$level,$force);
-    }
-
-    /**
-     * @depends testAddFileOndisk
-     * @phpGitTest git_config_add_file_ondisk
-     */
-    public function testAddFileOndisk_ENOTFOUND($config) {
-        $this->expectException(\Exception::class);
-        // NOTE: The documentation says this should return ENOTFOUND but it just
-        // returns -1.
-
-        $path = static::makePath('git-config-does-not-exist');
-        $level = GIT_CONFIG_HIGHEST_LEVEL;
-        $force = false;
-        $result = git_config_add_file_ondisk($config,$path,$level,$force);
+        $result = git_config_add_file_ondisk($config,$path,$level,$repo,$force);
     }
 
     /**
@@ -219,9 +220,9 @@ final class ConfigTest extends TestCase {
     public function testGetMapped($config) {
         $name = 'core.kmapped1';
         $maps = [
-            [GIT_CVAR_FALSE,null,2],
-            [GIT_CVAR_TRUE,null,3],
-            [GIT_CVAR_STRING,'value',4],
+            [GIT_CONFIGMAP_FALSE,null,2],
+            [GIT_CONFIGMAP_TRUE,null,3],
+            [GIT_CONFIGMAP_STRING,'value',4],
         ];
         $result = git_config_get_mapped($config,$name,$maps);
 
@@ -474,7 +475,7 @@ final class ConfigTest extends TestCase {
      */
     public function testLookupMapValue() {
         $maps = [
-            [GIT_CVAR_STRING,'ab',33],
+            [GIT_CONFIGMAP_STRING,'ab',33],
         ];
         $value = 'ab';
         $result = git_config_lookup_map_value($maps,$value);

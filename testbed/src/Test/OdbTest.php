@@ -351,7 +351,7 @@ final class OdbTest extends RepositoryBareTestCase {
     // public function testOpenRstream() {
     //     $odb = static::getRepoOdb();
     //     $oid = 'faf545194b3df246b2b80ce44369371ec9fe2e68';
-    //     $result = git_odb_open_rstream($odb,$oid);
+    //     $result = git_odb_open_rstream($size,$type,$odb,$oid);
 
     //     $this->assertInstanceOf(\GitODBStream_Internal::class,$result);
 

@@ -1,10 +1,10 @@
 Summary of coverage:
-  Total git2 functions: 698
+  Total git2 functions: 866
   Total removed functions: 66
   Total function bindings: 600
   Total extra function bindings: 1
   Total bindings tested: 454
-  Binding coverage: 85.96%
+  Binding coverage: 69.28%
   Test coverage: 75.67%
   Test coverage (extra): 0.00%
 
@@ -17,11 +17,18 @@ Library Bindings:
   +T git_annotated_commit_from_revspec
   +T git_annotated_commit_id
   +T git_annotated_commit_lookup
+  .n git_annotated_commit_ref
+  .n git_apply
+  .n git_apply_options_init
+  .n git_apply_to_tree
   +T git_attr_add_macro
   +T git_attr_cache_flush
   +T git_attr_foreach
+  .n git_attr_foreach_ext
   +T git_attr_get
+  .n git_attr_get_ext
   .n git_attr_get_many
+  .n git_attr_get_many_ext
   +T git_attr_value
   +T git_blame_buffer
   +T git_blame_file
@@ -30,12 +37,21 @@ Library Bindings:
   +T git_blame_get_hunk_byline
   +T git_blame_get_hunk_count
   -- git_blame_init_options
+  .n git_blame_options_init
+  .n git_blob_create_from_buffer
+  .n git_blob_create_from_disk
+  .n git_blob_create_from_stream
+  .n git_blob_create_from_stream_commit
+  .n git_blob_create_from_workdir
   +T git_blob_create_frombuffer
   +T git_blob_create_fromdisk
   +T git_blob_create_fromstream
   +T git_blob_create_fromstream_commit
   +T git_blob_create_fromworkdir
+  .n git_blob_data_is_binary
   +T git_blob_dup
+  .n git_blob_filter
+  .n git_blob_filter_options_init
   +T git_blob_filtered_content
   +T git_blob_free
   +T git_blob_id
@@ -48,19 +64,23 @@ Library Bindings:
   +T git_branch_create
   +T git_branch_create_from_annotated
   +T git_branch_delete
+  .n git_branch_is_checked_out
   +T git_branch_is_head
   +T git_branch_iterator_free
   +T git_branch_iterator_new
   +T git_branch_lookup
   +T git_branch_move
   +T git_branch_name
+  .n git_branch_name_is_valid
   +T git_branch_next
   .n git_branch_remote_name
   +T git_branch_set_upstream
   +T git_branch_upstream
+  .n git_branch_upstream_merge
   +n git_branch_upstream_name
   +n git_branch_upstream_remote
   -- git_buf_contains_nul
+  .n git_buf_dispose
   -- git_buf_free
   -- git_buf_grow
   -- git_buf_is_binary
@@ -68,16 +88,21 @@ Library Bindings:
   +T git_checkout_head
   +T git_checkout_index
   -- git_checkout_init_options
+  .n git_checkout_options_init
   +T git_checkout_tree
   +T git_cherrypick
   +T git_cherrypick_commit
   -- git_cherrypick_init_options
+  .n git_cherrypick_options_init
   +n git_clone
   .n git_clone_init_options
+  .n git_clone_options_init
   +T git_commit_amend
   +T git_commit_author
+  .n git_commit_author_with_mailmap
   +T git_commit_body
   +T git_commit_committer
+  .n git_commit_committer_with_mailmap
   +T git_commit_create
   +T git_commit_create_buffer
   +n git_commit_create_from_callback
@@ -87,6 +112,15 @@ Library Bindings:
   +T git_commit_dup
   +T git_commit_extract_signature
   +T git_commit_free
+  .n git_commit_graph_free
+  .n git_commit_graph_open
+  .n git_commit_graph_writer_add_index_file
+  .n git_commit_graph_writer_add_revwalk
+  .n git_commit_graph_writer_commit
+  .n git_commit_graph_writer_dump
+  .n git_commit_graph_writer_free
+  .n git_commit_graph_writer_new
+  .n git_commit_graph_writer_options_init
   +T git_commit_header_field
   +T git_commit_id
   +T git_commit_lookup
@@ -152,6 +186,7 @@ Library Bindings:
   +T git_config_snapshot
   +n git_cred_default_new
   +n git_cred_free
+  .n git_cred_get_username
   +n git_cred_has_username
   .n git_cred_ssh_custom_new
   .n git_cred_ssh_interactive_new
@@ -161,10 +196,24 @@ Library Bindings:
   +n git_cred_username_new
   .n git_cred_userpass
   +n git_cred_userpass_plaintext_new
+  .n git_credential_default_new
+  .n git_credential_free
+  .n git_credential_get_username
+  .n git_credential_has_username
+  .n git_credential_ssh_custom_new
+  .n git_credential_ssh_interactive_new
+  .n git_credential_ssh_key_from_agent
+  .n git_credential_ssh_key_memory_new
+  .n git_credential_ssh_key_new
+  .n git_credential_username_new
+  .n git_credential_userpass
+  .n git_credential_userpass_plaintext_new
   +n git_describe_commit
   +n git_describe_format
+  .n git_describe_format_options_init
   .n git_describe_init_format_options
   .n git_describe_init_options
+  .n git_describe_options_init
   +n git_describe_result_free
   +n git_describe_workdir
   +T git_diff_blob_to_buffer
@@ -172,10 +221,12 @@ Library Bindings:
   +T git_diff_buffers
   +T git_diff_commit_as_email
   -- git_diff_find_init_options
+  .n git_diff_find_options_init
   +T git_diff_find_similar
   +T git_diff_foreach
   +T git_diff_format_email
   .n git_diff_format_email_init_options
+  .n git_diff_format_email_options_init
   +T git_diff_free
   +T git_diff_from_buffer
   +T git_diff_get_delta
@@ -188,6 +239,10 @@ Library Bindings:
   +T git_diff_merge
   +T git_diff_num_deltas
   +T git_diff_num_deltas_of_type
+  .n git_diff_options_init
+  .n git_diff_patchid
+  .n git_diff_patchid_init_options
+  .n git_diff_patchid_options_init
   +T git_diff_print
   -- git_diff_print_callback__to_buf
   -- git_diff_print_callback__to_file_handle
@@ -202,17 +257,28 @@ Library Bindings:
   +T git_diff_tree_to_tree
   +T git_diff_tree_to_workdir
   +T git_diff_tree_to_workdir_with_index
+  .n git_email_create_from_commit
+  .n git_email_create_from_diff
+  .n git_error_clear
+  .n git_error_last
+  .n git_error_set_oom
+  .n git_error_set_str
   .n git_fetch_init_options
+  .n git_fetch_options_init
+  .n git_filter_init
   .n git_filter_list_apply_to_blob
+  .n git_filter_list_apply_to_buffer
   .n git_filter_list_apply_to_data
   .n git_filter_list_apply_to_file
   .n git_filter_list_contains
   .n git_filter_list_free
   .n git_filter_list_length
   .n git_filter_list_load
+  .n git_filter_list_load_ext
   .n git_filter_list_new
   .n git_filter_list_push
   .n git_filter_list_stream_blob
+  .n git_filter_list_stream_buffer
   .n git_filter_list_stream_data
   .n git_filter_list_stream_file
   .n git_filter_lookup
@@ -226,6 +292,7 @@ Library Bindings:
   .n git_filter_unregister
   .n git_graph_ahead_behind
   .n git_graph_descendant_of
+  .n git_graph_reachable_from_any
   -- git_hashsig_compare
   -- git_hashsig_create
   -- git_hashsig_create_fromfile
@@ -236,6 +303,7 @@ Library Bindings:
   +T git_index_add
   +T git_index_add_all
   +T git_index_add_bypath
+  .n git_index_add_from_buffer
   +T git_index_add_frombuffer
   +T git_index_caps
   +T git_index_checksum
@@ -256,6 +324,9 @@ Library Bindings:
   +T git_index_get_byindex
   +T git_index_get_bypath
   +T git_index_has_conflicts
+  .n git_index_iterator_free
+  .n git_index_iterator_new
+  .n git_index_iterator_next
   .n git_index_name_add
   .n git_index_name_clear
   .n git_index_name_entrycount
@@ -288,14 +359,29 @@ Library Bindings:
   +T git_indexer_commit
   +T git_indexer_free
   +T git_indexer_hash
+  .n git_indexer_init_options
+  .n git_indexer_name
   +T git_indexer_new
+  -- git_indexer_options_init
   .n git_libgit2_features
   -- git_libgit2_init
   -- git_libgit2_opts
+  .n git_libgit2_prerelease
   -- git_libgit2_shutdown
   .n git_libgit2_version
+  .n git_mailmap_add_entry
+  .n git_mailmap_free
+  .n git_mailmap_from_buffer
+  .n git_mailmap_from_repository
+  .n git_mailmap_new
+  .n git_mailmap_resolve
+  .n git_mailmap_resolve_signature
+  .n git_mempack_dump
+  .n git_mempack_new
+  .n git_mempack_reset
   +n git_merge
   +n git_merge_analysis
+  .n git_merge_analysis_for_ref
   +n git_merge_base
   +n git_merge_base_many
   +n git_merge_base_octopus
@@ -314,11 +400,25 @@ Library Bindings:
   +n git_merge_file_from_index
   .n git_merge_file_init_input
   .n git_merge_file_init_options
+  .n git_merge_file_input_init
+  .n git_merge_file_options_init
   .n git_merge_file_result_free
   .n git_merge_init_options
+  .n git_merge_options_init
   +n git_merge_trees
   .n git_message_prettify
+  .n git_message_trailer_array_free
+  .n git_message_trailers
+  .n git_midx_writer_add
+  .n git_midx_writer_commit
+  .n git_midx_writer_dump
+  .n git_midx_writer_free
+  .n git_midx_writer_new
   +T git_note_author
+  .n git_note_commit_create
+  .n git_note_commit_iterator_new
+  .n git_note_commit_read
+  .n git_note_commit_remove
   +T git_note_committer
   +T git_note_create
   .T git_note_default_ref
@@ -340,6 +440,7 @@ Library Bindings:
   +T git_object_lookup_prefix
   +T git_object_owner
   +T git_object_peel
+  .n git_object_rawcontent_is_valid
   +T git_object_short_id
   +T git_object_string2type
   +T git_object_type
@@ -348,11 +449,14 @@ Library Bindings:
   +T git_odb_add_alternate
   +T git_odb_add_backend
   +T git_odb_add_disk_alternate
+  .n git_odb_backend_data_alloc
+  .n git_odb_backend_data_free
   +T git_odb_backend_loose
   -- git_odb_backend_malloc
   +T git_odb_backend_one_pack
   +T git_odb_backend_pack
   +T git_odb_exists
+  .n git_odb_exists_ext
   +T git_odb_exists_prefix
   -- git_odb_expand_ids
   +T git_odb_foreach
@@ -376,11 +480,13 @@ Library Bindings:
   +T git_odb_read_header
   +T git_odb_read_prefix
   +T git_odb_refresh
+  .n git_odb_set_commit_graph
   +T git_odb_stream_finalize_write
   -- git_odb_stream_free
   +T git_odb_stream_read
   +T git_odb_stream_write
   +T git_odb_write
+  .n git_odb_write_multi_pack_index
   +T git_odb_write_pack
   -- git_oid_cmp
   -- git_oid_cpy
@@ -390,6 +496,7 @@ Library Bindings:
   -- git_oid_fromstr
   -- git_oid_fromstrn
   -- git_oid_fromstrp
+  .n git_oid_is_zero
   -- git_oid_iszero
   -- git_oid_ncmp
   -- git_oid_nfmt
@@ -401,6 +508,7 @@ Library Bindings:
   -- git_oid_streq
   -- git_oid_tostr
   -- git_oid_tostr_s
+  .n git_oidarray_dispose
   -- git_oidarray_free
   -- git_openssl_set_locking
   +T git_packbuilder_foreach
@@ -411,6 +519,7 @@ Library Bindings:
   +T git_packbuilder_insert_recur
   +T git_packbuilder_insert_tree
   +T git_packbuilder_insert_walk
+  .n git_packbuilder_name
   +T git_packbuilder_new
   +T git_packbuilder_object_count
   +T git_packbuilder_set_callbacks
@@ -429,9 +538,11 @@ Library Bindings:
   +n git_patch_line_stats
   +n git_patch_num_hunks
   +n git_patch_num_lines_in_hunk
+  .n git_patch_owner
   +n git_patch_print
   +n git_patch_size
   +n git_patch_to_buf
+  .n git_path_is_gitfile
   .n git_pathspec_free
   .n git_pathspec_match_diff
   .n git_pathspec_match_index
@@ -446,7 +557,9 @@ Library Bindings:
   .n git_pathspec_matches_path
   .n git_pathspec_new
   -- git_proxy_init_options
+  .n git_proxy_options_init
   -- git_push_init_options
+  .n git_push_options_init
   +n git_rebase_abort
   +n git_rebase_commit
   +n git_rebase_finish
@@ -455,10 +568,15 @@ Library Bindings:
   .n git_rebase_init_options
   +n git_rebase_inmemory_index
   +n git_rebase_next
+  .n git_rebase_onto_id
+  .n git_rebase_onto_name
   +n git_rebase_open
   +n git_rebase_operation_byindex
   +n git_rebase_operation_current
   +n git_rebase_operation_entrycount
+  .n git_rebase_options_init
+  .n git_rebase_orig_head_id
+  .n git_rebase_orig_head_name
   +T git_refdb_backend_fs
   +T git_refdb_compress
   +T git_refdb_free
@@ -491,6 +609,7 @@ Library Bindings:
   +T git_reference_list
   +T git_reference_lookup
   +T git_reference_name
+  .n git_reference_name_is_valid
   +n git_reference_name_to_id
   +T git_reference_next
   +T git_reference_next_name
@@ -528,6 +647,8 @@ Library Bindings:
   +n git_refspec_dst
   +n git_refspec_dst_matches
   +n git_refspec_force
+  .n git_refspec_free
+  .n git_refspec_parse
   +n git_refspec_rtransform
   +n git_refspec_src
   +n git_refspec_src_matches
@@ -537,10 +658,17 @@ Library Bindings:
   +T git_remote_add_push
   +T git_remote_autotag
   +T git_remote_connect
+  .n git_remote_connect_ext
+  .n git_remote_connect_options_dispose
+  .n git_remote_connect_options_init
   +T git_remote_connected
   +T git_remote_create
   +T git_remote_create_anonymous
+  .n git_remote_create_detached
+  .n git_remote_create_init_options
+  .n git_remote_create_options_init
   +T git_remote_create_with_fetchspec
+  .n git_remote_create_with_opts
   +T git_remote_default_branch
   +T git_remote_delete
   +T git_remote_disconnect
@@ -557,6 +685,7 @@ Library Bindings:
   +T git_remote_lookup
   +T git_remote_ls
   +T git_remote_name
+  .n git_remote_name_is_valid
   +T git_remote_owner
   +T git_remote_prune
   +T git_remote_prune_refs
@@ -565,6 +694,8 @@ Library Bindings:
   +T git_remote_refspec_count
   +T git_remote_rename
   +T git_remote_set_autotag
+  .n git_remote_set_instance_pushurl
+  .n git_remote_set_instance_url
   +T git_remote_set_pushurl
   +T git_remote_set_url
   +T git_remote_stats
@@ -573,6 +704,7 @@ Library Bindings:
   +T git_remote_upload
   +T git_remote_url
   +n git_repository__cleanup
+  .n git_repository_commondir
   +T git_repository_config
   +T git_repository_config_snapshot
   +T git_repository_detach_head
@@ -583,15 +715,20 @@ Library Bindings:
   +T git_repository_hashfile
   +T git_repository_head
   +T git_repository_head_detached
+  .n git_repository_head_detached_for_worktree
+  .n git_repository_head_for_worktree
   +T git_repository_head_unborn
   +T git_repository_ident
   +T git_repository_index
   +T git_repository_init
   +T git_repository_init_ext
   -- git_repository_init_init_options
+  .n git_repository_init_options_init
   +T git_repository_is_bare
   +T git_repository_is_empty
   +T git_repository_is_shallow
+  .n git_repository_is_worktree
+  .n git_repository_item_path
   +T git_repository_mergehead_foreach
   +T git_repository_message
   +T git_repository_message_remove
@@ -600,6 +737,7 @@ Library Bindings:
   +T git_repository_open
   +T git_repository_open_bare
   +n git_repository_open_ext
+  .n git_repository_open_from_worktree
   +T git_repository_path
   +T git_repository_refdb
   +n git_repository_reinit_filesystem
@@ -616,6 +754,8 @@ Library Bindings:
   +T git_repository_set_workdir
   +T git_repository_state
   +T git_repository_state_cleanup
+  .n git_repository_submodule_cache_all
+  .n git_repository_submodule_cache_clear
   +T git_repository_workdir
   +T git_repository_wrap_odb
   +n git_reset
@@ -624,6 +764,7 @@ Library Bindings:
   +n git_revert
   +n git_revert_commit
   .n git_revert_init_options
+  .n git_revert_options_init
   +n git_revparse
   +n git_revparse_ext
   +n git_revparse_single
@@ -655,6 +796,7 @@ Library Bindings:
   .n git_smart_subtransport_ssh
   +n git_stash_apply
   .n git_stash_apply_init_options
+  .n git_stash_apply_options_init
   +n git_stash_drop
   +n git_stash_foreach
   +n git_stash_pop
@@ -668,14 +810,19 @@ Library Bindings:
   +n git_status_list_free
   +n git_status_list_get_perfdata
   +n git_status_list_new
+  .n git_status_options_init
   +n git_status_should_ignore
   -- git_strarray_copy
+  .n git_strarray_dispose
   -- git_strarray_free
+  .n git_stream_register
   -- git_stream_register_tls
   +n git_submodule_add_finalize
   +n git_submodule_add_setup
   +n git_submodule_add_to_index
   +n git_submodule_branch
+  .n git_submodule_clone
+  .n git_submodule_dup
   +n git_submodule_fetch_recurse_submodules
   +n git_submodule_foreach
   +n git_submodule_free
@@ -701,11 +848,13 @@ Library Bindings:
   +n git_submodule_sync
   +n git_submodule_update
   .n git_submodule_update_init_options
+  .n git_submodule_update_options_init
   +n git_submodule_update_strategy
   +n git_submodule_url
   +n git_submodule_wd_id
   +T git_tag_annotation_create
   +T git_tag_create
+  .n git_tag_create_from_buffer
   +T git_tag_create_frombuffer
   +T git_tag_create_lightweight
   +T git_tag_delete
@@ -719,13 +868,13 @@ Library Bindings:
   +T git_tag_lookup_prefix
   +T git_tag_message
   +T git_tag_name
+  .n git_tag_name_is_valid
   +T git_tag_owner
   +T git_tag_peel
   +T git_tag_tagger
   +T git_tag_target
   +T git_tag_target_id
   +T git_tag_target_type
-  -- git_time_monotonic
   +T git_trace_set
   -- git_transaction_commit
   -- git_transaction_free
@@ -740,6 +889,7 @@ Library Bindings:
   .n git_transport_local
   .n git_transport_new
   .n git_transport_register
+  .n git_transport_remote_connect_options
   .n git_transport_smart_certificate_check
   .n git_transport_smart_credentials
   .n git_transport_ssh_with_paths
@@ -775,3 +925,21 @@ Library Bindings:
   +T git_treebuilder_new
   +T git_treebuilder_remove
   +T git_treebuilder_write
+  .n git_treebuilder_write_with_buffer
+  .n git_worktree_add
+  .n git_worktree_add_init_options
+  .n git_worktree_add_options_init
+  .n git_worktree_free
+  .n git_worktree_is_locked
+  .n git_worktree_is_prunable
+  .n git_worktree_list
+  .n git_worktree_lock
+  .n git_worktree_lookup
+  .n git_worktree_name
+  .n git_worktree_open_from_repository
+  .n git_worktree_path
+  .n git_worktree_prune
+  .n git_worktree_prune_init_options
+  .n git_worktree_prune_options_init
+  .n git_worktree_unlock
+  .n git_worktree_validate

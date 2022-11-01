@@ -630,13 +630,13 @@ git_packbuilder_written(resource)
 [git_indexer]
 ----------------------------------------
 
-git_indexer_new(string,long,resource,callable,mixed)
+resource git_indexer_new(string $path,int $mode,?resource $odb,?array $options)
 
-    ** The 3rd parameter may be null. **
-
-    Callback signature:
-
-        void callback(array $stats,mixed $payload)
+    $options: [
+        'progress_cb' => callable: void callback(array $stats,mixed $payload),
+        'progress_cb_payload' => mixed,
+        'verify' => bool,
+    ]
 
     Return git_indexer resource
 
@@ -736,7 +736,7 @@ git_odb_object_dup(resource)
 
     Returns git_odb_object resource
 
-git_odb_open_rstream(resource,string)
+GitODBStream git_odb_open_rstream(int &$len,int &$type,resource $odb,string $oid)
 
     Returns object instance of type GitODBStream
 
@@ -1470,9 +1470,9 @@ git_config_foreach_match(resource,string,callable,mixed)
 
 git_config_get_mapped(resource,string,array)
 
-    ** The array must be an indexed array of indexed arrays, with each inner
-       array having the structure of the git_cvar_map in the order
-       [cvar_type,str_match,map_value]. The map_value entry is forced to be an
+    ** The array must be an indexed array of 3-tuple array elements, with each
+       inner 3-tuple array containing the git_configmap fields in the order
+       [type,str_match,map_value]. The map_value entry is forced to be an
        integer. **
 
     Returns int
@@ -1513,9 +1513,9 @@ git_config_next(resource)
 
 git_config_lookup_map_value(array,string)
 
-    ** The array must be an indexed array of indexed arrays, with each inner
-       array having the structure of the git_cvar_map in the order
-       [cvar_type,str_match,map_value]. The map_value entry is forced to be an
+    ** The array must be an indexed array of 3-tuple array elements, with each
+       inner 3-tuple array containing the git_configmap fields in the order
+       [type,str_match,map_value]. The map_value entry is forced to be an
        integer. **
 
 ----------------------------------------
@@ -2215,7 +2215,7 @@ git_refdb_set_backend(resource,object)
 
 git_patch_free(resource)
 
-git_patch_from_blob_and_buffer(resource|null,string|null,string|null,int,string|null,array|null)
+resource git_patch_from_blob_and_buffer(?resource $old_blob,?string $old_as_path,?string $buffer,?string $buffer_as_path,?array $options)
 
     Returns git_patch resource
 
@@ -2795,7 +2795,9 @@ abstract class GitODBBackend:
 
         GitODBStream writestream(int $offset,int $objectType)
 
-        GitODBStream readstream(string $oid)
+        GitODBStream readstream(int &$len_out,int &$type_out,string $oid)
+
+            Return false if object not found.
 
         bool exists(string $oid)
 
@@ -2946,7 +2948,7 @@ abstract class GitConfigBackend:
               know what is available; however they are designed to be defined in
               userspace and called by git2.
 
-        void open(int $level)
+        void open(int $level,resource $repo)
 
         array get(string $key)
 
