@@ -2749,6 +2749,38 @@ git_submodule_wd_id(resource)
 
     Returns string
 
+----------------------------------------
+[git_worktree]
+----------------------------------------
+
+resource git_worktree_add(resource $repo,string $name,string $path,?array $opts)
+
+void git_worktree_free(resource $wt)
+
+bool git_worktree_is_locked(string &$reason,resource $wt)
+
+bool git_worktree_is_prunable(resource $wt,?array $opts)
+
+array git_worktree_list(resource $repo)
+
+void git_worktree_lock(resource $wt,string $reason)
+
+resource git_worktree_lookup(resource $repo,string $name)
+
+string git_worktree_name(resource $wt)
+
+resource git_worktree_open_from_repository(resource $repo)
+
+string git_worktree_path(resource $wt)
+
+int git_worktree_prune(resource $wt,?array $opts)
+
+int git_worktree_unlock(resource $wt)
+
+void git_worktree_validate(resource $wt)
+
+  This function will throw an exception when the worktree fails to validate.
+
 --------------------------------------------------------------------------------
 Class API Reference
 

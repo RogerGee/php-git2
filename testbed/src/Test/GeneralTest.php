@@ -1,4 +1,4 @@
-?php
+<?php
 
 namespace PhpGit2\Test;
 

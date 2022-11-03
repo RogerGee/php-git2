@@ -103,7 +103,8 @@ PHP_MINIT_FUNCTION(git2)
         git_tag,
         git_tree,
         git_tree_entry,
-        git_treebuilder
+        git_treebuilder,
+        git_worktree
         >(module_number);
 
     // Register all classes provided by this extension.

@@ -49,6 +49,7 @@
 #include "cred.h"
 #include "clone.h"
 #include "submodule.h"
+#include "worktree.h"
 
 // Exported extension functions defined in this unit.
 static PHP_FUNCTION(git_libgit2_version);
@@ -111,6 +112,7 @@ zend_function_entry php_git2::functions[] = {
     GIT_CRED_FE
     GIT_CLONE_FE
     GIT_SUBMODULE_FE
+    GIT_WORKTREE_FE
     PHP_FE_END
 };
 

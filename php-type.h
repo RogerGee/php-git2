@@ -1272,6 +1272,7 @@ namespace php_git2
     using php_git_refspec = git2_resource<const git_refspec>;
     using php_git_cred = git2_resource<git_cred>;
     using php_git_submodule = git2_resource<git_submodule>;
+    using php_git_worktree = git2_resource<git_worktree>;
 
     // Enumerate nofree alternatives of certain resource types.
 

@@ -26,7 +26,7 @@ extern "C" {
 }
 
 #define PHP_GIT2_EXTNAME "git2"
-#define PHP_GIT2_EXTVER  "1.0.1"
+#define PHP_GIT2_EXTVER  "2.0.0-dev"
 
 // Include the libgit2 headers. They should be installed on the system already.
 extern "C" {
