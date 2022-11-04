@@ -199,6 +199,7 @@ void php_odb_backend_object::unset_backend(zval* obj)
     result = method.call(params);
     if (result == GIT_OK) {
         void* data;
+        size_t datalen;
         zval* retval = method.retval();
 
         if (Z_TYPE_P(retval) == IS_FALSE) {
@@ -208,8 +209,9 @@ void php_odb_backend_object::unset_backend(zval* obj)
         // Copy the returned data to a persistent memory buffer that git2 can
         // free later on.
         convert_to_string(retval);
-        data = pemalloc(Z_STRLEN_P(retval),1);
-        memcpy(data,Z_STRVAL_P(retval),Z_STRLEN_P(retval));
+        datalen = static_cast<size_t>(Z_STRLEN_P(retval));
+        data = git_odb_backend_data_alloc(backend,datalen);
+        memcpy(data,Z_STRVAL_P(retval),datalen);
 
         // Return values to caller.
 
@@ -249,6 +251,7 @@ void php_odb_backend_object::unset_backend(zval* obj)
     result = method.call(params);
     if (result == GIT_OK) {
         void* data;
+        size_t datalen;
         zval* retval = method.retval();
 
         if (Z_TYPE_P(retval) == IS_FALSE) {
@@ -258,8 +261,9 @@ void php_odb_backend_object::unset_backend(zval* obj)
         // Copy the returned data to a persistent memory buffer that git2 can
         // free later on.
         convert_to_string(retval);
-        data = pemalloc(Z_STRLEN_P(retval),1);
-        memcpy(data,Z_STRVAL_P(retval),Z_STRLEN_P(retval));
+        datalen = static_cast<size_t>(Z_STRLEN_P(retval));
+        data = git_odb_backend_data_alloc(backend,datalen);
+        memcpy(data,Z_STRVAL_P(retval),datalen);
 
         // Return values to caller.
 

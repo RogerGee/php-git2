@@ -6,8 +6,9 @@ use PhpGit2\RepositoryBareTestCase;
 use PhpGit2\Callback\CallbackPayload;
 
 /**
+ * @phpGitRemoved git_odb_backend_data_alloc
+ * @phpGitRemoved git_odb_backend_data_free
  * @phpGitRemoved git_odb_backend_malloc
- * @phpGitRemoved git_odb_expand_ids
  * @phpGitRemoved git_odb_init_backend
  * @phpGitRemoved git_odb_stream_free
  */
