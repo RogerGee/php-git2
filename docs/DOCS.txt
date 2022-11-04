@@ -773,6 +773,12 @@ git_odb_exists_prefix(resource,string)
 
     Returns string
 
+void git_odb_expand_ids(resource $odb,array &$ids)
+
+  Note: this function will return results in the $ids parameter. While this
+  parameter employs reference semantics, it is not technically passed by
+  reference in the implementation.
+
 git_odb_foreach(resource,callable,mixed)
 
     Callback signature: bool callback(string $oid,mixed $payload)

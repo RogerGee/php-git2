@@ -26,6 +26,18 @@ array_wrapper::~array_wrapper()
     zval_dtor(&tmp);
 }
 
+bool array_wrapper::query(const char* key)
+{
+    size_t keysz = strlen(key);
+    usesTmp = false;
+    zvp = zend_hash_str_find(ht,key,keysz);
+    if (zvp != nullptr) {
+        return true;
+    }
+
+    return false;
+}
+
 bool array_wrapper::query(const char* key,size_t keysz)
 {
     usesTmp = false;
@@ -70,7 +82,7 @@ const char* array_wrapper::get_string_nullable() const
     return nullptr;
 }
 
-int array_wrapper::get_string_length() const
+size_t array_wrapper::get_string_length() const
 {
     if (found() && type() != IS_NULL) {
         zval* zv = copy_if_not_type(IS_STRING);
@@ -81,7 +93,7 @@ int array_wrapper::get_string_length() const
     return 0;
 }
 
-long array_wrapper::get_long() const
+zend_long array_wrapper::get_long() const
 {
     if (found()) {
         zval* zv = copy_if_not_type(IS_LONG);

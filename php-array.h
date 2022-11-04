@@ -19,6 +19,7 @@ namespace php_git2
         array_wrapper(zval* zvp);
         ~array_wrapper();
 
+        bool query(const char* key);
         bool query(const char* key,size_t keysz);
         bool query(int index);
 
@@ -34,8 +35,8 @@ namespace php_git2
 
         const char* get_string() const;
         const char* get_string_nullable() const;
-        int get_string_length() const;
-        long get_long() const;
+        size_t get_string_length() const;
+        zend_long get_long() const;
         bool get_bool() const;
         zval* get_value() const;
         void get_oid(git_oid* out) const;

@@ -1023,6 +1023,34 @@ namespace php_git2
         virtual void parse_impl(zval* zvp,int argno);
     };
 
+    // Provide an array connector that returns the array length.
+
+    template<typename IntType,typename ArrayType = php_array_base>
+    class php_array_length_connector
+    {
+    public:
+        typedef ArrayType connect_t;
+        typedef IntType target_t;
+
+        php_array_length_connector(connect_t& obj):
+            conn(obj)
+        {
+        }
+
+        target_t byval_git2()
+        {
+            zval* zvp = conn.get_value();
+            if (Z_TYPE_P(zvp) != IS_ARRAY) {
+                return IntType();
+            }
+
+            return zend_hash_num_elements(Z_ARRVAL_P(conn.get_value()));
+        }
+
+    private:
+        connect_t& conn;
+    };
+
     // Provide a base type for option arrays. (This is really just a nullable
     // array base type that is commonly used for option arrays.)
 
@@ -1110,37 +1138,6 @@ namespace php_git2
         uint32_t cnt;
         SourceType* sources;
         ConvertType* data;
-    };
-
-    // Provide an array connector that returns the array length.
-
-    template<typename IntType,typename ArrayType>
-    class php_array_length_connector
-    {
-    public:
-        using connect_t = php_array<
-            typename ArrayType::source_t,
-            typename ArrayType::convert_t
-            >;
-        typedef IntType target_t;
-
-        php_array_length_connector(connect_t& obj):
-            conn(obj)
-        {
-        }
-
-        target_t byval_git2()
-        {
-            zval* zvp = conn.get_value();
-            if (Z_TYPE_P(zvp) != IS_ARRAY) {
-                return IntType();
-            }
-
-            return zend_hash_num_elements(Z_ARRVAL_P(conn.get_value()));
-        }
-
-    private:
-        connect_t& conn;
     };
 
     // Enumerate common array types.

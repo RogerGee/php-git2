@@ -164,6 +164,38 @@ final class OdbTest extends RepositoryBareTestCase {
     }
 
     /**
+     * @phpGitTest git_odb_expand_ids
+     */
+    public function testExpandIds() {
+        $odb = static::getRepoOdb();
+        $ids = [
+            'f051894', // exists, blob
+            'acbdef1', // does not exist
+        ];
+        $result = git_odb_expand_ids($odb,$ids);
+
+        $this->assertNull($result);
+        $this->assertIsArray($ids[0]);
+        $this->assertArrayHasKey('id',$ids[0]);
+        $this->assertArrayHasKey('type',$ids[0]);
+        $this->assertIsString($ids[0]['id']);
+        $this->assertIsInt($ids[0]['type']);
+        $this->assertFalse($ids[1]);
+    }
+
+    /**
+     * @phpGitTest git_odb_expand_ids
+     */
+    public function testExpandIds_Empty() {
+        $odb = static::getRepoOdb();
+        $ids = [];
+        $result = git_odb_expand_ids($odb,$ids);
+
+        $this->assertNull($result);
+        $this->assertEmpty($ids);
+    }
+
+    /**
      * @phpGitTest git_odb_foreach
      */
     public function testForeach() {

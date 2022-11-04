@@ -254,6 +254,130 @@ namespace php_git2
         }
     };
 
+    // Provide a type for handling the git_odb_expand_id array for
+    // git_odb_expand_ids().
+
+    class php_git_odb_expand_id_array:
+        public php_array_base
+    {
+    public:
+        php_git_odb_expand_id_array():
+            ids(nullptr)
+        {
+        }
+
+        ~php_git_odb_expand_id_array()
+        {
+            if (ids != nullptr) {
+                // Write results over existing array value.
+                zval* zvp;
+                uint32_t i;
+                HashPosition pos;
+                HashTable* ht = Z_ARRVAL(value);
+
+                i = 0;
+                for (zend_hash_internal_pointer_reset_ex(ht,&pos);
+                     (zvp = zend_hash_get_current_data_ex(ht,&pos)) != nullptr;
+                     zend_hash_move_forward_ex(ht,&pos))
+                {
+                    zval zwrite;
+                    git_odb_expand_id* expand = ids + i;
+
+                    if (expand->length == 0) {
+                        ZVAL_BOOL(&zwrite,0);
+                    }
+                    else {
+                        zval zid;
+                        convert_oid(&zid,&expand->id);
+
+                        array_init(&zwrite);
+                        add_assoc_zval_ex(&zwrite,"id",sizeof("id")-1,&zid);
+                        add_assoc_long_ex(
+                            &zwrite,
+                            "type",
+                            sizeof("type")-1,
+                            static_cast<zend_long>(expand->type)
+                            );
+                    }
+
+                    zend_hash_index_update(ht,pos,&zwrite);
+                    i += 1;
+                }
+
+                efree(ids);
+            }
+        }
+
+        git_odb_expand_id* byval_git2()
+        {
+            zval* zvp;
+            uint32_t i;
+            HashPosition pos;
+            HashTable* ht = Z_ARRVAL(value);
+            uint32_t n = zend_hash_num_elements(ht);
+
+            if (n == 0) {
+                return &dummy;
+            }
+
+            ids = reinterpret_cast<git_odb_expand_id*> (
+                emalloc(sizeof(git_odb_expand_id) * n)
+                );
+
+            i = 0;
+            for (zend_hash_internal_pointer_reset_ex(ht,&pos);
+                 (zvp = zend_hash_get_current_data_ex(ht,&pos)) != nullptr;
+                 zend_hash_move_forward_ex(ht,&pos))
+            {
+                git_odb_expand_id* expand = ids + i;
+                memset(expand,0,sizeof(git_odb_expand_id));
+
+                if (Z_TYPE_P(zvp) == IS_ARRAY) {
+                    array_wrapper wrapper(zvp);
+
+                    if (wrapper.query("id")) {
+                        const char* id = wrapper.get_string();
+                        size_t len = wrapper.get_string_length();
+
+                        convert_oid_fromstr(&expand->id,id,len);
+                        // Note: the length is the number of hex characters.
+                        expand->length = static_cast<unsigned short>(len);
+                    }
+
+                    if (wrapper.query("type")) {
+                        zend_long type = wrapper.get_long();
+
+                        expand->type = static_cast<git_object_t>(type);
+                    }
+                }
+                else {
+                    zval ztmp;
+                    zval* zstrp;
+
+                    if (Z_TYPE_P(zvp) == IS_STRING) {
+                        zstrp = zvp;
+                    }
+                    else {
+                        ZVAL_DUP(&ztmp,zvp);
+                        convert_to_string(&ztmp);
+                        zstrp = &ztmp;
+                    }
+
+                    convert_oid_fromstr(&expand->id,Z_STRVAL_P(zstrp),Z_STRLEN_P(zstrp));
+                    expand->length = Z_STRLEN_P(zstrp);
+                }
+
+                i += 1;
+            }
+
+            return ids;
+        }
+
+    private:
+        git_odb_expand_id dummy;
+        git_odb_expand_id* ids;
+    };
+
 } // namespace php_git2
 
 // Functions:
@@ -387,7 +511,8 @@ static constexpr auto ZIF_GIT_ODB_READ_PREFIX = zif_php_git2_function_setdeps<
         php_git2::php_resource_ref<php_git2::php_git_odb_object>,
         php_git2::php_resource<php_git2::php_git_odb>,
         php_git2::connector_wrapper<
-            php_git2::php_string_length_connector<size_t,php_git2::php_git_oid_fromstr> >,
+            php_git2::php_string_length_connector<size_t,php_git2::php_git_oid_fromstr>
+            >,
         php_git2::php_git_oid_fromstr
         >,
     php_git2::sequence<0,1>,
@@ -470,7 +595,8 @@ static constexpr auto ZIF_GIT_ODB_BACKEND_PACK = zif_php_git2_function<
         >::func<git_odb_backend_pack>,
     php_git2::local_pack<
         php_git2::php_git_odb_backend_byref,
-        php_git2::php_string>,
+        php_git2::php_string
+        >,
     1,
     php_git2::sequence<1>,
     php_git2::sequence<0,1>
@@ -566,7 +692,8 @@ static constexpr auto ZIF_GIT_ODB_STREAM_READ = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_git_odb_stream_byval,
         php_git2::connector_wrapper<php_git2::php_string_buffer_connector>,
-        php_git2::php_long_cast<size_t> >,
+        php_git2::php_long_cast<size_t>
+        >,
     2,
     php_git2::sequence<0,2>,
     php_git2::sequence<0,1,2>
@@ -582,7 +709,8 @@ static constexpr auto ZIF_GIT_ODB_STREAM_WRITE = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_git_odb_stream_byval,
         php_git2::connector_wrapper<php_git2::php_string_length_connector<size_t> >,
-        php_git2::php_string>,
+        php_git2::php_string
+        >,
     -1,
     php_git2::sequence<0,2>,
     php_git2::sequence<0,2,1>
@@ -682,6 +810,25 @@ static constexpr auto ZIF_GIT_ODB_EXISTS_PREFIX = zif_php_git2_function<
     1,
     php_git2::sequence<1,3>,
     php_git2::sequence<0,1,3,2>
+    >;
+
+static constexpr auto ZIF_GIT_ODB_EXPAND_IDS = zif_php_git2_function<
+    php_git2::func_wrapper<
+        int,
+        git_odb*,
+        git_odb_expand_id*,
+        size_t
+        >::func<git_odb_expand_ids>,
+    php_git2::local_pack<
+        php_git2::php_resource<php_git2::php_git_odb>,
+        php_git2::connector_wrapper<
+            php_git2::php_array_length_connector<size_t>
+            >,
+        php_git2::php_git_odb_expand_id_array
+        >,
+    -1,
+    php_git2::sequence<0,2>,
+    php_git2::sequence<0,2,1>
     >;
 
 static constexpr auto ZIF_GIT_ODB_FOREACH = zif_php_git2_function<
@@ -805,6 +952,7 @@ static constexpr auto ZIF_GIT_ODB_HASHFILE = zif_php_git2_function<
     PHP_GIT2_FE(git_odb_add_backend,ZIF_GIT_ODB_ADD_BACKEND,NULL)       \
     PHP_GIT2_FE(git_odb_exists,ZIF_GIT_ODB_EXISTS,NULL)                 \
     PHP_GIT2_FE(git_odb_exists_prefix,ZIF_GIT_ODB_EXISTS_PREFIX,NULL)   \
+    PHP_GIT2_FE(git_odb_expand_ids,ZIF_GIT_ODB_EXPAND_IDS,NULL)         \
     PHP_GIT2_FE(git_odb_foreach,ZIF_GIT_ODB_FOREACH,NULL)               \
     PHP_GIT2_FE(git_odb_refresh,ZIF_GIT_ODB_REFRESH,NULL)               \
     PHP_GIT2_FE(git_odb_get_backend,ZIF_GIT_ODB_GET_BACKEND,NULL)       \
