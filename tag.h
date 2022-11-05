@@ -285,7 +285,7 @@ static constexpr auto ZIF_GIT_TAG_LIST = zif_php_git2_function<
         git_strarray*,
         git_repository*>::func<git_tag_list>,
     php_git2::local_pack<
-        php_git2::php_strarray,
+        php_git2::php_git_strarray,
         php_git2::php_resource<php_git2::php_git_repository>
         >,
     1,
@@ -300,7 +300,7 @@ static constexpr auto ZIF_GIT_TAG_LIST_MATCH = zif_php_git2_function<
         const char*,
         git_repository*>::func<git_tag_list_match>,
     php_git2::local_pack<
-        php_git2::php_strarray,
+        php_git2::php_git_strarray,
         php_git2::php_string,
         php_git2::php_resource<php_git2::php_git_repository>
         >,

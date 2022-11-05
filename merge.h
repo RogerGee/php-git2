@@ -45,7 +45,7 @@ namespace php_git2
 
     private:
         git_merge_options opts;
-        php_strarray_byval_array strarray;
+        php_git_strarray_byval_array strarray;
     };
 
     // Provide type for git_merge_file_options.

@@ -38,7 +38,7 @@ static constexpr auto ZIF_GIT_RESET_DEFAULT = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_repository>,
         php_git2::php_resource_nullable<php_git2::php_git_object>,
-        php_git2::php_strarray_array
+        php_git2::php_git_strarray_array
         >
     >;
 

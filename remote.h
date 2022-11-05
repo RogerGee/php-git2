@@ -204,7 +204,7 @@ namespace php_git2
 
     private:
         git_fetch_options opts;
-        php_strarray_array custom_headers;
+        php_git_strarray_array custom_headers;
     };
 
     class php_git_push_options:
@@ -250,7 +250,7 @@ namespace php_git2
 
     private:
         git_push_options opts;
-        php_strarray_array custom_headers;
+        php_git_strarray_array custom_headers;
     };
 
     class php_git_remote_head
@@ -375,7 +375,7 @@ static constexpr auto ZIF_GIT_REMOTE_CONNECT = zif_php_git2_function<
         php_git2::php_long_cast<git_direction>,
         php_git2::php_git_remote_callbacks,
         php_git2::php_git_proxy_options,
-        php_git2::php_strarray_array_nullable
+        php_git2::php_git_strarray_array_nullable
         >
     >;
 
@@ -488,7 +488,7 @@ static constexpr auto ZIF_GIT_REMOTE_DOWNLOAD = zif_php_git2_function<
         const git_fetch_options*>::func<git_remote_download>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_remote>,
-        php_git2::php_strarray_array_nullable,
+        php_git2::php_git_strarray_array_nullable,
         php_git2::php_git_fetch_options
         >
     >;
@@ -516,7 +516,7 @@ static constexpr auto ZIF_GIT_REMOTE_FETCH = zif_php_git2_function<
         const char*>::func<git_remote_fetch>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_remote>,
-        php_git2::php_strarray_array_nullable,
+        php_git2::php_git_strarray_array_nullable,
         php_git2::php_git_fetch_options,
         php_git2::php_string_nullable
         >
@@ -534,7 +534,7 @@ static constexpr auto ZIF_GIT_REMOTE_GET_FETCH_REFSPECS = zif_php_git2_function<
         git_strarray*,
         const git_remote*>::func<git_remote_get_fetch_refspecs>,
     php_git2::local_pack<
-        php_git2::php_strarray,
+        php_git2::php_git_strarray,
         php_git2::php_resource<php_git2::php_git_remote>
         >,
     1,
@@ -548,7 +548,7 @@ static constexpr auto ZIF_GIT_REMOTE_GET_PUSH_REFSPECS = zif_php_git2_function<
         git_strarray*,
         const git_remote*>::func<git_remote_get_push_refspecs>,
     php_git2::local_pack<
-        php_git2::php_strarray,
+        php_git2::php_git_strarray,
         php_git2::php_resource<php_git2::php_git_remote>
         >,
     1,
@@ -584,7 +584,7 @@ static constexpr auto ZIF_GIT_REMOTE_LIST = zif_php_git2_function<
         git_strarray*,
         git_repository*>::func<git_remote_list>,
     php_git2::local_pack<
-        php_git2::php_strarray,
+        php_git2::php_git_strarray,
         php_git2::php_resource<php_git2::php_git_repository>
         >,
     1,
@@ -676,7 +676,7 @@ static constexpr auto ZIF_GIT_REMOTE_PUSH = zif_php_git2_function<
         const git_push_options*>::func<git_remote_push>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_remote>,
-        php_git2::php_strarray_array_nullable,
+        php_git2::php_git_strarray_array_nullable,
         php_git2::php_git_push_options
         >
     >;
@@ -709,7 +709,7 @@ static constexpr auto ZIF_GIT_REMOTE_RENAME = zif_php_git2_function<
         const char*,
         const char*>::func<git_remote_rename>,
     php_git2::local_pack<
-        php_git2::php_strarray,
+        php_git2::php_git_strarray,
         php_git2::php_resource<php_git2::php_git_repository>,
         php_git2::php_string,
         php_git2::php_string
@@ -802,7 +802,7 @@ static constexpr auto ZIF_GIT_REMOTE_UPLOAD = zif_php_git2_function<
         const git_push_options*>::func<git_remote_upload>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_remote>,
-        php_git2::php_strarray_array_nullable,
+        php_git2::php_git_strarray_array_nullable,
         php_git2::php_git_push_options
         >
     >;

@@ -182,7 +182,7 @@ static constexpr auto ZIF_GIT_INDEX_ADD_ALL = zif_php_git2_function_rethandler<
         void*>::func<git_index_add_all>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_index>,
-        php_git2::php_strarray_array,
+        php_git2::php_git_strarray_array,
         php_git2::php_long_cast<unsigned int>,
         php_git2::php_callback_handler_nullable<php_git2::index_matched_path_callback>,
         php_git2::php_callback_sync_nullable
@@ -547,7 +547,7 @@ static constexpr auto ZIF_GIT_INDEX_REMOVE_ALL = zif_php_git2_function_rethandle
         void*>::func<git_index_remove_all>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_index>,
-        php_git2::php_strarray_array,
+        php_git2::php_git_strarray_array,
         php_git2::php_callback_handler<php_git2::index_matched_path_callback>,
         php_git2::php_callback_sync
         >,
@@ -611,7 +611,7 @@ static constexpr auto ZIF_GIT_INDEX_UPDATE_ALL = zif_php_git2_function_rethandle
         void*>::func<git_index_update_all>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_index>,
-        php_git2::php_strarray_array,
+        php_git2::php_git_strarray_array,
         php_git2::php_callback_handler<php_git2::index_matched_path_callback>,
         php_git2::php_callback_sync
         >,

@@ -55,7 +55,7 @@ namespace php_git2
 
     private:
         git_checkout_options opts;
-        php_strarray_byval_array strarray;
+        php_git_strarray_byval_array strarray;
         php_callback_sync checkoutProgressCallback;
     };
 

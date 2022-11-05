@@ -872,15 +872,15 @@ namespace php_git2
     // that we never accept this type as an argument from userspace. The
     // strarray structure itself is also created on the stack.
 
-    class php_strarray
+    class php_git_strarray
     {
     public:
-        php_strarray()
+        php_git_strarray()
         {
             memset(&arr,0,sizeof(git_strarray));
         }
 
-        ~php_strarray()
+        ~php_git_strarray()
         {
             git_strarray_free(&arr);
         }
@@ -1163,16 +1163,16 @@ namespace php_git2
         const char*
         >;
 
-    class php_strarray_array:
+    class php_git_strarray_array:
         public php_string_array
     {
     public:
-        php_strarray_array()
+        php_git_strarray_array()
         {
             memset(&arr,0,sizeof(git_strarray));
         }
 
-        ~php_strarray_array()
+        ~php_git_strarray_array()
         {
             if (arr.strings != nullptr) {
                 for (size_t i = 0;i < arr.count;++i) {
@@ -1200,8 +1200,8 @@ namespace php_git2
         git_strarray arr;
     };
 
-    class php_strarray_array_nullable:
-        public php_strarray_array,
+    class php_git_strarray_array_nullable:
+        public php_git_strarray_array,
         private php_option_array
     {
     public:
@@ -1211,22 +1211,22 @@ namespace php_git2
                 return nullptr;
             }
 
-            return php_strarray_array::byval_git2();
+            return php_git_strarray_array::byval_git2();
         }
 
     private:
         using php_option_array::parse_impl;
     };
 
-    class php_strarray_byval_array:
-        public php_strarray_array
+    class php_git_strarray_byval_array:
+        public php_git_strarray_array
     {
     public:
         git_strarray byval_git2()
         {
             // Return structure by value. This is still a shallow copy of the
             // array data.
-            return *php_strarray_array::byval_git2();
+            return *php_git_strarray_array::byval_git2();
         }
     };
 

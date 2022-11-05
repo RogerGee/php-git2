@@ -40,7 +40,7 @@ namespace php_git2
 
     private:
         git_cherrypick_options opts;
-        php_strarray_byval_array strarray;
+        php_git_strarray_byval_array strarray;
         php_git_merge_options mergeOpts;
         php_git_checkout_options checkoutOpts;
     };

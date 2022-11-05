@@ -74,7 +74,7 @@ namespace php_git2
     private:
         git_diff_options opts;
         git_diff_options_callback_info callbacks;
-        php_strarray_byval_array strarray;
+        php_git_strarray_byval_array strarray;
     };
 
     // Define type to wrap git_diff_find_options.
