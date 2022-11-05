@@ -411,10 +411,10 @@ static constexpr auto ZIF_GIT_COMMIT_CREATE_FROM_IDS = zif_php_git2_function<
         php_git2::connector_wrapper<
             php_git2::php_array_length_connector<
                 size_t,
-                php_git2::php_oid_array
+                php_git2::php_git_oid_array
                 >
             >,
-        php_git2::php_oid_array
+        php_git2::php_git_oid_array
         >,
     1, // Return the git_oid string
     php_git2::sequence<1,2,3,4,5,6,7,9>,

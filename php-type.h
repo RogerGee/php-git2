@@ -906,15 +906,15 @@ namespace php_git2
     // Wrap 'git_oidarray' and provide conversions to PHP userspace array. Note
     // that we never accept this type from userspace.
 
-    class php_oidarray
+    class php_git_oidarray
     {
     public:
-        php_oidarray()
+        php_git_oidarray()
         {
             memset(&arr,0,sizeof(git_oidarray));
         }
 
-        ~php_oidarray()
+        ~php_git_oidarray()
         {
             git_oidarray_free(&arr);
         }
@@ -1148,12 +1148,12 @@ namespace php_git2
         typename WrapperType::const_git2_type
         >;
 
-    using php_oid_array = php_array<
+    using php_git_oid_array = php_array<
         php_git_oid_fromstr,
         const git_oid*
         >;
 
-    using php_oid_byval_array = php_array<
+    using php_git_oid_byval_array = php_array<
         php_git_oid_byval_fromstr,
         git_oid
         >;

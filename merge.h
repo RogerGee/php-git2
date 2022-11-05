@@ -224,10 +224,10 @@ static constexpr auto ZIF_GIT_MERGE_BASE_MANY = zif_php_git2_function<
         php_git2::connector_wrapper<
             php_git2::php_array_length_connector<
                 size_t,
-                php_git2::php_oid_byval_array
+                php_git2::php_git_oid_byval_array
                 >
             >,
-        php_git2::php_oid_byval_array
+        php_git2::php_git_oid_byval_array
         >,
     1,
     php_git2::sequence<1,3>,
@@ -247,10 +247,10 @@ static constexpr auto ZIF_GIT_MERGE_BASE_OCTOPUS = zif_php_git2_function<
         php_git2::connector_wrapper<
             php_git2::php_array_length_connector<
                 size_t,
-                php_git2::php_oid_byval_array
+                php_git2::php_git_oid_byval_array
                 >
             >,
-        php_git2::php_oid_byval_array
+        php_git2::php_git_oid_byval_array
         >,
     1,
     php_git2::sequence<1,3>,
@@ -265,7 +265,7 @@ static constexpr auto ZIF_GIT_MERGE_BASES = zif_php_git2_function<
         const git_oid*,
         const git_oid*>::func<git_merge_bases>,
     php_git2::local_pack<
-        php_git2::php_oidarray,
+        php_git2::php_git_oidarray,
         php_git2::php_resource<php_git2::php_git_repository>,
         php_git2::php_git_oid_fromstr,
         php_git2::php_git_oid_fromstr
@@ -283,15 +283,15 @@ static constexpr auto ZIF_GIT_MERGE_BASES_MANY = zif_php_git2_function<
         size_t,
         const git_oid[]>::func<git_merge_bases_many>,
     php_git2::local_pack<
-        php_git2::php_oidarray,
+        php_git2::php_git_oidarray,
         php_git2::php_resource<php_git2::php_git_repository>,
         php_git2::connector_wrapper<
             php_git2::php_array_length_connector<
                 size_t,
-                php_git2::php_oid_byval_array
+                php_git2::php_git_oid_byval_array
                 >
             >,
-        php_git2::php_oid_byval_array
+        php_git2::php_git_oid_byval_array
         >,
     1,
     php_git2::sequence<1,3>,
