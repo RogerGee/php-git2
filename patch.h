@@ -77,7 +77,7 @@ static constexpr auto ZIF_GIT_PATCH_FROM_BLOB_AND_BUFFER = zif_php_git2_function
         php_git2::php_resource_nullable<php_git2::php_git_blob>,
         php_git2::php_string_nullable,
         php_git2::connector_wrapper<
-            php_git2::php_string_length_connector_null<size_t>
+            php_git2::php_string_length_connector_nullable<size_t>
             >,
         php_git2::php_string_nullable,
         php_git2::php_string_nullable,
@@ -124,12 +124,12 @@ static constexpr auto ZIF_GIT_PATCH_FROM_BUFFERS = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_resource_ref<php_git2::php_git_patch>,
         php_git2::connector_wrapper<
-            php_git2::php_string_length_connector_null<size_t>
+            php_git2::php_string_length_connector_nullable<size_t>
             >,
         php_git2::php_string_nullable,
         php_git2::php_string_nullable,
         php_git2::connector_wrapper<
-            php_git2::php_string_length_connector_null<size_t>
+            php_git2::php_string_length_connector_nullable<size_t>
             >,
         php_git2::php_string_nullable,
         php_git2::php_string_nullable,

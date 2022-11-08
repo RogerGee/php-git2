@@ -337,7 +337,7 @@ namespace php_git2
     };
 
     template<typename IntType,typename StringType = php_string_nullable>
-    class php_string_length_connector_null:
+    class php_string_length_connector_nullable:
         public php_string_length_connector<IntType,StringType>
     {
         using base_type = php_string_length_connector<IntType,StringType>;
@@ -345,7 +345,7 @@ namespace php_git2
         using typename base_type::connect_t;
         using typename base_type::target_t;
 
-        php_string_length_connector_null(connect_t& obj):
+        php_string_length_connector_nullable(connect_t& obj):
             base_type(obj)
         {
         }
