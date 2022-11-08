@@ -1,11 +1,11 @@
 Summary of coverage:
-  Total git2 functions: 866
-  Total removed functions: 66
-  Total function bindings: 600
+  Total git2 functions: 845
+  Total removed functions: 87
+  Total function bindings: 614
   Total extra function bindings: 1
-  Total bindings tested: 454
-  Binding coverage: 69.28%
-  Test coverage: 75.67%
+  Total bindings tested: 471
+  Binding coverage: 72.66%
+  Test coverage: 76.71%
   Test coverage (extra): 0.00%
 
 Library Bindings:
@@ -37,7 +37,7 @@ Library Bindings:
   +T git_blame_get_hunk_byline
   +T git_blame_get_hunk_count
   -- git_blame_init_options
-  .n git_blame_options_init
+  -- git_blame_options_init
   .n git_blob_create_from_buffer
   .n git_blob_create_from_disk
   .n git_blob_create_from_stream
@@ -80,7 +80,7 @@ Library Bindings:
   +n git_branch_upstream_name
   +n git_branch_upstream_remote
   -- git_buf_contains_nul
-  .n git_buf_dispose
+  -- git_buf_dispose
   -- git_buf_free
   -- git_buf_grow
   -- git_buf_is_binary
@@ -94,9 +94,9 @@ Library Bindings:
   +T git_cherrypick_commit
   -- git_cherrypick_init_options
   .n git_cherrypick_options_init
-  +n git_clone
-  .n git_clone_init_options
-  .n git_clone_options_init
+  +T git_clone
+  -- git_clone_init_options
+  -- git_clone_options_init
   +T git_commit_amend
   +T git_commit_author
   .n git_commit_author_with_mailmap
@@ -225,8 +225,8 @@ Library Bindings:
   +T git_diff_find_similar
   +T git_diff_foreach
   +T git_diff_format_email
-  .n git_diff_format_email_init_options
-  .n git_diff_format_email_options_init
+  -- git_diff_format_email_init_options
+  -- git_diff_format_email_options_init
   +T git_diff_free
   +T git_diff_from_buffer
   +T git_diff_get_delta
@@ -259,12 +259,12 @@ Library Bindings:
   +T git_diff_tree_to_workdir_with_index
   .n git_email_create_from_commit
   .n git_email_create_from_diff
-  .n git_error_clear
-  .n git_error_last
-  .n git_error_set_oom
-  .n git_error_set_str
-  .n git_fetch_init_options
-  .n git_fetch_options_init
+  -- git_error_clear
+  -- git_error_last
+  -- git_error_set_oom
+  -- git_error_set_str
+  -- git_fetch_init_options
+  -- git_fetch_options_init
   .n git_filter_init
   .n git_filter_list_apply_to_blob
   .n git_filter_list_apply_to_buffer
@@ -363,12 +363,12 @@ Library Bindings:
   .n git_indexer_name
   +T git_indexer_new
   -- git_indexer_options_init
-  .n git_libgit2_features
+  .T git_libgit2_features
   -- git_libgit2_init
   -- git_libgit2_opts
-  .n git_libgit2_prerelease
+  .T git_libgit2_prerelease
   -- git_libgit2_shutdown
-  .n git_libgit2_version
+  .T git_libgit2_version
   .n git_mailmap_add_entry
   .n git_mailmap_free
   .n git_mailmap_from_buffer
@@ -449,8 +449,8 @@ Library Bindings:
   +T git_odb_add_alternate
   +T git_odb_add_backend
   +T git_odb_add_disk_alternate
-  .n git_odb_backend_data_alloc
-  .n git_odb_backend_data_free
+  -- git_odb_backend_data_alloc
+  -- git_odb_backend_data_free
   +T git_odb_backend_loose
   -- git_odb_backend_malloc
   +T git_odb_backend_one_pack
@@ -458,7 +458,7 @@ Library Bindings:
   +T git_odb_exists
   .n git_odb_exists_ext
   +T git_odb_exists_prefix
-  -- git_odb_expand_ids
+  +T git_odb_expand_ids
   +T git_odb_foreach
   +T git_odb_free
   +T git_odb_get_backend
@@ -496,7 +496,7 @@ Library Bindings:
   -- git_oid_fromstr
   -- git_oid_fromstrn
   -- git_oid_fromstrp
-  .n git_oid_is_zero
+  -- git_oid_is_zero
   -- git_oid_iszero
   -- git_oid_ncmp
   -- git_oid_nfmt
@@ -508,7 +508,7 @@ Library Bindings:
   -- git_oid_streq
   -- git_oid_tostr
   -- git_oid_tostr_s
-  .n git_oidarray_dispose
+  -- git_oidarray_dispose
   -- git_oidarray_free
   -- git_openssl_set_locking
   +T git_packbuilder_foreach
@@ -813,9 +813,9 @@ Library Bindings:
   .n git_status_options_init
   +n git_status_should_ignore
   -- git_strarray_copy
-  .n git_strarray_dispose
+  -- git_strarray_dispose
   -- git_strarray_free
-  .n git_stream_register
+  -- git_stream_register
   -- git_stream_register_tls
   +n git_submodule_add_finalize
   +n git_submodule_add_setup
@@ -926,20 +926,20 @@ Library Bindings:
   +T git_treebuilder_remove
   +T git_treebuilder_write
   .n git_treebuilder_write_with_buffer
-  .n git_worktree_add
-  .n git_worktree_add_init_options
-  .n git_worktree_add_options_init
-  .n git_worktree_free
-  .n git_worktree_is_locked
-  .n git_worktree_is_prunable
-  .n git_worktree_list
-  .n git_worktree_lock
-  .n git_worktree_lookup
-  .n git_worktree_name
-  .n git_worktree_open_from_repository
-  .n git_worktree_path
-  .n git_worktree_prune
-  .n git_worktree_prune_init_options
-  .n git_worktree_prune_options_init
-  .n git_worktree_unlock
-  .n git_worktree_validate
+  +T git_worktree_add
+  -- git_worktree_add_init_options
+  -- git_worktree_add_options_init
+  +T git_worktree_free
+  +T git_worktree_is_locked
+  +T git_worktree_is_prunable
+  +T git_worktree_list
+  +T git_worktree_lock
+  +T git_worktree_lookup
+  +T git_worktree_name
+  +T git_worktree_open_from_repository
+  +n git_worktree_path
+  +T git_worktree_prune
+  -- git_worktree_prune_init_options
+  -- git_worktree_prune_options_init
+  +T git_worktree_unlock
+  +T git_worktree_validate

@@ -6,6 +6,7 @@ use PhpGit2\RepositoryBareTestCase;
 
 /**
  * @phpGitRemoved git_blame_init_options
+ * @phpGitRemoved git_blame_options_init
  */
 final class BlameTest extends RepositoryBareTestCase {
     /**

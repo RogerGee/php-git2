@@ -14,10 +14,12 @@ Since we do not bundle the `libgit2` dependency, it's up to the user to provide 
 
 | `php-git2` | `libgit2` | Notes |
 | -------- | ------- | ------- |
-| `2.0.0` | `^1.0.0` | TODO: under development; `libgit2` is now stable |
+| `2.0.0` | `^1.5.0` | Under active development; `libgit2` is now stable |
 | `1.0.0`  | `0.25.1` | `libgit2` is unstable, so `v1` exclusively uses `0.25.1` |
 
-The entries in the table above denote the `libgit2` version requirement for a particular `php-git2` release. An entry is only added when a new version of `libgit2` is required. In theory, you should be able to use any version that fits the constraint. The minimum `libgit2` version denoted by the constraint is the one we use to develop and test the release.
+The entries in the table above denote the `libgit2` version requirement for a particular `php-git2` release. An entry is only added when a new version of `libgit2` is required.
+
+In theory, you should be able to use any version that fits the constraint (and possibly some previous `libgit2` releases within the same major version). The minimum `libgit2` version denoted by the constraint is the one we use to develop and test the release.
 
 ### Branches
 
@@ -42,8 +44,8 @@ Our core design principle is to follow the original, `libgit2` C API as closely 
 - Functions that return a `libgit2` handle via an output parameter in the C API return a resource via the function return value in the PHP API:
 	- (e.g. `git_repository_open()` returns a `git_repository` resource).
 - Errors are always converted into PHP exceptions
-- Custom backend data structures are implemented as PHP classes:
-	- This allows the developer to implement a subclass that easily implements a custom backend.
+- Custom interface data structures (e.g. backends) are implemented as PHP classes:
+	- This allows the developer to implement a subclass that easily implements a custom interface.
 	- For example, the `git_odb_backend` structure is a class called `GitODBBackend`.
 	- A developer could subclass `GitODBBackend` to provide an alternate storage mechanism for a repository's object database (such as a MySQL or SQLite database)
 - Most other data structures are implemented using arrays
@@ -136,4 +138,6 @@ This project does not officially support Windows at this time. With this said, t
 
 - Improve unit testing (Fall 2022): COMPLETE
 - Update to `libgit2` version 1: IN PROGRESS
+- Add support for custom `libgit2` memory allocator utilizing PHP's memory allocation functionality: PENDING
 - Add support for PHP 8: PENDING
+- Create phpdoc files to generate documentation site: PENDING
