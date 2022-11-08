@@ -93,7 +93,7 @@ final class ReferenceTest extends RepositoryBareTestCase {
     public function testCmp($ref1,$ref2) {
         $result = git_reference_cmp($ref1,$ref2);
 
-        $this->assertIsBool($result);
+        $this->assertIsInt($result);
     }
 
     /**

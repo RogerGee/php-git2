@@ -170,7 +170,7 @@ static constexpr auto ZIF_GIT_REFERENCE_NAME = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_REFERENCE_CMP = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_GIT_REFERENCE_CMP = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         const git_reference*,
@@ -179,7 +179,7 @@ static constexpr auto ZIF_GIT_REFERENCE_CMP = zif_php_git2_function_rethandler<
         php_git2::php_resource<php_git2::php_git_reference>,
         php_git2::php_resource<php_git2::php_git_reference>
         >,
-    php_git2::php_boolean_rethandler<int>
+    0
     >;
 
 static constexpr auto ZIF_GIT_REFERENCE__ALLOC = zif_php_git2_function_rethandler<
@@ -276,7 +276,7 @@ static constexpr auto ZIF_GIT_REFERENCE_HAS_LOG = zif_php_git2_function_rethandl
         php_git2::php_resource<php_git2::php_git_repository>,
         php_git2::php_string
         >,
-    php_git2::php_boolean_rethandler<int>
+    php_git2::php_boolean_error_rethandler<int>
     >;
 
 static constexpr auto ZIF_GIT_REFERENCE_IS_BRANCH = zif_php_git2_function_rethandler<

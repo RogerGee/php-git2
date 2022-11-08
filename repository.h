@@ -262,7 +262,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_IS_EMPTY = zif_php_git2_function_rethan
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_repository>
         >,
-    php_git2::php_boolean_rethandler<int>
+    php_git2::php_boolean_error_rethandler<int>
     >;
 
 static constexpr auto ZIF_GIT_REPOSITORY_IS_BARE = zif_php_git2_function_rethandler<
@@ -292,7 +292,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_HEAD_DETACHED = zif_php_git2_function_r
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_repository>
         >,
-    php_git2::php_boolean_rethandler<int>
+    php_git2::php_boolean_error_rethandler<int>
     >;
 
 static constexpr auto ZIF_GIT_REPOSITORY_HEAD_UNBORN = zif_php_git2_function_rethandler<
@@ -302,7 +302,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_HEAD_UNBORN = zif_php_git2_function_ret
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_repository>
         >,
-    php_git2::php_boolean_rethandler<int>
+    php_git2::php_boolean_error_rethandler<int>
     >;
 
 static constexpr auto ZIF_GIT_REPOSITORY_IDENT = zif_php_git2_function<

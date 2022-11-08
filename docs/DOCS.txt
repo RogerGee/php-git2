@@ -352,9 +352,9 @@ git_reference_name(resource)
 
     Returns string
 
-git_reference_cmp(resource,resource)
+int git_reference_cmp(resource $ref1,resource $ref2)
 
-    Returns bool
+    Returns the same return value as underlying library call.
 
 git_reference__alloc(string,string,string)
 
@@ -1310,9 +1310,7 @@ git_branch_create_from_annotated(resource,string,resource,bool)
 
 git_branch_delete(resource)
 
-git_branch_is_head(resource)
-
-    Returns bool
+bool git_branch_is_head(resource $branch)
 
 git_branch_iterator_free(resource)
 

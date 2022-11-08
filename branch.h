@@ -80,7 +80,7 @@ static constexpr auto ZIF_GIT_BRANCH_IS_HEAD = zif_php_git2_function_rethandler<
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_reference>
         >,
-    php_git2::php_boolean_rethandler<int>
+    php_git2::php_boolean_error_rethandler<int>
     >;
 
 static constexpr auto ZIF_GIT_BRANCH_ITERATOR_NEW = zif_php_git2_function_setdeps<
