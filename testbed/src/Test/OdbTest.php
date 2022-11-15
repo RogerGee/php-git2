@@ -143,7 +143,7 @@ final class OdbTest extends RepositoryBareTestCase {
      * @phpGitTest git_odb_exists_prefix
      */
     public function testExistsPrefix_NotFound() {
-        $this->expectException(\Exception::class);
+        $this->expectException(\Git2Exception::class);
         $this->expectExceptionCode(GIT_ENOTFOUND);
 
         $odb = static::getRepoOdb();
@@ -155,7 +155,7 @@ final class OdbTest extends RepositoryBareTestCase {
      * @phpGitTest git_odb_exists_prefix
      */
     public function testExistsPrefix_Ambiguous() {
-        $this->expectException(\Exception::class);
+        $this->expectException(\Git2Exception::class);
         $this->expectExceptionCode(GIT_EAMBIGUOUS);
 
         $odb = static::getRepoOdb();

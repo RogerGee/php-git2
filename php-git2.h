@@ -80,6 +80,9 @@ namespace php_git2
     // List of all functions provided in the php-git2-fe compilation unit.
     extern zend_function_entry functions[];
 
+    // Store the pointer to the class entry for the custom exception type.
+    extern zend_class_entry* exception_ce;
+
     // Provide types for tracking bailouts and manipulating PHP bailout jump
     // buffers.
 
@@ -230,7 +233,7 @@ namespace php_git2
         virtual void handle() const noexcept
         {
             // Transform the exception into a PHP exception.
-            zend_throw_exception(nullptr,what(),code);
+            zend_throw_exception(php_git2::exception_ce,what(),code);
         }
     };
 
@@ -273,7 +276,7 @@ namespace php_git2
 
         virtual void handle() const noexcept
         {
-            zend_throw_exception(nullptr,what(),0);
+            zend_throw_exception(php_git2::exception_ce,what(),0);
         }
     };
 

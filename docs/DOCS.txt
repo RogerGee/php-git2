@@ -5,11 +5,12 @@ function operates (e.g. git_repository, git_reference, ETC.). In most cases the
 PHP API uses resource values for the major libgit2 opaque data types.
 
 Since PHP has native exception handling, most API calls are reworked to return
-the main result value. For example, git_repository_new() returns a resource to
-the repository (originally assigned to the first by-reference parameter). We
-also rework the structure of some library calls due to inherent difficulties
-porting the C interface to PHP (e.g. when pointers are used). Sometimes this
-requires adding API routines not originally in the libgit2 specification.
+the main result value and throw an exception on error. For example,
+git_repository_new() returns a resource to the repository (originally assigned
+to the first by-reference parameter). We also rework the structure of some
+library calls due to inherent difficulties porting the C interface to PHP
+(e.g. when pointers are used). Sometimes this requires adding API routines not
+originally in the libgit2 specification.
 
 Please consult the official libgit2 documentation for descriptions of the
 behavior of the functions and their arguments. This section only details the PHP
@@ -108,6 +109,32 @@ Enumeration types are treated as integers in PHP userspace. A global constant is
 generally defined for enumerator. If an enumerator is missing, then it is
 acceptable to define it yourself using "define(...)" or by just using the
 correct constant value from the git2 headers.
+
+--------------------------------------------------------------------------------
+Error Handling
+
+When an underlying libgit2 function fails with an error code, the extension will
+throw an exception of type Git2Exception (see declaration below). The error code
+returned is accessible via the $code property on the thrown exception.
+
+Example:
+
+  function render_reference($repo,string $refName) {
+    try {
+      $oid = git_reference_name_to_id($repo,$refName);
+      echo "<p>The OID for <code>$refName</code> is <code>$oid</code></p>";
+    } catch (\Git2Exception $ex) {
+      if ($ex->getCode() == GIT_ENOTFOUND) {
+        echo '<p>Not Found</p>';
+      }
+      else {
+        throw $ex;
+      }
+    }
+  }
+
+Declaration of exception class Git2Exception:
+  class Git2Exception extends RuntimeException
 
 --------------------------------------------------------------------------------
 Function API Reference

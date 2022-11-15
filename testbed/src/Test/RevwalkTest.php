@@ -179,7 +179,7 @@ final class RevwalkTest extends RepositoryBareTestCase {
     public function testPushRef_NotFound() {
         // For some reason, git_revwalk_push_ref no longer returns GIT_ENOTFOUND
         // but just GIT_ERROR.
-        $this->expectException(\Exception::class);
+        $this->expectException(\Git2Exception::class);
         //$this->expectExceptionCode(GIT_ENOTFOUND);
 
         $revwalk = git_revwalk_new(static::getRepository());

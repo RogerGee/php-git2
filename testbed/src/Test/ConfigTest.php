@@ -58,7 +58,7 @@ final class ConfigTest extends RepositoryBareTestCase {
      * @phpGitTest git_config_add_file_ondisk
      */
     public function testAddFileOndisk_EEXISTS($config) {
-        $this->expectException(\Exception::class);
+        $this->expectException(\Git2Exception::class);
         $this->expectExceptionCode(GIT_EEXISTS);
 
         $path = static::makePath('git-config');
@@ -376,7 +376,7 @@ final class ConfigTest extends RepositoryBareTestCase {
      * @phpGitTest git_config_open_level
      */
     public function testOpenLevel_ENOTFOUND($config) {
-        $this->expectException(\Exception::class);
+        $this->expectException(\Git2Exception::class);
         $this->expectExceptionCode(GIT_ENOTFOUND);
 
         $result = git_config_open_level($config,GIT_CONFIG_LEVEL_GLOBAL);

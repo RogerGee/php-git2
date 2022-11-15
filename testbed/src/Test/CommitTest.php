@@ -142,7 +142,7 @@ final class CommitTest extends RepositoryBareTestCase {
      * @phpGitTest git_commit_extract_signature
      */
     public function testExtractSignature_ENOTFOUND() {
-        $this->expectException(\Exception::class);
+        $this->expectException(\Git2Exception::class);
         $this->expectExceptionCode(GIT_ENOTFOUND);
 
         $repo = static::getRepository();
@@ -244,7 +244,7 @@ final class CommitTest extends RepositoryBareTestCase {
      * @phpGitTest git_commit_header_field
      */
     public function testHeaderField_ENOTFOUND($commit) {
-        $this->expectException(\Exception::class);
+        $this->expectException(\Git2Exception::class);
         $this->expectExceptionCode(GIT_ENOTFOUND);
 
         $field = 'badfield';

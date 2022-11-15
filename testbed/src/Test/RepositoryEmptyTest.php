@@ -74,7 +74,7 @@ final class RepositoryEmptyTest extends TestCase {
      * @phpGitTest git_repository_fetchhead_foreach
      */
     public function testFetchheadForeach($repo) {
-        $this->expectException(\Exception::class);
+        $this->expectException(\Git2Exception::class);
         $this->expectExceptionCode(GIT_ENOTFOUND);
 
         $callback = TestCase::$nop;
@@ -102,7 +102,7 @@ final class RepositoryEmptyTest extends TestCase {
      * @phpGitTest git_repository_head
      */
     public function testHead($repo) {
-        $this->expectException(\Exception::class);
+        $this->expectException(\Git2Exception::class);
         $this->expectExceptionCode(GIT_ENOTFOUND);
         $head = git_repository_head($repo);
     }

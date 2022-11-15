@@ -141,7 +141,7 @@ final class WorktreeTest extends RepositoryTestCase {
      * @phpGitTest git_worktree_lookup
      */
     public function testLookup_NotFound() {
-        $this->expectException(\Exception::class);
+        $this->expectException(\Git2Exception::class);
         //$this->expectExceptionCode(GIT_ENOTFOUND);
 
         $repo = static::getRepository();

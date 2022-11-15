@@ -101,4 +101,11 @@ final class GeneralTest extends RepositoryTestCase {
 
         $this->assertIsInt($result);
     }
+
+    public function testExceptionType() {
+        $this->assertTrue(class_exists('Git2Exception'));
+
+        $ex = new \Git2Exception('Not Found',GIT_ENOTFOUND);
+        $this->assertTrue($ex instanceof \RuntimeException);
+    }
 }

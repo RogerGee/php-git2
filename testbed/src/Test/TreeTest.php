@@ -217,7 +217,7 @@ final class TreeTest extends RepositoryBareTestCase {
      * @phpGitTest git_tree_entry_bypath
      */
     public function testEntryBypath_ENOTFOUND($tree) {
-        $this->expectException(\Exception::class);
+        $this->expectException(\Git2Exception::class);
         $this->expectExceptionCode(GIT_ENOTFOUND);
 
         $path = 'i/do/not/exist';

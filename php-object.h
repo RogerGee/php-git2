@@ -25,9 +25,9 @@ extern "C" {
 
 namespace php_git2
 {
-    // Define the custom object types provided by php-git2. The order of the
-    // elements in this enumeration maps to the internal order of each type's
-    // corresponding class storage structure and thus is highly important.
+    // Define the custom object types provided by php-git2. The value of each
+    // element in this enumeration corresponds to the index of the class entry
+    // structure in php_git2::class_entry.
 
     enum php_git2_object_t
     {

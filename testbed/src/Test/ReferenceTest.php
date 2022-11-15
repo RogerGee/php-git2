@@ -39,7 +39,7 @@ final class ReferenceTest extends RepositoryBareTestCase {
      * @phpGitTest git_reference_create
      */
     public function testCreate_EEXISTS($existingRef) {
-        $this->expectException(\Exception::class);
+        $this->expectException(\Git2Exception::class);
         $this->expectExceptionCode(GIT_EEXISTS);
 
         $repo = static::getRepository();
@@ -73,7 +73,7 @@ final class ReferenceTest extends RepositoryBareTestCase {
      * @phpGitTest git_reference_create_matching
      */
     public function testCreateMatching_EMODIFIED($existingRef) {
-        $this->expectException(\Exception::class);
+        $this->expectException(\Git2Exception::class);
         $this->expectExceptionCode(GIT_EMODIFIED);
 
         $repo = static::getRepository();
@@ -125,7 +125,7 @@ final class ReferenceTest extends RepositoryBareTestCase {
      * @phpGitTest git_reference_dwim
      */
     public function testDwim_Error($ref) {
-        $this->expectException(\Exception::class);
+        $this->expectException(\Git2Exception::class);
         $this->expectExceptionCode(GIT_ENOTFOUND);
 
         $repo = static::getRepository();
@@ -477,7 +477,7 @@ final class ReferenceTest extends RepositoryBareTestCase {
      * @phpGitTest git_reference_lookup
      */
     public function testLookup_ENOTFOUND() {
-        $this->expectException(\Exception::class);
+        $this->expectException(\Git2Exception::class);
         $this->expectExceptionCode(GIT_ENOTFOUND);
 
         $repo = static::getRepository();
@@ -524,7 +524,7 @@ final class ReferenceTest extends RepositoryBareTestCase {
     //  * @phpGitTest git_reference_remove
     //  */
     // public function testRemove_NotFound() {
-    //     $this->expectException(\Exception::class);
+    //     $this->expectException(\Git2Exception::class);
     //     $this->expectExceptionCode(GIT_ENOTFOUND);
 
     //     $repo = static::getRepository();
@@ -552,7 +552,7 @@ final class ReferenceTest extends RepositoryBareTestCase {
      * @phpGitTest git_reference_rename
      */
     public function testRename_EEXISTS() {
-        $this->expectException(\Exception::class);
+        $this->expectException(\Git2Exception::class);
         $this->expectExceptionCode(GIT_EEXISTS);
 
         $oldName = 'i2';
@@ -587,7 +587,7 @@ final class ReferenceTest extends RepositoryBareTestCase {
      * @phpGitTest git_reference_symbolic_create
      */
     public function testSymbolicCreate_EEXISTS($ref) {
-        $this->expectException(\Exception::class);
+        $this->expectException(\Git2Exception::class);
         $this->expectExceptionCode(GIT_EEXISTS);
 
         $repo = static::getRepository();
@@ -651,7 +651,7 @@ final class ReferenceTest extends RepositoryBareTestCase {
      * @phpGitTest git_reference_symbolic_create_matching
      */
     public function testSymbolicCreateMatching_EMODIFIED($ref) {
-        $this->expectException(\Exception::class);
+        $this->expectException(\Git2Exception::class);
         $this->expectExceptionCode(GIT_EMODIFIED);
 
         $repo = static::getRepository();
@@ -680,7 +680,7 @@ final class ReferenceTest extends RepositoryBareTestCase {
      * @phpGitTest git_reference_symbolic_set_target
      */
     public function testSymbolicSetTarget_EINVALIDSPEC($ref) {
-        $this->expectException(\Exception::class);
+        $this->expectException(\Git2Exception::class);
         $this->expectExceptionCode(GIT_EINVALIDSPEC);
 
         $target = '~~refs/BAD?/name';

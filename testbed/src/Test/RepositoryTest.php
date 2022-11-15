@@ -35,7 +35,7 @@ final class RepositoryTest extends RepositoryTestCase {
 
         $this->assertIsString($path);
 
-        $this->expectException(\Exception::class);
+        $this->expectException(\Git2Exception::class);
         $this->expectExceptionCode(GIT_ENOTFOUND);
 
         $randnum = rand();
@@ -277,7 +277,7 @@ final class RepositoryTest extends RepositoryTestCase {
 
         $this->assertNull($result);
 
-        $this->expectException(\Exception::class);
+        $this->expectException(\Git2Exception::class);
         $this->expectExceptionCode(GIT_EINVALIDSPEC);
 
         git_repository_set_head($repo,'goodbye');
