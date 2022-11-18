@@ -172,7 +172,7 @@ final class ConfigTest extends RepositoryBareTestCase {
      * @phpGitTest git_config_get_bool
      */
     public function testGetBool($config) {
-        $name = 'core.kstring';
+        $name = 'core.kbool';
         $result = git_config_get_bool($config,$name);
 
         $this->assertIsBool($result);

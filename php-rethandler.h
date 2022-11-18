@@ -59,22 +59,6 @@ namespace php_git2
         }
     };
 
-    // Provide a rethandler for converting a numeric value into a bool.
-
-    template<typename Numeric,unsigned Position>
-    class php_convert_boolean_rethandler
-    {
-    public:
-        template<typename T,typename... Ts>
-        bool ret(T retval,zval* return_value,local_pack<Ts...>& pack)
-        {
-            auto&& value = pack.template get<Position>();
-            value.ret(return_value);
-            convert_to_boolean(return_value);
-            return true;
-        }
-    };
-
     // Provide a rethandler to use for setting dependencies. This is modeled for
     // functions that return their owner as a git2 resource.
 

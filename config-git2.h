@@ -230,16 +230,16 @@ static constexpr auto ZIF_GIT_CONFIG_OPEN_ONDISK = zif_php_git2_function<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_CONFIG_PARSE_BOOL = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_GIT_CONFIG_PARSE_BOOL = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         int*,
         const char*>::func<git_config_parse_bool>,
     php_git2::local_pack<
-        php_git2::php_long_ref<int>,
+        php_git2::php_bool_ref<int>,
         php_git2::php_string
         >,
-    php_git2::php_convert_boolean_rethandler<int,0>,
+    1,
     php_git2::sequence<1>,
     php_git2::sequence<0,1>
     >;
@@ -353,18 +353,18 @@ static constexpr auto ZIF_GIT_CONFIG_SET_STRING = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_CONFIG_GET_BOOL = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_GIT_CONFIG_GET_BOOL = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         int*,
         const git_config*,
         const char*>::func<git_config_get_bool>,
     php_git2::local_pack<
-        php_git2::php_long_ref<int>,
+        php_git2::php_bool_ref<int>,
         php_git2::php_resource<php_git2::php_git_config>,
         php_git2::php_string
         >,
-    php_git2::php_convert_boolean_rethandler<int,0>,
+    1,
     php_git2::sequence<1,2>,
     php_git2::sequence<0,1,2>
     >;
