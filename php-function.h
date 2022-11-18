@@ -286,7 +286,7 @@ namespace php_git2
 
     template<int ReturnPos,typename... Ts>
     inline typename std::enable_if<ReturnPos == 0,void>::type
-    php_return(long retval,local_pack<Ts...>&,zval* return_value)
+    php_return(zend_long retval,local_pack<Ts...>&,zval* return_value)
     {
         RETVAL_LONG(retval);
     }
@@ -295,28 +295,21 @@ namespace php_git2
     inline typename std::enable_if<ReturnPos == 0,void>::type
     php_return(int retval,local_pack<Ts...>&,zval* return_value)
     {
-        RETVAL_LONG(static_cast<long>(retval));
+        RETVAL_LONG(static_cast<zend_long>(retval));
     }
 
     template<int ReturnPos,typename... Ts>
     inline typename std::enable_if<ReturnPos == 0,void>::type
     php_return(unsigned int retval,local_pack<Ts...>&,zval* return_value)
     {
-        RETVAL_LONG(static_cast<long>(retval));
+        RETVAL_LONG(static_cast<zend_long>(retval));
     }
 
     template<int ReturnPos,typename... Ts>
     inline typename std::enable_if<ReturnPos == 0,void>::type
-    php_return(long unsigned int retval,local_pack<Ts...>&,zval* return_value)
+    php_return(size_t retval,local_pack<Ts...>&,zval* return_value)
     {
-        RETVAL_LONG(static_cast<long>(retval));
-    }
-
-    template<int ReturnPos,typename... Ts>
-    inline typename std::enable_if<ReturnPos == 0,void>::type
-    php_return(long long int& retval,local_pack<Ts...>&,zval* return_value)
-    {
-        RETVAL_LONG(static_cast<long>(retval));
+        RETVAL_LONG(static_cast<zend_long>(retval));
     }
 
     template<int ReturnPos,typename... Ts>

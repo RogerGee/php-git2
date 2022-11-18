@@ -95,13 +95,13 @@ namespace php_git2
     class php_value;
 
     template<>
-    class php_value<long>:
+    class php_value<zend_long>:
         public php_value_base
     {
     public:
-        long byval_git2() const
+        zend_long byval_git2() const
         {
-            return static_cast<long>(Z_LVAL(value));
+            return Z_LVAL(value);
         }
 
         void ret(zval* return_value) const
@@ -223,7 +223,7 @@ namespace php_git2
     // Provide basic type definitions for the core types.
 
     using php_bool = php_value<bool>;
-    using php_long = php_value<long>;
+    using php_long = php_value<zend_long>;
     using php_double = php_value<double>;
     using php_string = php_value<const char*>;
 
@@ -1087,7 +1087,7 @@ namespace php_git2
 
                 // Call the destructor on each source object before freeing the
                 // memory.
-                for (long i = 0;i < cnt;++i) {
+                for (size_t i = 0;i < cnt;++i) {
                     sources[i].~SourceType();
                 }
                 efree(sources);
@@ -1129,13 +1129,13 @@ namespace php_git2
             return data;
         }
 
-        long get_count() const
+        size_t get_count() const
         {
             return cnt;
         }
 
     private:
-        uint32_t cnt;
+        size_t cnt;
         SourceType* sources;
         ConvertType* data;
     };
