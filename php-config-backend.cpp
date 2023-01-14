@@ -246,7 +246,7 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
 
     ZVAL_LONG(params[0],level);
     {
-        php_resource_ref<php_git_repository> resource;
+        php_resource_ref<php_git_repository_nofree> resource;
         resource.set_object(repo);
         resource.ret(params[1]);
     }
