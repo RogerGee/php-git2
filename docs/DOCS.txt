@@ -3001,6 +3001,10 @@ abstract class GitConfigBackend:
     This class has properties/methods that align with the git_config_backend
     structure.
 
+    properties:
+
+        bool $readonly
+
     methods:
 
         NOTE: All methods should throw on failure.
