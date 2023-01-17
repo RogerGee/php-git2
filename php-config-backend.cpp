@@ -748,24 +748,28 @@ void config_backend_write_property(zval* object,
             );
     }
     else if (strcmp(Z_STRVAL_P(member),"readonly") == 0) {
-        if (storage->backend) {
-            zval zv;
-            ZVAL_COPY(&zv,value);
-            convert_to_boolean(&zv);
-            storage->backend->readonly = (Z_TYPE(zv) == IS_TRUE);
-            zval_dtor(&zv);
+        zval zv;
+        ZVAL_COPY(&zv,value);
+        convert_to_boolean(&zv);
+
+        // Write to property table.
+        if (zend_hash_exists(Z_OBJPROP_P(object),Z_STR_P(member))) {
+            zend_hash_add(Z_OBJPROP_P(object),Z_STR_P(member),&zv);
         }
         else {
-            zend_throw_error(
-                nullptr,
-                "Property '%s' of GitConfigBackend cannot be updated",
-                Z_STRVAL_P(member)
-                );
+            zend_hash_update(Z_OBJPROP_P(object),Z_STR_P(member),&zv);
         }
+
+        // Sync with backend instance field if available.
+        if (storage->backend) {
+            storage->backend->readonly = (Z_TYPE(zv) == IS_TRUE);
+        }
+
+        zval_dtor(&zv);
     }
     else {
         const zend_object_handlers* std = zend_get_std_object_handlers();
-        result = std->write_property(object,member,value,cache_slot);
+        std->write_property(object,member,value,cache_slot);
     }
 
     if (member == &tmp_member) {
