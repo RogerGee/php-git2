@@ -3,9 +3,9 @@ Summary of coverage:
   Total removed functions: 87
   Total function bindings: 614
   Total extra function bindings: 1
-  Total bindings tested: 471
+  Total bindings tested: 472
   Binding coverage: 72.66%
-  Test coverage: 76.71%
+  Test coverage: 76.87%
   Test coverage (extra): 0.00%
 
 Library Bindings:
@@ -139,7 +139,7 @@ Library Bindings:
   +T git_commit_time_offset
   +T git_commit_tree
   +T git_commit_tree_id
-  +n git_config_add_backend
+  +T git_config_add_backend
   +T git_config_add_file_ondisk
   +n git_config_backend_foreach_match
   +T git_config_delete_entry
