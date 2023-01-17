@@ -19,7 +19,6 @@ def genFunc(func):
         + "        >,\n" \
         + "    -1,\n" \
         + "    php_git2::sequence<>,\n" \
-        + "    php_git2::sequence<>,\n" \
         + "    php_git2::sequence<>\n" \
         + "    >;\n").format(func.upper(),func))
 

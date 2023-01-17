@@ -306,7 +306,7 @@ static constexpr auto ZIF_GIT_TREE_ENTRY_ID = zif_php_git2_function<
 
 static constexpr auto ZIF_GIT_TREE_ENTRY_TYPE = zif_php_git2_function<
     php_git2::func_wrapper<
-        git_otype,
+        git_object_t,
         const git_tree_entry*>::func<git_tree_entry_type>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_tree_entry>

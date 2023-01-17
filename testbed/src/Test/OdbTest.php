@@ -6,8 +6,9 @@ use PhpGit2\RepositoryBareTestCase;
 use PhpGit2\Callback\CallbackPayload;
 
 /**
+ * @phpGitRemoved git_odb_backend_data_alloc
+ * @phpGitRemoved git_odb_backend_data_free
  * @phpGitRemoved git_odb_backend_malloc
- * @phpGitRemoved git_odb_expand_ids
  * @phpGitRemoved git_odb_init_backend
  * @phpGitRemoved git_odb_stream_free
  */
@@ -142,7 +143,7 @@ final class OdbTest extends RepositoryBareTestCase {
      * @phpGitTest git_odb_exists_prefix
      */
     public function testExistsPrefix_NotFound() {
-        $this->expectException(\Exception::class);
+        $this->expectException(\Git2Exception::class);
         $this->expectExceptionCode(GIT_ENOTFOUND);
 
         $odb = static::getRepoOdb();
@@ -154,12 +155,44 @@ final class OdbTest extends RepositoryBareTestCase {
      * @phpGitTest git_odb_exists_prefix
      */
     public function testExistsPrefix_Ambiguous() {
-        $this->expectException(\Exception::class);
+        $this->expectException(\Git2Exception::class);
         $this->expectExceptionCode(GIT_EAMBIGUOUS);
 
         $odb = static::getRepoOdb();
         $prefix = 'a';
         $result = git_odb_exists_prefix($odb,$prefix);
+    }
+
+    /**
+     * @phpGitTest git_odb_expand_ids
+     */
+    public function testExpandIds() {
+        $odb = static::getRepoOdb();
+        $ids = [
+            'f051894', // exists, blob
+            'acbdef1', // does not exist
+        ];
+        $result = git_odb_expand_ids($odb,$ids);
+
+        $this->assertNull($result);
+        $this->assertIsArray($ids[0]);
+        $this->assertArrayHasKey('id',$ids[0]);
+        $this->assertArrayHasKey('type',$ids[0]);
+        $this->assertIsString($ids[0]['id']);
+        $this->assertIsInt($ids[0]['type']);
+        $this->assertFalse($ids[1]);
+    }
+
+    /**
+     * @phpGitTest git_odb_expand_ids
+     */
+    public function testExpandIds_Empty() {
+        $odb = static::getRepoOdb();
+        $ids = [];
+        $result = git_odb_expand_ids($odb,$ids);
+
+        $this->assertNull($result);
+        $this->assertEmpty($ids);
     }
 
     /**
@@ -351,7 +384,7 @@ final class OdbTest extends RepositoryBareTestCase {
     // public function testOpenRstream() {
     //     $odb = static::getRepoOdb();
     //     $oid = 'faf545194b3df246b2b80ce44369371ec9fe2e68';
-    //     $result = git_odb_open_rstream($odb,$oid);
+    //     $result = git_odb_open_rstream($size,$type,$odb,$oid);
 
     //     $this->assertInstanceOf(\GitODBStream_Internal::class,$result);
 

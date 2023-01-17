@@ -5,11 +5,12 @@ function operates (e.g. git_repository, git_reference, ETC.). In most cases the
 PHP API uses resource values for the major libgit2 opaque data types.
 
 Since PHP has native exception handling, most API calls are reworked to return
-the main result value. For example, git_repository_new() returns a resource to
-the repository (originally assigned to the first by-reference parameter). We
-also rework the structure of some library calls due to inherent difficulties
-porting the C interface to PHP (e.g. when pointers are used). Sometimes this
-requires adding API routines not originally in the libgit2 specification.
+the main result value and throw an exception on error. For example,
+git_repository_new() returns a resource to the repository (originally assigned
+to the first by-reference parameter). We also rework the structure of some
+library calls due to inherent difficulties porting the C interface to PHP
+(e.g. when pointers are used). Sometimes this requires adding API routines not
+originally in the libgit2 specification.
 
 Please consult the official libgit2 documentation for descriptions of the
 behavior of the functions and their arguments. This section only details the PHP
@@ -108,6 +109,32 @@ Enumeration types are treated as integers in PHP userspace. A global constant is
 generally defined for enumerator. If an enumerator is missing, then it is
 acceptable to define it yourself using "define(...)" or by just using the
 correct constant value from the git2 headers.
+
+--------------------------------------------------------------------------------
+Error Handling
+
+When an underlying libgit2 function fails with an error code, the extension will
+throw an exception of type Git2Exception (see declaration below). The error code
+returned is accessible via the $code property on the thrown exception.
+
+Example:
+
+  function render_reference($repo,string $refName) {
+    try {
+      $oid = git_reference_name_to_id($repo,$refName);
+      echo "<p>The OID for <code>$refName</code> is <code>$oid</code></p>";
+    } catch (\Git2Exception $ex) {
+      if ($ex->getCode() == GIT_ENOTFOUND) {
+        echo '<p>Not Found</p>';
+      }
+      else {
+        throw $ex;
+      }
+    }
+  }
+
+Declaration of exception class Git2Exception:
+  class Git2Exception extends RuntimeException
 
 --------------------------------------------------------------------------------
 Function API Reference
@@ -352,9 +379,9 @@ git_reference_name(resource)
 
     Returns string
 
-git_reference_cmp(resource,resource)
+int git_reference_cmp(resource $ref1,resource $ref2)
 
-    Returns bool
+    Returns the same return value as underlying library call.
 
 git_reference__alloc(string,string,string)
 
@@ -630,13 +657,13 @@ git_packbuilder_written(resource)
 [git_indexer]
 ----------------------------------------
 
-git_indexer_new(string,long,resource,callable,mixed)
+resource git_indexer_new(string $path,int $mode,?resource $odb,?array $options)
 
-    ** The 3rd parameter may be null. **
-
-    Callback signature:
-
-        void callback(array $stats,mixed $payload)
+    $options: [
+        'progress_cb' => callable: void callback(array $stats,mixed $payload),
+        'progress_cb_payload' => mixed,
+        'verify' => bool,
+    ]
 
     Return git_indexer resource
 
@@ -736,7 +763,7 @@ git_odb_object_dup(resource)
 
     Returns git_odb_object resource
 
-git_odb_open_rstream(resource,string)
+GitODBStream git_odb_open_rstream(int &$len,int &$type,resource $odb,string $oid)
 
     Returns object instance of type GitODBStream
 
@@ -772,6 +799,12 @@ git_odb_exists_prefix(resource,string)
        when the object is found. **
 
     Returns string
+
+void git_odb_expand_ids(resource $odb,array &$ids)
+
+  Note: this function will return results in the $ids parameter. While this
+  parameter employs reference semantics, it is not technically passed by
+  reference in the implementation.
 
 git_odb_foreach(resource,callable,mixed)
 
@@ -1304,9 +1337,7 @@ git_branch_create_from_annotated(resource,string,resource,bool)
 
 git_branch_delete(resource)
 
-git_branch_is_head(resource)
-
-    Returns bool
+bool git_branch_is_head(resource $branch)
 
 git_branch_iterator_free(resource)
 
@@ -1470,9 +1501,9 @@ git_config_foreach_match(resource,string,callable,mixed)
 
 git_config_get_mapped(resource,string,array)
 
-    ** The array must be an indexed array of indexed arrays, with each inner
-       array having the structure of the git_cvar_map in the order
-       [cvar_type,str_match,map_value]. The map_value entry is forced to be an
+    ** The array must be an indexed array of 3-tuple array elements, with each
+       inner 3-tuple array containing the git_configmap fields in the order
+       [type,str_match,map_value]. The map_value entry is forced to be an
        integer. **
 
     Returns int
@@ -1513,9 +1544,9 @@ git_config_next(resource)
 
 git_config_lookup_map_value(array,string)
 
-    ** The array must be an indexed array of indexed arrays, with each inner
-       array having the structure of the git_cvar_map in the order
-       [cvar_type,str_match,map_value]. The map_value entry is forced to be an
+    ** The array must be an indexed array of 3-tuple array elements, with each
+       inner 3-tuple array containing the git_configmap fields in the order
+       [type,str_match,map_value]. The map_value entry is forced to be an
        integer. **
 
 ----------------------------------------
@@ -2215,7 +2246,7 @@ git_refdb_set_backend(resource,object)
 
 git_patch_free(resource)
 
-git_patch_from_blob_and_buffer(resource|null,string|null,string|null,int,string|null,array|null)
+resource git_patch_from_blob_and_buffer(?resource $old_blob,?string $old_as_path,?string $buffer,?string $buffer_as_path,?array $options)
 
     Returns git_patch resource
 
@@ -2749,6 +2780,38 @@ git_submodule_wd_id(resource)
 
     Returns string
 
+----------------------------------------
+[git_worktree]
+----------------------------------------
+
+resource git_worktree_add(resource $repo,string $name,string $path,?array $opts)
+
+void git_worktree_free(resource $wt)
+
+bool git_worktree_is_locked(string &$reason,resource $wt)
+
+bool git_worktree_is_prunable(resource $wt,?array $opts)
+
+array git_worktree_list(resource $repo)
+
+void git_worktree_lock(resource $wt,string $reason)
+
+resource git_worktree_lookup(resource $repo,string $name)
+
+string git_worktree_name(resource $wt)
+
+resource git_worktree_open_from_repository(resource $repo)
+
+string git_worktree_path(resource $wt)
+
+int git_worktree_prune(resource $wt,?array $opts)
+
+int git_worktree_unlock(resource $wt)
+
+void git_worktree_validate(resource $wt)
+
+  This function will throw an exception when the worktree fails to validate.
+
 --------------------------------------------------------------------------------
 Class API Reference
 
@@ -2795,7 +2858,9 @@ abstract class GitODBBackend:
 
         GitODBStream writestream(int $offset,int $objectType)
 
-        GitODBStream readstream(string $oid)
+        GitODBStream readstream(int &$len_out,int &$type_out,string $oid)
+
+            Return false if object not found.
 
         bool exists(string $oid)
 
@@ -2936,6 +3001,10 @@ abstract class GitConfigBackend:
     This class has properties/methods that align with the git_config_backend
     structure.
 
+    properties:
+
+        bool $readonly
+
     methods:
 
         NOTE: All methods should throw on failure.
@@ -2946,7 +3015,7 @@ abstract class GitConfigBackend:
               know what is available; however they are designed to be defined in
               userspace and called by git2.
 
-        void open(int $level)
+        void open(int $level,resource $repo)
 
         array get(string $key)
 

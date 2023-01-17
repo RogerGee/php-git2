@@ -5,24 +5,31 @@ namespace PhpGit2\Test;
 use PhpGit2\RepositoryBareTestCase;
 use PhpGit2\Callback\CallbackPayload;
 
+/**
+ * @phpGitRemoved git_indexer_options_init
+ */
 final class IndexerTest extends RepositoryBareTestCase {
     /**
      * @phpGitTest git_indexer_new
      */
     public function testNew() {
+        $n_calls = 0;
+
         $path = static::makeDirectory('indexer1');
         $mode = 0600;
         $odb = null;
-        $progressCb = function($stats,$payload) use(&$n_calls) {
-            if ($n_calls == 0) {
-                $this->assertIsArray($stats);
-                $this->assertInstanceOf(CallbackPayload::class,$payload);
-            }
+        $options = [
+            'progress_cb' => function($stats,$payload) use(&$n_calls) {
+                if ($n_calls == 0) {
+                    $this->assertIsArray($stats);
+                    $this->assertInstanceOf(CallbackPayload::class,$payload);
+                }
 
-            $n_calls += 1;
-        };
-        $payload = new CallbackPayload;
-        $result = git_indexer_new($path,$mode,$odb,$progressCb,$payload);
+                $n_calls += 1;
+            },
+            'progress_cb_payload' => new CallbackPayload,
+        ];
+        $result = git_indexer_new($path,$mode,$odb,$options);
 
         $this->assertResourceHasType($result,'git_indexer');
 

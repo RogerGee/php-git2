@@ -95,13 +95,13 @@ namespace php_git2
     class php_value;
 
     template<>
-    class php_value<long>:
+    class php_value<zend_long>:
         public php_value_base
     {
     public:
-        long byval_git2() const
+        zend_long byval_git2() const
         {
-            return static_cast<long>(Z_LVAL(value));
+            return Z_LVAL(value);
         }
 
         void ret(zval* return_value) const
@@ -223,7 +223,7 @@ namespace php_git2
     // Provide basic type definitions for the core types.
 
     using php_bool = php_value<bool>;
-    using php_long = php_value<long>;
+    using php_long = php_value<zend_long>;
     using php_double = php_value<double>;
     using php_string = php_value<const char*>;
 
@@ -337,7 +337,7 @@ namespace php_git2
     };
 
     template<typename IntType,typename StringType = php_string_nullable>
-    class php_string_length_connector_null:
+    class php_string_length_connector_nullable:
         public php_string_length_connector<IntType,StringType>
     {
         using base_type = php_string_length_connector<IntType,StringType>;
@@ -345,7 +345,7 @@ namespace php_git2
         using typename base_type::connect_t;
         using typename base_type::target_t;
 
-        php_string_length_connector_null(connect_t& obj):
+        php_string_length_connector_nullable(connect_t& obj):
             base_type(obj)
         {
         }
@@ -872,15 +872,15 @@ namespace php_git2
     // that we never accept this type as an argument from userspace. The
     // strarray structure itself is also created on the stack.
 
-    class php_strarray
+    class php_git_strarray
     {
     public:
-        php_strarray()
+        php_git_strarray()
         {
             memset(&arr,0,sizeof(git_strarray));
         }
 
-        ~php_strarray()
+        ~php_git_strarray()
         {
             git_strarray_free(&arr);
         }
@@ -906,15 +906,15 @@ namespace php_git2
     // Wrap 'git_oidarray' and provide conversions to PHP userspace array. Note
     // that we never accept this type from userspace.
 
-    class php_oidarray
+    class php_git_oidarray
     {
     public:
-        php_oidarray()
+        php_git_oidarray()
         {
             memset(&arr,0,sizeof(git_oidarray));
         }
 
-        ~php_oidarray()
+        ~php_git_oidarray()
         {
             git_oidarray_free(&arr);
         }
@@ -1023,6 +1023,34 @@ namespace php_git2
         virtual void parse_impl(zval* zvp,int argno);
     };
 
+    // Provide an array connector that returns the array length.
+
+    template<typename IntType,typename ArrayType = php_array_base>
+    class php_array_length_connector
+    {
+    public:
+        typedef ArrayType connect_t;
+        typedef IntType target_t;
+
+        php_array_length_connector(connect_t& obj):
+            conn(obj)
+        {
+        }
+
+        target_t byval_git2()
+        {
+            zval* zvp = conn.get_value();
+            if (Z_TYPE_P(zvp) != IS_ARRAY) {
+                return IntType();
+            }
+
+            return zend_hash_num_elements(Z_ARRVAL_P(conn.get_value()));
+        }
+
+    private:
+        connect_t& conn;
+    };
+
     // Provide a base type for option arrays. (This is really just a nullable
     // array base type that is commonly used for option arrays.)
 
@@ -1059,7 +1087,7 @@ namespace php_git2
 
                 // Call the destructor on each source object before freeing the
                 // memory.
-                for (long i = 0;i < cnt;++i) {
+                for (size_t i = 0;i < cnt;++i) {
                     sources[i].~SourceType();
                 }
                 efree(sources);
@@ -1101,46 +1129,15 @@ namespace php_git2
             return data;
         }
 
-        long get_count() const
+        size_t get_count() const
         {
             return cnt;
         }
 
     private:
-        uint32_t cnt;
+        size_t cnt;
         SourceType* sources;
         ConvertType* data;
-    };
-
-    // Provide an array connector that returns the array length.
-
-    template<typename IntType,typename ArrayType>
-    class php_array_length_connector
-    {
-    public:
-        using connect_t = php_array<
-            typename ArrayType::source_t,
-            typename ArrayType::convert_t
-            >;
-        typedef IntType target_t;
-
-        php_array_length_connector(connect_t& obj):
-            conn(obj)
-        {
-        }
-
-        target_t byval_git2()
-        {
-            zval* zvp = conn.get_value();
-            if (Z_TYPE_P(zvp) != IS_ARRAY) {
-                return IntType();
-            }
-
-            return zend_hash_num_elements(Z_ARRVAL_P(conn.get_value()));
-        }
-
-    private:
-        connect_t& conn;
     };
 
     // Enumerate common array types.
@@ -1151,12 +1148,12 @@ namespace php_git2
         typename WrapperType::const_git2_type
         >;
 
-    using php_oid_array = php_array<
+    using php_git_oid_array = php_array<
         php_git_oid_fromstr,
         const git_oid*
         >;
 
-    using php_oid_byval_array = php_array<
+    using php_git_oid_byval_array = php_array<
         php_git_oid_byval_fromstr,
         git_oid
         >;
@@ -1166,16 +1163,16 @@ namespace php_git2
         const char*
         >;
 
-    class php_strarray_array:
+    class php_git_strarray_array:
         public php_string_array
     {
     public:
-        php_strarray_array()
+        php_git_strarray_array()
         {
             memset(&arr,0,sizeof(git_strarray));
         }
 
-        ~php_strarray_array()
+        ~php_git_strarray_array()
         {
             if (arr.strings != nullptr) {
                 for (size_t i = 0;i < arr.count;++i) {
@@ -1203,8 +1200,8 @@ namespace php_git2
         git_strarray arr;
     };
 
-    class php_strarray_array_nullable:
-        public php_strarray_array,
+    class php_git_strarray_array_nullable:
+        public php_git_strarray_array,
         private php_option_array
     {
     public:
@@ -1214,22 +1211,22 @@ namespace php_git2
                 return nullptr;
             }
 
-            return php_strarray_array::byval_git2();
+            return php_git_strarray_array::byval_git2();
         }
 
     private:
         using php_option_array::parse_impl;
     };
 
-    class php_strarray_byval_array:
-        public php_strarray_array
+    class php_git_strarray_byval_array:
+        public php_git_strarray_array
     {
     public:
         git_strarray byval_git2()
         {
             // Return structure by value. This is still a shallow copy of the
             // array data.
-            return *php_strarray_array::byval_git2();
+            return *php_git_strarray_array::byval_git2();
         }
     };
 
@@ -1272,6 +1269,7 @@ namespace php_git2
     using php_git_refspec = git2_resource<const git_refspec>;
     using php_git_cred = git2_resource<git_cred>;
     using php_git_submodule = git2_resource<git_submodule>;
+    using php_git_worktree = git2_resource<git_worktree>;
 
     // Enumerate nofree alternatives of certain resource types.
 

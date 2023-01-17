@@ -25,9 +25,9 @@ extern "C" {
 
 namespace php_git2
 {
-    // Define the custom object types provided by php-git2. The order of the
-    // elements in this enumeration maps to the internal order of each type's
-    // corresponding class storage structure and thus is highly important.
+    // Define the custom object types provided by php-git2. The value of each
+    // element in this enumeration corresponds to the index of the class entry
+    // structure in php_git2::class_entry.
 
     enum php_git2_object_t
     {
@@ -269,45 +269,62 @@ namespace php_git2
 
         // Function entries for custom odb_backend implementations provided from
         // PHP userspace.
-        static int read(void** datap,size_t* sizep,git_otype* typep,
-            git_odb_backend* backend,const git_oid* oid);
-        static int read_prefix(git_oid* oidp,
-            void** datap,
+
+        static int read(void** bufferp,
             size_t* sizep,
-            git_otype* typep,
+            git_object_t* typep,
+            git_odb_backend* backend,
+            const git_oid* oid);
+
+        static int read_prefix(git_oid* oidp,
+            void** bufferp,
+            size_t* sizep,
+            git_object_t* typep,
             git_odb_backend* backend,
             const git_oid* prefix,
             size_t len);
+
         static int read_header(size_t* sizep,
-            git_otype* typep,
+            git_object_t* typep,
             git_odb_backend* backend,
             const git_oid* oid);
+
         static int write(git_odb_backend* backend,
             const git_oid* oid,
             const void* data,
             size_t size,
-            git_otype type);
+            git_object_t type);
+
         static int writestream(git_odb_stream** streamp,
             git_odb_backend* backend,
-            git_off_t off,
-            git_otype type);
+            git_object_size_t length,
+            git_object_t type);
+
         static int readstream(git_odb_stream** streamp,
+            size_t* sizep,
+            git_object_t* typep,
             git_odb_backend* backend,
             const git_oid* oid);
+
         static int exists(git_odb_backend* backend,const git_oid* oid);
+
         static int exists_prefix(git_oid* oidp,
             git_odb_backend* backend,
             const git_oid* prefix,
             size_t len);
+
         static int refresh(git_odb_backend* backend);
+
         static int foreach(git_odb_backend* backend,
             git_odb_foreach_cb cb,
             void* payload);
+
         static int writepack(git_odb_writepack** writepackp,
             git_odb_backend* backend,
             git_odb* odb,
             git_transfer_progress_cb progress_cb,
             void* progress_payload);
+
         static void free(git_odb_backend* backend);
     };
 
@@ -363,7 +380,9 @@ namespace php_git2
             const void* data,
             size_t length,
             git_transfer_progress* prog);
+
         static int commit(git_odb_writepack* writepack,git_transfer_progress* prog);
+
         static void free(git_odb_writepack* writepack);
     };
 
@@ -432,8 +451,11 @@ namespace php_git2
             >;
 
         static int read(git_odb_stream *stream,char *buffer,size_t len);
+
         static int write(git_odb_stream *stream,const char *buffer,size_t len);
+
         static int finalize_write(git_odb_stream *stream,const git_oid *oid);
+
         static void free(git_odb_stream *stream);
     };
 
@@ -495,19 +517,30 @@ namespace php_git2
 
         // Function entries for custom config_backend implementations provided
         // from PHP userspace.
-        static int open(git_config_backend* cfg,git_config_level_t level);
+
+        static int open(git_config_backend* cfg,git_config_level_t level,const git_repository* repo);
+
         static int get(git_config_backend* cfg,const char* key,git_config_entry** out);
+
         static int set(git_config_backend* cfg,const char* name,const char* value);
+
         static int set_multivar(git_config_backend* cfg,
             const char* name,
             const char* regexp,
             const char* value);
+
         static int del(git_config_backend* cfg,const char* name);
+
         static int del_multivar(git_config_backend* cfg,const char* name,const char* regexp);
+
         static int iterator(git_config_iterator** iter,git_config_backend* cfg);
+
         static int snapshot(git_config_backend** out,git_config_backend* cfg);
+
         static int lock(git_config_backend* cfg);
+
         static int unlock(git_config_backend* cfg,int success);
+
         static void free(git_config_backend* cfg);
     };
 
@@ -563,14 +596,17 @@ namespace php_git2
             int *exists,
             git_refdb_backend *backend,
             const char *ref_name);
+
         static int lookup(
             git_reference **out,
             git_refdb_backend *backend,
             const char *ref_name);
+
         static int iterator(
             git_reference_iterator **iter,
             struct git_refdb_backend *backend,
             const char *glob);
+
         static int write(git_refdb_backend *backend,
             const git_reference *ref,
             int force,
@@ -578,6 +614,7 @@ namespace php_git2
             const char *message,
             const git_oid *old,
             const char *old_target);
+
         static int rename(
             git_reference **out,
             git_refdb_backend *backend,
@@ -586,23 +623,33 @@ namespace php_git2
             int force,
             const git_signature *who,
             const char *message);
+
         static int del(
             git_refdb_backend *backend,
             const char *ref_name,
             const git_oid *old_id,
             const char *old_target);
+
         static int compress(git_refdb_backend *backend);
+
         static int has_log(git_refdb_backend *backend, const char *refname);
+
         static int ensure_log(git_refdb_backend *backend, const char *refname);
+
         static int reflog_read(git_reflog **out,
             git_refdb_backend *backend,
             const char *name);
+
         static int reflog_write(git_refdb_backend *backend, git_reflog *reflog);
+
         static int reflog_rename(git_refdb_backend *backend,
             const char *old_name,
             const char *new_name);
+
         static int reflog_delete(git_refdb_backend *backend, const char *name);
+
         static int lock(void **payload_out, git_refdb_backend *backend, const char *refname);
+
         static int unlock(git_refdb_backend *backend,
             void *payload,
             int success,
@@ -610,6 +657,7 @@ namespace php_git2
             const git_reference *ref,
             const git_signature *sig,
             const char *message);
+
         static void free(git_refdb_backend *backend);
     };
 

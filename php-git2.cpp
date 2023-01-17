@@ -12,6 +12,8 @@ using namespace php_git2;
 
 ZEND_DECLARE_MODULE_GLOBALS(git2)
 
+zend_class_entry* php_git2::exception_ce = nullptr;
+
 // Extension setup functions defined in this unit.
 static PHP_GINIT_FUNCTION(git2);
 static PHP_GSHUTDOWN_FUNCTION(git2);
@@ -103,7 +105,8 @@ PHP_MINIT_FUNCTION(git2)
         git_tag,
         git_tree,
         git_tree_entry,
-        git_treebuilder
+        git_treebuilder,
+        git_worktree
         >(module_number);
 
     // Register all classes provided by this extension.
@@ -111,6 +114,12 @@ PHP_MINIT_FUNCTION(git2)
 
     // Register all libgit2 constants.
     php_git2_register_constants(module_number);
+
+    // Register a custom exception type that will be thrown by the extension.
+    //  class Git2Exception extends RuntimeException
+    zend_class_entry ce;
+    INIT_CLASS_ENTRY(ce,"Git2Exception",nullptr);
+    php_git2::exception_ce = zend_register_internal_class_ex(&ce,spl_ce_RuntimeException);
 
     return SUCCESS;
 }

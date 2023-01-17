@@ -242,7 +242,7 @@ final class IndexTest extends RepositoryTestCase {
      * @phpGitTest git_index_find
      */
     public function testFind_ENOTFOUND() {
-        $this->expectException(\Exception::class);
+        $this->expectException(\Git2Exception::class);
         $this->expectExceptionCode(GIT_ENOTFOUND);
 
         $index = static::getRepoIndex();

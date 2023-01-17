@@ -26,6 +26,8 @@ namespace php_git2
         }
     };
 
+    // Provide a rethandler for returning a boolean value from a numeric value.
+
     template<typename Numeric>
     class php_boolean_rethandler
     {
@@ -38,18 +40,21 @@ namespace php_git2
         }
     };
 
-    // Provide a rethandler for converting a numeric value into a bool.
+    // Provide a rethandler for returning a boolean value from a numeric value
+    // that handles an error case for negative return values.
 
-    template<typename Numeric,unsigned Position>
-    class php_convert_boolean_rethandler
+    template<typename Numeric>
+    class php_boolean_error_rethandler
     {
     public:
-        template<typename T,typename... Ts>
-        bool ret(T retval,zval* return_value,local_pack<Ts...>& pack)
+        template<typename... Ts>
+        bool ret(Numeric retval,zval* return_value,local_pack<Ts...>& pack)
         {
-            auto&& value = pack.template get<Position>();
-            value.ret(return_value);
-            convert_to_boolean(return_value);
+            if (retval < 0) {
+                return false;
+            }
+
+            RETVAL_BOOL(retval);
             return true;
         }
     };

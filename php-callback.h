@@ -130,6 +130,11 @@ namespace php_git2
             return php_git2_invoke_callback(obj,func,ret,Count,params);
         }
 
+        void make_ref(unsigned index)
+        {
+            ZVAL_MAKE_REF(&params[index]);
+        }
+
         void unref(unsigned index)
         {
             ZVAL_UNREF(&params[index]);
@@ -210,7 +215,8 @@ namespace php_git2
      * request, the async object is also a connector type so users can attach an
      * asynchronous callback object to a resource or object. In this way the
      * lifetime of the callback is the same as the lifetime of the
-     * resource/object.
+     * resource/object. The user must free the structure by manually calling its
+     * destructor and then calling efree() on the structure.
      */
 
     template<typename CallbackSyncType = php_callback_sync>

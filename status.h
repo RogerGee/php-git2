@@ -44,7 +44,7 @@ namespace php_git2
 
     private:
         git_status_options opts;
-        php_strarray_byval_array strarray;
+        php_git_strarray_byval_array strarray;
     };
 
     // Provide a type for returning a git_status_entry.

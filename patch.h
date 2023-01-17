@@ -68,7 +68,7 @@ static constexpr auto ZIF_GIT_PATCH_FROM_BLOB_AND_BUFFER = zif_php_git2_function
         git_patch**,
         const git_blob*,
         const char*,
-        const char*,
+        const void*,
         size_t,
         const char*,
         const git_diff_options*>::func<git_patch_from_blob_and_buffer>,
@@ -76,14 +76,16 @@ static constexpr auto ZIF_GIT_PATCH_FROM_BLOB_AND_BUFFER = zif_php_git2_function
         php_git2::php_resource_ref<php_git2::php_git_patch>,
         php_git2::php_resource_nullable<php_git2::php_git_blob>,
         php_git2::php_string_nullable,
+        php_git2::connector_wrapper<
+            php_git2::php_string_length_connector_nullable<size_t>
+            >,
         php_git2::php_string_nullable,
-        php_git2::php_long_cast<size_t>,
         php_git2::php_string_nullable,
         php_git2::php_git_diff_options
         >,
     1,
-    php_git2::sequence<1,2,3,4,5,6>,
-    php_git2::sequence<0,1,2,3,4,5,6>
+    php_git2::sequence<1,2,4,5,6>,
+    php_git2::sequence<0,1,2,4,3,5,6>
     >;
 
 static constexpr auto ZIF_GIT_PATCH_FROM_BLOBS = zif_php_git2_function<
@@ -115,16 +117,20 @@ static constexpr auto ZIF_GIT_PATCH_FROM_BUFFERS = zif_php_git2_function<
         const void*,
         size_t,
         const char*,
-        const char*,
+        const void*,
         size_t,
         const char*,
         const git_diff_options*>::func<git_patch_from_buffers>,
     php_git2::local_pack<
         php_git2::php_resource_ref<php_git2::php_git_patch>,
-        php_git2::connector_wrapper<php_git2::php_string_length_connector_null<size_t> >,
+        php_git2::connector_wrapper<
+            php_git2::php_string_length_connector_nullable<size_t>
+            >,
         php_git2::php_string_nullable,
         php_git2::php_string_nullable,
-        php_git2::connector_wrapper<php_git2::php_string_length_connector_null<size_t> >,
+        php_git2::connector_wrapper<
+            php_git2::php_string_length_connector_nullable<size_t>
+            >,
         php_git2::php_string_nullable,
         php_git2::php_string_nullable,
         php_git2::php_git_diff_options

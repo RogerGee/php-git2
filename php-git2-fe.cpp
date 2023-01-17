@@ -49,6 +49,7 @@
 #include "cred.h"
 #include "clone.h"
 #include "submodule.h"
+#include "worktree.h"
 
 // Exported extension functions defined in this unit.
 static PHP_FUNCTION(git_libgit2_version);
@@ -61,6 +62,12 @@ zend_function_entry php_git2::functions[] = {
 
     // General libgit2 functions:
     PHP_FE(git_libgit2_version,NULL)
+    PHP_GIT2_FE(git_libgit2_prerelease,
+        (zif_php_git2_function<
+            func_wrapper<const char*>::func<git_libgit2_prerelease>,
+            local_pack<>,
+            0 >),
+        NULL)
     PHP_GIT2_FE(git_libgit2_features,
         (zif_php_git2_function<
             func_wrapper<int>::func<git_libgit2_features>,
@@ -111,6 +118,7 @@ zend_function_entry php_git2::functions[] = {
     GIT_CRED_FE
     GIT_CLONE_FE
     GIT_SUBMODULE_FE
+    GIT_WORKTREE_FE
     PHP_FE_END
 };
 
@@ -129,10 +137,33 @@ PHP_FUNCTION(git2_version)
 {
     char buf[128];
     int major, minor, rev;
+    const char* prerelease;
 
     git_libgit2_version(&major,&minor,&rev);
-    snprintf(buf,sizeof(buf),"%s %s (libgit2 %d.%d.%d)",PHP_GIT2_EXTNAME,PHP_GIT2_EXTVER,
-        major,minor,rev);
+    prerelease = git_libgit2_prerelease();
+    if (prerelease != nullptr) {
+        snprintf(
+            buf,
+            sizeof(buf),
+            "%s %s (libgit2 %d.%d.%d-%s)",
+            PHP_GIT2_EXTNAME,
+            PHP_GIT2_EXTVER,
+            major,
+            minor,
+            rev,
+            prerelease);
+    }
+    else {
+        snprintf(
+            buf,
+            sizeof(buf),
+            "%s %s (libgit2 %d.%d.%d)",
+            PHP_GIT2_EXTNAME,
+            PHP_GIT2_EXTVER,
+            major,
+            minor,
+            rev);
+    }
 
     RETURN_STRING(buf);
 }

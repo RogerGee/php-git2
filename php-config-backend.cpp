@@ -11,6 +11,29 @@
 #include <new>
 using namespace php_git2;
 
+// Custom class handlers
+
+static zval* config_backend_read_property(zval* object,
+    zval* member,
+    int type,
+    void** cache_slot,
+    zval* rv);
+#if PHP_API_VERSION >= 20190902
+static zval* config_backend_write_property(zval* object,
+    zval* member,
+    zval* value,
+    void** cache_slot);
+#else
+static void config_backend_write_property(zval* object,
+    zval* member,
+    zval* value,
+    void** cache_slot);
+#endif
+static int config_backend_has_property(zval* object,
+    zval* member,
+    int has_set_exists,
+    void** cache_slot);
+
 // Helper functions
 
 static void custom_backend_entry_free(git_config_entry* ent)
@@ -200,6 +223,10 @@ zend_object_handlers php_git2::php_zend_object<php_config_backend_object>::handl
 template<>
 void php_zend_object<php_config_backend_object>::init(zend_class_entry* ce)
 {
+    handlers.read_property = config_backend_read_property;
+    handlers.write_property = config_backend_write_property;
+    handlers.has_property = config_backend_has_property;
+
     handlers.offset = offset();
 
     UNUSED(ce);
@@ -214,6 +241,9 @@ php_config_backend_object::php_config_backend_object():
 
 void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config* newOwner)
 {
+    zval* zvp;
+    HashTable* ht = Z_OBJPROP_P(zobj);
+
     // NOTE: this member function should be called under a php-git2 exception
     // handler since it will throw.
 
@@ -232,19 +262,30 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
     backend = new (emalloc(sizeof(git_config_backend_php)))
         git_config_backend_php(Z_OBJ_P(zobj));
 
+    // Assign 'readonly' if it exists in the property table.
+    zvp = zend_hash_str_find(ht,"readonly",sizeof("readonly")-1);
+    if (zvp != nullptr) {
+        backend->readonly = (Z_TYPE_P(zvp) == IS_TRUE);
+    }
+
     // Assume new owner. This should be a non-null value.
     owner = newOwner;
 }
 
-/*static*/ int php_config_backend_object::open(git_config_backend* cfg,git_config_level_t level)
+/*static*/ int php_config_backend_object::open(git_config_backend* cfg,git_config_level_t level,const git_repository* repo)
 {
     int result;
-    zval_array<1> params;
+    zval_array<2> params;
     method_wrapper method("open",cfg);
 
     // Allocate/set zvals.
 
     ZVAL_LONG(params[0],level);
+    {
+        php_resource_ref<php_git_repository_nofree> resource;
+        resource.set_object(repo);
+        resource.ret(params[1]);
+    }
 
     // Call userspace method implementation corresponding to config backend
     // operation.
@@ -562,6 +603,216 @@ git_config_backend_php::~git_config_backend_php()
 {
     // Free object zval.
     zval_ptr_dtor(&thisobj);
+}
+
+// Implementation of custom class handlers
+
+zval* config_backend_read_property(zval* object,
+    zval* member,
+    int type,
+    void** cache_slot,
+    zval* rv)
+{
+    zval* retval;
+    zval tmp_member;
+    php_config_backend_object* storage;
+
+    // Ensure deep copy of member zval.
+    if (Z_TYPE_P(member) != IS_STRING) {
+        ZVAL_STR(&tmp_member,zval_get_string(member));
+        member = &tmp_member;
+        cache_slot = nullptr;
+    }
+
+    // Handle special properties of the git_config_backend.
+
+    storage = php_zend_object<php_config_backend_object>::get_storage(Z_OBJ_P(object));
+
+    if (strcmp(Z_STRVAL_P(member),"version") == 0 && storage->backend != nullptr) {
+        ZVAL_LONG(rv,storage->backend->version);
+        retval = rv;
+    }
+    else if (strcmp(Z_STRVAL_P(member),"readonly") == 0) {
+        if (storage->backend != nullptr) {
+            if (storage->backend->readonly) {
+                ZVAL_TRUE(rv);
+            }
+            else {
+                ZVAL_FALSE(rv);
+            }
+            retval = rv;
+        }
+        else { 
+            retval = zend_hash_find(Z_OBJPROP_P(object),Z_STR_P(member));
+            if (retval == nullptr) {
+                retval = rv;
+                ZVAL_FALSE(rv);
+            }
+        }
+    }
+    else {
+        const zend_object_handlers* std = zend_get_std_object_handlers();
+        retval = std->read_property(object,member,type,cache_slot,rv);
+    }
+
+    if (member == &tmp_member) {
+        zval_dtor(member);
+    }
+
+    return retval;
+}
+
+#if PHP_API_VERSION >= 20190902
+
+zval* config_backend_write_property(zval* object,
+    zval* member,
+    zval* value,
+    void** cache_slot)
+{
+    zval* result = value;
+    zval tmp_member;
+    php_config_backend_object* storage;
+
+    storage = php_zend_object<php_config_backend_object>::get_storage(Z_OBJ_P(object));
+
+    // Ensure deep copy of member zval.
+    if (Z_TYPE_P(member) != IS_STRING) {
+        ZVAL_STR(&tmp_member,zval_get_string(member));
+        member = &tmp_member;
+        cache_slot = nullptr;
+    }
+
+    if (strcmp(Z_STRVAL_P(member),"version") == 0) {
+        zend_throw_error(
+            nullptr,
+            "Property '%s' of GitConfigBackend cannot be updated",
+            Z_STRVAL_P(member)
+            );
+    }
+    else if (strcmp(Z_STRVAL_P(member),"readonly") == 0) {
+        zval zv;
+        ZVAL_COPY(&zv,value);
+        convert_to_boolean(&zv);
+
+        // Write to property table.
+        if (zend_hash_exists(Z_OBJPROP_P(object),Z_STR_P(member))) {
+            zend_hash_add(Z_OBJPROP_P(object),Z_STR_P(member),&zv);
+        }
+        else {
+            zend_hash_update(Z_OBJPROP_P(object),Z_STR_P(member),&zv);
+        }
+
+        // Sync with backend instance field if available.
+        if (storage->backend) {
+            storage->backend->readonly = (Z_TYPE(zv) == IS_TRUE);
+        }
+
+        zval_dtor(&zv);
+    }
+    else {
+        const zend_object_handlers* std = zend_get_std_object_handlers();
+        result = std->write_property(object,member,value,cache_slot);
+    }
+
+    if (member == &tmp_member) {
+        zval_dtor(member);
+    }
+
+    return result;
+}
+
+#else
+
+void config_backend_write_property(zval* object,
+    zval* member,
+    zval* value,
+    void** cache_slot)
+{
+    zval tmp_member;
+    php_config_backend_object* storage;
+
+    storage = php_zend_object<php_config_backend_object>::get_storage(Z_OBJ_P(object));
+
+    // Ensure deep copy of member zval.
+    if (Z_TYPE_P(member) != IS_STRING) {
+        ZVAL_STR(&tmp_member,zval_get_string(member));
+        member = &tmp_member;
+        cache_slot = nullptr;
+    }
+
+    if (strcmp(Z_STRVAL_P(member),"version") == 0) {
+        zend_throw_error(
+            nullptr,
+            "Property '%s' of GitConfigBackend cannot be updated",
+            Z_STRVAL_P(member)
+            );
+    }
+    else if (strcmp(Z_STRVAL_P(member),"readonly") == 0) {
+        zval zv;
+        ZVAL_COPY(&zv,value);
+        convert_to_boolean(&zv);
+
+        // Write to property table.
+        if (zend_hash_exists(Z_OBJPROP_P(object),Z_STR_P(member))) {
+            zend_hash_add(Z_OBJPROP_P(object),Z_STR_P(member),&zv);
+        }
+        else {
+            zend_hash_update(Z_OBJPROP_P(object),Z_STR_P(member),&zv);
+        }
+
+        // Sync with backend instance field if available.
+        if (storage->backend) {
+            storage->backend->readonly = (Z_TYPE(zv) == IS_TRUE);
+        }
+
+        zval_dtor(&zv);
+    }
+    else {
+        const zend_object_handlers* std = zend_get_std_object_handlers();
+        std->write_property(object,member,value,cache_slot);
+    }
+
+    if (member == &tmp_member) {
+        zval_dtor(member);
+    }
+}
+
+#endif
+
+int config_backend_has_property(zval* object,
+    zval* member,
+    int has_set_exists,
+    void** cache_slot)
+{
+    int result;
+    zval tmp_member;
+    git_config_backend* backend;
+
+    // Ensure deep copy of member zval.
+    if (Z_TYPE_P(member) != IS_STRING) {
+        ZVAL_STR(&tmp_member,zval_get_string(member));
+        member = &tmp_member;
+        cache_slot = nullptr;
+    }
+
+    backend = php_zend_object<php_config_backend_object>::get_storage(Z_OBJ_P(object))->backend;
+
+    if (strcmp(Z_STRVAL_P(member),"version") == 0) {
+        result = (backend != nullptr);
+    }
+    else if (strcmp(Z_STRVAL_P(member),"readonly") == 0) {
+        result = 1;
+    }
+    else {
+        const zend_object_handlers* std = zend_get_std_object_handlers();
+        result = std->has_property(object,member,has_set_exists,cache_slot);
+    }
+
+    if (member == &tmp_member) {
+        zval_dtor(member);
+    }
+
+    return result;
 }
 
 /*

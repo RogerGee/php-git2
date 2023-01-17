@@ -18,7 +18,7 @@ static constexpr auto ZIF_GIT_RESET = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
-        git_object*,
+        const git_object*,
         git_reset_t,
         const git_checkout_options*>::func<git_reset>,
     php_git2::local_pack<
@@ -33,12 +33,12 @@ static constexpr auto ZIF_GIT_RESET_DEFAULT = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
-        git_object*,
-        git_strarray*>::func<git_reset_default>,
+        const git_object*,
+        const git_strarray*>::func<git_reset_default>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_repository>,
         php_git2::php_resource_nullable<php_git2::php_git_object>,
-        php_git2::php_strarray_array
+        php_git2::php_git_strarray_array
         >
     >;
 
@@ -46,7 +46,7 @@ static constexpr auto ZIF_GIT_RESET_FROM_ANNOTATED = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
-        git_annotated_commit*,
+        const git_annotated_commit*,
         git_reset_t,
         const git_checkout_options*>::func<git_reset_from_annotated>,
     php_git2::local_pack<

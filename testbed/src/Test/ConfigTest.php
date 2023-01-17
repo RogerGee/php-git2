@@ -2,7 +2,8 @@
 
 namespace PhpGit2\Test;
 
-use PhpGit2\TestCase;
+use PhpGit2\RepositoryBareTestCase;
+use PhpGit2\Backend\PHPSerializedConfigBackend;
 use PhpGit2\Callback\CallbackPayload;
 use PhpGit2\Callback\CallbackReturnValue;
 
@@ -11,7 +12,7 @@ use PhpGit2\Callback\CallbackReturnValue;
  * @phpGitRemoved git_config_init_backend
  * @phpGitRemoved git_config_lock
  */
-final class ConfigTest extends TestCase {
+final class ConfigTest extends RepositoryBareTestCase {
     /**
      * @phpGitTest git_config_new
      */
@@ -30,8 +31,9 @@ final class ConfigTest extends TestCase {
     public function testAddFileOndisk($config) {
         $path = static::copyFile('resources/git-config.example','git-config');
         $level = GIT_CONFIG_HIGHEST_LEVEL;
+        $repo = null;
         $force = true;
-        $result = git_config_add_file_ondisk($config,$path,$level,$force);
+        $result = git_config_add_file_ondisk($config,$path,$level,$repo,$force);
 
         $this->assertNull($result);
 
@@ -39,32 +41,77 @@ final class ConfigTest extends TestCase {
     }
 
     /**
-     * @depends testAddFileOndisk
      * @phpGitTest git_config_add_file_ondisk
      */
-    public function testAddFileOndisk_EEXISTS($config) {
-        $this->expectException(\Exception::class);
-        $this->expectExceptionCode(GIT_EEXISTS);
-
-        $path = static::makePath('git-config');
+    public function testAddFileOndisk_WithRepo() {
+        $config = git_config_new();
+        $path = static::copyFile('resources/git-config.example','git-config-other');
         $level = GIT_CONFIG_HIGHEST_LEVEL;
-        $force = false;
-        $result = git_config_add_file_ondisk($config,$path,$level,$force);
+        $repo = static::getRepository();
+        $force = true;
+        $result = git_config_add_file_ondisk($config,$path,$level,$repo,$force);
+
+        $this->assertNull($result);
     }
 
     /**
      * @depends testAddFileOndisk
      * @phpGitTest git_config_add_file_ondisk
      */
-    public function testAddFileOndisk_ENOTFOUND($config) {
-        $this->expectException(\Exception::class);
-        // NOTE: The documentation says this should return ENOTFOUND but it just
-        // returns -1.
+    public function testAddFileOndisk_EEXISTS($config) {
+        $this->expectException(\Git2Exception::class);
+        $this->expectExceptionCode(GIT_EEXISTS);
 
-        $path = static::makePath('git-config-does-not-exist');
+        $path = static::makePath('git-config');
         $level = GIT_CONFIG_HIGHEST_LEVEL;
+        $repo = null;
         $force = false;
-        $result = git_config_add_file_ondisk($config,$path,$level,$force);
+        $result = git_config_add_file_ondisk($config,$path,$level,$repo,$force);
+    }
+
+    /**
+     * @phpGitTest git_config_add_backend
+     */
+    public function testAddBackend() {
+        $config = git_config_new();
+        $backend = new PHPSerializedConfigBackend;
+        $level = GIT_CONFIG_LEVEL_APP;
+        $repo = static::getRepository();
+        $force = true;
+        $result = git_config_add_backend($config,$backend,$level,$repo,$force);
+
+        $this->assertNull($result);
+
+        return $config;
+    }
+
+    /**
+     * @depends testAddBackend
+     * @phpGitTest git_config_add_backend
+     */
+    public function testAddBackend_EEXISTS($config) {
+        $this->expectException(\Git2Exception::class);
+        $this->expectExceptionCode(GIT_EEXISTS);
+
+        $backend = new PHPSerializedConfigBackend;
+        $level = GIT_CONFIG_LEVEL_APP;
+        $repo = static::getRepository();
+        $force = false;
+        $result = git_config_add_backend($config,$backend,$level,$repo,$force);
+    }
+
+    /**
+     * @phpGitTest git_config_add_backend
+     */
+    public function testAddBackend_NullRepo() {
+        $config = git_config_new();
+        $backend = new PHPSerializedConfigBackend;
+        $level = GIT_CONFIG_LEVEL_APP;
+        $repo = null;
+        $force = true;
+        $result = git_config_add_backend($config,$backend,$level,$repo,$force);
+
+        $this->assertNull($result);
     }
 
     /**
@@ -171,7 +218,7 @@ final class ConfigTest extends TestCase {
      * @phpGitTest git_config_get_bool
      */
     public function testGetBool($config) {
-        $name = 'core.kstring';
+        $name = 'core.kbool';
         $result = git_config_get_bool($config,$name);
 
         $this->assertIsBool($result);
@@ -219,9 +266,9 @@ final class ConfigTest extends TestCase {
     public function testGetMapped($config) {
         $name = 'core.kmapped1';
         $maps = [
-            [GIT_CVAR_FALSE,null,2],
-            [GIT_CVAR_TRUE,null,3],
-            [GIT_CVAR_STRING,'value',4],
+            [GIT_CONFIGMAP_FALSE,null,2],
+            [GIT_CONFIGMAP_TRUE,null,3],
+            [GIT_CONFIGMAP_STRING,'value',4],
         ];
         $result = git_config_get_mapped($config,$name,$maps);
 
@@ -375,7 +422,7 @@ final class ConfigTest extends TestCase {
      * @phpGitTest git_config_open_level
      */
     public function testOpenLevel_ENOTFOUND($config) {
-        $this->expectException(\Exception::class);
+        $this->expectException(\Git2Exception::class);
         $this->expectExceptionCode(GIT_ENOTFOUND);
 
         $result = git_config_open_level($config,GIT_CONFIG_LEVEL_GLOBAL);
@@ -427,7 +474,7 @@ final class ConfigTest extends TestCase {
      */
     public function testSetMultivar($config) {
         $name = 'set.kmulti';
-        $regexp = 'value1';
+        $regexp = 'value[2-9]';
         $value = 'value1';
         $result = git_config_set_multivar($config,$name,$regexp,$value);
 
@@ -474,7 +521,7 @@ final class ConfigTest extends TestCase {
      */
     public function testLookupMapValue() {
         $maps = [
-            [GIT_CVAR_STRING,'ab',33],
+            [GIT_CONFIGMAP_STRING,'ab',33],
         ];
         $value = 'ab';
         $result = git_config_lookup_map_value($maps,$value);

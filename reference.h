@@ -35,7 +35,7 @@ static constexpr auto ZIF_GIT_REFERENCE_LIST = zif_php_git2_function<
         git_strarray*,
         git_repository*>::func<git_reference_list>,
     php_git2::local_pack<
-        php_git2::php_strarray,
+        php_git2::php_git_strarray,
         php_git2::php_resource<php_git2::php_git_repository> >,
     1,
     php_git2::sequence<1>,
@@ -66,12 +66,12 @@ static constexpr auto ZIF_GIT_REFERENCE_PEEL = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_object**,
-        git_reference*,
-        git_otype>::func<git_reference_peel>,
+        const git_reference*,
+        git_object_t>::func<git_reference_peel>,
     php_git2::local_pack<
         php_git2::php_resource_ref<php_git2::php_git_object>,
         php_git2::php_resource<php_git2::php_git_reference>,
-        php_git2::php_long_cast<git_otype> >,
+        php_git2::php_long_cast<git_object_t> >,
     php_git2::sequence<0,1>,
     1,
     php_git2::sequence<1,2>,
@@ -170,7 +170,7 @@ static constexpr auto ZIF_GIT_REFERENCE_NAME = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_REFERENCE_CMP = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_GIT_REFERENCE_CMP = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         const git_reference*,
@@ -179,7 +179,7 @@ static constexpr auto ZIF_GIT_REFERENCE_CMP = zif_php_git2_function_rethandler<
         php_git2::php_resource<php_git2::php_git_reference>,
         php_git2::php_resource<php_git2::php_git_reference>
         >,
-    php_git2::php_boolean_rethandler<int>
+    0
     >;
 
 static constexpr auto ZIF_GIT_REFERENCE__ALLOC = zif_php_git2_function_rethandler<
@@ -276,7 +276,7 @@ static constexpr auto ZIF_GIT_REFERENCE_HAS_LOG = zif_php_git2_function_rethandl
         php_git2::php_resource<php_git2::php_git_repository>,
         php_git2::php_string
         >,
-    php_git2::php_boolean_rethandler<int>
+    php_git2::php_boolean_error_rethandler<int>
     >;
 
 static constexpr auto ZIF_GIT_REFERENCE_IS_BRANCH = zif_php_git2_function_rethandler<

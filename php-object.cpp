@@ -31,6 +31,20 @@ static zend_object* php_create_object_handler(zend_class_entry* ce)
 }
 
 template<typename StorageType>
+static zend_object* php_clone_object_handler(zval* zv)
+{
+    zend_object* newObject;
+    zend_object* oldObject;
+
+    oldObject = Z_OBJ_P(zv);
+    newObject = php_create_object_handler<StorageType>(oldObject->ce);
+
+	zend_objects_clone_members(newObject,oldObject);
+
+    return newObject;
+}
+
+template<typename StorageType>
 static void php_free_object(zend_object* zo)
 {
     using php_object_t = php_zend_object<StorageType>;
@@ -50,6 +64,7 @@ static void php_init_object_handlers(zend_class_entry* ce)
     // Initialize handlers.
     memcpy(&php_object_t::handlers,stdhandlers,sizeof(zend_object_handlers));
     php_object_t::handlers.offset = php_object_t::offset();
+    php_object_t::handlers.clone_obj = php_clone_object_handler<StorageType>;
     php_object_t::handlers.free_obj = &php_free_object<StorageType>;
     php_object_t::init(ce);
 }

@@ -27,7 +27,8 @@ namespace php_git2
                 // Make a binary string for the return value. The length is
                 // obtained from the blob attached to the local_pack.
                 size_t length;
-                length = git_blob_rawsize(pack.get<0>().get_object()->get_handle());
+                const git_blob* blob = pack.get<0>().get_object()->get_handle();
+                length = git_blob_rawsize(blob);
                 RETVAL_STRINGL((const char*)retval,length);
             }
             else {
@@ -271,7 +272,7 @@ static constexpr auto ZIF_GIT_BLOB_RAWCONTENT = zif_php_git2_function_rethandler
 
 static constexpr auto ZIF_GIT_BLOB_RAWSIZE = zif_php_git2_function<
     php_git2::func_wrapper<
-        git_off_t,
+        git_object_size_t,
         const git_blob*
         >::func<git_blob_rawsize>,
     php_git2::local_pack<

@@ -74,7 +74,7 @@ namespace php_git2
     private:
         git_diff_options opts;
         git_diff_options_callback_info callbacks;
-        php_strarray_byval_array strarray;
+        php_git_strarray_byval_array strarray;
     };
 
     // Define type to wrap git_diff_find_options.
@@ -485,7 +485,7 @@ static constexpr auto ZIF_GIT_DIFF_COMMIT_AS_EMAIL = zif_php_git2_function<
         git_commit*,
         size_t,
         size_t,
-        git_diff_format_email_flags_t,
+        uint32_t,
         const git_diff_options*>::func<git_diff_commit_as_email>,
     php_git2::local_pack<
         php_git2::php_git_buf,
@@ -493,7 +493,7 @@ static constexpr auto ZIF_GIT_DIFF_COMMIT_AS_EMAIL = zif_php_git2_function<
         php_git2::php_resource<php_git2::php_git_commit>,
         php_git2::php_long_cast<size_t>,
         php_git2::php_long_cast<size_t>,
-        php_git2::php_long_cast<git_diff_format_email_flags_t>,
+        php_git2::php_long_cast<uint32_t>,
         php_git2::php_git_diff_options
         >,
     1,

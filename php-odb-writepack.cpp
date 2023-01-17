@@ -135,7 +135,7 @@ void php_odb_writepack_object::assign_owner(php_git_odb* newOwner)
     method_wrapper method("append",writepack);
 
     ZVAL_STRINGL(params[0],reinterpret_cast<const char*>(data),length);
-    ZVAL_MAKE_REF(params[1]);
+    params.make_ref(1);
     convert_transfer_progress(Z_REFVAL_P(params[1]),prog);
 
     result = method.call(params);
@@ -155,7 +155,7 @@ void php_odb_writepack_object::assign_owner(php_git_odb* newOwner)
     zval_array<1> params;
     method_wrapper method("commit",writepack);
 
-    ZVAL_MAKE_REF(params[0]);
+    params.make_ref(0);
     convert_transfer_progress(Z_REFVAL_P(params[0]),prog);
 
     result = method.call(params);

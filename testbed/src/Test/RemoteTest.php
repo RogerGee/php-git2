@@ -190,7 +190,7 @@ final class RemoteTest extends RepositoryBareTestCase {
      * @phpGitTest git_remote_lookup
      */
     public function testLookup_NotFound() {
-        $this->expectException(\Exception::class);
+        $this->expectException(\Git2Exception::class);
         $this->expectExceptionCode(GIT_ENOTFOUND);
 
         $repo = static::getRepository();

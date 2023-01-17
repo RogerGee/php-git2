@@ -74,8 +74,8 @@ final class RepositoryEmptyTest extends TestCase {
      * @phpGitTest git_repository_fetchhead_foreach
      */
     public function testFetchheadForeach($repo) {
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessageMatches('/Could not find .*FETCH_HEAD/');
+        $this->expectException(\Git2Exception::class);
+        $this->expectExceptionCode(GIT_ENOTFOUND);
 
         $callback = TestCase::$nop;
         $payload = null;
@@ -102,8 +102,8 @@ final class RepositoryEmptyTest extends TestCase {
      * @phpGitTest git_repository_head
      */
     public function testHead($repo) {
-        $this->expectExceptionMessage(\Exception::class);
-        $this->expectExceptionMessage("Reference 'HEAD' not found");
+        $this->expectException(\Git2Exception::class);
+        $this->expectExceptionCode(GIT_ENOTFOUND);
         $head = git_repository_head($repo);
     }
 
