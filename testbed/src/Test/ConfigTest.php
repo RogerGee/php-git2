@@ -3,6 +3,7 @@
 namespace PhpGit2\Test;
 
 use PhpGit2\RepositoryBareTestCase;
+use PhpGit2\Backend\PHPSerializedConfigBackend;
 use PhpGit2\Callback\CallbackPayload;
 use PhpGit2\Callback\CallbackReturnValue;
 
@@ -66,6 +67,51 @@ final class ConfigTest extends RepositoryBareTestCase {
         $repo = null;
         $force = false;
         $result = git_config_add_file_ondisk($config,$path,$level,$repo,$force);
+    }
+
+    /**
+     * @phpGitTest git_config_add_backend
+     */
+    public function testAddBackend() {
+        $config = git_config_new();
+        $backend = new PHPSerializedConfigBackend;
+        $level = GIT_CONFIG_LEVEL_APP;
+        $repo = static::getRepository();
+        $force = true;
+        $result = git_config_add_backend($config,$backend,$level,$repo,$force);
+
+        $this->assertNull($result);
+
+        return $config;
+    }
+
+    /**
+     * @depends testAddBackend
+     * @phpGitTest git_config_add_backend
+     */
+    public function testAddBackend_EEXISTS($config) {
+        $this->expectException(\Git2Exception::class);
+        $this->expectExceptionCode(GIT_EEXISTS);
+
+        $backend = new PHPSerializedConfigBackend;
+        $level = GIT_CONFIG_LEVEL_APP;
+        $repo = static::getRepository();
+        $force = false;
+        $result = git_config_add_backend($config,$backend,$level,$repo,$force);
+    }
+
+    /**
+     * @phpGitTest git_config_add_backend
+     */
+    public function testAddBackend_NullRepo() {
+        $config = git_config_new();
+        $backend = new PHPSerializedConfigBackend;
+        $level = GIT_CONFIG_LEVEL_APP;
+        $repo = null;
+        $force = true;
+        $result = git_config_add_backend($config,$backend,$level,$repo,$force);
+
+        $this->assertNull($result);
     }
 
     /**
@@ -428,7 +474,7 @@ final class ConfigTest extends RepositoryBareTestCase {
      */
     public function testSetMultivar($config) {
         $name = 'set.kmulti';
-        $regexp = 'value1';
+        $regexp = 'value[2-9]';
         $value = 'value1';
         $result = git_config_set_multivar($config,$name,$regexp,$value);
 
