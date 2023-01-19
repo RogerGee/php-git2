@@ -270,7 +270,7 @@ static constexpr auto ZIF_GIT_BLOB_RAWCONTENT = zif_php_git2_function_rethandler
     php_git2::php_git_blob_rawcontent_rethandler
     >;
 
-static constexpr auto ZIF_GIT_BLOB_RAWSIZE = zif_php_git2_function<
+static constexpr auto ZIF_GIT_BLOB_RAWSIZE = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         git_object_size_t,
         const git_blob*
@@ -278,7 +278,7 @@ static constexpr auto ZIF_GIT_BLOB_RAWSIZE = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_blob>
         >,
-    0
+    php_git2::php_numeric_rethandler<git_object_size_t>
     >;
 
 static constexpr auto ZIF_GIT_BLOB_DUP = zif_php_git2_function_setdeps<
