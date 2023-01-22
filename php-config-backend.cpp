@@ -18,17 +18,10 @@ static zval* config_backend_read_property(zval* object,
     int type,
     void** cache_slot,
     zval* rv);
-#if PHP_API_VERSION >= 20190902
 static zval* config_backend_write_property(zval* object,
     zval* member,
     zval* value,
     void** cache_slot);
-#else
-static void config_backend_write_property(zval* object,
-    zval* member,
-    zval* value,
-    void** cache_slot);
-#endif
 static int config_backend_has_property(zval* object,
     zval* member,
     int has_set_exists,
@@ -662,8 +655,6 @@ zval* config_backend_read_property(zval* object,
     return retval;
 }
 
-#if PHP_API_VERSION >= 20190902
-
 zval* config_backend_write_property(zval* object,
     zval* member,
     zval* value,
@@ -720,64 +711,6 @@ zval* config_backend_write_property(zval* object,
 
     return result;
 }
-
-#else
-
-void config_backend_write_property(zval* object,
-    zval* member,
-    zval* value,
-    void** cache_slot)
-{
-    zval tmp_member;
-    php_config_backend_object* storage;
-
-    storage = php_zend_object<php_config_backend_object>::get_storage(Z_OBJ_P(object));
-
-    // Ensure deep copy of member zval.
-    if (Z_TYPE_P(member) != IS_STRING) {
-        ZVAL_STR(&tmp_member,zval_get_string(member));
-        member = &tmp_member;
-        cache_slot = nullptr;
-    }
-
-    if (strcmp(Z_STRVAL_P(member),"version") == 0) {
-        zend_throw_error(
-            nullptr,
-            "Property '%s' of GitConfigBackend cannot be updated",
-            Z_STRVAL_P(member)
-            );
-    }
-    else if (strcmp(Z_STRVAL_P(member),"readonly") == 0) {
-        zval zv;
-        ZVAL_COPY(&zv,value);
-        convert_to_boolean(&zv);
-
-        // Write to property table.
-        if (zend_hash_exists(Z_OBJPROP_P(object),Z_STR_P(member))) {
-            zend_hash_add(Z_OBJPROP_P(object),Z_STR_P(member),&zv);
-        }
-        else {
-            zend_hash_update(Z_OBJPROP_P(object),Z_STR_P(member),&zv);
-        }
-
-        // Sync with backend instance field if available.
-        if (storage->backend) {
-            storage->backend->readonly = (Z_TYPE(zv) == IS_TRUE);
-        }
-
-        zval_dtor(&zv);
-    }
-    else {
-        const zend_object_handlers* std = zend_get_std_object_handlers();
-        std->write_property(object,member,value,cache_slot);
-    }
-
-    if (member == &tmp_member) {
-        zval_dtor(member);
-    }
-}
-
-#endif
 
 int config_backend_has_property(zval* object,
     zval* member,

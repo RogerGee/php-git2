@@ -27,17 +27,10 @@ static zval* odb_backend_read_property(zval* object,
     int type,
     void** cache_slot,
     zval* rv);
-#if PHP_API_VERSION >= 20190902
 static zval* odb_backend_write_property(zval* object,
     zval* member,
     zval* value,
     void** cache_slot);
-#else
-static void odb_backend_write_property(zval* object,
-    zval* member,
-    zval* value,
-    void** cache_slot);
-#endif
 static int odb_backend_has_property(zval* object,
     zval* member,
     int has_set_exists,
@@ -832,8 +825,6 @@ zval* odb_backend_read_property(
     return retval;
 }
 
-#if PHP_API_VERSION >= 20190902
-
 zval* odb_backend_write_property(
     zval* object,
     zval* member,
@@ -870,44 +861,6 @@ zval* odb_backend_write_property(
 
     return result;
 }
-
-#else
-
-void odb_backend_write_property(
-    zval* object,
-    zval* member,
-    zval* value,
-    void** cache_slot)
-{
-    zval tmp_member;
-
-    // Ensure deep copy of member zval.
-    if (Z_TYPE_P(member) != IS_STRING) {
-        ZVAL_STR(&tmp_member,zval_get_string(member));
-        member = &tmp_member;
-        cache_slot = nullptr;
-    }
-
-    if (strcmp(Z_STRVAL_P(member),"version") == 0
-        || strcmp(Z_STRVAL_P(member),"odb") == 0)
-    {
-        zend_throw_error(
-            nullptr,
-            "Property '%s' of GitODBBackend cannot be updated",
-            Z_STRVAL_P(member)
-            );
-    }
-    else {
-        const zend_object_handlers* std = zend_get_std_object_handlers();
-        std->write_property(object,member,value,cache_slot);
-    }
-
-    if (member == &tmp_member) {
-        zval_dtor(member);
-    }
-}
-
-#endif
 
 int odb_backend_has_property(
     zval* object,

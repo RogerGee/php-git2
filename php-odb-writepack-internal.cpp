@@ -26,19 +26,11 @@ static zval* odb_writepack_internal_read_property(
     int type,
     void** cache_slot,
     zval* rv);
-#if PHP_API_VERSION >= 20190902
 static zval* odb_writepack_internal_write_property(
     zval* object,
     zval* member,
     zval* value,
     void** cache_slot);
-#else
-static void odb_writepack_internal_write_property(
-    zval* object,
-    zval* member,
-    zval* value,
-    void** cache_slot);
-#endif
 static int odb_writepack_internal_has_property(
     zval* object,
     zval* member,
@@ -168,8 +160,6 @@ zval* odb_writepack_internal_read_property(
     return retval;
 }
 
-#if PHP_API_VERSION >= 20190902
-
 zval* odb_writepack_internal_write_property(
     zval* object,
     zval* member,
@@ -204,42 +194,6 @@ zval* odb_writepack_internal_write_property(
 
     return result;
 }
-
-#else
-
-void odb_writepack_internal_write_property(
-    zval* object,
-    zval* member,
-    zval* value,
-    void** cache_slot)
-{
-    zval tmp_member;
-
-    // Ensure deep copy of member zval.
-    if (Z_TYPE_P(member) != IS_STRING) {
-        ZVAL_STR(&tmp_member,zval_get_string(member));
-        member = &tmp_member;
-        cache_slot = nullptr;
-    }
-
-    if (strcmp(Z_STRVAL_P(member),"progress") == 0) {
-        zend_throw_error(
-            nullptr,
-            "Property '%s' of GitODBWritepack_Internal cannot be updated",
-            Z_STRVAL_P(member));
-    }
-    else {
-        // Invoke base class handler.
-        auto handler = php_zend_object<php_odb_writepack_object>::handlers.write_property;
-        (*handler)(object,member,value,cache_slot);
-    }
-
-    if (member == &tmp_member) {
-        zval_dtor(member);
-    }
-}
-
-#endif
 
 int odb_writepack_internal_has_property(
     zval* object,
