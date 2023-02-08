@@ -256,12 +256,9 @@ git_repository_head_unborn(resource)
 
     Returns bool
 
-git_repository_ident(&string,repo)
+string git_repository_ident(string &$email,resource $repo)
 
-    ** The returned string is the name. The assigned out-parameter is the
-       email. **
-
-    Returns string
+    Returns the name
 
 git_repository_init_ext(string,array|null)
 
@@ -733,9 +730,9 @@ git_odb_read(resource,string)
 
     Returns git_odb_object resource
 
-git_odb_read_header(&int,resource,string)
+int git_odb_read_header(&int $type,resource $odb,string $id)
 
-    Returns int (the size of the object)
+    Returns the length of the header
 
 git_odb_read_prefix(resource,string)
 
@@ -763,9 +760,9 @@ git_odb_object_dup(resource)
 
     Returns git_odb_object resource
 
-GitODBStream git_odb_open_rstream(int &$len,int &$type,resource $odb,string $oid)
+GitODBStream git_odb_open_rstream(int &$length,int &$type,resource $odb,string $oid)
 
-    Returns object instance of type GitODBStream
+
 
 git_odb_open_wstream(resource,int,int)
 
@@ -980,12 +977,9 @@ git_commit_dup(resource)
 
     Returns git_commit resource
 
-git_commit_extract_signature(&string,resource,string,string|null)
+string git_commit_extract_signature(string &$signed_data_out,resource $repo,string $commit_id,string $field = null)
 
-    ** The signed data is written to the string out parameter. The signature is
-       returned. **
-
-    Returns string
+    Returns the signature block
 
 git_commit_header_field(resource,string)
 
@@ -1286,12 +1280,9 @@ git_revparse(resource,string)
 
     Returns array
 
-git_revparse_ext(&resource,resource,string)
+resource git_revparse_ext(?resource &$reference,resource $repo,string $spec)
 
-    ** The first argument is an output parameter. A resource of type
-       git_reference may be written or null. **
-
-    Returns git_object resource
+    Returns a git_object resource
 
 git_revparse_single(resource,string)
 
@@ -1854,10 +1845,9 @@ git_index_conflict_add(resource,array,array,array)
 
 git_index_conflict_cleanup(resource)
 
-git_index_conflict_get(&array,&array,&array,resource,path)
+void git_index_conflict_get(array &$ancestor,array &$ours,array &$theirs,resource $index,string $path)
 
-    ** NOTE: This function signature is the same as the C API. It doesn't have a
-       return value that we care about. **
+
 
 git_index_conflict_iterator_free(resource)
 
@@ -1865,13 +1855,9 @@ git_index_conflict_iterator_new(resource)
 
     Returns git_index_conflict_iterator resource
 
-git_index_conflict_next(&array,&array,&array,resource)
+bool git_index_conflict_next(array &$ancestor,array &$ours,array &$theirs,resource $iterator)
 
-    ** NOTE: This function signature is the same as the C API. **
-
-    ** The function returns false when iteration is over. **
-
-    Returns bool
+    Returns false when iteration is over.
 
 git_index_conflict_remove(resource,string)
 
@@ -2085,11 +2071,9 @@ git_cherrypick_commit(resource,resource,resource,int,array|null)
 
 git_merge(resource,array,array|null,array|null)
 
-git_merge_analysis(&int,resource,array)
+int git_merge_analysis(int &$preference,resource $repo,array $their_heads)
 
-    The git_merge_preference_t value is returned throught the first parameter.
-
-    Returns int (the git_merge_analysis_t value)
+    Returns the analysis enumeration result
 
 git_merge_base(resource,string,string)
 
@@ -2170,12 +2154,9 @@ git_note_message(resource)
 
     Returns string
 
-git_note_next(&string,resource)
+string git_note_next(string &$annotated_id,resource $iterator)
 
-    ** NOTE: This function returns the note_id directly and assigns the
-       annotated_id to the first argument. **
-
-    Returns string
+    Returns the note ID string
 
 git_note_read(resource,string|null,string)
 
@@ -2266,24 +2247,17 @@ git_patch_get_delta(resource)
 
     Returns array
 
-git_patch_get_hunk(&int,resource,int)
+array git_patch_get_hunk(int &$lines_in_hunk,resource $patch,int $hunk_idx)
 
-    The function will assign the lines_in_hunk to the first parameter.
-
-    Returns array
+    Returns a git_diff_hunk array
 
 git_patch_get_line_in_hunk(resource,int,int)
 
     Returns array
 
-git_patch_line_stats(&int,&int,resource)
+int git_patch_line_stats(int &$total_additions,int &$total_deletions,resource $patch)
 
-    The function returns the total_context value.
-
-    The total_additions value is assigned to the first parameter, and the
-    total_deletions value is assigned to the second parameter.
-
-    Returns int
+    Returns the total_context value
 
 git_patch_num_hunks(resource)
 
@@ -2333,9 +2307,9 @@ git_rebase_abort(resource)
 
     Returns true if successful, false if a rebase is not in progress
 
-git_rebase_commit(&string,resource,resource|null,resource,string|null,string|null)
+int git_rebase_commit(string &$id,resource $rebase,?resource $author,resource $committer,string $message_encoding = null,string $message = null)
 
-    Returns int (same as git2 function, still throws on error)
+    Returns the underlying function result
 
 git_rebase_finish(resource,resource|null)
 
@@ -2786,29 +2760,29 @@ git_submodule_wd_id(resource)
 
 resource git_worktree_add(resource $repo,string $name,string $path,?array $opts)
 
-void git_worktree_free(resource $wt)
+void git_worktree_free(resource $worktree)
 
-bool git_worktree_is_locked(string &$reason,resource $wt)
+bool git_worktree_is_locked(string &$reason,resource $worktree)
 
-bool git_worktree_is_prunable(resource $wt,?array $opts)
+bool git_worktree_is_prunable(resource $worktree,?array $opts)
 
 array git_worktree_list(resource $repo)
 
-void git_worktree_lock(resource $wt,string $reason)
+void git_worktree_lock(resource $worktree,string $reason)
 
 resource git_worktree_lookup(resource $repo,string $name)
 
-string git_worktree_name(resource $wt)
+string git_worktree_name(resource $worktree)
 
 resource git_worktree_open_from_repository(resource $repo)
 
-string git_worktree_path(resource $wt)
+string git_worktree_path(resource $worktree)
 
-int git_worktree_prune(resource $wt,?array $opts)
+int git_worktree_prune(resource $worktree,?array $opts)
 
-int git_worktree_unlock(resource $wt)
+int git_worktree_unlock(resource $worktree)
 
-void git_worktree_validate(resource $wt)
+void git_worktree_validate(resource $worktree)
 
   This function will throw an exception when the worktree fails to validate.
 
@@ -2846,7 +2820,7 @@ abstract class GitODBBackend:
 
             The method should write the object type to the $type out parameter.
 
-        string read_prefix(string &$fullOid,int &$type,string $abbrevOid)
+        string read_prefix(string &$full_oid,int &$type,string $abbrev_oid)
 
             Will return oid and type as out parameters respectively.
 
@@ -2864,7 +2838,7 @@ abstract class GitODBBackend:
 
         bool exists(string $oid)
 
-        bool exists_prefix(string &$fullOid,string $prefix)
+        bool exists_prefix(string &$full_oid,string $prefix)
 
         void refresh()
 

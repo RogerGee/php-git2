@@ -186,7 +186,9 @@ static constexpr auto ZIF_GIT_PATCH_GET_HUNK = zif_php_git2_function<
     php_git2::sequence<0,1,2,3>
     >;
 ZEND_BEGIN_ARG_INFO_EX(git_patch_get_hunk_arginfo,0,0,3)
-    ZEND_ARG_PASS_INFO(1)
+    ZEND_ARG_INFO(1,lines_in_hunk)
+    ZEND_ARG_INFO(0,patch)
+    ZEND_ARG_INFO(0,hunk_idx)
 ZEND_END_ARG_INFO()
 
 static constexpr auto ZIF_GIT_PATCH_GET_LINE_IN_HUNK = zif_php_git2_function<
@@ -225,8 +227,9 @@ static constexpr auto ZIF_GIT_PATCH_LINE_STATS = zif_php_git2_function<
     php_git2::sequence<0,1,2,3>
     >;
 ZEND_BEGIN_ARG_INFO_EX(git_patch_line_stats_arginfo,0,0,3)
-    ZEND_ARG_PASS_INFO(1)
-    ZEND_ARG_PASS_INFO(1)
+    ZEND_ARG_INFO(1,total_additions)
+    ZEND_ARG_INFO(1,total_deletions)
+    ZEND_ARG_INFO(0,patch)
 ZEND_END_ARG_INFO()
 
 static constexpr auto ZIF_GIT_PATCH_NUM_HUNKS = zif_php_git2_function<

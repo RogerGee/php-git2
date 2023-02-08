@@ -292,9 +292,11 @@ static constexpr auto ZIF_GIT_INDEX_CONFLICT_GET = zif_php_git2_function<
     -1
     >;
 ZEND_BEGIN_ARG_INFO_EX(git_index_conflict_get_arginfo,0,0,5)
-    ZEND_ARG_PASS_INFO(1)
-    ZEND_ARG_PASS_INFO(1)
-    ZEND_ARG_PASS_INFO(1)
+    ZEND_ARG_INFO(1,ancestor)
+    ZEND_ARG_INFO(1,ours)
+    ZEND_ARG_INFO(1,theirs)
+    ZEND_ARG_INFO(0,index)
+    ZEND_ARG_INFO(0,path)
 ZEND_END_ARG_INFO()
 
 static constexpr auto ZIF_GIT_INDEX_CONFLICT_ITERATOR_FREE = zif_php_git2_function_free<
@@ -334,9 +336,10 @@ static constexpr auto ZIF_GIT_INDEX_CONFLICT_NEXT = zif_php_git2_function_rethan
     php_git2::php_boolean_iterover_rethandler
     >;
 ZEND_BEGIN_ARG_INFO_EX(git_index_conflict_next_arginfo,0,0,4)
-    ZEND_ARG_PASS_INFO(1)
-    ZEND_ARG_PASS_INFO(1)
-    ZEND_ARG_PASS_INFO(1)
+    ZEND_ARG_INFO(1,ancestor)
+    ZEND_ARG_INFO(1,ours)
+    ZEND_ARG_INFO(1,theirs)
+    ZEND_ARG_INFO(0,iterator)
 ZEND_END_ARG_INFO()
 
 static constexpr auto ZIF_GIT_INDEX_CONFLICT_REMOVE = zif_php_git2_function<

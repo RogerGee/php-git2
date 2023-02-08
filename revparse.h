@@ -105,7 +105,9 @@ static constexpr auto ZIF_GIT_REVPARSE_EXT = zif_php_git2_function_setdeps2<
     php_git2::sequence<0,1,2,3>
     >;
 ZEND_BEGIN_ARG_INFO_EX(git_revparse_ext_arginfo,0,0,2)
-    ZEND_ARG_PASS_INFO(1)
+    ZEND_ARG_INFO(1,reference)
+    ZEND_ARG_INFO(0,repo)
+    ZEND_ARG_INFO(0,spec)
 ZEND_END_ARG_INFO()
 
 static constexpr auto ZIF_GIT_REVPARSE_SINGLE = zif_php_git2_function_setdeps<

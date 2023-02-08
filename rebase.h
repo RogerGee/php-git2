@@ -127,7 +127,12 @@ static constexpr auto ZIF_GIT_REBASE_COMMIT = zif_php_git2_function_rethandler<
     php_git2::php_git_rebase_commit_rethandler
     >;
 ZEND_BEGIN_ARG_INFO_EX(git_rebase_commit_arginfo,0,0,6)
-    ZEND_ARG_PASS_INFO(1)
+    ZEND_ARG_INFO(1,id)
+    ZEND_ARG_INFO(0,rebase)
+    ZEND_ARG_INFO(0,author)
+    ZEND_ARG_INFO(0,committer)
+    ZEND_ARG_INFO(0,message_encoding)
+    ZEND_ARG_INFO(0,message)
 ZEND_END_ARG_INFO()
 
 static constexpr auto ZIF_GIT_REBASE_FINISH = zif_php_git2_function<

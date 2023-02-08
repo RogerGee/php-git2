@@ -161,7 +161,8 @@ static constexpr auto ZIF_GIT_NOTE_NEXT = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 ZEND_BEGIN_ARG_INFO_EX(git_note_next_arginfo,0,0,2)
-    ZEND_ARG_PASS_INFO(1)
+    ZEND_ARG_INFO(1,annotated_id)
+    ZEND_ARG_INFO(0,iterator)
 ZEND_END_ARG_INFO()
 
 static constexpr auto ZIF_GIT_NOTE_READ = zif_php_git2_function<

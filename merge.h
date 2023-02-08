@@ -190,7 +190,9 @@ static constexpr auto ZIF_GIT_MERGE_ANALYSIS = zif_php_git2_function<
     php_git2::sequence<0,1,2,4,3>
     >;
 ZEND_BEGIN_ARG_INFO_EX(git_merge_analysis_arginfo,0,0,3)
-    ZEND_ARG_PASS_INFO(1)
+    ZEND_ARG_INFO(1,preference)
+    ZEND_ARG_INFO(0,repo)
+    ZEND_ARG_INFO(0,their_heads)
 ZEND_END_ARG_INFO()
 
 static constexpr auto ZIF_GIT_MERGE_BASE = zif_php_git2_function<

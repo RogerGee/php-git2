@@ -503,7 +503,10 @@ static constexpr auto ZIF_GIT_COMMIT_EXTRACT_SIGNATURE = zif_php_git2_function<
     php_git2::sequence<0,1,2,3,4>
     >;
 ZEND_BEGIN_ARG_INFO_EX(git_commit_extract_signature_arginfo,0,0,4)
-    ZEND_ARG_PASS_INFO(1)
+    ZEND_ARG_INFO(1,signed_data_out)
+    ZEND_ARG_INFO(0,repo)
+    ZEND_ARG_INFO(0,commit_id)
+    ZEND_ARG_INFO_WITH_DEFAULT_VALUE(0,field,"null")
 ZEND_END_ARG_INFO()
 
 static constexpr auto ZIF_GIT_COMMIT_HEADER_FIELD = zif_php_git2_function<

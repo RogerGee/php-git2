@@ -496,7 +496,9 @@ static constexpr auto ZIF_GIT_ODB_READ_HEADER = zif_php_git2_function<
     php_git2::sequence<0,1,2,3>
     >;
 ZEND_BEGIN_ARG_INFO_EX(git_odb_read_header_arginfo,0,0,3)
-    ZEND_ARG_PASS_INFO(1)
+    ZEND_ARG_INFO(1,type)
+    ZEND_ARG_INFO(0,odb)
+    ZEND_ARG_INFO(0,id)
 ZEND_END_ARG_INFO()
 
 static constexpr auto ZIF_GIT_ODB_READ_PREFIX = zif_php_git2_function_setdeps<
@@ -660,8 +662,10 @@ static constexpr auto ZIF_GIT_ODB_OPEN_RSTREAM = zif_php_git2_function<
     php_git2::sequence<2,0,1,3,4>
     >;
 ZEND_BEGIN_ARG_INFO_EX(git_odb_open_rstream_arginfo,0,0,4)
-    ZEND_ARG_PASS_INFO(1)
-    ZEND_ARG_PASS_INFO(1)
+    ZEND_ARG_INFO(1,length)
+    ZEND_ARG_INFO(1,type)
+    ZEND_ARG_INFO(0,odb)
+    ZEND_ARG_INFO(0,oid)
 ZEND_END_ARG_INFO()
 
 static constexpr auto ZIF_GIT_ODB_OPEN_WSTREAM = zif_php_git2_function<

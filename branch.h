@@ -120,7 +120,8 @@ static constexpr auto ZIF_GIT_BRANCH_NEXT = zif_php_git2_function_rethandler<
     php_git2::sequence<0,1,2>
     >;
 ZEND_BEGIN_ARG_INFO_EX(git_branch_next_arginfo,0,0,2)
-    ZEND_ARG_PASS_INFO(1)
+    ZEND_ARG_INFO(1,out_type)
+    ZEND_ARG_INFO(0,iter)
 ZEND_END_ARG_INFO()
 
 static constexpr auto ZIF_GIT_BRANCH_LOOKUP = zif_php_git2_function_setdeps<

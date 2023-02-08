@@ -114,7 +114,8 @@ static constexpr auto ZIF_GIT_WORKTREE_IS_LOCKED = zif_php_git2_function_rethand
     php_git2::php_boolean_error_rethandler<int>
     >;
 ZEND_BEGIN_ARG_INFO_EX(git_worktree_is_locked_arginfo,0,0,2)
-    ZEND_ARG_PASS_INFO(1)
+    ZEND_ARG_INFO(1,reason)
+    ZEND_ARG_INFO(0,worktree)
 ZEND_END_ARG_INFO()
 
 static constexpr auto ZIF_GIT_WORKTREE_IS_PRUNABLE = zif_php_git2_function_rethandler<
