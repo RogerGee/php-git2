@@ -217,8 +217,14 @@ static int refdb_backend_has_property(
 
 // The following functions are optional so this base class provides an empty
 // implementation.
+
 static PHP_EMPTY_METHOD(GitRefDBBackend,iterator_new);
+
 static PHP_EMPTY_METHOD(GitRefDBBackend,iterator_next);
+ZEND_BEGIN_ARG_INFO_EX(GitRefDBBackend_iterator_next_arginfo,0,0,1)
+    ZEND_ARG_INFO(1,name)
+ZEND_END_ARG_INFO()
+
 static PHP_EMPTY_METHOD(GitRefDBBackend,compress);
 static PHP_EMPTY_METHOD(GitRefDBBackend,lock);
 static PHP_EMPTY_METHOD(GitRefDBBackend,unlock);
@@ -227,7 +233,7 @@ zend_function_entry php_git2::refdb_backend_methods[] = {
     PHP_ABSTRACT_ME(GitRefDBBackend,exists,NULL)
     PHP_ABSTRACT_ME(GitRefDBBackend,lookup,NULL)
     PHP_ME(GitRefDBBackend,iterator_new,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitRefDBBackend,iterator_next,NULL,ZEND_ACC_PUBLIC)
+    PHP_ME(GitRefDBBackend,iterator_next,GitRefDBBackend_iterator_next_arginfo,ZEND_ACC_PUBLIC)
     PHP_ABSTRACT_ME(GitRefDBBackend,write,NULL)
     PHP_ABSTRACT_ME(GitRefDBBackend,rename,NULL)
     PHP_ABSTRACT_ME(GitRefDBBackend,del,NULL)

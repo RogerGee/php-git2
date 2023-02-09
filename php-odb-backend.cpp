@@ -59,25 +59,48 @@ static ZEND_FUNCTION(backend_transfer_progress_callback);
 // Class method entries
 
 static PHP_EMPTY_METHOD(GitODBBackend,read);
+ZEND_BEGIN_ARG_INFO_EX(GitODBBackend_read_arginfo,0,0,2)
+    ZEND_ARG_INFO(1,type)
+    ZEND_ARG_INFO(0,oid)
+ZEND_END_ARG_INFO()
+
 static PHP_EMPTY_METHOD(GitODBBackend,read_prefix);
+ZEND_BEGIN_ARG_INFO_EX(GitODBBackend_read_prefix_arginfo,0,0,3)
+    ZEND_ARG_INFO(1,full_oid)
+    ZEND_ARG_INFO(1,type)
+    ZEND_ARG_INFO(0,abbrev_oid)
+ZEND_END_ARG_INFO()
+
 static PHP_EMPTY_METHOD(GitODBBackend,read_header);
+ZEND_BEGIN_ARG_INFO_EX(GitODBBackend_read_header_arginfo,0,0,3)
+    ZEND_ARG_INFO(1,size)
+    ZEND_ARG_INFO(1,type)
+    ZEND_ARG_INFO(0,oid)
+ZEND_END_ARG_INFO()
+
 static PHP_EMPTY_METHOD(GitODBBackend,write);
 static PHP_EMPTY_METHOD(GitODBBackend,writestream);
 static PHP_EMPTY_METHOD(GitODBBackend,readstream);
 static PHP_EMPTY_METHOD(GitODBBackend,exists);
+
 static PHP_EMPTY_METHOD(GitODBBackend,exists_prefix);
+ZEND_BEGIN_ARG_INFO_EX(GitODBBackend_exists_prefix_arginfo,0,0,2)
+    ZEND_ARG_INFO(1,full_oid)
+    ZEND_ARG_INFO(0,prefix)
+ZEND_END_ARG_INFO()
+
 static PHP_EMPTY_METHOD(GitODBBackend,refresh);
 static PHP_EMPTY_METHOD(GitODBBackend,writepack);
 
 zend_function_entry php_git2::odb_backend_methods[] = {
-    PHP_ME(GitODBBackend,read,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitODBBackend,read_prefix,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitODBBackend,read_header,NULL,ZEND_ACC_PUBLIC)
+    PHP_ME(GitODBBackend,read,GitODBBackend_read_arginfo,ZEND_ACC_PUBLIC)
+    PHP_ME(GitODBBackend,read_prefix,GitODBBackend_read_prefix_arginfo,ZEND_ACC_PUBLIC)
+    PHP_ME(GitODBBackend,read_header,GitODBBackend_read_header_arginfo,ZEND_ACC_PUBLIC)
     PHP_ME(GitODBBackend,write,NULL,ZEND_ACC_PUBLIC)
     PHP_ME(GitODBBackend,writestream,NULL,ZEND_ACC_PUBLIC)
     PHP_ME(GitODBBackend,readstream,NULL,ZEND_ACC_PUBLIC)
     PHP_ME(GitODBBackend,exists,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitODBBackend,exists_prefix,NULL,ZEND_ACC_PUBLIC)
+    PHP_ME(GitODBBackend,exists_prefix,GitODBBackend_exists_prefix_arginfo,ZEND_ACC_PUBLIC)
     PHP_ME(GitODBBackend,refresh,NULL,ZEND_ACC_PUBLIC)
     PHP_ABSTRACT_ME(GitODBBackend,for_each,NULL)
     PHP_ME(GitODBBackend,writepack,NULL,ZEND_ACC_PUBLIC)
