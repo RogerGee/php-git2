@@ -196,17 +196,20 @@ static void custom_backend_iterator_free(custom_backend_iterator* iter)
 
 // Custom class handlers
 
-static zval* refdb_backend_read_property(zval* object,
-    zval* member,
+static zval* refdb_backend_read_property(
+    zend_object* object,
+    zend_string* member,
     int type,
     void** cache_slot,
     zval* rv);
-static zval* refdb_backend_write_property(zval* object,
-    zval* member,
+static zval* refdb_backend_write_property(
+    zend_object* object,
+    zend_string* member,
     zval* value,
     void** cache_slot);
-static int refdb_backend_has_property(zval* object,
-    zval* member,
+static int refdb_backend_has_property(
+    zend_object* object,
+    zend_string* member,
     int has_set_exists,
     void** cache_slot);
 
@@ -259,8 +262,9 @@ void php_zend_object<php_refdb_backend_object>::init(zend_class_entry* ce)
 
 // Implementation of custom class handlers
 
-zval* refdb_backend_read_property(zval* object,
-    zval* member,
+zval* refdb_backend_read_property(
+    zend_object* object,
+    zend_string* member,
     int type,
     void** cache_slot,
     zval* rv)
@@ -269,8 +273,9 @@ zval* refdb_backend_read_property(zval* object,
     return std->read_property(object,member,type,cache_slot,rv);
 }
 
-zval* refdb_backend_write_property(zval* object,
-    zval* member,
+zval* refdb_backend_write_property(
+    zend_object* object,
+    zend_string* member,
     zval* value,
     void** cache_slot)
 {
@@ -278,8 +283,9 @@ zval* refdb_backend_write_property(zval* object,
     return std->write_property(object,member,value,cache_slot);
 }
 
-int refdb_backend_has_property(zval* object,
-    zval* member,
+int refdb_backend_has_property(
+    zend_object* object,
+    zend_string* member,
     int has_set_exists,
     void** cache_slot)
 {

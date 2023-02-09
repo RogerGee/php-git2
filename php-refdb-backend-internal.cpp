@@ -14,7 +14,7 @@ static PHP_METHOD(GitRefDBBackend_Internal,lookup);
 static PHP_METHOD(GitRefDBBackend_Internal,iterator_new);
 static PHP_METHOD(GitRefDBBackend_Internal,iterator_next);
 ZEND_BEGIN_ARG_INFO_EX(GitRefDBBackend_Internal_iterator_next_arginfo,0,0,1)
-    ZEND_ARG_PASS_INFO(1)
+    ZEND_ARG_INFO(1,name)
 ZEND_END_ARG_INFO()
 static PHP_METHOD(GitRefDBBackend_Internal,write);
 static PHP_METHOD(GitRefDBBackend_Internal,rename);

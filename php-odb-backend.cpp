@@ -22,17 +22,20 @@ static void efree_wrapper(void* d)
 
 // Custom class handlers
 
-static zval* odb_backend_read_property(zval* object,
-    zval* member,
+static zval* odb_backend_read_property(
+    zend_object* object,
+    zend_string* member,
     int type,
     void** cache_slot,
     zval* rv);
-static zval* odb_backend_write_property(zval* object,
-    zval* member,
+static zval* odb_backend_write_property(
+    zend_object* object,
+    zend_string* member,
     zval* value,
     void** cache_slot);
-static int odb_backend_has_property(zval* object,
-    zval* member,
+static int odb_backend_has_property(
+    zend_object* object,
+    zend_string* member,
     int has_set_exists,
     void** cache_slot);
 
@@ -164,7 +167,7 @@ void php_odb_backend_object::assign_owner(php_git_odb* newOwner)
 void php_odb_backend_object::unset_backend(zval* obj)
 {
     // Unset 'odb' property.
-    zend_unset_property(Z_OBJCE_P(obj),obj,"odb",sizeof("odb")-1);
+    zend_unset_property(Z_OBJCE_P(obj),Z_OBJ_P(obj),"odb",sizeof("odb")-1);
 
     // Unset backend reference.
     backend = nullptr;
@@ -750,28 +753,20 @@ git_odb_backend_php::~git_odb_backend_php()
 // Implementation of custom class handlers
 
 zval* odb_backend_read_property(
-    zval* object,
-    zval* member,
+    zend_object* object,
+    zend_string* member,
     int type,
     void** cache_slot,
     zval* rv)
 {
     zval* retval;
-    zval tmp_member;
     php_odb_backend_object* storage;
-
-    // Ensure deep copy of member zval.
-    if (Z_TYPE_P(member) != IS_STRING) {
-        ZVAL_STR(&tmp_member,zval_get_string(member));
-        member = &tmp_member;
-        cache_slot = nullptr;
-    }
 
     // Handle special properties of the git_odb_backend.
 
-    storage = php_zend_object<php_odb_backend_object>::get_storage(Z_OBJ_P(object));
+    storage = php_zend_object<php_odb_backend_object>::get_storage(object);
 
-    if (strcmp(Z_STRVAL_P(member),"version") == 0) {
+    if (strcmp(ZSTR_VAL(member),"version") == 0) {
         if (storage->backend != nullptr) {
             ZVAL_LONG(rv,storage->backend->version);
         }
@@ -780,8 +775,9 @@ zval* odb_backend_read_property(
         }
         retval = rv;
     }
-    else if (strcmp(Z_STRVAL_P(member),"odb") == 0) {
-        retval = zend_hash_find(Z_OBJPROP_P(object),Z_STR_P(member));
+    else if (strcmp(ZSTR_VAL(member),"odb") == 0) {
+        HashTable* ht = object->handlers->get_properties(object);
+        retval = zend_hash_find(ht,member);
 
         if (retval == nullptr) {
             retval = rv;
@@ -806,7 +802,7 @@ zval* odb_backend_read_property(
                 ZVAL_RES(retval,zr);
 
                 Z_ADDREF_P(retval);
-                zend_hash_add(Z_OBJPROP_P(object),Z_STR_P(member),retval);
+                zend_hash_add(ht,member,retval);
             }
             else {
                 ZVAL_NULL(retval);
@@ -818,36 +814,24 @@ zval* odb_backend_read_property(
         retval = std->read_property(object,member,type,cache_slot,rv);
     }
 
-    if (member == &tmp_member) {
-        zval_dtor(member);
-    }
-
     return retval;
 }
 
 zval* odb_backend_write_property(
-    zval* object,
-    zval* member,
+    zend_object* object,
+    zend_string* member,
     zval* value,
     void** cache_slot)
 {
     zval* result = value;
-    zval tmp_member;
 
-    // Ensure deep copy of member zval.
-    if (Z_TYPE_P(member) != IS_STRING) {
-        ZVAL_STR(&tmp_member,zval_get_string(member));
-        member = &tmp_member;
-        cache_slot = nullptr;
-    }
-
-    if (strcmp(Z_STRVAL_P(member),"version") == 0
-        || strcmp(Z_STRVAL_P(member),"odb") == 0)
+    if (strcmp(ZSTR_VAL(member),"version") == 0
+        || strcmp(ZSTR_VAL(member),"odb") == 0)
     {
         zend_throw_error(
             nullptr,
             "Property '%s' of GitODBBackend cannot be updated",
-            Z_STRVAL_P(member)
+            ZSTR_VAL(member)
             );
     }
     else {
@@ -855,36 +839,24 @@ zval* odb_backend_write_property(
         result = std->write_property(object,member,value,cache_slot);
     }
 
-    if (member == &tmp_member) {
-        zval_dtor(member);
-    }
-
     return result;
 }
 
 int odb_backend_has_property(
-    zval* object,
-    zval* member,
+    zend_object* object,
+    zend_string* member,
     int has_set_exists,
     void** cache_slot)
 {
     int result;
-    zval tmp_member;
     git_odb_backend* backend;
 
-    // Ensure deep copy of member zval.
-    if (Z_TYPE_P(member) != IS_STRING) {
-        ZVAL_STR(&tmp_member,zval_get_string(member));
-        member = &tmp_member;
-        cache_slot = nullptr;
-    }
+    backend = php_zend_object<php_odb_backend_object>::get_storage(object)->backend;
 
-    backend = php_zend_object<php_odb_backend_object>::get_storage(Z_OBJ_P(object))->backend;
-
-    if (strcmp(Z_STRVAL_P(member),"version") == 0) {
+    if (strcmp(ZSTR_VAL(member),"version") == 0) {
         result = (backend != nullptr);
     }
-    else if (strcmp(Z_STRVAL_P(member),"odb") == 0) {
+    else if (strcmp(ZSTR_VAL(member),"odb") == 0) {
         if (has_set_exists == 2) {
             result = (backend != nullptr);
         }
@@ -895,10 +867,6 @@ int odb_backend_has_property(
     else {
         const zend_object_handlers* std = zend_get_std_object_handlers();
         result = std->has_property(object,member,has_set_exists,cache_slot);
-    }
-
-    if (member == &tmp_member) {
-        zval_dtor(member);
     }
 
     return result;

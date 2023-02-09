@@ -31,12 +31,12 @@ static zend_object* php_create_object_handler(zend_class_entry* ce)
 }
 
 template<typename StorageType>
-static zend_object* php_clone_object_handler(zval* zv)
+static zend_object* php_clone_object_handler(zend_object* zobj)
 {
     zend_object* newObject;
     zend_object* oldObject;
 
-    oldObject = Z_OBJ_P(zv);
+    oldObject = zobj;
     newObject = php_create_object_handler<StorageType>(oldObject->ce);
 
 	zend_objects_clone_members(newObject,oldObject);

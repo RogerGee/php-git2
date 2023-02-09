@@ -21,19 +21,19 @@ zend_function_entry php_git2::odb_writepack_internal_methods[] = {
 // Custom class handlers.
 
 static zval* odb_writepack_internal_read_property(
-    zval* object,
-    zval* member,
+    zend_object* object,
+    zend_string* member,
     int type,
     void** cache_slot,
     zval* rv);
 static zval* odb_writepack_internal_write_property(
-    zval* object,
-    zval* member,
+    zend_object* object,
+    zend_string* member,
     zval* value,
     void** cache_slot);
 static int odb_writepack_internal_has_property(
-    zval* object,
-    zval* member,
+    zend_object* object,
+    zend_string* member,
     int has_set_exists,
     void** cache_slot);
 
@@ -117,32 +117,24 @@ php_odb_writepack_internal_object::~php_odb_writepack_internal_object()
 // Implementation of custom class handlers.
 
 zval* odb_writepack_internal_read_property(
-    zval* object,
-    zval* member,
+    zend_object* object,
+    zend_string* member,
     int type,
     void** cache_slot,
     zval* rv)
 {
     zval* retval = rv;
-    zval tmp_member;
     php_odb_writepack_internal_object* storage;
-
-    // Ensure deep copy of member zval.
-    if (Z_TYPE_P(member) != IS_STRING) {
-        ZVAL_STR(&tmp_member,zval_get_string(member));
-        member = &tmp_member;
-        cache_slot = nullptr;
-    }
 
     // Handle special properties of the git_odb_writepack.
 
     using zend_object_t = php_zend_object<php_odb_writepack_internal_object>;
-    storage = zend_object_t::get_storage(Z_OBJ_P(object));
+    storage = zend_object_t::get_storage(object);
 
-    if (strcmp(Z_STRVAL_P(member),"progress") == 0) {
+    if (strcmp(ZSTR_VAL(member),"progress") == 0) {
         php_git2::convert_transfer_progress(retval,&storage->prog);
     }
-    else if (strcmp(Z_STRVAL_P(member),"backend") == 0
+    else if (strcmp(ZSTR_VAL(member),"backend") == 0
         && Z_TYPE(storage->backend) != IS_UNDEF)
     {
         ZVAL_COPY_VALUE(retval,&storage->backend);
@@ -153,34 +145,22 @@ zval* odb_writepack_internal_read_property(
         retval = (*handler)(object,member,type,cache_slot,rv);
     }
 
-    if (member == &tmp_member) {
-        zval_dtor(member);
-    }
-
     return retval;
 }
 
 zval* odb_writepack_internal_write_property(
-    zval* object,
-    zval* member,
+    zend_object* object,
+    zend_string* member,
     zval* value,
     void** cache_slot)
 {
     zval* result = value;
-    zval tmp_member;
 
-    // Ensure deep copy of member zval.
-    if (Z_TYPE_P(member) != IS_STRING) {
-        ZVAL_STR(&tmp_member,zval_get_string(member));
-        member = &tmp_member;
-        cache_slot = nullptr;
-    }
-
-    if (strcmp(Z_STRVAL_P(member),"progress") == 0) {
+    if (strcmp(ZSTR_VAL(member),"progress") == 0) {
         zend_throw_error(
             nullptr,
             "Property '%s' of GitODBWritepack_Internal cannot be updated",
-            Z_STRVAL_P(member));
+            ZSTR_VAL(member));
     }
     else {
         // Invoke base class handler.
@@ -188,40 +168,24 @@ zval* odb_writepack_internal_write_property(
         result = (*handler)(object,member,value,cache_slot);
     }
 
-    if (member == &tmp_member) {
-        zval_dtor(member);
-    }
-
     return result;
 }
 
 int odb_writepack_internal_has_property(
-    zval* object,
-    zval* member,
+    zend_object* object,
+    zend_string* member,
     int has_set_exists,
     void** cache_slot)
 {
     int result;
-    zval tmp_member;
 
-    // Ensure deep copy of member zval.
-    if (Z_TYPE_P(member) != IS_STRING) {
-        ZVAL_STR(&tmp_member,zval_get_string(member));
-        member = &tmp_member;
-        cache_slot = nullptr;
-    }
-
-    if (strcmp(Z_STRVAL_P(member),"progress") == 0) {
+    if (strcmp(ZSTR_VAL(member),"progress") == 0) {
         result = true;
     }
     else {
         // Invoke base class handler.
         auto handler = php_zend_object<php_odb_writepack_object>::handlers.has_property;
         result = (*handler)(object,member,has_set_exists,cache_slot);
-    }
-
-    if (member == &tmp_member) {
-        zval_dtor(member);
     }
 
     return result;

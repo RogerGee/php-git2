@@ -12,19 +12,22 @@ using namespace php_git2;
 // string GitODBBackend_Internal::read(&$type,$oid);
 static PHP_METHOD(GitODBBackend_Internal,read);
 ZEND_BEGIN_ARG_INFO_EX(GitODBBackend_Internal_read_arginfo,0,0,2)
-    ZEND_ARG_PASS_INFO(1)
+    ZEND_ARG_INFO(1,type)
+    ZEND_ARG_INFO(0,oid)
 ZEND_END_ARG_INFO()
 
 static PHP_METHOD(GitODBBackend_Internal,read_prefix);
 ZEND_BEGIN_ARG_INFO_EX(GitODBBackend_Internal_read_prefix_arginfo,0,0,3)
-    ZEND_ARG_PASS_INFO(1)
-    ZEND_ARG_PASS_INFO(1)
+    ZEND_ARG_INFO(1,full_oid)
+    ZEND_ARG_INFO(1,type)
+    ZEND_ARG_INFO(0,abbrev_oid)
 ZEND_END_ARG_INFO()
 
 static PHP_METHOD(GitODBBackend_Internal,read_header);
 ZEND_BEGIN_ARG_INFO_EX(GitODBBackend_Internal_read_header_arginfo,0,0,3)
-    ZEND_ARG_PASS_INFO(1)
-    ZEND_ARG_PASS_INFO(1)
+    ZEND_ARG_INFO(1,size)
+    ZEND_ARG_INFO(1,type)
+    ZEND_ARG_INFO(0,oid)
 ZEND_END_ARG_INFO()
 
 static PHP_METHOD(GitODBBackend_Internal,write);
@@ -34,7 +37,8 @@ static PHP_METHOD(GitODBBackend_Internal,exists);
 
 static PHP_METHOD(GitODBBackend_Internal,exists_prefix);
 ZEND_BEGIN_ARG_INFO_EX(GitODBBackend_Internal_exists_prefix_arginfo,0,0,2)
-    ZEND_ARG_PASS_INFO(1)
+    ZEND_ARG_INFO(1,full_oid)
+    ZEND_ARG_INFO(0,prefix)
 ZEND_END_ARG_INFO()
 
 static PHP_METHOD(GitODBBackend_Internal,refresh);
