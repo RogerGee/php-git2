@@ -137,10 +137,10 @@ namespace php_git2
         void ret(zval* return_value) const
         {
             if (Z_TYPE(value) == IS_TRUE) {
-                RETURN_TRUE
+                RETURN_TRUE;
             }
 
-            RETURN_FALSE
+            RETURN_FALSE;
         }
 
     private:
@@ -446,10 +446,10 @@ namespace php_git2
         void ret(zval* return_value)
         {
             if (get_value()) {
-                RETURN_TRUE
+                RETURN_TRUE;
             }
 
-            RETURN_FALSE
+            RETURN_FALSE;
         }
 
     protected:
