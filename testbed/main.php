@@ -3,7 +3,7 @@
 use PHPUnit\TextUI\Command as PHPUnitCommand;
 
 require_once('vendor/autoload.php');
-define('PHPGIT2_BRANCH_VERSION',7);
+define('PHPGIT2_BRANCH_VERSION',8);
 
 function run_php_unit(array $userArgs) : int {
     $hasGit2 = extension_loaded('git2');
