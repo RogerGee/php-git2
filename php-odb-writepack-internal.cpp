@@ -196,6 +196,7 @@ int odb_writepack_internal_has_property(
 PHP_METHOD(GitODBWritepack_Internal,append)
 {
     php_bailer bailer;
+    zval* zstats;
     int result;
     char* buf;
     size_t amt;
@@ -205,7 +206,7 @@ PHP_METHOD(GitODBWritepack_Internal,append)
 
     assert(object->writepack != nullptr);
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS(),"s",&buf,&amt) != SUCCESS) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS(),"a/s",&zstats,&buf,&amt) != SUCCESS) {
         return;
     }
 
@@ -214,6 +215,8 @@ PHP_METHOD(GitODBWritepack_Internal,append)
         if (result < 0) {
             php_git2::git_error(result);
         }
+
+        php_git2::convert_transfer_progress(zstats,&object->prog);
 
     } catch (php_git2_exception_base& ex) {
         php_bailout_context ctx(bailer);
@@ -228,17 +231,23 @@ PHP_METHOD(GitODBWritepack_Internal,commit)
 {
     php_bailer bailer;
     int result;
+    zval* zstats;
     php_odb_writepack_internal_object* object;
 
     object = php_zend_object<php_odb_writepack_internal_object>::get_storage(getThis());
-
     assert(object->writepack != nullptr);
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS(),"a/",&zstats) != SUCCESS) {
+        return;
+    }
 
     try {
         result = object->writepack->commit(object->writepack,&object->prog);
         if (result < 0) {
             php_git2::git_error(result);
         }
+
+        php_git2::convert_transfer_progress(zstats,&object->prog);
 
     } catch (php_git2_exception_base& ex) {
         php_bailout_context ctx(bailer);
