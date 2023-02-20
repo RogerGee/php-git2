@@ -5,6 +5,7 @@
  */
 
 #include "php-object.h"
+#include "stubs/GitODBWritepack_arginfo.h"
 using namespace php_git2;
 
 // Class method entries
@@ -13,8 +14,18 @@ static PHP_METHOD(GitODBWritepack_Internal,append);
 static PHP_METHOD(GitODBWritepack_Internal,commit);
 
 zend_function_entry php_git2::odb_writepack_internal_methods[] = {
-    PHP_ME(GitODBWritepack_Internal,append,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitODBWritepack_Internal,commit,NULL,ZEND_ACC_PUBLIC)
+    PHP_ME(
+        GitODBWritepack_Internal,
+        append,
+        arginfo_class_GitODBWritepack_append,
+        ZEND_ACC_PUBLIC
+        )
+    PHP_ME(
+        GitODBWritepack_Internal,
+        commit,
+        arginfo_class_GitODBWritepack_commit,
+        ZEND_ACC_PUBLIC
+        )
     PHP_FE_END
 };
 

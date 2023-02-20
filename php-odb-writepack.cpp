@@ -8,6 +8,7 @@
  */
 
 #include "php-object.h"
+#include "stubs/GitODBWritepack_arginfo.h"
 using namespace php_git2;
 
 // Custom class handlers
@@ -32,8 +33,8 @@ static int odb_writepack_has_property(
 // Class method entries
 
 zend_function_entry php_git2::odb_writepack_methods[] = {
-    PHP_ABSTRACT_ME(GitODBWritepack,append,NULL)
-    PHP_ABSTRACT_ME(GitODBWritepack,commit,NULL)
+    PHP_ABSTRACT_ME(GitODBWritepack,append,arginfo_class_GitODBWritepack_append)
+    PHP_ABSTRACT_ME(GitODBWritepack,commit,arginfo_class_GitODBWritepack_commit)
     PHP_FE_END
 };
 
