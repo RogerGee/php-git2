@@ -5,6 +5,7 @@
  */
 
 #include "php-object.h"
+#include "stubs/GitRefDBBackend_arginfo.h"
 #include <cstring>
 extern "C" {
 #include <git2/sys/refs.h>
@@ -219,33 +220,97 @@ static int refdb_backend_has_property(
 // implementation.
 
 static PHP_EMPTY_METHOD(GitRefDBBackend,iterator_new);
-
 static PHP_EMPTY_METHOD(GitRefDBBackend,iterator_next);
-ZEND_BEGIN_ARG_INFO_EX(GitRefDBBackend_iterator_next_arginfo,0,0,1)
-    ZEND_ARG_INFO(1,name)
-ZEND_END_ARG_INFO()
-
 static PHP_EMPTY_METHOD(GitRefDBBackend,compress);
 static PHP_EMPTY_METHOD(GitRefDBBackend,lock);
 static PHP_EMPTY_METHOD(GitRefDBBackend,unlock);
 
 zend_function_entry php_git2::refdb_backend_methods[] = {
-    PHP_ABSTRACT_ME(GitRefDBBackend,exists,NULL)
-    PHP_ABSTRACT_ME(GitRefDBBackend,lookup,NULL)
-    PHP_ME(GitRefDBBackend,iterator_new,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitRefDBBackend,iterator_next,GitRefDBBackend_iterator_next_arginfo,ZEND_ACC_PUBLIC)
-    PHP_ABSTRACT_ME(GitRefDBBackend,write,NULL)
-    PHP_ABSTRACT_ME(GitRefDBBackend,rename,NULL)
-    PHP_ABSTRACT_ME(GitRefDBBackend,del,NULL)
-    PHP_ME(GitRefDBBackend,compress,NULL,ZEND_ACC_PUBLIC)
-    PHP_ABSTRACT_ME(GitRefDBBackend,has_log,NULL)
-    PHP_ABSTRACT_ME(GitRefDBBackend,ensure_log,NULL)
-    PHP_ABSTRACT_ME(GitRefDBBackend,reflog_read,NULL)
-    PHP_ABSTRACT_ME(GitRefDBBackend,reflog_write,NULL)
-    PHP_ABSTRACT_ME(GitRefDBBackend,reflog_rename,NULL)
-    PHP_ABSTRACT_ME(GitRefDBBackend,reflog_delete,NULL)
-    PHP_ME(GitRefDBBackend,lock,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitRefDBBackend,unlock,NULL,ZEND_ACC_PUBLIC)
+    PHP_ABSTRACT_ME(
+        GitRefDBBackend,
+        exists,
+        arginfo_class_GitRefDBBackend_exists
+        )
+    PHP_ABSTRACT_ME(
+        GitRefDBBackend,
+        lookup,
+        arginfo_class_GitRefDBBackend_lookup
+        )
+    PHP_ME(
+        GitRefDBBackend,
+        iterator_new,
+        arginfo_class_GitRefDBBackend_iterator_new,
+        ZEND_ACC_PUBLIC
+        )
+    PHP_ME(
+        GitRefDBBackend,
+        iterator_next,
+        arginfo_class_GitRefDBBackend_iterator_next,
+        ZEND_ACC_PUBLIC
+        )
+    PHP_ABSTRACT_ME(
+        GitRefDBBackend,
+        write,
+        arginfo_class_GitRefDBBackend_write
+        )
+    PHP_ABSTRACT_ME(
+        GitRefDBBackend,
+        rename,
+        arginfo_class_GitRefDBBackend_rename
+        )
+    PHP_ABSTRACT_ME(
+        GitRefDBBackend,
+        del,
+        arginfo_class_GitRefDBBackend_del
+        )
+    PHP_ME(
+        GitRefDBBackend,
+        compress,
+        arginfo_class_GitRefDBBackend_compress,
+        ZEND_ACC_PUBLIC
+        )
+    PHP_ABSTRACT_ME(
+        GitRefDBBackend,
+        has_log,
+        arginfo_class_GitRefDBBackend_has_log
+        )
+    PHP_ABSTRACT_ME(
+        GitRefDBBackend,
+        ensure_log,
+        arginfo_class_GitRefDBBackend_ensure_log
+        )
+    PHP_ABSTRACT_ME(
+        GitRefDBBackend,
+        reflog_read,
+        arginfo_class_GitRefDBBackend_reflog_read
+        )
+    PHP_ABSTRACT_ME(
+        GitRefDBBackend,
+        reflog_write,
+        arginfo_class_GitRefDBBackend_reflog_write
+        )
+    PHP_ABSTRACT_ME(
+        GitRefDBBackend,
+        reflog_rename,
+        arginfo_class_GitRefDBBackend_reflog_delete
+        )
+    PHP_ABSTRACT_ME(
+        GitRefDBBackend,
+        reflog_delete,
+        arginfo_class_GitRefDBBackend_reflog_delete
+        )
+    PHP_ME(
+        GitRefDBBackend,
+        lock,
+        arginfo_class_GitRefDBBackend_lock,
+        ZEND_ACC_PUBLIC
+        )
+    PHP_ME(
+        GitRefDBBackend,
+        unlock,
+        arginfo_class_GitRefDBBackend_unlock,
+        ZEND_ACC_PUBLIC
+        )
     PHP_FE_END
 };
 
