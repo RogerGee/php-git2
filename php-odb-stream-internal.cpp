@@ -5,6 +5,7 @@
  */
 
 #include "php-object.h"
+#include "stubs/GitODBStream_arginfo.h"
 using namespace php_git2;
 
 // Class entry
@@ -14,9 +15,21 @@ static PHP_METHOD(GitODBStream_Internal,write);
 static PHP_METHOD(GitODBStream_Internal,finalize_write);
 
 zend_function_entry php_git2::odb_stream_internal_methods[] = {
-    PHP_ME(GitODBStream_Internal,read,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitODBStream_Internal,write,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitODBStream_Internal,finalize_write,NULL,ZEND_ACC_PUBLIC)
+    PHP_ME(
+        GitODBStream_Internal,
+        read,
+        arginfo_class_GitODBStream_read,
+        ZEND_ACC_PUBLIC)
+    PHP_ME(
+        GitODBStream_Internal,
+        write,
+        arginfo_class_GitODBStream_write,
+        ZEND_ACC_PUBLIC)
+    PHP_ME(
+        GitODBStream_Internal,
+        finalize_write,
+        arginfo_class_GitODBStream_finalize_write,
+        ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 

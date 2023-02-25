@@ -46,6 +46,6 @@ abstract class GitRefDBBackend {
     public function unlock(mixed $payload,bool $success,bool $update_reflog,$ref,array $sig,string $message) : void;
 }
 
-class GitRefDBBackend_Internal extends GitRefDBBackend {
+final class GitRefDBBackend_Internal extends GitRefDBBackend {
 
 }

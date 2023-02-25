@@ -5,6 +5,7 @@
  */
 
 #include "php-object.h"
+#include "stubs/GitODBStream_arginfo.h"
 using namespace php_git2;
 
 // Custom object handlers
@@ -33,9 +34,21 @@ static PHP_EMPTY_METHOD(GitODBStream,write);
 static PHP_EMPTY_METHOD(GitODBStream,finalize_write);
 
 zend_function_entry php_git2::odb_stream_methods[] = {
-    PHP_ME(GitODBStream,read,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitODBStream,write,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitODBStream,finalize_write,NULL,ZEND_ACC_PUBLIC)
+    PHP_ME(
+        GitODBStream,
+        read,
+        arginfo_class_GitODBStream_read,
+        ZEND_ACC_PUBLIC)
+    PHP_ME(
+        GitODBStream,
+        write,
+        arginfo_class_GitODBStream_write,
+        ZEND_ACC_PUBLIC)
+    PHP_ME(
+        GitODBStream,
+        finalize_write,
+        arginfo_class_GitODBStream_finalize_write,
+        ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 

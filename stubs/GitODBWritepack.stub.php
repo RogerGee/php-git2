@@ -6,6 +6,6 @@ abstract class GitODBWritepack {
     public function commit(array &$stats) : void;
 }
 
-abstract class GitODBWritepack_Internal extends GitODBWritepack {
+final class GitODBWritepack_Internal extends GitODBWritepack {
 
 }

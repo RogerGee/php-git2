@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: 388ba04c5998177c1b3b578ebc51b52fcadcca3f */
+ * Stub hash: 952e423faf4195e5a1b18360cf2a3742df1f6e81 */
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_class_GitODBWritepack_append, 0, 2, IS_VOID, 0)
 	ZEND_ARG_TYPE_INFO(0, data, IS_STRING, 0)

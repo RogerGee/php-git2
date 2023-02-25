@@ -24,3 +24,7 @@ abstract class GitODBBackend {
     /** @param resource $odb */
     public function writepack($odb,callable $callback,mixed $payload = null) : \GitODBWritepack;
 }
+
+final class GitODBBackend_Internal extends GitODBBackend {
+
+}
