@@ -124,7 +124,7 @@ PHP_METHOD(GitODBStream_Internal,read)
 
     // Call underlying function.
     try {
-        buffer = (char*)emalloc(bufsz);
+        buffer = reinterpret_cast<char*>(emalloc(static_cast<size_t>(bufsz)));
         retval = object->stream->read(object->stream,buffer,bufsz);
         if (retval < 0) {
             efree(buffer);
