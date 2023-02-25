@@ -3019,7 +3019,7 @@ abstract class GitConfigBackend:
 
         void lock()
 
-        void unlock(int success)
+        void unlock(bool $success)
 
 abstract class GitRefDBBackend:
 

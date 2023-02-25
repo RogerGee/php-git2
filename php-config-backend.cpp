@@ -8,6 +8,7 @@
  */
 
 #include "php-object.h"
+#include "stubs/GitConfigBackend_arginfo.h"
 #include <new>
 using namespace php_git2;
 
@@ -197,17 +198,50 @@ static int custom_backend_iterator_next(git_config_entry** out,custom_backend_it
 // Class method entries
 
 zend_function_entry php_git2::config_backend_methods[] = {
-    PHP_ABSTRACT_ME(GitConfigBackend,open,NULL)
-    PHP_ABSTRACT_ME(GitConfigBackend,get,NULL)
-    PHP_ABSTRACT_ME(GitConfigBackend,set,NULL)
-    PHP_ABSTRACT_ME(GitConfigBackend,set_multivar,NULL)
-    PHP_ABSTRACT_ME(GitConfigBackend,del,NULL)
-    PHP_ABSTRACT_ME(GitConfigBackend,del_multivar,NULL)
-    PHP_ABSTRACT_ME(GitConfigBackend,iterator_new,NULL)
-    PHP_ABSTRACT_ME(GitConfigBackend,iterator_next,NULL)
-    PHP_ABSTRACT_ME(GitConfigBackend,snapshot,NULL)
-    PHP_ABSTRACT_ME(GitConfigBackend,lock,NULL)
-    PHP_ABSTRACT_ME(GitConfigBackend,unlock,NULL)
+    PHP_ABSTRACT_ME(
+        GitConfigBackend,
+        open,
+        arginfo_class_GitConfigBackend_open)
+    PHP_ABSTRACT_ME(
+        GitConfigBackend,
+        get,
+        arginfo_class_GitConfigBackend_get)
+    PHP_ABSTRACT_ME(
+        GitConfigBackend,
+        set,
+        arginfo_class_GitConfigBackend_set)
+    PHP_ABSTRACT_ME(
+        GitConfigBackend,
+        set_multivar,
+        arginfo_class_GitConfigBackend_set_multivar)
+    PHP_ABSTRACT_ME(
+        GitConfigBackend,
+        del,
+        arginfo_class_GitConfigBackend_del)
+    PHP_ABSTRACT_ME(
+        GitConfigBackend,
+        del_multivar,
+        arginfo_class_GitConfigBackend_del_multivar)
+    PHP_ABSTRACT_ME(
+        GitConfigBackend,
+        iterator_new,
+        arginfo_class_GitConfigBackend_iterator_new)
+    PHP_ABSTRACT_ME(
+        GitConfigBackend,
+        iterator_next,
+        arginfo_class_GitConfigBackend_iterator_next)
+    PHP_ABSTRACT_ME(
+        GitConfigBackend,
+        snapshot,
+        arginfo_class_GitConfigBackend_snapshot)
+    PHP_ABSTRACT_ME(
+        GitConfigBackend,
+        lock,
+        arginfo_class_GitConfigBackend_lock)
+    PHP_ABSTRACT_ME(
+        GitConfigBackend,
+        unlock,
+        arginfo_class_GitConfigBackend_unlock)
     PHP_FE_END
 };
 
