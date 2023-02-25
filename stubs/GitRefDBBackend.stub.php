@@ -3,11 +3,11 @@
 abstract class GitRefDBBackend {
     public function exists(string $ref_name) : bool;
 
-    public function lookup(string $ref_name) : string;
+    public function lookup(string $ref_name) : mixed;
 
     public function iterator_new(string $glob) : void;
 
-    public function iterator_next(string &$name) : string;
+    public function iterator_next(string &$name) : mixed;
 
     /**
      * @param resource $ref

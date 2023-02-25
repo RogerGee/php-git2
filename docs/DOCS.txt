@@ -3031,18 +3031,28 @@ abstract class GitRefDBBackend:
 
         bool exists(string $ref_name)
 
-        string lookup(string $ref_name)
+        mixed lookup(string $ref_name)
 
-            Method should return string OID or symbolic name.
+            Returns either:
+              a) string value that is interpreted as either a reference OID or
+                 symbolic name
+              b) resource value of type 'git_reference'
 
         void iterator_new(string $glob)
 
-            $glob may be NULL
+            Parameter $glob may be NULL
 
-        string iterator_next(string &$name)
+        mixed iterator_next(string &$name)
 
-            Method should return string OID or symbolic name and assign
-            reference name to $name.
+            Returns either:
+              a) string value that is interpreted as either a reference OID or
+                 symbolic name
+              b) resource value of type 'git_reference'
+
+            Method should assign the reference name to the $name parameter in
+            the case where a string reference OID or symbolic name is
+            returned. If a reference resource is returned, the $name parameter
+            is ignored.
 
             Method should return false when iteration is over.
 
@@ -3096,12 +3106,7 @@ final class GitRefDBBackend_Internal extends GitRefDBBackend:
 
     This class cannot be instantiated directly.
 
-    NOTE: The GitRefDBBackend_Internal does not provide access to the lock()
-    and unlock() methods. They will generate a fatal error if called.
+    This class does not provide access to the lock() and unlock() methods. They
+    will generate a fatal error if called.
 
-    NOTE: The following method signatures listed here represent overloads in
-    this derived class.
-
-    resource lookup(string $refname)
-
-        Returns git_reference resource
+    The lookup() method will always return a resource value.

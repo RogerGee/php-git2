@@ -144,14 +144,41 @@ static int custom_backend_iterator_next(git_reference** ref,custom_backend_itera
             result = GIT_ITEROVER;
         }
         else {
-            // Deep copy the name into a zval that is kept alive by the iterator.
-            zval_ptr_dtor(&iter->zlast);
-            ZVAL_COPY(&iter->zlast,Z_REFVAL_P(params[0]));
-            convert_to_string(&iter->zlast);
+            if (Z_TYPE_P(retval) == IS_RESOURCE) {
+                // Verify that the returned resource is a git_reference.
+                void* result = zend_fetch_resource(
+                    Z_RES_P(retval),
+                    php_git_reference::resource_name(),
+                    php_git_reference::resource_le()
+                    );
+                if (result == nullptr) {
+                    throw php_git2_propagated_exception();
+                }
 
-            // Return values.
-            convert_to_string(retval);
-            result = reference_from_string(ref,retval,Z_STRVAL(iter->zlast));
+                // Extract reference, duplicate and return.
+                php_git_reference* extract = reinterpret_cast<php_git_reference*>(
+                    Z_RES_VAL_P(retval)
+                    );
+                git_reference_dup(ref,extract->get_handle());
+            }
+            else {
+                // If a non-resource is returned, then we build the result
+                // git_reference from two distinct values:
+                //  1) a string OID or symbolic name (returned from method call)
+                //  2) a string reference name (returned via the first method
+                //     parameter)
+
+                // Deep copy the reference name from the method out parameter
+                // into a zval that is kept alive by the iterator.
+                zval_ptr_dtor(&iter->zlast);
+                ZVAL_COPY(&iter->zlast,Z_REFVAL_P(params[0]));
+                convert_to_string(&iter->zlast);
+
+                // Convert return value to string (in case it needs a cast) and
+                // build the git_reference result value.
+                convert_to_string(retval);
+                result = reference_from_string(ref,retval,Z_STRVAL(iter->zlast));
+            }
         }
     }
 
@@ -469,8 +496,29 @@ void php_refdb_backend_object::assign_owner(php_git_refdb* newOwner)
 
         // Return reference from method call return value.
 
-        convert_to_string(retval);
-        result = reference_from_string(out,retval,ref_name);
+        if (Z_TYPE_P(retval) == IS_RESOURCE) {
+            // Verify that the returned resource is a git_reference.
+            void* result = zend_fetch_resource(
+                Z_RES_P(retval),
+                php_git_reference::resource_name(),
+                php_git_reference::resource_le()
+                );
+            if (result == nullptr) {
+                throw php_git2_propagated_exception();
+            }
+
+            // Extract reference, duplicate and return.
+            php_git_reference* ref = reinterpret_cast<php_git_reference*>(
+                Z_RES_VAL_P(retval)
+                );
+            git_reference_dup(out,ref->get_handle());
+        }
+        else {
+            // Otherwise, interpret the return value as a string and convert to
+            // reference.
+            convert_to_string(retval);
+            result = reference_from_string(out,retval,ref_name);
+        }
     }
 
     return result;

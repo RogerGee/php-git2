@@ -1,11 +1,11 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: 7926bf51aecd4d309ef17773503d6a3c019b2ab6 */
+ * Stub hash: 53f48b965244c89349e19fa0afc392c0dc227264 */
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_class_GitRefDBBackend_exists, 0, 1, _IS_BOOL, 0)
 	ZEND_ARG_TYPE_INFO(0, ref_name, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_class_GitRefDBBackend_lookup, 0, 1, IS_STRING, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_class_GitRefDBBackend_lookup, 0, 1, IS_MIXED, 0)
 	ZEND_ARG_TYPE_INFO(0, ref_name, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
@@ -13,7 +13,7 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_class_GitRefDBBackend_iterator_n
 	ZEND_ARG_TYPE_INFO(0, glob, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_class_GitRefDBBackend_iterator_next, 0, 1, IS_STRING, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_class_GitRefDBBackend_iterator_next, 0, 1, IS_MIXED, 0)
 	ZEND_ARG_TYPE_INFO(1, name, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
@@ -66,9 +66,7 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_class_GitRefDBBackend_reflog_del
 	ZEND_ARG_TYPE_INFO(0, name, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_class_GitRefDBBackend_lock, 0, 1, IS_MIXED, 0)
-	ZEND_ARG_TYPE_INFO(0, ref_name, IS_STRING, 0)
-ZEND_END_ARG_INFO()
+#define arginfo_class_GitRefDBBackend_lock arginfo_class_GitRefDBBackend_lookup
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_class_GitRefDBBackend_unlock, 0, 6, IS_VOID, 0)
 	ZEND_ARG_TYPE_INFO(0, payload, IS_MIXED, 0)
