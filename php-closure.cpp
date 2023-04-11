@@ -9,7 +9,7 @@ using namespace php_git2;
 
 // Custom class handlers
 
-static int closure_get_closure(
+static ZEND_RESULT_CODE closure_get_closure(
     zend_object* obj,
     zend_class_entry** ce_ptr,
     zend_function** fptr_ptr,
@@ -61,7 +61,7 @@ php_closure_object::~php_closure_object()
 
 // Implementation of custom class handlers
 
-int closure_get_closure(
+ZEND_RESULT_CODE closure_get_closure(
     zend_object* obj,
     zend_class_entry** ce_ptr,
     zend_function** fptr_ptr,

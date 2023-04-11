@@ -5,7 +5,8 @@
 *.la
 *.lo
 *.loT
-.deps
+*.deps
+*.dep
 Makefile
 Makefile.fragments
 Makefile.global
@@ -35,3 +36,6 @@ run-tests.php
 
 .libs/
 __pycache__/
+.idea
+
+*~
