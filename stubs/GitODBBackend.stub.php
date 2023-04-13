@@ -1,11 +1,11 @@
 <?php
 
 abstract class GitODBBackend {
-    public function read(int &$type,string $oid) : string;
+    public function read(int &$type,string $oid) : string|bool;
 
-    public function read_prefix(string &$full_oid,int &$type,string $abbrev_oid) : string;
+    public function read_prefix(string &$full_oid,int &$type,string $abbrev_oid) : string|bool;
 
-    public function read_header(int &$size,int &$type,string $oid) : void;
+    public function read_header(int &$size,int &$type,string $oid) : bool;
 
     public function write(string $oid,string $data,int $type) : void;
 

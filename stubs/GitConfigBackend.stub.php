@@ -18,7 +18,7 @@ abstract class GitConfigBackend {
 
     public function iterator_new() : mixed;
 
-    public function iterator_next(mixed $context) : array;
+    public function iterator_next(mixed $context) : mixed;
 
     public function snapshot() : \GitConfigBackend;
 

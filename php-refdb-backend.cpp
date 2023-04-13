@@ -319,7 +319,7 @@ zend_function_entry php_git2::refdb_backend_methods[] = {
     PHP_ABSTRACT_ME(
         GitRefDBBackend,
         reflog_rename,
-        arginfo_class_GitRefDBBackend_reflog_delete
+        arginfo_class_GitRefDBBackend_reflog_rename
         )
     PHP_ABSTRACT_ME(
         GitRefDBBackend,

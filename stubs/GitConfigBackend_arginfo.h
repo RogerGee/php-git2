@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: cbde75694a9cc6672ba0ebd3c9e44914e534d578 */
+ * Stub hash: ef5aa2ec0b1a20e6b3125c45b69354f9c611e993 */
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_class_GitConfigBackend_open, 0, 2, IS_VOID, 0)
 	ZEND_ARG_TYPE_INFO(0, level, IS_LONG, 0)
@@ -33,7 +33,7 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_class_GitConfigBackend_iterator_new, 0, 0, IS_MIXED, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_class_GitConfigBackend_iterator_next, 0, 1, IS_ARRAY, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_class_GitConfigBackend_iterator_next, 0, 1, IS_MIXED, 0)
 	ZEND_ARG_TYPE_INFO(0, context, IS_MIXED, 0)
 ZEND_END_ARG_INFO()
 

@@ -16,7 +16,7 @@ class PHPSerializedODBBackend extends \GitODBBackend {
      * @return string
      *  The object contents.
      */
-    public function read(&$type,$oid) {
+    public function read(&$type,string $oid) : string {
         if (isset($this->storage[$oid])) {
             $record = $this->storage[$oid];
             $type = $record['t'];
@@ -39,7 +39,7 @@ class PHPSerializedODBBackend extends \GitODBBackend {
      * @return string
      *  The object contents.
      */
-    public function read_prefix(&$fullOid,&$type,$abbrevOid) {
+    public function read_prefix(&$fullOid,&$type,string $abbrevOid) : string {
         $i = 0;
         $keys = array_keys($this->storage);
         while ($i < count($keys)) {
@@ -64,14 +64,19 @@ class PHPSerializedODBBackend extends \GitODBBackend {
      *  Returns the object type.
      * @param string $oid
      *  The object ID.
+     *
+     * @return bool
+     *  Returns whether the header was found or not.
      */
-    public function read_header(&$size,&$type,$oid) {
+    public function read_header(&$size,&$type,string $oid) : bool {
         if (!isset($this->storage[$oid])) {
             return false;
         }
 
         $size = strlen($this->storage[$oid]['d']);
         $type = strlen($this->storage[$oid]['t']);
+
+        return true;
     }
 
     /**
@@ -84,7 +89,7 @@ class PHPSerializedODBBackend extends \GitODBBackend {
      * @param int $type
      *  The type of the objects.
      */
-    public function write($oid,$data,$type) {
+    public function write(string $oid,string $data,int $type) : void {
         $this->storage[$oid] = [
             't' => $type,
             'd' => $data,
@@ -99,7 +104,7 @@ class PHPSerializedODBBackend extends \GitODBBackend {
      *
      * @return bool
      */
-    public function exists($oid) {
+    public function exists(string $oid) : bool {
         return isset($this->storage[$oid]);
     }
 
@@ -113,7 +118,7 @@ class PHPSerializedODBBackend extends \GitODBBackend {
      *
      * @return bool
      */
-    public function exists_prefix(&$fullOid,$prefix) {
+    public function exists_prefix(&$fullOid,string $prefix) : bool {
         $i = 0;
         $keys = array_keys($this->storage);
         while ($i < count($keys)) {
@@ -136,7 +141,7 @@ class PHPSerializedODBBackend extends \GitODBBackend {
      * @param mixed $payload
      *  The payload to pass through.
      */
-    public function for_each($callback,$payload) {
+    public function for_each(callable $callback,mixed $payload = null) : void {
         foreach (array_keys($this->storage) as $oid) {
             if ($callback($oid,$payload) === false) {
                 break;

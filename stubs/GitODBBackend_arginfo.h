@@ -1,18 +1,18 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: b64e84e7fa50b6421659c9aa4160e193dabf67cb */
+ * Stub hash: 299894342d76827e7d900ff9ebe3e3662afb4ac7 */
 
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_class_GitODBBackend_read, 0, 2, IS_STRING, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_class_GitODBBackend_read, 0, 2, MAY_BE_STRING|MAY_BE_BOOL)
 	ZEND_ARG_TYPE_INFO(1, type, IS_LONG, 0)
 	ZEND_ARG_TYPE_INFO(0, oid, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_class_GitODBBackend_read_prefix, 0, 3, IS_STRING, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_class_GitODBBackend_read_prefix, 0, 3, MAY_BE_STRING|MAY_BE_BOOL)
 	ZEND_ARG_TYPE_INFO(1, full_oid, IS_STRING, 0)
 	ZEND_ARG_TYPE_INFO(1, type, IS_LONG, 0)
 	ZEND_ARG_TYPE_INFO(0, abbrev_oid, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_class_GitODBBackend_read_header, 0, 3, IS_VOID, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_class_GitODBBackend_read_header, 0, 3, _IS_BOOL, 0)
 	ZEND_ARG_TYPE_INFO(1, size, IS_LONG, 0)
 	ZEND_ARG_TYPE_INFO(1, type, IS_LONG, 0)
 	ZEND_ARG_TYPE_INFO(0, oid, IS_STRING, 0)

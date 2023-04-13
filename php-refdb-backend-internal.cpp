@@ -103,7 +103,7 @@ zend_function_entry php_git2::refdb_backend_internal_methods[] = {
     PHP_ME(
         GitRefDBBackend_Internal,
         reflog_rename,
-        arginfo_class_GitRefDBBackend_reflog_delete,
+        arginfo_class_GitRefDBBackend_reflog_rename,
         ZEND_ACC_PUBLIC
         )
     PHP_ME(
