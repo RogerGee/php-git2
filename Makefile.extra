@@ -7,40 +7,173 @@
 # To use this file, add "-include Makefile.extra" at the bottom of the Makefile
 # produced by autoconf.
 
-php-git2.lo: php-git2.cpp php-git2.h config.h php-resource.h \
- php-object.h php-callback.h php-type.h php-array.h
-php-git2-fe.lo: php-git2-fe.cpp php-git2.h config.h php-function.h \
- php-type.h php-array.h php-resource.h php-callback.h php-object.h \
- php-rethandler.h repository.h reference.h object.h revwalk.h \
- packbuilder.h indexer.h odb.h commit.h blob.h tree.h signature.h \
- treebuilder.h blame.h revparse.h annotated.h branch.h config-git2.h \
- clone.h checkout.h tag.h diff.h index.h trace.h ignore.h attr.h status.h \
- cherrypick.h merge.h note.h reflog.h refdb.h patch.h describe.h \
- rebase.h stash.h remote.h refspec.h cred.h submodule.h worktree.h
-php-function.lo: php-function.cpp php-function.h php-type.h php-callback.h \
- php-git2.h php-resource.h
-php-type.lo: php-type.cpp php-type.h php-resource.h php-array.h php-git2.h
-php-callback.lo: php-callback.cpp php-callback.h php-type.h php-git2.h \
- php-resource.h php-array.h config.h
-php-object.lo: php-object.cpp php-object.h php-callback.h php-type.h \
- php-git2.h php-resource.h php-array.h config.h
-php-odb-writepack.lo: php-odb-writepack.cpp php-object.h php-callback.h \
- php-type.h php-git2.h php-resource.h php-array.h config.h
-php-odb-backend.lo: php-odb-backend.cpp php-object.h php-callback.h \
- php-type.h php-git2.h php-resource.h php-array.h config.h
-php-odb-backend-internal.lo: php-odb-backend-internal.cpp php-object.h php-callback.h \
- php-type.h php-git2.h php-resource.h php-array.h config.h
-php-odb-stream.lo: php-odb-stream.cpp php-object.h php-type.h php-git2.h \
- php-resource.h php-array.h config.h
-php-odb-stream-internal.lo: php-odb-stream-internal.cpp php-object.h php-type.h \
- php-git2.h php-resource.h php-array.h config.h
-php-writestream.lo: php-odb-stream.cpp php-object.h php-type.h php-git2.h \
- php-resource.h php-array.h config.h
-php-constants.lo: php-constants.cpp php-git2.h config.h
-php-refdb-backend.lo: php-refdb-backend.cpp php-object.h php-type.h php-git2.h \
- php-resource.h php-array.h config.h
-php-refdb-backend-internal.lo: php-refdb-backend-internal.cpp php-object.h \
- php-type.h php-git2.h php-resource.h php-array.h config.h
+php-git2.lo: php-git2.cpp \
+ php-git2.h \
+ config.h \
+ php-resource.h \
+ php-object.h \
+ php-callback.h \
+ php-type.h \
+ php-array.h
+
+php-git2-fe.lo: php-git2-fe.cpp \
+ php-git2.h \
+ config.h \
+ php-function.h \
+ php-type.h \
+ php-array.h \
+ php-resource.h \
+ php-callback.h \
+ php-object.h \
+ php-rethandler.h \
+ repository.h \
+ reference.h \
+ object.h \
+ revwalk.h \
+ packbuilder.h \
+ indexer.h \
+ odb.h \
+ commit.h \
+ blob.h \
+ tree.h \
+ signature.h \
+ treebuilder.h \
+ blame.h \
+ revparse.h \
+ annotated.h \
+ branch.h \
+ config-git2.h \
+ clone.h \
+ checkout.h \
+ tag.h \
+ diff.h \
+ index.h \
+ trace.h \
+ ignore.h \
+ attr.h \
+ status.h \
+ cherrypick.h \
+ merge.h \
+ note.h \
+ reflog.h \
+ refdb.h \
+ patch.h \
+ describe.h \
+ rebase.h \
+ stash.h \
+ remote.h \
+ refspec.h \
+ cred.h \
+ submodule.h \
+ worktree.h
+
+php-function.lo: php-function.cpp \
+ php-function.h \
+ php-type.h \
+ php-callback.h \
+ php-git2.h \
+ php-resource.h
+
+php-type.lo: php-type.cpp \
+ php-type.h \
+ php-resource.h \
+ php-array.h \
+ php-git2.h
+
+php-callback.lo: php-callback.cpp \
+ php-callback.h \
+ php-type.h \
+ php-git2.h \
+ php-resource.h \
+ php-array.h \
+ config.h
+
+php-object.lo: php-object.cpp \
+ php-object.h \
+ php-callback.h \
+ php-type.h \
+ php-git2.h \
+ php-resource.h \
+ php-array.h \
+ config.h
+
+php-odb-writepack.lo: php-odb-writepack.cpp \
+ stubs/GitODBWritepack_arginfo.h \
+ php-object.h \
+ php-callback.h \
+ php-type.h \
+ php-git2.h \
+ php-resource.h \
+ php-array.h \
+ config.h
+
+php-odb-backend.lo: php-odb-backend.cpp \
+ stubs/GitODBBackend_arginfo.h \
+ php-object.h \
+ php-callback.h \
+ php-type.h \
+ php-git2.h \
+ php-resource.h \
+ php-array.h \
+ config.h
+
+php-odb-backend-internal.lo: php-odb-backend-internal.cpp \
+ stubs/GitODBBackend_arginfo.h \
+ php-object.h \
+ php-callback.h \
+ php-type.h \
+ php-git2.h \
+ php-resource.h \
+ php-array.h \
+ config.h
+
+php-odb-stream.lo: php-odb-stream.cpp \
+ stubs/GitODBStream_arginfo.h \
+ php-object.h \
+ php-type.h \
+ php-git2.h \
+ php-resource.h \
+ php-array.h \
+ config.h
+
+php-odb-stream-internal.lo: php-odb-stream-internal.cpp \
+ stubs/GitODBStream_arginfo.h \
+ php-object.h \
+ php-type.h \
+ php-git2.h \
+ php-resource.h \
+ php-array.h \
+ config.h
+
+php-writestream.lo: php-writestream.cpp \
+ php-object.h \
+ php-type.h \
+ php-git2.h \
+ php-resource.h \
+ php-array.h \
+ config.h
+
+php-constants.lo: php-constants.cpp \
+ php-git2.h \
+ config.h
+
+php-refdb-backend.lo: php-refdb-backend.cpp \
+ stubs/GitRefDBBackend_arginfo.h \
+ php-object.h \
+ php-type.h \
+ php-git2.h \
+ php-resource.h \
+ php-array.h \
+ config.h
+
+php-refdb-backend-internal.lo: php-refdb-backend-internal.cpp \
+ stubs/GitRefDBBackend_arginfo.h \
+ php-object.h \
+ php-type.h \
+ php-git2.h \
+ php-resource.h \
+ php-array.h \
+ config.h
 
 #
 # Local Variables:
