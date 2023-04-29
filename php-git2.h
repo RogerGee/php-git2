@@ -43,8 +43,9 @@ extern "C" {
 #include <cstdio>
 #include <cstdarg>
 
-// Module globals
+#include "php-shims.h"
 
+// Module globals
 ZEND_BEGIN_MODULE_GLOBALS(git2)
   bool propagateError;
   bool requestActive;

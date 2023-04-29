@@ -9,12 +9,21 @@ using namespace php_git2;
 
 // Custom class handlers
 
+#if PHP_API_VERSION >= 20220829
+static zend_result closure_get_closure(
+    zend_object* obj,
+    zend_class_entry** ce_ptr,
+    zend_function** fptr_ptr,
+    zend_object** obj_ptr,
+    zend_bool check_only);
+#else
 static int closure_get_closure(
     zend_object* obj,
     zend_class_entry** ce_ptr,
     zend_function** fptr_ptr,
     zend_object** obj_ptr,
     zend_bool check_only);
+#endif
 
 // Class method entries
 
@@ -61,12 +70,21 @@ php_closure_object::~php_closure_object()
 
 // Implementation of custom class handlers
 
+#if PHP_API_VERSION >= 20220829
+zend_result closure_get_closure(
+    zend_object* obj,
+    zend_class_entry** ce_ptr,
+    zend_function** fptr_ptr,
+    zend_object** obj_ptr,
+    zend_bool check_only)
+#else
 int closure_get_closure(
     zend_object* obj,
     zend_class_entry** ce_ptr,
     zend_function** fptr_ptr,
     zend_object** obj_ptr,
     zend_bool check_only)
+#endif
 {
     php_closure_object* closure;
     closure = php_zend_object<php_closure_object>::get_storage(obj);
