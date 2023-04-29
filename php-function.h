@@ -8,6 +8,7 @@
 #define PHPGIT2_FUNCTION_H
 #include "php-type.h"
 #include "php-callback.h"
+#include <type_traits>
 #include <limits>
 #include <utility>
 
@@ -284,30 +285,9 @@ namespace php_git2
         RETVAL_STRING(str);
     }
 
-    template<int ReturnPos,typename... Ts>
-    inline typename std::enable_if<ReturnPos == 0,void>::type
-    php_return(zend_long retval,local_pack<Ts...>&,zval* return_value)
-    {
-        RETVAL_LONG(retval);
-    }
-
-    template<int ReturnPos,typename... Ts>
-    inline typename std::enable_if<ReturnPos == 0,void>::type
-    php_return(int retval,local_pack<Ts...>&,zval* return_value)
-    {
-        RETVAL_LONG(static_cast<zend_long>(retval));
-    }
-
-    template<int ReturnPos,typename... Ts>
-    inline typename std::enable_if<ReturnPos == 0,void>::type
-    php_return(unsigned int retval,local_pack<Ts...>&,zval* return_value)
-    {
-        RETVAL_LONG(static_cast<zend_long>(retval));
-    }
-
-    template<int ReturnPos,typename... Ts>
-    inline typename std::enable_if<ReturnPos == 0,void>::type
-    php_return(size_t retval,local_pack<Ts...>&,zval* return_value)
+    template<int ReturnPos,typename Rt,typename... Ts>
+    inline typename std::enable_if<ReturnPos == 0 && std::is_integral<Rt>::value,void>::type
+    php_return(Rt retval,local_pack<Ts...>&,zval* return_value)
     {
         RETVAL_LONG(static_cast<zend_long>(retval));
     }
