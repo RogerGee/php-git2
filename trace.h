@@ -11,7 +11,7 @@ namespace php_git2
 {
 }
 
-static constexpr auto ZIF_GIT_TRACE_SET = zif_php_git2_function<
+static constexpr auto ZIF_git_trace_set = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_trace_level_t,
@@ -25,8 +25,8 @@ static constexpr auto ZIF_GIT_TRACE_SET = zif_php_git2_function<
     php_git2::sequence<0,1>
     >;
 
-#define GIT_TRACE_FE                                    \
-    PHP_GIT2_FE(git_trace_set,ZIF_GIT_TRACE_SET,NULL)
+#define GIT_TRACE_FE                            \
+    PHP_GIT2_FE(git_trace_set)
 
 #endif
 

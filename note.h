@@ -27,7 +27,7 @@ namespace php_git2
 
 // Functions
 
-static constexpr auto ZIF_GIT_NOTE_AUTHOR = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_note_author = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         const git_signature*,
         const git_note*>::func<git_note_author>,
@@ -40,7 +40,7 @@ static constexpr auto ZIF_GIT_NOTE_AUTHOR = zif_php_git2_function_rethandler<
         >
     >;
 
-static constexpr auto ZIF_GIT_NOTE_COMMITTER = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_note_committer = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         const git_signature*,
         const git_note*>::func<git_note_committer>,
@@ -53,7 +53,7 @@ static constexpr auto ZIF_GIT_NOTE_COMMITTER = zif_php_git2_function_rethandler<
         >
     >;
 
-static constexpr auto ZIF_GIT_NOTE_CREATE = zif_php_git2_function<
+static constexpr auto ZIF_git_note_create = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_oid*,
@@ -79,7 +79,7 @@ static constexpr auto ZIF_GIT_NOTE_CREATE = zif_php_git2_function<
     php_git2::sequence<0,1,2,3,4,5,6,7>
     >;
 
-static constexpr auto ZIF_GIT_NOTE_FOREACH = zif_php_git2_function<
+static constexpr auto ZIF_git_note_foreach = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -97,13 +97,13 @@ static constexpr auto ZIF_GIT_NOTE_FOREACH = zif_php_git2_function<
     php_git2::sequence<0,1,2,3>
     >;
 
-static constexpr auto ZIF_GIT_NOTE_FREE = zif_php_git2_function_free<
+static constexpr auto ZIF_git_note_free = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_note>
         >
     >;
 
-static constexpr auto ZIF_GIT_NOTE_ID = zif_php_git2_function<
+static constexpr auto ZIF_git_note_id = zif_php_git2_function<
     php_git2::func_wrapper<
         const git_oid*,
         const git_note*>::func<git_note_id>,
@@ -113,13 +113,13 @@ static constexpr auto ZIF_GIT_NOTE_ID = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_NOTE_ITERATOR_FREE = zif_php_git2_function_free<
+static constexpr auto ZIF_git_note_iterator_free = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_note_iterator>
         >
     >;
 
-static constexpr auto ZIF_GIT_NOTE_ITERATOR_NEW = zif_php_git2_function<
+static constexpr auto ZIF_git_note_iterator_new = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_note_iterator**,
@@ -135,7 +135,7 @@ static constexpr auto ZIF_GIT_NOTE_ITERATOR_NEW = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_NOTE_MESSAGE = zif_php_git2_function<
+static constexpr auto ZIF_git_note_message = zif_php_git2_function<
     php_git2::func_wrapper<
         const char*,
         const git_note*>::func<git_note_message>,
@@ -145,7 +145,7 @@ static constexpr auto ZIF_GIT_NOTE_MESSAGE = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_NOTE_NEXT = zif_php_git2_function<
+static constexpr auto ZIF_git_note_next = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_oid*,
@@ -160,12 +160,8 @@ static constexpr auto ZIF_GIT_NOTE_NEXT = zif_php_git2_function<
     php_git2::sequence<1,2>,
     php_git2::sequence<0,1,2>
     >;
-ZEND_BEGIN_ARG_INFO_EX(git_note_next_arginfo,0,0,2)
-    ZEND_ARG_INFO(1,annotated_id)
-    ZEND_ARG_INFO(0,iterator)
-ZEND_END_ARG_INFO()
 
-static constexpr auto ZIF_GIT_NOTE_READ = zif_php_git2_function<
+static constexpr auto ZIF_git_note_read = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_note**,
@@ -183,7 +179,7 @@ static constexpr auto ZIF_GIT_NOTE_READ = zif_php_git2_function<
     php_git2::sequence<0,1,2,3>
     >;
 
-static constexpr auto ZIF_GIT_NOTE_REMOVE = zif_php_git2_function<
+static constexpr auto ZIF_git_note_remove = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -202,19 +198,19 @@ static constexpr auto ZIF_GIT_NOTE_REMOVE = zif_php_git2_function<
 
 // Function Entries
 
-#define GIT_NOTE_FE                                                     \
-    PHP_GIT2_FE(git_note_author,ZIF_GIT_NOTE_AUTHOR,NULL)               \
-    PHP_GIT2_FE(git_note_committer,ZIF_GIT_NOTE_COMMITTER,NULL)         \
-    PHP_GIT2_FE(git_note_create,ZIF_GIT_NOTE_CREATE,NULL)               \
-    PHP_GIT2_FE(git_note_foreach,ZIF_GIT_NOTE_FOREACH,NULL)             \
-    PHP_GIT2_FE(git_note_free,ZIF_GIT_NOTE_FREE,NULL)                   \
-    PHP_GIT2_FE(git_note_id,ZIF_GIT_NOTE_ID,NULL)                       \
-    PHP_GIT2_FE(git_note_iterator_free,ZIF_GIT_NOTE_ITERATOR_FREE,NULL) \
-    PHP_GIT2_FE(git_note_iterator_new,ZIF_GIT_NOTE_ITERATOR_NEW,NULL)   \
-    PHP_GIT2_FE(git_note_message,ZIF_GIT_NOTE_MESSAGE,NULL)             \
-    PHP_GIT2_FE(git_note_next,ZIF_GIT_NOTE_NEXT,git_note_next_arginfo)  \
-    PHP_GIT2_FE(git_note_read,ZIF_GIT_NOTE_READ,NULL)                   \
-    PHP_GIT2_FE(git_note_remove,ZIF_GIT_NOTE_REMOVE,NULL)
+#define GIT_NOTE_FE                             \
+    PHP_GIT2_FE(git_note_author)                \
+    PHP_GIT2_FE(git_note_committer)             \
+    PHP_GIT2_FE(git_note_create)                \
+    PHP_GIT2_FE(git_note_foreach)               \
+    PHP_GIT2_FE(git_note_free)                  \
+    PHP_GIT2_FE(git_note_id)                    \
+    PHP_GIT2_FE(git_note_iterator_free)         \
+    PHP_GIT2_FE(git_note_iterator_new)          \
+    PHP_GIT2_FE(git_note_message)               \
+    PHP_GIT2_FE(git_note_next)                  \
+    PHP_GIT2_FE(git_note_read)                  \
+    PHP_GIT2_FE(git_note_remove)
 
 #endif
 

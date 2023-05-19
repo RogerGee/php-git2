@@ -98,7 +98,7 @@ namespace php_git2
 
 } // namespace php_git2
 
-static constexpr auto ZIF_GIT_STATUS_BYINDEX = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_status_byindex = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         const git_status_entry*,
         git_status_list*,
@@ -110,10 +110,10 @@ static constexpr auto ZIF_GIT_STATUS_BYINDEX = zif_php_git2_function_rethandler<
     php_git2::php_git_status_entry_rethandler<
         php_git2::php_resource<php_git2::php_git_status_list>,
         php_git2::php_long_cast<size_t>
-        >        
+        >
     >;
 
-static constexpr auto ZIF_GIT_STATUS_FILE = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_status_file = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         unsigned int*,
@@ -125,7 +125,7 @@ static constexpr auto ZIF_GIT_STATUS_FILE = zif_php_git2_function_rethandler<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_STATUS_FOREACH = zif_php_git2_function<
+static constexpr auto ZIF_git_status_foreach = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -141,7 +141,7 @@ static constexpr auto ZIF_GIT_STATUS_FOREACH = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_STATUS_FOREACH_EXT = zif_php_git2_function<
+static constexpr auto ZIF_git_status_foreach_ext = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -159,7 +159,7 @@ static constexpr auto ZIF_GIT_STATUS_FOREACH_EXT = zif_php_git2_function<
     php_git2::sequence<0,1,2,3>
     >;
 
-static constexpr auto ZIF_GIT_STATUS_LIST_ENTRYCOUNT = zif_php_git2_function<
+static constexpr auto ZIF_git_status_list_entrycount = zif_php_git2_function<
     php_git2::func_wrapper<
         size_t,
         git_status_list*>::func<git_status_list_entrycount>,
@@ -169,13 +169,13 @@ static constexpr auto ZIF_GIT_STATUS_LIST_ENTRYCOUNT = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_STATUS_LIST_FREE = zif_php_git2_function_free<
+static constexpr auto ZIF_git_status_list_free = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_status_list>
         >
     >;
 
-static constexpr auto ZIF_GIT_STATUS_LIST_GET_PERFDATA = zif_php_git2_function<
+static constexpr auto ZIF_git_status_list_get_perfdata = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_diff_perfdata*,
@@ -189,7 +189,7 @@ static constexpr auto ZIF_GIT_STATUS_LIST_GET_PERFDATA = zif_php_git2_function<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_STATUS_LIST_NEW = zif_php_git2_function<
+static constexpr auto ZIF_git_status_list_new = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_status_list**,
@@ -205,7 +205,7 @@ static constexpr auto ZIF_GIT_STATUS_LIST_NEW = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_STATUS_SHOULD_IGNORE = zif_php_git2_function<
+static constexpr auto ZIF_git_status_should_ignore = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         int*,
@@ -221,16 +221,16 @@ static constexpr auto ZIF_GIT_STATUS_SHOULD_IGNORE = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-#define GIT_STATUS_FE                                           \
-    PHP_GIT2_FE(git_status_byindex,ZIF_GIT_STATUS_BYINDEX,NULL) \
-    PHP_GIT2_FE(git_status_file,ZIF_GIT_STATUS_FILE,NULL)       \
-    PHP_GIT2_FE(git_status_foreach,ZIF_GIT_STATUS_FOREACH,NULL)         \
-    PHP_GIT2_FE(git_status_foreach_ext,ZIF_GIT_STATUS_FOREACH_EXT,NULL) \
-    PHP_GIT2_FE(git_status_list_entrycount,ZIF_GIT_STATUS_LIST_ENTRYCOUNT,NULL) \
-    PHP_GIT2_FE(git_status_list_free,ZIF_GIT_STATUS_LIST_FREE,NULL)     \
-    PHP_GIT2_FE(git_status_list_get_perfdata,ZIF_GIT_STATUS_LIST_GET_PERFDATA,NULL) \
-    PHP_GIT2_FE(git_status_list_new,ZIF_GIT_STATUS_LIST_NEW,NULL)       \
-    PHP_GIT2_FE(git_status_should_ignore,ZIF_GIT_STATUS_SHOULD_IGNORE,NULL)
+#define GIT_STATUS_FE                           \
+    PHP_GIT2_FE(git_status_byindex)             \
+    PHP_GIT2_FE(git_status_file)                \
+    PHP_GIT2_FE(git_status_foreach)             \
+    PHP_GIT2_FE(git_status_foreach_ext)         \
+    PHP_GIT2_FE(git_status_list_entrycount)     \
+    PHP_GIT2_FE(git_status_list_free)           \
+    PHP_GIT2_FE(git_status_list_get_perfdata)   \
+    PHP_GIT2_FE(git_status_list_new)            \
+    PHP_GIT2_FE(git_status_should_ignore)
 
 #endif
 

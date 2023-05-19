@@ -39,7 +39,7 @@ namespace php_git2
 
 } // namespace php_git2
 
-static constexpr auto ZIF_GIT_REFLOG_APPEND = zif_php_git2_function<
+static constexpr auto ZIF_git_reflog_append = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_reflog*,
@@ -54,7 +54,7 @@ static constexpr auto ZIF_GIT_REFLOG_APPEND = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REFLOG_DELETE = zif_php_git2_function<
+static constexpr auto ZIF_git_reflog_delete = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -65,7 +65,7 @@ static constexpr auto ZIF_GIT_REFLOG_DELETE = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REFLOG_DROP = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_reflog_drop = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         git_reflog*,
@@ -79,7 +79,7 @@ static constexpr auto ZIF_GIT_REFLOG_DROP = zif_php_git2_function_rethandler<
     php_git2::php_boolean_notfound_rethandler
     >;
 
-static constexpr auto ZIF_GIT_REFLOG_ENTRY_BYINDEX = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_reflog_entry_byindex = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         const git_reflog_entry*,
         const git_reflog*,
@@ -91,7 +91,7 @@ static constexpr auto ZIF_GIT_REFLOG_ENTRY_BYINDEX = zif_php_git2_function_retha
     php_git2::php_git_reflog_entry_rethandler
     >;
 
-static constexpr auto ZIF_GIT_REFLOG_ENTRYCOUNT = zif_php_git2_function<
+static constexpr auto ZIF_git_reflog_entrycount = zif_php_git2_function<
     php_git2::func_wrapper<
         size_t,
         git_reflog*>::func<git_reflog_entrycount>,
@@ -101,13 +101,13 @@ static constexpr auto ZIF_GIT_REFLOG_ENTRYCOUNT = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_REFLOG_FREE = zif_php_git2_function_free<
+static constexpr auto ZIF_git_reflog_free = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_reflog>
         >
     >;
 
-static constexpr auto ZIF_GIT_REFLOG_READ = zif_php_git2_function<
+static constexpr auto ZIF_git_reflog_read = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_reflog**,
@@ -123,7 +123,7 @@ static constexpr auto ZIF_GIT_REFLOG_READ = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_REFLOG_RENAME = zif_php_git2_function<
+static constexpr auto ZIF_git_reflog_rename = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -136,7 +136,7 @@ static constexpr auto ZIF_GIT_REFLOG_RENAME = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REFLOG_WRITE = zif_php_git2_function<
+static constexpr auto ZIF_git_reflog_write = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_reflog*>::func<git_reflog_write>,
@@ -145,16 +145,16 @@ static constexpr auto ZIF_GIT_REFLOG_WRITE = zif_php_git2_function<
         >
     >;
 
-#define GIT_REFLOG_FE                                                   \
-    PHP_GIT2_FE(git_reflog_append,ZIF_GIT_REFLOG_APPEND,NULL)           \
-    PHP_GIT2_FE(git_reflog_delete,ZIF_GIT_REFLOG_DELETE,NULL)           \
-    PHP_GIT2_FE(git_reflog_drop,ZIF_GIT_REFLOG_DROP,NULL)               \
-    PHP_GIT2_FE(git_reflog_entry_byindex,ZIF_GIT_REFLOG_ENTRY_BYINDEX,NULL) \
-    PHP_GIT2_FE(git_reflog_entrycount,ZIF_GIT_REFLOG_ENTRYCOUNT,NULL)   \
-    PHP_GIT2_FE(git_reflog_free,ZIF_GIT_REFLOG_FREE,NULL)               \
-    PHP_GIT2_FE(git_reflog_read,ZIF_GIT_REFLOG_READ,NULL)               \
-    PHP_GIT2_FE(git_reflog_rename,ZIF_GIT_REFLOG_RENAME,NULL)           \
-    PHP_GIT2_FE(git_reflog_write,ZIF_GIT_REFLOG_WRITE,NULL)
+#define GIT_REFLOG_FE                           \
+    PHP_GIT2_FE(git_reflog_append)              \
+    PHP_GIT2_FE(git_reflog_delete)              \
+    PHP_GIT2_FE(git_reflog_drop)                \
+    PHP_GIT2_FE(git_reflog_entry_byindex)       \
+    PHP_GIT2_FE(git_reflog_entrycount)          \
+    PHP_GIT2_FE(git_reflog_free)                \
+    PHP_GIT2_FE(git_reflog_read)                \
+    PHP_GIT2_FE(git_reflog_rename)              \
+    PHP_GIT2_FE(git_reflog_write)
 
 #endif
 

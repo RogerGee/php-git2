@@ -51,7 +51,7 @@ namespace php_git2
 
 // Functions:
 
-static constexpr auto ZIF_GIT_PACKBUILDER_NEW = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_packbuilder_new = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_packbuilder**,
@@ -66,13 +66,13 @@ static constexpr auto ZIF_GIT_PACKBUILDER_NEW = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_PACKBUILDER_FREE = zif_php_git2_function_free<
+static constexpr auto ZIF_git_packbuilder_free = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_packbuilder_with_callback>
         >
     >;
 
-static constexpr auto ZIF_GIT_PACKBUILDER_HASH = zif_php_git2_function<
+static constexpr auto ZIF_git_packbuilder_hash = zif_php_git2_function<
     php_git2::func_wrapper<
         const git_oid*,
         git_packbuilder*>::func<git_packbuilder_hash>,
@@ -82,7 +82,7 @@ static constexpr auto ZIF_GIT_PACKBUILDER_HASH = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_PACKBUILDER_INSERT_COMMIT = zif_php_git2_function<
+static constexpr auto ZIF_git_packbuilder_insert_commit = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_packbuilder*,
@@ -93,7 +93,7 @@ static constexpr auto ZIF_GIT_PACKBUILDER_INSERT_COMMIT = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_PACKBUILDER_INSERT_WALK = zif_php_git2_function<
+static constexpr auto ZIF_git_packbuilder_insert_walk = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_packbuilder*,
@@ -104,7 +104,7 @@ static constexpr auto ZIF_GIT_PACKBUILDER_INSERT_WALK = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_PACKBUILDER_INSERT_RECUR = zif_php_git2_function<
+static constexpr auto ZIF_git_packbuilder_insert_recur = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_packbuilder*,
@@ -118,7 +118,7 @@ static constexpr auto ZIF_GIT_PACKBUILDER_INSERT_RECUR = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_PACKBUILDER_INSERT_TREE = zif_php_git2_function<
+static constexpr auto ZIF_git_packbuilder_insert_tree = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_packbuilder*,
@@ -130,7 +130,7 @@ static constexpr auto ZIF_GIT_PACKBUILDER_INSERT_TREE = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_PACKBUILDER_INSERT = zif_php_git2_function<
+static constexpr auto ZIF_git_packbuilder_insert = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_packbuilder*,
@@ -143,7 +143,7 @@ static constexpr auto ZIF_GIT_PACKBUILDER_INSERT = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_PACKBUILDER_FOREACH = zif_php_git2_function<
+static constexpr auto ZIF_git_packbuilder_foreach = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_packbuilder*,
@@ -165,7 +165,7 @@ static constexpr auto ZIF_GIT_PACKBUILDER_FOREACH = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_PACKBUILDER_SET_THREADS = zif_php_git2_function<
+static constexpr auto ZIF_git_packbuilder_set_threads = zif_php_git2_function<
     php_git2::func_wrapper<
         unsigned int,
         git_packbuilder*,
@@ -177,7 +177,7 @@ static constexpr auto ZIF_GIT_PACKBUILDER_SET_THREADS = zif_php_git2_function<
     -1
     >;
 
-static constexpr auto ZIF_GIT_PACKBUILDER_SET_CALLBACKS = zif_php_git2_function<
+static constexpr auto ZIF_git_packbuilder_set_callbacks = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_packbuilder*,
@@ -196,7 +196,7 @@ static constexpr auto ZIF_GIT_PACKBUILDER_SET_CALLBACKS = zif_php_git2_function<
     php_git2::sequence<2,0,1>
     >;
 
-static constexpr auto ZIF_GIT_PACKBUILDER_OBJECT_COUNT = zif_php_git2_function<
+static constexpr auto ZIF_git_packbuilder_object_count = zif_php_git2_function<
     php_git2::func_wrapper<
         size_t,
         git_packbuilder*
@@ -207,7 +207,7 @@ static constexpr auto ZIF_GIT_PACKBUILDER_OBJECT_COUNT = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_PACKBUILDER_WRITE = zif_php_git2_function<
+static constexpr auto ZIF_git_packbuilder_write = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_packbuilder*,
@@ -231,7 +231,7 @@ static constexpr auto ZIF_GIT_PACKBUILDER_WRITE = zif_php_git2_function<
     php_git2::sequence<0,1,2,3,4>
     >;
 
-static constexpr auto ZIF_GIT_PACKBUILDER_WRITTEN = zif_php_git2_function<
+static constexpr auto ZIF_git_packbuilder_written = zif_php_git2_function<
     php_git2::func_wrapper<
         size_t,
         git_packbuilder*>::func<git_packbuilder_written>,
@@ -243,21 +243,21 @@ static constexpr auto ZIF_GIT_PACKBUILDER_WRITTEN = zif_php_git2_function<
 
 // Function Entries:
 
-#define GIT_PACKBUILDER_FE                                              \
-    PHP_GIT2_FE(git_packbuilder_new,ZIF_GIT_PACKBUILDER_NEW,NULL)       \
-    PHP_GIT2_FE(git_packbuilder_free,ZIF_GIT_PACKBUILDER_FREE,NULL)     \
-    PHP_GIT2_FE(git_packbuilder_hash,ZIF_GIT_PACKBUILDER_HASH,NULL)     \
-    PHP_GIT2_FE(git_packbuilder_insert_commit,ZIF_GIT_PACKBUILDER_INSERT_COMMIT,NULL) \
-    PHP_GIT2_FE(git_packbuilder_insert_walk,ZIF_GIT_PACKBUILDER_INSERT_WALK,NULL) \
-    PHP_GIT2_FE(git_packbuilder_insert_recur,ZIF_GIT_PACKBUILDER_INSERT_RECUR,NULL) \
-    PHP_GIT2_FE(git_packbuilder_insert_tree,ZIF_GIT_PACKBUILDER_INSERT_TREE,NULL) \
-    PHP_GIT2_FE(git_packbuilder_insert,ZIF_GIT_PACKBUILDER_INSERT,NULL) \
-    PHP_GIT2_FE(git_packbuilder_foreach,ZIF_GIT_PACKBUILDER_FOREACH,NULL) \
-    PHP_GIT2_FE(git_packbuilder_set_threads,ZIF_GIT_PACKBUILDER_SET_THREADS,NULL) \
-    PHP_GIT2_FE(git_packbuilder_set_callbacks,ZIF_GIT_PACKBUILDER_SET_CALLBACKS,NULL) \
-    PHP_GIT2_FE(git_packbuilder_object_count,ZIF_GIT_PACKBUILDER_OBJECT_COUNT,NULL) \
-    PHP_GIT2_FE(git_packbuilder_write,ZIF_GIT_PACKBUILDER_WRITE,NULL)   \
-    PHP_GIT2_FE(git_packbuilder_written,ZIF_GIT_PACKBUILDER_WRITTEN,NULL)
+#define GIT_PACKBUILDER_FE                      \
+    PHP_GIT2_FE(git_packbuilder_new)            \
+    PHP_GIT2_FE(git_packbuilder_free)           \
+    PHP_GIT2_FE(git_packbuilder_hash)           \
+    PHP_GIT2_FE(git_packbuilder_insert_commit)  \
+    PHP_GIT2_FE(git_packbuilder_insert_walk)    \
+    PHP_GIT2_FE(git_packbuilder_insert_recur)   \
+    PHP_GIT2_FE(git_packbuilder_insert_tree)    \
+    PHP_GIT2_FE(git_packbuilder_insert)         \
+    PHP_GIT2_FE(git_packbuilder_foreach)        \
+    PHP_GIT2_FE(git_packbuilder_set_threads)    \
+    PHP_GIT2_FE(git_packbuilder_set_callbacks)  \
+    PHP_GIT2_FE(git_packbuilder_object_count)   \
+    PHP_GIT2_FE(git_packbuilder_write)          \
+    PHP_GIT2_FE(git_packbuilder_written)
 
 #endif
 

@@ -17,7 +17,7 @@ namespace php_git2
 
 } // namespace php-git2
 
-static constexpr auto ZIF_GIT_CRED_DEFAULT_NEW = zif_php_git2_function<
+static constexpr auto ZIF_git_cred_default_new = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_cred**>::func<git_cred_default_new>,
@@ -29,13 +29,13 @@ static constexpr auto ZIF_GIT_CRED_DEFAULT_NEW = zif_php_git2_function<
     php_git2::sequence<0>
     >;
 
-static constexpr auto ZIF_GIT_CRED_FREE = zif_php_git2_function_free<
+static constexpr auto ZIF_git_cred_free = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_cred>
         >
     >;
 
-static constexpr auto ZIF_GIT_CRED_HAS_USERNAME = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_cred_has_username = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         git_cred*>::func<git_cred_has_username>,
@@ -46,7 +46,7 @@ static constexpr auto ZIF_GIT_CRED_HAS_USERNAME = zif_php_git2_function_rethandl
     >;
 
 /*
-static constexpr auto ZIF_GIT_CRED_SSH_CUSTOM_NEW = zif_php_git2_function<
+static constexpr auto ZIF_git_cred_ssh_custom_new = zif_php_git2_function<
     php_git2::func_wrapper<
 
         >::func<git_cred_ssh_custom_new>,
@@ -58,7 +58,7 @@ static constexpr auto ZIF_GIT_CRED_SSH_CUSTOM_NEW = zif_php_git2_function<
     php_git2::sequence<>
     >;
 
-static constexpr auto ZIF_GIT_CRED_SSH_INTERACTIVE_NEW = zif_php_git2_function<
+static constexpr auto ZIF_git_cred_ssh_interactive_new = zif_php_git2_function<
     php_git2::func_wrapper<
 
         >::func<git_cred_ssh_interactive_new>,
@@ -71,7 +71,7 @@ static constexpr auto ZIF_GIT_CRED_SSH_INTERACTIVE_NEW = zif_php_git2_function<
     >;
 */
 
-static constexpr auto ZIF_GIT_CRED_SSH_KEY_FROM_AGENT = zif_php_git2_function<
+static constexpr auto ZIF_git_cred_ssh_key_from_agent = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_cred**,
@@ -85,7 +85,7 @@ static constexpr auto ZIF_GIT_CRED_SSH_KEY_FROM_AGENT = zif_php_git2_function<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_CRED_SSH_KEY_MEMORY_NEW = zif_php_git2_function<
+static constexpr auto ZIF_git_cred_ssh_key_memory_new = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_cred**,
@@ -105,7 +105,7 @@ static constexpr auto ZIF_GIT_CRED_SSH_KEY_MEMORY_NEW = zif_php_git2_function<
     php_git2::sequence<0,1,2,3,4>
     >;
 
-static constexpr auto ZIF_GIT_CRED_SSH_KEY_NEW = zif_php_git2_function<
+static constexpr auto ZIF_git_cred_ssh_key_new = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_cred**,
@@ -125,7 +125,7 @@ static constexpr auto ZIF_GIT_CRED_SSH_KEY_NEW = zif_php_git2_function<
     php_git2::sequence<0,1,2,3,4>
     >;
 
-static constexpr auto ZIF_GIT_CRED_USERNAME_NEW = zif_php_git2_function<
+static constexpr auto ZIF_git_cred_username_new = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_cred**,
@@ -139,7 +139,7 @@ static constexpr auto ZIF_GIT_CRED_USERNAME_NEW = zif_php_git2_function<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_CRED_USERPASS_PLAINTEXT_NEW = zif_php_git2_function<
+static constexpr auto ZIF_git_cred_userpass_plaintext_new = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_cred**,
@@ -155,17 +155,17 @@ static constexpr auto ZIF_GIT_CRED_USERPASS_PLAINTEXT_NEW = zif_php_git2_functio
     php_git2::sequence<0,1,2>
     >;
 
-#define GIT_CRED_FE                                                     \
-    PHP_GIT2_FE(git_cred_default_new,ZIF_GIT_CRED_DEFAULT_NEW,NULL)     \
-    PHP_GIT2_FE(git_cred_free,ZIF_GIT_CRED_FREE,NULL)                   \
-    PHP_GIT2_FE(git_cred_has_username,ZIF_GIT_CRED_HAS_USERNAME,NULL)   \
-    PHP_GIT2_UNIMPLEMENTED(git_cred_ssh_custom_new,ZIF_GIT_CRED_SSH_CUSTOM_NEW,NULL) \
-    PHP_GIT2_UNIMPLEMENTED(git_cred_ssh_interactive_new,ZIF_GIT_CRED_SSH_INTERACTIVE_NEW,NULL) \
-    PHP_GIT2_FE(git_cred_ssh_key_from_agent,ZIF_GIT_CRED_SSH_KEY_FROM_AGENT,NULL) \
-    PHP_GIT2_FE(git_cred_ssh_key_memory_new,ZIF_GIT_CRED_SSH_KEY_MEMORY_NEW,NULL) \
-    PHP_GIT2_FE(git_cred_ssh_key_new,ZIF_GIT_CRED_SSH_KEY_NEW,NULL)     \
-    PHP_GIT2_FE(git_cred_username_new,ZIF_GIT_CRED_USERNAME_NEW,NULL)   \
-    PHP_GIT2_FE(git_cred_userpass_plaintext_new,ZIF_GIT_CRED_USERPASS_PLAINTEXT_NEW,NULL)
+#define GIT_CRED_FE                                         \
+    PHP_GIT2_FE(git_cred_default_new)                       \
+    PHP_GIT2_FE(git_cred_free)                              \
+    PHP_GIT2_FE(git_cred_has_username)                      \
+    PHP_GIT2_UNIMPLEMENTED(git_cred_ssh_custom_new)         \
+    PHP_GIT2_UNIMPLEMENTED(git_cred_ssh_interactive_new)    \
+    PHP_GIT2_FE(git_cred_ssh_key_from_agent)                \
+    PHP_GIT2_FE(git_cred_ssh_key_memory_new)                \
+    PHP_GIT2_FE(git_cred_ssh_key_new)                       \
+    PHP_GIT2_FE(git_cred_username_new)                      \
+    PHP_GIT2_FE(git_cred_userpass_plaintext_new)
 
 #endif
 

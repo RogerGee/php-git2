@@ -326,7 +326,7 @@ namespace php_git2
 
 } // namespace php-git2
 
-static constexpr auto ZIF_GIT_REMOTE_ADD_FETCH = zif_php_git2_function<
+static constexpr auto ZIF_git_remote_add_fetch = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -339,7 +339,7 @@ static constexpr auto ZIF_GIT_REMOTE_ADD_FETCH = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_ADD_PUSH = zif_php_git2_function<
+static constexpr auto ZIF_git_remote_add_push = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -352,7 +352,7 @@ static constexpr auto ZIF_GIT_REMOTE_ADD_PUSH = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_AUTOTAG = zif_php_git2_function<
+static constexpr auto ZIF_git_remote_autotag = zif_php_git2_function<
     php_git2::func_wrapper<
         git_remote_autotag_option_t,
         const git_remote*>::func<git_remote_autotag>,
@@ -362,7 +362,7 @@ static constexpr auto ZIF_GIT_REMOTE_AUTOTAG = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_CONNECT = zif_php_git2_function<
+static constexpr auto ZIF_git_remote_connect = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_remote*,
@@ -379,7 +379,7 @@ static constexpr auto ZIF_GIT_REMOTE_CONNECT = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_CONNECTED = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_remote_connected = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         const git_remote*>::func<git_remote_connected>,
@@ -389,7 +389,7 @@ static constexpr auto ZIF_GIT_REMOTE_CONNECTED = zif_php_git2_function_rethandle
     php_git2::php_boolean_rethandler<int>
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_CREATE = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_remote_create = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_remote**,
@@ -408,7 +408,7 @@ static constexpr auto ZIF_GIT_REMOTE_CREATE = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1,2,3>
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_CREATE_ANONYMOUS = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_remote_create_anonymous = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_remote**,
@@ -425,7 +425,7 @@ static constexpr auto ZIF_GIT_REMOTE_CREATE_ANONYMOUS = zif_php_git2_function_se
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_CREATE_WITH_FETCHSPEC = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_remote_create_with_fetchspec = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_remote**,
@@ -446,7 +446,7 @@ static constexpr auto ZIF_GIT_REMOTE_CREATE_WITH_FETCHSPEC = zif_php_git2_functi
     php_git2::sequence<0,1,2,3,4>
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_DEFAULT_BRANCH = zif_php_git2_function<
+static constexpr auto ZIF_git_remote_default_branch = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_buf*,
@@ -460,7 +460,7 @@ static constexpr auto ZIF_GIT_REMOTE_DEFAULT_BRANCH = zif_php_git2_function<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_DELETE = zif_php_git2_function<
+static constexpr auto ZIF_git_remote_delete = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -471,7 +471,7 @@ static constexpr auto ZIF_GIT_REMOTE_DELETE = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_DISCONNECT = zif_php_git2_function<
+static constexpr auto ZIF_git_remote_disconnect = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_remote*>::func<git_remote_disconnect>,
@@ -480,7 +480,7 @@ static constexpr auto ZIF_GIT_REMOTE_DISCONNECT = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_DOWNLOAD = zif_php_git2_function<
+static constexpr auto ZIF_git_remote_download = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_remote*,
@@ -493,7 +493,7 @@ static constexpr auto ZIF_GIT_REMOTE_DOWNLOAD = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_DUP = zif_php_git2_function<
+static constexpr auto ZIF_git_remote_dup = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_remote**,
@@ -507,7 +507,7 @@ static constexpr auto ZIF_GIT_REMOTE_DUP = zif_php_git2_function<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_FETCH = zif_php_git2_function<
+static constexpr auto ZIF_git_remote_fetch = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_remote*,
@@ -522,13 +522,13 @@ static constexpr auto ZIF_GIT_REMOTE_FETCH = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_FREE = zif_php_git2_function_free<
+static constexpr auto ZIF_git_remote_free = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_remote>
         >
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_GET_FETCH_REFSPECS = zif_php_git2_function<
+static constexpr auto ZIF_git_remote_get_fetch_refspecs = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_strarray*,
@@ -542,7 +542,7 @@ static constexpr auto ZIF_GIT_REMOTE_GET_FETCH_REFSPECS = zif_php_git2_function<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_GET_PUSH_REFSPECS = zif_php_git2_function<
+static constexpr auto ZIF_git_remote_get_push_refspecs = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_strarray*,
@@ -556,7 +556,7 @@ static constexpr auto ZIF_GIT_REMOTE_GET_PUSH_REFSPECS = zif_php_git2_function<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_GET_REFSPEC = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_remote_get_refspec = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         const git_refspec*,
         const git_remote*,
@@ -568,7 +568,7 @@ static constexpr auto ZIF_GIT_REMOTE_GET_REFSPEC = zif_php_git2_function_rethand
     php_git2::php_refspec_rethandler
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_IS_VALID_NAME = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_remote_is_valid_name = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         const char*>::func<git_remote_is_valid_name>,
@@ -578,7 +578,7 @@ static constexpr auto ZIF_GIT_REMOTE_IS_VALID_NAME = zif_php_git2_function_retha
     php_git2::php_boolean_rethandler<int>
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_LIST = zif_php_git2_function<
+static constexpr auto ZIF_git_remote_list = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_strarray*,
@@ -592,7 +592,7 @@ static constexpr auto ZIF_GIT_REMOTE_LIST = zif_php_git2_function<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_LOOKUP = zif_php_git2_function<
+static constexpr auto ZIF_git_remote_lookup = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_remote**,
@@ -608,7 +608,7 @@ static constexpr auto ZIF_GIT_REMOTE_LOOKUP = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_LS = zif_php_git2_function<
+static constexpr auto ZIF_git_remote_ls = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         const git_remote_head***,
@@ -624,7 +624,7 @@ static constexpr auto ZIF_GIT_REMOTE_LS = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_NAME = zif_php_git2_function<
+static constexpr auto ZIF_git_remote_name = zif_php_git2_function<
     php_git2::func_wrapper<
         const char*,
         const git_remote*>::func<git_remote_name>,
@@ -634,7 +634,7 @@ static constexpr auto ZIF_GIT_REMOTE_NAME = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_OWNER = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_remote_owner = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         git_repository*,
         const git_remote*>::func<git_remote_owner>,
@@ -647,7 +647,7 @@ static constexpr auto ZIF_GIT_REMOTE_OWNER = zif_php_git2_function_rethandler<
     php_git2::sequence<0>
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_PRUNE = zif_php_git2_function<
+static constexpr auto ZIF_git_remote_prune = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_remote*,
@@ -658,7 +658,7 @@ static constexpr auto ZIF_GIT_REMOTE_PRUNE = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_PRUNE_REFS = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_remote_prune_refs = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         const git_remote*>::func<git_remote_prune_refs>,
@@ -668,7 +668,7 @@ static constexpr auto ZIF_GIT_REMOTE_PRUNE_REFS = zif_php_git2_function_rethandl
     php_git2::php_boolean_rethandler<int>
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_PUSH = zif_php_git2_function<
+static constexpr auto ZIF_git_remote_push = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_remote*,
@@ -681,7 +681,7 @@ static constexpr auto ZIF_GIT_REMOTE_PUSH = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_PUSHURL = zif_php_git2_function<
+static constexpr auto ZIF_git_remote_pushurl = zif_php_git2_function<
     php_git2::func_wrapper<
         const char*,
         const git_remote*>::func<git_remote_pushurl>,
@@ -691,7 +691,7 @@ static constexpr auto ZIF_GIT_REMOTE_PUSHURL = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_REFSPEC_COUNT = zif_php_git2_function<
+static constexpr auto ZIF_git_remote_refspec_count = zif_php_git2_function<
     php_git2::func_wrapper<
         size_t,
         const git_remote*>::func<git_remote_refspec_count>,
@@ -701,7 +701,7 @@ static constexpr auto ZIF_GIT_REMOTE_REFSPEC_COUNT = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_RENAME = zif_php_git2_function<
+static constexpr auto ZIF_git_remote_rename = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_strarray*,
@@ -719,7 +719,7 @@ static constexpr auto ZIF_GIT_REMOTE_RENAME = zif_php_git2_function<
     php_git2::sequence<0,1,2,3>
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_SET_AUTOTAG = zif_php_git2_function<
+static constexpr auto ZIF_git_remote_set_autotag = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -732,7 +732,7 @@ static constexpr auto ZIF_GIT_REMOTE_SET_AUTOTAG = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_SET_PUSHURL = zif_php_git2_function<
+static constexpr auto ZIF_git_remote_set_pushurl = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -745,7 +745,7 @@ static constexpr auto ZIF_GIT_REMOTE_SET_PUSHURL = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_SET_URL = zif_php_git2_function<
+static constexpr auto ZIF_git_remote_set_url = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -758,7 +758,7 @@ static constexpr auto ZIF_GIT_REMOTE_SET_URL = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_STATS = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_remote_stats = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         const git_transfer_progress*,
         git_remote*>::func<git_remote_stats>,
@@ -768,7 +768,7 @@ static constexpr auto ZIF_GIT_REMOTE_STATS = zif_php_git2_function_rethandler<
     php_git2::php_transfer_progress_rethandler
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_STOP = zif_php_git2_function<
+static constexpr auto ZIF_git_remote_stop = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_remote*>::func<git_remote_stop>,
@@ -777,7 +777,7 @@ static constexpr auto ZIF_GIT_REMOTE_STOP = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_UPDATE_TIPS = zif_php_git2_function<
+static constexpr auto ZIF_git_remote_update_tips = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_remote*,
@@ -794,7 +794,7 @@ static constexpr auto ZIF_GIT_REMOTE_UPDATE_TIPS = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_UPLOAD = zif_php_git2_function<
+static constexpr auto ZIF_git_remote_upload = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_remote*,
@@ -807,7 +807,7 @@ static constexpr auto ZIF_GIT_REMOTE_UPLOAD = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REMOTE_URL = zif_php_git2_function<
+static constexpr auto ZIF_git_remote_url = zif_php_git2_function<
     php_git2::func_wrapper<
         const char*,
         const git_remote*>::func<git_remote_url>,
@@ -817,45 +817,45 @@ static constexpr auto ZIF_GIT_REMOTE_URL = zif_php_git2_function<
     0
     >;
 
-#define GIT_REMOTE_FE                                                   \
-    PHP_GIT2_FE(git_remote_add_fetch,ZIF_GIT_REMOTE_ADD_FETCH,NULL)     \
-    PHP_GIT2_FE(git_remote_add_push,ZIF_GIT_REMOTE_ADD_PUSH,NULL)       \
-    PHP_GIT2_FE(git_remote_autotag,ZIF_GIT_REMOTE_AUTOTAG,NULL)         \
-    PHP_GIT2_FE(git_remote_connect,ZIF_GIT_REMOTE_CONNECT,NULL)         \
-    PHP_GIT2_FE(git_remote_connected,ZIF_GIT_REMOTE_CONNECTED,NULL)     \
-    PHP_GIT2_FE(git_remote_create,ZIF_GIT_REMOTE_CREATE,NULL)           \
-    PHP_GIT2_FE(git_remote_create_anonymous,ZIF_GIT_REMOTE_CREATE_ANONYMOUS,NULL) \
-    PHP_GIT2_FE(git_remote_create_with_fetchspec,ZIF_GIT_REMOTE_CREATE_WITH_FETCHSPEC,NULL) \
-    PHP_GIT2_FE(git_remote_default_branch,ZIF_GIT_REMOTE_DEFAULT_BRANCH,NULL) \
-    PHP_GIT2_FE(git_remote_delete,ZIF_GIT_REMOTE_DELETE,NULL)           \
-    PHP_GIT2_FE(git_remote_disconnect,ZIF_GIT_REMOTE_DISCONNECT,NULL)   \
-    PHP_GIT2_FE(git_remote_download,ZIF_GIT_REMOTE_DOWNLOAD,NULL)       \
-    PHP_GIT2_FE(git_remote_dup,ZIF_GIT_REMOTE_DUP,NULL)                 \
-    PHP_GIT2_FE(git_remote_fetch,ZIF_GIT_REMOTE_FETCH,NULL)             \
-    PHP_GIT2_FE(git_remote_free,ZIF_GIT_REMOTE_FREE,NULL)               \
-    PHP_GIT2_FE(git_remote_get_fetch_refspecs,ZIF_GIT_REMOTE_GET_FETCH_REFSPECS,NULL) \
-    PHP_GIT2_FE(git_remote_get_push_refspecs,ZIF_GIT_REMOTE_GET_PUSH_REFSPECS,NULL) \
-    PHP_GIT2_FE(git_remote_get_refspec,ZIF_GIT_REMOTE_GET_REFSPEC,NULL) \
-    PHP_GIT2_FE(git_remote_is_valid_name,ZIF_GIT_REMOTE_IS_VALID_NAME,NULL) \
-    PHP_GIT2_FE(git_remote_list,ZIF_GIT_REMOTE_LIST,NULL)               \
-    PHP_GIT2_FE(git_remote_lookup,ZIF_GIT_REMOTE_LOOKUP,NULL)           \
-    PHP_GIT2_FE(git_remote_ls,ZIF_GIT_REMOTE_LS,NULL)                   \
-    PHP_GIT2_FE(git_remote_name,ZIF_GIT_REMOTE_NAME,NULL)               \
-    PHP_GIT2_FE(git_remote_owner,ZIF_GIT_REMOTE_OWNER,NULL)             \
-    PHP_GIT2_FE(git_remote_prune,ZIF_GIT_REMOTE_PRUNE,NULL)             \
-    PHP_GIT2_FE(git_remote_prune_refs,ZIF_GIT_REMOTE_PRUNE_REFS,NULL)   \
-    PHP_GIT2_FE(git_remote_push,ZIF_GIT_REMOTE_PUSH,NULL)               \
-    PHP_GIT2_FE(git_remote_pushurl,ZIF_GIT_REMOTE_PUSHURL,NULL)         \
-    PHP_GIT2_FE(git_remote_refspec_count,ZIF_GIT_REMOTE_REFSPEC_COUNT,NULL) \
-    PHP_GIT2_FE(git_remote_rename,ZIF_GIT_REMOTE_RENAME,NULL)           \
-    PHP_GIT2_FE(git_remote_set_autotag,ZIF_GIT_REMOTE_SET_AUTOTAG,NULL) \
-    PHP_GIT2_FE(git_remote_set_pushurl,ZIF_GIT_REMOTE_SET_PUSHURL,NULL) \
-    PHP_GIT2_FE(git_remote_set_url,ZIF_GIT_REMOTE_SET_URL,NULL)         \
-    PHP_GIT2_FE(git_remote_stats,ZIF_GIT_REMOTE_STATS,NULL)             \
-    PHP_GIT2_FE(git_remote_stop,ZIF_GIT_REMOTE_STOP,NULL)               \
-    PHP_GIT2_FE(git_remote_update_tips,ZIF_GIT_REMOTE_UPDATE_TIPS,NULL) \
-    PHP_GIT2_FE(git_remote_upload,ZIF_GIT_REMOTE_UPLOAD,NULL)           \
-    PHP_GIT2_FE(git_remote_url,ZIF_GIT_REMOTE_URL,NULL)
+#define GIT_REMOTE_FE                               \
+    PHP_GIT2_FE(git_remote_add_fetch)               \
+    PHP_GIT2_FE(git_remote_add_push)                \
+    PHP_GIT2_FE(git_remote_autotag)                 \
+    PHP_GIT2_FE(git_remote_connect)                 \
+    PHP_GIT2_FE(git_remote_connected)               \
+    PHP_GIT2_FE(git_remote_create)                  \
+    PHP_GIT2_FE(git_remote_create_anonymous)        \
+    PHP_GIT2_FE(git_remote_create_with_fetchspec)   \
+    PHP_GIT2_FE(git_remote_default_branch)          \
+    PHP_GIT2_FE(git_remote_delete)                  \
+    PHP_GIT2_FE(git_remote_disconnect)              \
+    PHP_GIT2_FE(git_remote_download)                \
+    PHP_GIT2_FE(git_remote_dup)                     \
+    PHP_GIT2_FE(git_remote_fetch)                   \
+    PHP_GIT2_FE(git_remote_free)                    \
+    PHP_GIT2_FE(git_remote_get_fetch_refspecs)      \
+    PHP_GIT2_FE(git_remote_get_push_refspecs)       \
+    PHP_GIT2_FE(git_remote_get_refspec)             \
+    PHP_GIT2_FE(git_remote_is_valid_name)           \
+    PHP_GIT2_FE(git_remote_list)                    \
+    PHP_GIT2_FE(git_remote_lookup)                  \
+    PHP_GIT2_FE(git_remote_ls)                      \
+    PHP_GIT2_FE(git_remote_name)                    \
+    PHP_GIT2_FE(git_remote_owner)                   \
+    PHP_GIT2_FE(git_remote_prune)                   \
+    PHP_GIT2_FE(git_remote_prune_refs)              \
+    PHP_GIT2_FE(git_remote_push)                    \
+    PHP_GIT2_FE(git_remote_pushurl)                 \
+    PHP_GIT2_FE(git_remote_refspec_count)           \
+    PHP_GIT2_FE(git_remote_rename)                  \
+    PHP_GIT2_FE(git_remote_set_autotag)             \
+    PHP_GIT2_FE(git_remote_set_pushurl)             \
+    PHP_GIT2_FE(git_remote_set_url)                 \
+    PHP_GIT2_FE(git_remote_stats)                   \
+    PHP_GIT2_FE(git_remote_stop)                    \
+    PHP_GIT2_FE(git_remote_update_tips)             \
+    PHP_GIT2_FE(git_remote_upload)                  \
+    PHP_GIT2_FE(git_remote_url)
 
 #endif
 

@@ -8,6 +8,7 @@
 #include "php-function.h"
 #include "php-object.h"
 #include "php-rethandler.h"
+#include "stubs/tmp.h"
 #include "repository.h"
 #include "reference.h"
 #include "object.h"
@@ -58,22 +59,22 @@ static PHP_FUNCTION(git2_version);
 // Functions exported by this extension into PHP.
 zend_function_entry php_git2::functions[] = {
     // Functions that do not directly wrap libgit2 exports:
-    PHP_FE(git2_version,NULL)
+    PHP_FE(git2_version,arginfo_git2_version)
 
     // General libgit2 functions:
-    PHP_FE(git_libgit2_version,NULL)
-    PHP_GIT2_FE(git_libgit2_prerelease,
+    PHP_FE(git_libgit2_version,arginfo_git_libgit2_version)
+    PHP_GIT2_FE_EX(git_libgit2_prerelease,
         (zif_php_git2_function<
             func_wrapper<const char*>::func<git_libgit2_prerelease>,
             local_pack<>,
             0 >),
-        NULL)
-    PHP_GIT2_FE(git_libgit2_features,
+        arginfo_git_libgit2_prerelease)
+    PHP_GIT2_FE_EX(git_libgit2_features,
         (zif_php_git2_function<
             func_wrapper<int>::func<git_libgit2_features>,
             local_pack<>,
             0 >),
-        NULL)
+        arginfo_git_libgit2_features)
 
     // Include template specializations for the different library wrappers. The
     // compiler will instantiate these into this compilation unit.

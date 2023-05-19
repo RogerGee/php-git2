@@ -20,7 +20,7 @@ namespace php_git2
 
 // Functions:
 
-static constexpr auto ZIF_GIT_OBJECT_ID = zif_php_git2_function<
+static constexpr auto ZIF_git_object_id = zif_php_git2_function<
     php_git2::func_wrapper<
         const git_oid*,
         const git_object*>::func<git_object_id>,
@@ -30,7 +30,7 @@ static constexpr auto ZIF_GIT_OBJECT_ID = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_OBJECT_LOOKUP = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_object_lookup = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_object**,
@@ -49,7 +49,7 @@ static constexpr auto ZIF_GIT_OBJECT_LOOKUP = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1,2,3>
     >;
 
-static constexpr auto ZIF_GIT_OBJECT_PEEL = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_object_peel = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_object**,
@@ -66,13 +66,13 @@ static constexpr auto ZIF_GIT_OBJECT_PEEL = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_OBJECT_FREE = zif_php_git2_function_free<
+static constexpr auto ZIF_git_object_free = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_object>
         >
     >;
 
-static constexpr auto ZIF_GIT_OBJECT_DUP = zif_php_git2_function<
+static constexpr auto ZIF_git_object_dup = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_object**,
@@ -86,7 +86,7 @@ static constexpr auto ZIF_GIT_OBJECT_DUP = zif_php_git2_function<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_OBJECT_LOOKUP_BYPATH = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_object_lookup_bypath = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_object**,
@@ -105,7 +105,7 @@ static constexpr auto ZIF_GIT_OBJECT_LOOKUP_BYPATH = zif_php_git2_function_setde
     php_git2::sequence<0,1,2,3>
     >;
 
-static constexpr auto ZIF_GIT_OBJECT_LOOKUP_PREFIX = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_object_lookup_prefix = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_object**,
@@ -128,7 +128,7 @@ static constexpr auto ZIF_GIT_OBJECT_LOOKUP_PREFIX = zif_php_git2_function_setde
     php_git2::sequence<0,1,3,2,4>
     >;
 
-static constexpr auto ZIF_GIT_OBJECT_OWNER = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_object_owner = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         git_repository*,
         const git_object*>::func<git_object_owner>,
@@ -141,7 +141,7 @@ static constexpr auto ZIF_GIT_OBJECT_OWNER = zif_php_git2_function_rethandler<
     php_git2::sequence<0>
     >;
 
-static constexpr auto ZIF_GIT_OBJECT_SHORT_ID = zif_php_git2_function<
+static constexpr auto ZIF_git_object_short_id = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_buf*,
@@ -155,7 +155,7 @@ static constexpr auto ZIF_GIT_OBJECT_SHORT_ID = zif_php_git2_function<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_OBJECT_STRING2TYPE = zif_php_git2_function<
+static constexpr auto ZIF_git_object_string2type = zif_php_git2_function<
     php_git2::func_wrapper<
         git_object_t,
         const char*>::func<git_object_string2type>,
@@ -165,7 +165,7 @@ static constexpr auto ZIF_GIT_OBJECT_STRING2TYPE = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_OBJECT_TYPE = zif_php_git2_function<
+static constexpr auto ZIF_git_object_type = zif_php_git2_function<
     php_git2::func_wrapper<
         git_object_t,
         const git_object*>::func<git_object_type>,
@@ -175,7 +175,7 @@ static constexpr auto ZIF_GIT_OBJECT_TYPE = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_OBJECT_TYPE2STRING = zif_php_git2_function<
+static constexpr auto ZIF_git_object_type2string = zif_php_git2_function<
     php_git2::func_wrapper<
         const char*,
         git_object_t>::func<git_object_type2string>,
@@ -185,7 +185,7 @@ static constexpr auto ZIF_GIT_OBJECT_TYPE2STRING = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_OBJECT_TYPEISLOOSE = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_object_typeisloose = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         git_object_t>::func<git_object_typeisloose>,
@@ -197,20 +197,20 @@ static constexpr auto ZIF_GIT_OBJECT_TYPEISLOOSE = zif_php_git2_function_rethand
 
 // Function Entries:
 
-#define GIT_OBJECT_FE                                                   \
-    PHP_GIT2_FE(git_object_id,ZIF_GIT_OBJECT_ID,NULL)                   \
-    PHP_GIT2_FE(git_object_lookup,ZIF_GIT_OBJECT_LOOKUP,NULL)           \
-    PHP_GIT2_FE(git_object_peel,ZIF_GIT_OBJECT_PEEL,NULL)               \
-    PHP_GIT2_FE(git_object_free,ZIF_GIT_OBJECT_FREE,NULL)               \
-    PHP_GIT2_FE(git_object_dup,ZIF_GIT_OBJECT_DUP,NULL)                 \
-    PHP_GIT2_FE(git_object_lookup_bypath,ZIF_GIT_OBJECT_LOOKUP_BYPATH,NULL) \
-    PHP_GIT2_FE(git_object_lookup_prefix,ZIF_GIT_OBJECT_LOOKUP_PREFIX,NULL) \
-    PHP_GIT2_FE(git_object_owner,ZIF_GIT_OBJECT_OWNER,NULL) \
-    PHP_GIT2_FE(git_object_short_id,ZIF_GIT_OBJECT_SHORT_ID,NULL)       \
-    PHP_GIT2_FE(git_object_string2type,ZIF_GIT_OBJECT_STRING2TYPE,NULL) \
-    PHP_GIT2_FE(git_object_type,ZIF_GIT_OBJECT_TYPE,NULL)               \
-    PHP_GIT2_FE(git_object_type2string,ZIF_GIT_OBJECT_TYPE2STRING,NULL) \
-    PHP_GIT2_FE(git_object_typeisloose,ZIF_GIT_OBJECT_TYPEISLOOSE,NULL)
+#define GIT_OBJECT_FE                           \
+    PHP_GIT2_FE(git_object_id)                  \
+    PHP_GIT2_FE(git_object_lookup)              \
+    PHP_GIT2_FE(git_object_peel)                \
+    PHP_GIT2_FE(git_object_free)                \
+    PHP_GIT2_FE(git_object_dup)                 \
+    PHP_GIT2_FE(git_object_lookup_bypath)       \
+    PHP_GIT2_FE(git_object_lookup_prefix)       \
+    PHP_GIT2_FE(git_object_owner)               \
+    PHP_GIT2_FE(git_object_short_id)            \
+    PHP_GIT2_FE(git_object_string2type)         \
+    PHP_GIT2_FE(git_object_type)                \
+    PHP_GIT2_FE(git_object_type2string)         \
+    PHP_GIT2_FE(git_object_typeisloose)
 
 #endif
 

@@ -42,7 +42,7 @@ namespace php_git2
 
 } // namespace php_git2
 
-static constexpr auto ZIF_GIT_REVERT = zif_php_git2_function<
+static constexpr auto ZIF_git_revert = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -55,7 +55,7 @@ static constexpr auto ZIF_GIT_REVERT = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REVERT_COMMIT = zif_php_git2_function<
+static constexpr auto ZIF_git_revert_commit = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_index**,
@@ -77,9 +77,9 @@ static constexpr auto ZIF_GIT_REVERT_COMMIT = zif_php_git2_function<
     php_git2::sequence<0,1,2,3,4,5>
     >;
 
-#define GIT_REVERT_FE                                           \
-    PHP_GIT2_FE(git_revert,ZIF_GIT_REVERT,NULL)                 \
-    PHP_GIT2_FE(git_revert_commit,ZIF_GIT_REVERT_COMMIT,NULL)
+#define GIT_REVERT_FE                           \
+    PHP_GIT2_FE(git_revert)                     \
+    PHP_GIT2_FE(git_revert_commit)
 
 #endif
 

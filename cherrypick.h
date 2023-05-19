@@ -47,7 +47,7 @@ namespace php_git2
 
 } // namespace php_git2
 
-static constexpr auto ZIF_GIT_CHERRYPICK = zif_php_git2_function<
+static constexpr auto ZIF_git_cherrypick = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -60,7 +60,7 @@ static constexpr auto ZIF_GIT_CHERRYPICK = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_CHERRYPICK_COMMIT = zif_php_git2_function<
+static constexpr auto ZIF_git_cherrypick_commit = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_index**,
@@ -82,9 +82,9 @@ static constexpr auto ZIF_GIT_CHERRYPICK_COMMIT = zif_php_git2_function<
     php_git2::sequence<0,1,2,3,4,5>
     >;
 
-#define GIT_CHERRYPICK_FE                                               \
-    PHP_GIT2_FE(git_cherrypick,ZIF_GIT_CHERRYPICK,NULL)                 \
-    PHP_GIT2_FE(git_cherrypick_commit,ZIF_GIT_CHERRYPICK_COMMIT,NULL)
+#define GIT_CHERRYPICK_FE                       \
+    PHP_GIT2_FE(git_cherrypick)                 \
+    PHP_GIT2_FE(git_cherrypick_commit)
 
 #endif
 

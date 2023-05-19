@@ -92,7 +92,7 @@ namespace php_git2
 
 // Function templates:
 
-static constexpr auto ZIF_GIT_REFDB_BACKEND_FS = zif_php_git2_function<
+static constexpr auto ZIF_git_refdb_backend_fs = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_refdb_backend**,
@@ -106,7 +106,7 @@ static constexpr auto ZIF_GIT_REFDB_BACKEND_FS = zif_php_git2_function<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_REFDB_COMPRESS = zif_php_git2_function<
+static constexpr auto ZIF_git_refdb_compress = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_refdb*>::func<git_refdb_compress>,
@@ -115,13 +115,13 @@ static constexpr auto ZIF_GIT_REFDB_COMPRESS = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REFDB_FREE = zif_php_git2_function_free<
+static constexpr auto ZIF_git_refdb_free = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_refdb>
         >
     >;
 
-static constexpr auto ZIF_GIT_REFDB_NEW = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_refdb_new = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_refdb**,
@@ -136,7 +136,7 @@ static constexpr auto ZIF_GIT_REFDB_NEW = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_REFDB_OPEN = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_refdb_open = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_refdb**,
@@ -151,7 +151,7 @@ static constexpr auto ZIF_GIT_REFDB_OPEN = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_REFDB_SET_BACKEND = zif_php_git2_function<
+static constexpr auto ZIF_git_refdb_set_backend = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_refdb*,
@@ -167,13 +167,13 @@ static constexpr auto ZIF_GIT_REFDB_SET_BACKEND = zif_php_git2_function<
 
 // Function entries:
 
-#define GIT_REFDB_FE                                                    \
-    PHP_GIT2_FE(git_refdb_backend_fs,ZIF_GIT_REFDB_BACKEND_FS,NULL)     \
-    PHP_GIT2_FE(git_refdb_compress,ZIF_GIT_REFDB_COMPRESS,NULL)         \
-    PHP_GIT2_FE(git_refdb_free,ZIF_GIT_REFDB_FREE,NULL)                 \
-    PHP_GIT2_FE(git_refdb_new,ZIF_GIT_REFDB_NEW,NULL)                   \
-    PHP_GIT2_FE(git_refdb_open,ZIF_GIT_REFDB_OPEN,NULL)                 \
-    PHP_GIT2_FE(git_refdb_set_backend,ZIF_GIT_REFDB_SET_BACKEND,NULL)
+#define GIT_REFDB_FE                            \
+    PHP_GIT2_FE(git_refdb_backend_fs)           \
+    PHP_GIT2_FE(git_refdb_compress)             \
+    PHP_GIT2_FE(git_refdb_free)                 \
+    PHP_GIT2_FE(git_refdb_new)                  \
+    PHP_GIT2_FE(git_refdb_open)                 \
+    PHP_GIT2_FE(git_refdb_set_backend)
 
 #endif
 

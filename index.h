@@ -161,7 +161,7 @@ namespace php_git2
 
 } // namespace php_git2
 
-static constexpr auto ZIF_GIT_INDEX_ADD = zif_php_git2_function<
+static constexpr auto ZIF_git_index_add = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_index*,
@@ -172,7 +172,7 @@ static constexpr auto ZIF_GIT_INDEX_ADD = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_INDEX_ADD_ALL = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_index_add_all = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         git_index*,
@@ -192,7 +192,7 @@ static constexpr auto ZIF_GIT_INDEX_ADD_ALL = zif_php_git2_function_rethandler<
     php_git2::sequence<0,1,2,3,4>
     >;
 
-static constexpr auto ZIF_GIT_INDEX_ADD_BYPATH = zif_php_git2_function<
+static constexpr auto ZIF_git_index_add_bypath = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_index*,
@@ -203,7 +203,7 @@ static constexpr auto ZIF_GIT_INDEX_ADD_BYPATH = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_INDEX_ADD_FROMBUFFER = zif_php_git2_function<
+static constexpr auto ZIF_git_index_add_frombuffer = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_index*,
@@ -221,7 +221,7 @@ static constexpr auto ZIF_GIT_INDEX_ADD_FROMBUFFER = zif_php_git2_function<
     php_git2::sequence<0,1,3,2>
     >;
 
-static constexpr auto ZIF_GIT_INDEX_CAPS = zif_php_git2_function<
+static constexpr auto ZIF_git_index_caps = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         const git_index*>::func<git_index_caps>,
@@ -231,7 +231,7 @@ static constexpr auto ZIF_GIT_INDEX_CAPS = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_INDEX_CHECKSUM = zif_php_git2_function<
+static constexpr auto ZIF_git_index_checksum = zif_php_git2_function<
     php_git2::func_wrapper<
         const git_oid*,
         git_index*>::func<git_index_checksum>,
@@ -241,7 +241,7 @@ static constexpr auto ZIF_GIT_INDEX_CHECKSUM = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_INDEX_CLEAR = zif_php_git2_function<
+static constexpr auto ZIF_git_index_clear = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_index*>::func<git_index_clear>,
@@ -250,7 +250,7 @@ static constexpr auto ZIF_GIT_INDEX_CLEAR = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_INDEX_CONFLICT_ADD = zif_php_git2_function<
+static constexpr auto ZIF_git_index_conflict_add = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_index*,
@@ -265,7 +265,7 @@ static constexpr auto ZIF_GIT_INDEX_CONFLICT_ADD = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_INDEX_CONFLICT_CLEANUP = zif_php_git2_function<
+static constexpr auto ZIF_git_index_conflict_cleanup = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_index*>::func<git_index_conflict_cleanup>,
@@ -274,7 +274,7 @@ static constexpr auto ZIF_GIT_INDEX_CONFLICT_CLEANUP = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_INDEX_CONFLICT_GET = zif_php_git2_function<
+static constexpr auto ZIF_git_index_conflict_get = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         const git_index_entry**,
@@ -291,21 +291,14 @@ static constexpr auto ZIF_GIT_INDEX_CONFLICT_GET = zif_php_git2_function<
         >,
     -1
     >;
-ZEND_BEGIN_ARG_INFO_EX(git_index_conflict_get_arginfo,0,0,5)
-    ZEND_ARG_INFO(1,ancestor)
-    ZEND_ARG_INFO(1,ours)
-    ZEND_ARG_INFO(1,theirs)
-    ZEND_ARG_INFO(0,index)
-    ZEND_ARG_INFO(0,path)
-ZEND_END_ARG_INFO()
 
-static constexpr auto ZIF_GIT_INDEX_CONFLICT_ITERATOR_FREE = zif_php_git2_function_free<
+static constexpr auto ZIF_git_index_conflict_iterator_free = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_index_conflict_iterator>
         >
     >;
 
-static constexpr auto ZIF_GIT_INDEX_CONFLICT_ITERATOR_NEW = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_index_conflict_iterator_new = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_index_conflict_iterator**,
@@ -320,7 +313,7 @@ static constexpr auto ZIF_GIT_INDEX_CONFLICT_ITERATOR_NEW = zif_php_git2_functio
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_INDEX_CONFLICT_NEXT = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_index_conflict_next = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         const git_index_entry**,
@@ -335,14 +328,8 @@ static constexpr auto ZIF_GIT_INDEX_CONFLICT_NEXT = zif_php_git2_function_rethan
         >,
     php_git2::php_boolean_iterover_rethandler
     >;
-ZEND_BEGIN_ARG_INFO_EX(git_index_conflict_next_arginfo,0,0,4)
-    ZEND_ARG_INFO(1,ancestor)
-    ZEND_ARG_INFO(1,ours)
-    ZEND_ARG_INFO(1,theirs)
-    ZEND_ARG_INFO(0,iterator)
-ZEND_END_ARG_INFO()
 
-static constexpr auto ZIF_GIT_INDEX_CONFLICT_REMOVE = zif_php_git2_function<
+static constexpr auto ZIF_git_index_conflict_remove = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_index*,
@@ -353,7 +340,7 @@ static constexpr auto ZIF_GIT_INDEX_CONFLICT_REMOVE = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_INDEX_ENTRYCOUNT = zif_php_git2_function<
+static constexpr auto ZIF_git_index_entrycount = zif_php_git2_function<
     php_git2::func_wrapper<
         size_t,
         const git_index*>::func<git_index_entrycount>,
@@ -363,7 +350,7 @@ static constexpr auto ZIF_GIT_INDEX_ENTRYCOUNT = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_INDEX_ENTRY_IS_CONFLICT = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_index_entry_is_conflict = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         const git_index_entry*>::func<git_index_entry_is_conflict>,
@@ -373,7 +360,7 @@ static constexpr auto ZIF_GIT_INDEX_ENTRY_IS_CONFLICT = zif_php_git2_function_re
     php_git2::php_boolean_rethandler<int>
     >;
 
-static constexpr auto ZIF_GIT_INDEX_ENTRY_STAGE = zif_php_git2_function<
+static constexpr auto ZIF_git_index_entry_stage = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         const git_index_entry*>::func<git_index_entry_stage>,
@@ -383,7 +370,7 @@ static constexpr auto ZIF_GIT_INDEX_ENTRY_STAGE = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_INDEX_FIND = zif_php_git2_function<
+static constexpr auto ZIF_git_index_find = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         size_t*,
@@ -399,7 +386,7 @@ static constexpr auto ZIF_GIT_INDEX_FIND = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_INDEX_FIND_PREFIX = zif_php_git2_function<
+static constexpr auto ZIF_git_index_find_prefix = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         size_t*,
@@ -415,13 +402,13 @@ static constexpr auto ZIF_GIT_INDEX_FIND_PREFIX = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_INDEX_FREE = zif_php_git2_function_free<
+static constexpr auto ZIF_git_index_free = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_index>
         >
     >;
 
-static constexpr auto ZIF_GIT_INDEX_GET_BYINDEX = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_index_get_byindex = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         const git_index_entry*,
         git_index*,
@@ -433,7 +420,7 @@ static constexpr auto ZIF_GIT_INDEX_GET_BYINDEX = zif_php_git2_function_rethandl
     php_git2::php_git_index_entry_rethandler
     >;
 
-static constexpr auto ZIF_GIT_INDEX_GET_BYPATH = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_index_get_bypath = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         const git_index_entry*,
         git_index*,
@@ -447,7 +434,7 @@ static constexpr auto ZIF_GIT_INDEX_GET_BYPATH = zif_php_git2_function_rethandle
     php_git2::php_git_index_entry_rethandler
     >;
 
-static constexpr auto ZIF_GIT_INDEX_HAS_CONFLICTS = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_index_has_conflicts = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         const git_index*>::func<git_index_has_conflicts>,
@@ -457,7 +444,7 @@ static constexpr auto ZIF_GIT_INDEX_HAS_CONFLICTS = zif_php_git2_function_rethan
     php_git2::php_boolean_rethandler<int>
     >;
 
-static constexpr auto ZIF_GIT_INDEX_NEW = zif_php_git2_function<
+static constexpr auto ZIF_git_index_new = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_index**>::func<git_index_new>,
@@ -469,7 +456,7 @@ static constexpr auto ZIF_GIT_INDEX_NEW = zif_php_git2_function<
     php_git2::sequence<0>
     >;
 
-static constexpr auto ZIF_GIT_INDEX_OPEN = zif_php_git2_function<
+static constexpr auto ZIF_git_index_open = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_index**,
@@ -483,7 +470,7 @@ static constexpr auto ZIF_GIT_INDEX_OPEN = zif_php_git2_function<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_INDEX_OWNER = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_index_owner = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         git_repository*,
         const git_index*>::func<git_index_owner>,
@@ -496,7 +483,7 @@ static constexpr auto ZIF_GIT_INDEX_OWNER = zif_php_git2_function_rethandler<
     php_git2::sequence<0>
     >;
 
-static constexpr auto ZIF_GIT_INDEX_PATH = zif_php_git2_function<
+static constexpr auto ZIF_git_index_path = zif_php_git2_function<
     php_git2::func_wrapper<
         const char*,
         const git_index*>::func<git_index_path>,
@@ -506,7 +493,7 @@ static constexpr auto ZIF_GIT_INDEX_PATH = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_INDEX_READ = zif_php_git2_function<
+static constexpr auto ZIF_git_index_read = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_index*,
@@ -517,7 +504,7 @@ static constexpr auto ZIF_GIT_INDEX_READ = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_INDEX_READ_TREE = zif_php_git2_function<
+static constexpr auto ZIF_git_index_read_tree = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_index*,
@@ -528,7 +515,7 @@ static constexpr auto ZIF_GIT_INDEX_READ_TREE = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_INDEX_REMOVE = zif_php_git2_function<
+static constexpr auto ZIF_git_index_remove = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_index*,
@@ -541,7 +528,7 @@ static constexpr auto ZIF_GIT_INDEX_REMOVE = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_INDEX_REMOVE_ALL = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_index_remove_all = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         git_index*,
@@ -559,7 +546,7 @@ static constexpr auto ZIF_GIT_INDEX_REMOVE_ALL = zif_php_git2_function_rethandle
     php_git2::sequence<0,1,2,3>
     >;
 
-static constexpr auto ZIF_GIT_INDEX_REMOVE_BYPATH = zif_php_git2_function<
+static constexpr auto ZIF_git_index_remove_bypath = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_index*,
@@ -570,7 +557,7 @@ static constexpr auto ZIF_GIT_INDEX_REMOVE_BYPATH = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_INDEX_REMOVE_DIRECTORY = zif_php_git2_function<
+static constexpr auto ZIF_git_index_remove_directory = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_index*,
@@ -583,7 +570,7 @@ static constexpr auto ZIF_GIT_INDEX_REMOVE_DIRECTORY = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_INDEX_SET_CAPS = zif_php_git2_function<
+static constexpr auto ZIF_git_index_set_caps = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_index*,
@@ -594,7 +581,7 @@ static constexpr auto ZIF_GIT_INDEX_SET_CAPS = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_INDEX_SET_VERSION = zif_php_git2_function<
+static constexpr auto ZIF_git_index_set_version = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_index*,
@@ -605,7 +592,7 @@ static constexpr auto ZIF_GIT_INDEX_SET_VERSION = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_INDEX_UPDATE_ALL = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_index_update_all = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         git_index*,
@@ -623,7 +610,7 @@ static constexpr auto ZIF_GIT_INDEX_UPDATE_ALL = zif_php_git2_function_rethandle
     php_git2::sequence<0,1,2,3>
     >;
 
-static constexpr auto ZIF_GIT_INDEX_VERSION = zif_php_git2_function<
+static constexpr auto ZIF_git_index_version = zif_php_git2_function<
     php_git2::func_wrapper<
         unsigned int,
         git_index*>::func<git_index_version>,
@@ -633,7 +620,7 @@ static constexpr auto ZIF_GIT_INDEX_VERSION = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_INDEX_WRITE = zif_php_git2_function<
+static constexpr auto ZIF_git_index_write = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_index*>::func<git_index_write>,
@@ -643,7 +630,7 @@ static constexpr auto ZIF_GIT_INDEX_WRITE = zif_php_git2_function<
     -1
     >;
 
-static constexpr auto ZIF_GIT_INDEX_WRITE_TREE = zif_php_git2_function<
+static constexpr auto ZIF_git_index_write_tree = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_oid*,
@@ -657,7 +644,7 @@ static constexpr auto ZIF_GIT_INDEX_WRITE_TREE = zif_php_git2_function<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_INDEX_WRITE_TREE_TO = zif_php_git2_function<
+static constexpr auto ZIF_git_index_write_tree_to = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_oid*,
@@ -673,47 +660,47 @@ static constexpr auto ZIF_GIT_INDEX_WRITE_TREE_TO = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-#define GIT_INDEX_FE                                                    \
-    PHP_GIT2_FE(git_index_add,ZIF_GIT_INDEX_ADD,NULL)                   \
-    PHP_GIT2_FE(git_index_add_all,ZIF_GIT_INDEX_ADD_ALL,NULL)           \
-    PHP_GIT2_FE(git_index_add_bypath,ZIF_GIT_INDEX_ADD_BYPATH,NULL)     \
-    PHP_GIT2_FE(git_index_add_frombuffer,ZIF_GIT_INDEX_ADD_FROMBUFFER,NULL) \
-    PHP_GIT2_FE(git_index_caps,ZIF_GIT_INDEX_CAPS,NULL)                 \
-    PHP_GIT2_FE(git_index_checksum,ZIF_GIT_INDEX_CHECKSUM,NULL)         \
-    PHP_GIT2_FE(git_index_clear,ZIF_GIT_INDEX_CLEAR,NULL)               \
-    PHP_GIT2_FE(git_index_conflict_add,ZIF_GIT_INDEX_CONFLICT_ADD,NULL) \
-    PHP_GIT2_FE(git_index_conflict_cleanup,ZIF_GIT_INDEX_CONFLICT_CLEANUP,NULL) \
-    PHP_GIT2_FE(git_index_conflict_get,ZIF_GIT_INDEX_CONFLICT_GET,git_index_conflict_get_arginfo) \
-    PHP_GIT2_FE(git_index_conflict_iterator_free,ZIF_GIT_INDEX_CONFLICT_ITERATOR_FREE,NULL) \
-    PHP_GIT2_FE(git_index_conflict_iterator_new,ZIF_GIT_INDEX_CONFLICT_ITERATOR_NEW,NULL) \
-    PHP_GIT2_FE(git_index_conflict_next,ZIF_GIT_INDEX_CONFLICT_NEXT,git_index_conflict_next_arginfo) \
-    PHP_GIT2_FE(git_index_conflict_remove,ZIF_GIT_INDEX_CONFLICT_REMOVE,NULL) \
-    PHP_GIT2_FE(git_index_entrycount,ZIF_GIT_INDEX_ENTRYCOUNT,NULL)     \
-    PHP_GIT2_FE(git_index_entry_is_conflict,ZIF_GIT_INDEX_ENTRY_IS_CONFLICT,NULL) \
-    PHP_GIT2_FE(git_index_entry_stage,ZIF_GIT_INDEX_ENTRY_STAGE,NULL)   \
-    PHP_GIT2_FE(git_index_find,ZIF_GIT_INDEX_FIND,NULL)                 \
-    PHP_GIT2_FE(git_index_find_prefix,ZIF_GIT_INDEX_FIND_PREFIX,NULL)   \
-    PHP_GIT2_FE(git_index_free,ZIF_GIT_INDEX_FREE,NULL)                 \
-    PHP_GIT2_FE(git_index_get_byindex,ZIF_GIT_INDEX_GET_BYINDEX,NULL)   \
-    PHP_GIT2_FE(git_index_get_bypath,ZIF_GIT_INDEX_GET_BYPATH,NULL)     \
-    PHP_GIT2_FE(git_index_has_conflicts,ZIF_GIT_INDEX_HAS_CONFLICTS,NULL) \
-    PHP_GIT2_FE(git_index_new,ZIF_GIT_INDEX_NEW,NULL)                   \
-    PHP_GIT2_FE(git_index_open,ZIF_GIT_INDEX_OPEN,NULL)                 \
-    PHP_GIT2_FE(git_index_owner,ZIF_GIT_INDEX_OWNER,NULL)               \
-    PHP_GIT2_FE(git_index_path,ZIF_GIT_INDEX_PATH,NULL)                 \
-    PHP_GIT2_FE(git_index_read,ZIF_GIT_INDEX_READ,NULL)                 \
-    PHP_GIT2_FE(git_index_read_tree,ZIF_GIT_INDEX_READ_TREE,NULL)       \
-    PHP_GIT2_FE(git_index_remove,ZIF_GIT_INDEX_REMOVE,NULL)             \
-    PHP_GIT2_FE(git_index_remove_all,ZIF_GIT_INDEX_REMOVE_ALL,NULL)     \
-    PHP_GIT2_FE(git_index_remove_bypath,ZIF_GIT_INDEX_REMOVE_BYPATH,NULL) \
-    PHP_GIT2_FE(git_index_remove_directory,ZIF_GIT_INDEX_REMOVE_DIRECTORY,NULL) \
-    PHP_GIT2_FE(git_index_set_caps,ZIF_GIT_INDEX_SET_CAPS,NULL)         \
-    PHP_GIT2_FE(git_index_set_version,ZIF_GIT_INDEX_SET_VERSION,NULL)   \
-    PHP_GIT2_FE(git_index_update_all,ZIF_GIT_INDEX_UPDATE_ALL,NULL)     \
-    PHP_GIT2_FE(git_index_version,ZIF_GIT_INDEX_VERSION,NULL)           \
-    PHP_GIT2_FE(git_index_write,ZIF_GIT_INDEX_WRITE,NULL)               \
-    PHP_GIT2_FE(git_index_write_tree,ZIF_GIT_INDEX_WRITE_TREE,NULL)     \
-    PHP_GIT2_FE(git_index_write_tree_to,ZIF_GIT_INDEX_WRITE_TREE_TO,NULL)
+#define GIT_INDEX_FE                                \
+    PHP_GIT2_FE(git_index_add)                      \
+    PHP_GIT2_FE(git_index_add_all)                  \
+    PHP_GIT2_FE(git_index_add_bypath)               \
+    PHP_GIT2_FE(git_index_add_frombuffer)           \
+    PHP_GIT2_FE(git_index_caps)                     \
+    PHP_GIT2_FE(git_index_checksum)                 \
+    PHP_GIT2_FE(git_index_clear)                    \
+    PHP_GIT2_FE(git_index_conflict_add)             \
+    PHP_GIT2_FE(git_index_conflict_cleanup)         \
+    PHP_GIT2_FE(git_index_conflict_get)             \
+    PHP_GIT2_FE(git_index_conflict_iterator_free)   \
+    PHP_GIT2_FE(git_index_conflict_iterator_new)    \
+    PHP_GIT2_FE(git_index_conflict_next)            \
+    PHP_GIT2_FE(git_index_conflict_remove)          \
+    PHP_GIT2_FE(git_index_entrycount)               \
+    PHP_GIT2_FE(git_index_entry_is_conflict)        \
+    PHP_GIT2_FE(git_index_entry_stage)              \
+    PHP_GIT2_FE(git_index_find)                     \
+    PHP_GIT2_FE(git_index_find_prefix)              \
+    PHP_GIT2_FE(git_index_free)                     \
+    PHP_GIT2_FE(git_index_get_byindex)              \
+    PHP_GIT2_FE(git_index_get_bypath)               \
+    PHP_GIT2_FE(git_index_has_conflicts)            \
+    PHP_GIT2_FE(git_index_new)                      \
+    PHP_GIT2_FE(git_index_open)                     \
+    PHP_GIT2_FE(git_index_owner)                    \
+    PHP_GIT2_FE(git_index_path)                     \
+    PHP_GIT2_FE(git_index_read)                     \
+    PHP_GIT2_FE(git_index_read_tree)                \
+    PHP_GIT2_FE(git_index_remove)                   \
+    PHP_GIT2_FE(git_index_remove_all)               \
+    PHP_GIT2_FE(git_index_remove_bypath)            \
+    PHP_GIT2_FE(git_index_remove_directory)         \
+    PHP_GIT2_FE(git_index_set_caps)                 \
+    PHP_GIT2_FE(git_index_set_version)              \
+    PHP_GIT2_FE(git_index_update_all)               \
+    PHP_GIT2_FE(git_index_version)                  \
+    PHP_GIT2_FE(git_index_write)                    \
+    PHP_GIT2_FE(git_index_write_tree)               \
+    PHP_GIT2_FE(git_index_write_tree_to)
 
 #endif
 

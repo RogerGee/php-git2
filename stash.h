@@ -48,7 +48,7 @@ namespace php_git2
 
 } // namespace php_git2
 
-static constexpr auto ZIF_GIT_STASH_APPLY = zif_php_git2_function<
+static constexpr auto ZIF_git_stash_apply = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -61,7 +61,7 @@ static constexpr auto ZIF_GIT_STASH_APPLY = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_STASH_DROP = zif_php_git2_function<
+static constexpr auto ZIF_git_stash_drop = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -72,7 +72,7 @@ static constexpr auto ZIF_GIT_STASH_DROP = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_STASH_FOREACH = zif_php_git2_function<
+static constexpr auto ZIF_git_stash_foreach = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -88,7 +88,7 @@ static constexpr auto ZIF_GIT_STASH_FOREACH = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_STASH_POP = zif_php_git2_function<
+static constexpr auto ZIF_git_stash_pop = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -101,7 +101,7 @@ static constexpr auto ZIF_GIT_STASH_POP = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_STASH_SAVE = zif_php_git2_function<
+static constexpr auto ZIF_git_stash_save = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_oid*,
@@ -121,12 +121,12 @@ static constexpr auto ZIF_GIT_STASH_SAVE = zif_php_git2_function<
     php_git2::sequence<0,1,2,3,4>
     >;
 
-#define GIT_STASH_FE                                            \
-    PHP_GIT2_FE(git_stash_apply,ZIF_GIT_STASH_APPLY,NULL)       \
-    PHP_GIT2_FE(git_stash_drop,ZIF_GIT_STASH_DROP,NULL)         \
-    PHP_GIT2_FE(git_stash_foreach,ZIF_GIT_STASH_FOREACH,NULL)   \
-    PHP_GIT2_FE(git_stash_pop,ZIF_GIT_STASH_POP,NULL)           \
-    PHP_GIT2_FE(git_stash_save,ZIF_GIT_STASH_SAVE,NULL)
+#define GIT_STASH_FE                            \
+    PHP_GIT2_FE(git_stash_apply)                \
+    PHP_GIT2_FE(git_stash_drop)                 \
+    PHP_GIT2_FE(git_stash_foreach)              \
+    PHP_GIT2_FE(git_stash_pop)                  \
+    PHP_GIT2_FE(git_stash_save)
 
 #endif
 

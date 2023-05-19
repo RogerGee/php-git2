@@ -69,7 +69,7 @@ namespace php_git2
 
 // Functions:
 
-static constexpr auto ZIF_GIT_REVPARSE = zif_php_git2_function<
+static constexpr auto ZIF_git_revparse = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_revspec*,
@@ -85,7 +85,7 @@ static constexpr auto ZIF_GIT_REVPARSE = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_REVPARSE_EXT = zif_php_git2_function_setdeps2<
+static constexpr auto ZIF_git_revparse_ext = zif_php_git2_function_setdeps2<
     php_git2::func_wrapper<
         int,
         git_object**,
@@ -104,13 +104,8 @@ static constexpr auto ZIF_GIT_REVPARSE_EXT = zif_php_git2_function_setdeps2<
     php_git2::sequence<1,2,3>,
     php_git2::sequence<0,1,2,3>
     >;
-ZEND_BEGIN_ARG_INFO_EX(git_revparse_ext_arginfo,0,0,2)
-    ZEND_ARG_INFO(1,reference)
-    ZEND_ARG_INFO(0,repo)
-    ZEND_ARG_INFO(0,spec)
-ZEND_END_ARG_INFO()
 
-static constexpr auto ZIF_GIT_REVPARSE_SINGLE = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_revparse_single = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_object**,
@@ -129,10 +124,10 @@ static constexpr auto ZIF_GIT_REVPARSE_SINGLE = zif_php_git2_function_setdeps<
 
 // Function Entries:
 
-#define GIT_REVPARSE_FE                                                 \
-    PHP_GIT2_FE(git_revparse,ZIF_GIT_REVPARSE,NULL)                     \
-    PHP_GIT2_FE(git_revparse_ext,ZIF_GIT_REVPARSE_EXT,git_revparse_ext_arginfo) \
-    PHP_GIT2_FE(git_revparse_single,ZIF_GIT_REVPARSE_SINGLE,NULL)
+#define GIT_REVPARSE_FE                         \
+    PHP_GIT2_FE(git_revparse)                   \
+    PHP_GIT2_FE(git_revparse_ext)               \
+    PHP_GIT2_FE(git_revparse_single)
 
 #endif
 

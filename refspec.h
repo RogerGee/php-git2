@@ -17,7 +17,7 @@ namespace php_git2
 
 } // namespace php_git2
 
-static constexpr auto ZIF_GIT_REFSPEC_DIRECTION = zif_php_git2_function<
+static constexpr auto ZIF_git_refspec_direction = zif_php_git2_function<
     php_git2::func_wrapper<
         git_direction,
         const git_refspec*>::func<git_refspec_direction>,
@@ -27,7 +27,7 @@ static constexpr auto ZIF_GIT_REFSPEC_DIRECTION = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_REFSPEC_DST = zif_php_git2_function<
+static constexpr auto ZIF_git_refspec_dst = zif_php_git2_function<
     php_git2::func_wrapper<
         const char*,
         const git_refspec*>::func<git_refspec_dst>,
@@ -37,7 +37,7 @@ static constexpr auto ZIF_GIT_REFSPEC_DST = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_REFSPEC_DST_MATCHES = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_refspec_dst_matches = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         const git_refspec*,
@@ -49,7 +49,7 @@ static constexpr auto ZIF_GIT_REFSPEC_DST_MATCHES = zif_php_git2_function_rethan
     php_git2::php_boolean_rethandler<int>
     >;
 
-static constexpr auto ZIF_GIT_REFSPEC_FORCE = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_refspec_force = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         const git_refspec*>::func<git_refspec_force>,
@@ -59,7 +59,7 @@ static constexpr auto ZIF_GIT_REFSPEC_FORCE = zif_php_git2_function_rethandler<
     php_git2::php_boolean_rethandler<int>
     >;
 
-static constexpr auto ZIF_GIT_REFSPEC_RTRANSFORM = zif_php_git2_function<
+static constexpr auto ZIF_git_refspec_rtransform = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_buf*,
@@ -75,7 +75,7 @@ static constexpr auto ZIF_GIT_REFSPEC_RTRANSFORM = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_REFSPEC_SRC = zif_php_git2_function<
+static constexpr auto ZIF_git_refspec_src = zif_php_git2_function<
     php_git2::func_wrapper<
         const char*,
         const git_refspec*>::func<git_refspec_src>,
@@ -85,7 +85,7 @@ static constexpr auto ZIF_GIT_REFSPEC_SRC = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_REFSPEC_SRC_MATCHES = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_refspec_src_matches = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         const git_refspec*,
@@ -97,7 +97,7 @@ static constexpr auto ZIF_GIT_REFSPEC_SRC_MATCHES = zif_php_git2_function_rethan
     php_git2::php_boolean_rethandler<int>
     >;
 
-static constexpr auto ZIF_GIT_REFSPEC_STRING = zif_php_git2_function<
+static constexpr auto ZIF_git_refspec_string = zif_php_git2_function<
     php_git2::func_wrapper<
         const char*,
         const git_refspec*>::func<git_refspec_string>,
@@ -107,7 +107,7 @@ static constexpr auto ZIF_GIT_REFSPEC_STRING = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_REFSPEC_TRANSFORM = zif_php_git2_function<
+static constexpr auto ZIF_git_refspec_transform = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_buf*,
@@ -123,16 +123,16 @@ static constexpr auto ZIF_GIT_REFSPEC_TRANSFORM = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-#define GIT_REFSPEC_FE                                                  \
-    PHP_GIT2_FE(git_refspec_direction,ZIF_GIT_REFSPEC_DIRECTION,NULL)   \
-    PHP_GIT2_FE(git_refspec_dst,ZIF_GIT_REFSPEC_DST,NULL)               \
-    PHP_GIT2_FE(git_refspec_dst_matches,ZIF_GIT_REFSPEC_DST_MATCHES,NULL) \
-    PHP_GIT2_FE(git_refspec_force,ZIF_GIT_REFSPEC_FORCE,NULL)           \
-    PHP_GIT2_FE(git_refspec_rtransform,ZIF_GIT_REFSPEC_RTRANSFORM,NULL) \
-    PHP_GIT2_FE(git_refspec_src,ZIF_GIT_REFSPEC_SRC,NULL)               \
-    PHP_GIT2_FE(git_refspec_src_matches,ZIF_GIT_REFSPEC_SRC_MATCHES,NULL) \
-    PHP_GIT2_FE(git_refspec_string,ZIF_GIT_REFSPEC_STRING,NULL)         \
-    PHP_GIT2_FE(git_refspec_transform,ZIF_GIT_REFSPEC_TRANSFORM,NULL)
+#define GIT_REFSPEC_FE                          \
+    PHP_GIT2_FE(git_refspec_direction)          \
+    PHP_GIT2_FE(git_refspec_dst)                \
+    PHP_GIT2_FE(git_refspec_dst_matches)        \
+    PHP_GIT2_FE(git_refspec_force)              \
+    PHP_GIT2_FE(git_refspec_rtransform)         \
+    PHP_GIT2_FE(git_refspec_src)                \
+    PHP_GIT2_FE(git_refspec_src_matches)        \
+    PHP_GIT2_FE(git_refspec_string)             \
+    PHP_GIT2_FE(git_refspec_transform)
 
 #endif
 

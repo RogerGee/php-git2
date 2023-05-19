@@ -150,7 +150,7 @@ namespace php_git2
 
 } // namespace php_git2
 
-static constexpr auto ZIF_GIT_MERGE = zif_php_git2_function<
+static constexpr auto ZIF_git_merge = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -170,7 +170,7 @@ static constexpr auto ZIF_GIT_MERGE = zif_php_git2_function<
     php_git2::sequence<0,2,1,3,4>
     >;
 
-static constexpr auto ZIF_GIT_MERGE_ANALYSIS = zif_php_git2_function<
+static constexpr auto ZIF_git_merge_analysis = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_merge_analysis_t*,
@@ -189,13 +189,8 @@ static constexpr auto ZIF_GIT_MERGE_ANALYSIS = zif_php_git2_function<
     php_git2::sequence<1,2,4>,
     php_git2::sequence<0,1,2,4,3>
     >;
-ZEND_BEGIN_ARG_INFO_EX(git_merge_analysis_arginfo,0,0,3)
-    ZEND_ARG_INFO(1,preference)
-    ZEND_ARG_INFO(0,repo)
-    ZEND_ARG_INFO(0,their_heads)
-ZEND_END_ARG_INFO()
 
-static constexpr auto ZIF_GIT_MERGE_BASE = zif_php_git2_function<
+static constexpr auto ZIF_git_merge_base = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_oid*,
@@ -213,7 +208,7 @@ static constexpr auto ZIF_GIT_MERGE_BASE = zif_php_git2_function<
     php_git2::sequence<0,1,2,3>
     >;
 
-static constexpr auto ZIF_GIT_MERGE_BASE_MANY = zif_php_git2_function<
+static constexpr auto ZIF_git_merge_base_many = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_oid*,
@@ -236,7 +231,7 @@ static constexpr auto ZIF_GIT_MERGE_BASE_MANY = zif_php_git2_function<
     php_git2::sequence<0,1,2,3>
     >;
 
-static constexpr auto ZIF_GIT_MERGE_BASE_OCTOPUS = zif_php_git2_function<
+static constexpr auto ZIF_git_merge_base_octopus = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_oid*,
@@ -259,7 +254,7 @@ static constexpr auto ZIF_GIT_MERGE_BASE_OCTOPUS = zif_php_git2_function<
     php_git2::sequence<0,1,2,3>
     >;
 
-static constexpr auto ZIF_GIT_MERGE_BASES = zif_php_git2_function<
+static constexpr auto ZIF_git_merge_bases = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_oidarray*,
@@ -277,7 +272,7 @@ static constexpr auto ZIF_GIT_MERGE_BASES = zif_php_git2_function<
     php_git2::sequence<0,1,2,3>
     >;
 
-static constexpr auto ZIF_GIT_MERGE_BASES_MANY = zif_php_git2_function<
+static constexpr auto ZIF_git_merge_bases_many = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_oidarray*,
@@ -300,7 +295,7 @@ static constexpr auto ZIF_GIT_MERGE_BASES_MANY = zif_php_git2_function<
     php_git2::sequence<0,1,2,3>
     >;
 
-static constexpr auto ZIF_GIT_MERGE_COMMITS = zif_php_git2_function<
+static constexpr auto ZIF_git_merge_commits = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_index**,
@@ -320,7 +315,7 @@ static constexpr auto ZIF_GIT_MERGE_COMMITS = zif_php_git2_function<
     php_git2::sequence<0,1,2,3,4>
     >;
 
-/*static constexpr auto ZIF_GIT_MERGE_DRIVER_LOOKUP = zif_php_git2_function<
+/*static constexpr auto ZIF_git_merge_driver_lookup = zif_php_git2_function<
     php_git2::func_wrapper<
 
         >::func<git_merge_driver_lookup>,
@@ -332,7 +327,7 @@ static constexpr auto ZIF_GIT_MERGE_COMMITS = zif_php_git2_function<
     php_git2::sequence<>
     >;
 
-static constexpr auto ZIF_GIT_MERGE_DRIVER_REGISTER = zif_php_git2_function<
+static constexpr auto ZIF_git_merge_driver_register = zif_php_git2_function<
     php_git2::func_wrapper<
 
         >::func<git_merge_driver_register>,
@@ -344,7 +339,7 @@ static constexpr auto ZIF_GIT_MERGE_DRIVER_REGISTER = zif_php_git2_function<
     php_git2::sequence<>
     >;
 
-static constexpr auto ZIF_GIT_MERGE_DRIVER_SOURCE_ANCESTOR = zif_php_git2_function<
+static constexpr auto ZIF_git_merge_driver_source_ancestor = zif_php_git2_function<
     php_git2::func_wrapper<
 
         >::func<git_merge_driver_source_ancestor>,
@@ -356,7 +351,7 @@ static constexpr auto ZIF_GIT_MERGE_DRIVER_SOURCE_ANCESTOR = zif_php_git2_functi
     php_git2::sequence<>
     >;
 
-static constexpr auto ZIF_GIT_MERGE_DRIVER_SOURCE_FILE_OPTIONS = zif_php_git2_function<
+static constexpr auto ZIF_git_merge_driver_source_file_options = zif_php_git2_function<
     php_git2::func_wrapper<
 
         >::func<git_merge_driver_source_file_options>,
@@ -368,7 +363,7 @@ static constexpr auto ZIF_GIT_MERGE_DRIVER_SOURCE_FILE_OPTIONS = zif_php_git2_fu
     php_git2::sequence<>
     >;
 
-static constexpr auto ZIF_GIT_MERGE_DRIVER_SOURCE_OURS = zif_php_git2_function<
+static constexpr auto ZIF_git_merge_driver_source_ours = zif_php_git2_function<
     php_git2::func_wrapper<
 
         >::func<git_merge_driver_source_ours>,
@@ -380,7 +375,7 @@ static constexpr auto ZIF_GIT_MERGE_DRIVER_SOURCE_OURS = zif_php_git2_function<
     php_git2::sequence<>
     >;
 
-static constexpr auto ZIF_GIT_MERGE_DRIVER_SOURCE_REPO = zif_php_git2_function<
+static constexpr auto ZIF_git_merge_driver_source_repo = zif_php_git2_function<
     php_git2::func_wrapper<
 
         >::func<git_merge_driver_source_repo>,
@@ -392,7 +387,7 @@ static constexpr auto ZIF_GIT_MERGE_DRIVER_SOURCE_REPO = zif_php_git2_function<
     php_git2::sequence<>
     >;
 
-static constexpr auto ZIF_GIT_MERGE_DRIVER_SOURCE_THEIRS = zif_php_git2_function<
+static constexpr auto ZIF_git_merge_driver_source_theirs = zif_php_git2_function<
     php_git2::func_wrapper<
 
         >::func<git_merge_driver_source_theirs>,
@@ -404,7 +399,7 @@ static constexpr auto ZIF_GIT_MERGE_DRIVER_SOURCE_THEIRS = zif_php_git2_function
     php_git2::sequence<>
     >;
 
-static constexpr auto ZIF_GIT_MERGE_DRIVER_UNREGISTER = zif_php_git2_function<
+static constexpr auto ZIF_git_merge_driver_unregister = zif_php_git2_function<
     php_git2::func_wrapper<
 
         >::func<git_merge_driver_unregister>,
@@ -416,7 +411,7 @@ static constexpr auto ZIF_GIT_MERGE_DRIVER_UNREGISTER = zif_php_git2_function<
     php_git2::sequence<>
     >;
 */
-static constexpr auto ZIF_GIT_MERGE_FILE = zif_php_git2_function<
+static constexpr auto ZIF_git_merge_file = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_merge_file_result*,
@@ -436,7 +431,7 @@ static constexpr auto ZIF_GIT_MERGE_FILE = zif_php_git2_function<
     php_git2::sequence<0,1,2,3,4>
     >;
 
-static constexpr auto ZIF_GIT_MERGE_FILE_FROM_INDEX = zif_php_git2_function<
+static constexpr auto ZIF_git_merge_file_from_index = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_merge_file_result*,
@@ -458,7 +453,7 @@ static constexpr auto ZIF_GIT_MERGE_FILE_FROM_INDEX = zif_php_git2_function<
     php_git2::sequence<0,1,2,3,4,5>
     >;
 
-static constexpr auto ZIF_GIT_MERGE_TREES = zif_php_git2_function<
+static constexpr auto ZIF_git_merge_trees = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_index**,
@@ -480,26 +475,26 @@ static constexpr auto ZIF_GIT_MERGE_TREES = zif_php_git2_function<
     php_git2::sequence<0,1,2,3,4,5>
     >;
 
-#define GIT_MERGE_FE                                                    \
-    PHP_GIT2_FE(git_merge,ZIF_GIT_MERGE,NULL)                           \
-    PHP_GIT2_FE(git_merge_analysis,ZIF_GIT_MERGE_ANALYSIS,git_merge_analysis_arginfo) \
-    PHP_GIT2_FE(git_merge_base,ZIF_GIT_MERGE_BASE,NULL)                 \
-    PHP_GIT2_FE(git_merge_base_many,ZIF_GIT_MERGE_BASE_MANY,NULL)       \
-    PHP_GIT2_FE(git_merge_base_octopus,ZIF_GIT_MERGE_BASE_OCTOPUS,NULL) \
-    PHP_GIT2_FE(git_merge_bases,ZIF_GIT_MERGE_BASES,NULL)               \
-    PHP_GIT2_FE(git_merge_bases_many,ZIF_GIT_MERGE_BASES_MANY,NULL)     \
-    PHP_GIT2_FE(git_merge_commits,ZIF_GIT_MERGE_COMMITS,NULL)           \
-    PHP_GIT2_UNIMPLEMENTED(git_merge_driver_lookup,ZIF_GIT_MERGE_DRIVER_LOOKUP,NULL) \
-    PHP_GIT2_UNIMPLEMENTED(git_merge_driver_register,ZIF_GIT_MERGE_DRIVER_REGISTER,NULL) \
-    PHP_GIT2_UNIMPLEMENTED(git_merge_driver_source_ancestor,ZIF_GIT_MERGE_DRIVER_SOURCE_ANCESTOR,NULL) \
-    PHP_GIT2_UNIMPLEMENTED(git_merge_driver_source_file_options,ZIF_GIT_MERGE_DRIVER_SOURCE_FILE_OPTIONS,NULL) \
-    PHP_GIT2_UNIMPLEMENTED(git_merge_driver_source_ours,ZIF_GIT_MERGE_DRIVER_SOURCE_OURS,NULL) \
-    PHP_GIT2_UNIMPLEMENTED(git_merge_driver_source_repo,ZIF_GIT_MERGE_DRIVER_SOURCE_REPO,NULL) \
-    PHP_GIT2_UNIMPLEMENTED(git_merge_driver_source_theirs,ZIF_GIT_MERGE_DRIVER_SOURCE_THEIRS,NULL) \
-    PHP_GIT2_UNIMPLEMENTED(git_merge_driver_unregister,ZIF_GIT_MERGE_DRIVER_UNREGISTER,NULL) \
-    PHP_GIT2_FE(git_merge_file,ZIF_GIT_MERGE_FILE,NULL)                 \
-    PHP_GIT2_FE(git_merge_file_from_index,ZIF_GIT_MERGE_FILE_FROM_INDEX,NULL) \
-    PHP_GIT2_FE(git_merge_trees,ZIF_GIT_MERGE_TREES,NULL)
+#define GIT_MERGE_FE                                                \
+    PHP_GIT2_FE(git_merge)                                          \
+    PHP_GIT2_FE(git_merge_analysis)                                 \
+    PHP_GIT2_FE(git_merge_base)                                     \
+    PHP_GIT2_FE(git_merge_base_many)                                \
+    PHP_GIT2_FE(git_merge_base_octopus)                             \
+    PHP_GIT2_FE(git_merge_bases)                                    \
+    PHP_GIT2_FE(git_merge_bases_many)                               \
+    PHP_GIT2_FE(git_merge_commits)                                  \
+    PHP_GIT2_UNIMPLEMENTED(git_merge_driver_lookup)                 \
+    PHP_GIT2_UNIMPLEMENTED(git_merge_driver_register)               \
+    PHP_GIT2_UNIMPLEMENTED(git_merge_driver_source_ancestor)        \
+    PHP_GIT2_UNIMPLEMENTED(git_merge_driver_source_file_options)    \
+    PHP_GIT2_UNIMPLEMENTED(git_merge_driver_source_ours)            \
+    PHP_GIT2_UNIMPLEMENTED(git_merge_driver_source_repo)            \
+    PHP_GIT2_UNIMPLEMENTED(git_merge_driver_source_theirs)          \
+    PHP_GIT2_UNIMPLEMENTED(git_merge_driver_unregister)             \
+    PHP_GIT2_FE(git_merge_file)                                     \
+    PHP_GIT2_FE(git_merge_file_from_index)                          \
+    PHP_GIT2_FE(git_merge_trees)
 
 #endif
 

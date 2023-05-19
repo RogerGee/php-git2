@@ -73,7 +73,7 @@ namespace php_git2
 
 } // namespace php_git2
 
-static constexpr auto ZIF_GIT_DESCRIBE_COMMIT = zif_php_git2_function<
+static constexpr auto ZIF_git_describe_commit = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_describe_result**,
@@ -89,7 +89,7 @@ static constexpr auto ZIF_GIT_DESCRIBE_COMMIT = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_DESCRIBE_FORMAT = zif_php_git2_function<
+static constexpr auto ZIF_git_describe_format = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_buf*,
@@ -105,13 +105,13 @@ static constexpr auto ZIF_GIT_DESCRIBE_FORMAT = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_DESCRIBE_RESULT_FREE = zif_php_git2_function_free<
+static constexpr auto ZIF_git_describe_result_free = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_describe_result>
         >
     >;
 
-static constexpr auto ZIF_GIT_DESCRIBE_WORKDIR = zif_php_git2_function<
+static constexpr auto ZIF_git_describe_workdir = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_describe_result**,
@@ -127,11 +127,11 @@ static constexpr auto ZIF_GIT_DESCRIBE_WORKDIR = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-#define GIT_DESCRIBE_FE                                           \
-    PHP_GIT2_FE(git_describe_commit,ZIF_GIT_DESCRIBE_COMMIT,NULL) \
-    PHP_GIT2_FE(git_describe_format,ZIF_GIT_DESCRIBE_FORMAT,NULL)       \
-    PHP_GIT2_FE(git_describe_result_free,ZIF_GIT_DESCRIBE_RESULT_FREE,NULL) \
-    PHP_GIT2_FE(git_describe_workdir,ZIF_GIT_DESCRIBE_WORKDIR,NULL)
+#define GIT_DESCRIBE_FE                         \
+    PHP_GIT2_FE(git_describe_commit)            \
+    PHP_GIT2_FE(git_describe_format)            \
+    PHP_GIT2_FE(git_describe_result_free)       \
+    PHP_GIT2_FE(git_describe_workdir)
 
 #endif
 

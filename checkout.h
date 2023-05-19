@@ -63,7 +63,7 @@ namespace php_git2
 
 // Functions:
 
-static constexpr auto ZIF_GIT_CHECKOUT_HEAD = zif_php_git2_function<
+static constexpr auto ZIF_git_checkout_head = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -74,7 +74,7 @@ static constexpr auto ZIF_GIT_CHECKOUT_HEAD = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_CHECKOUT_TREE = zif_php_git2_function<
+static constexpr auto ZIF_git_checkout_tree = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -87,7 +87,7 @@ static constexpr auto ZIF_GIT_CHECKOUT_TREE = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_CHECKOUT_INDEX = zif_php_git2_function<
+static constexpr auto ZIF_git_checkout_index = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -102,10 +102,10 @@ static constexpr auto ZIF_GIT_CHECKOUT_INDEX = zif_php_git2_function<
 
 // Function Entries:
 
-#define GIT_CHECKOUT_FE                                         \
-    PHP_GIT2_FE(git_checkout_head,ZIF_GIT_CHECKOUT_HEAD,NULL)   \
-    PHP_GIT2_FE(git_checkout_tree,ZIF_GIT_CHECKOUT_TREE,NULL)   \
-    PHP_GIT2_FE(git_checkout_index,ZIF_GIT_CHECKOUT_INDEX,NULL)
+#define GIT_CHECKOUT_FE                         \
+    PHP_GIT2_FE(git_checkout_head)              \
+    PHP_GIT2_FE(git_checkout_tree)              \
+    PHP_GIT2_FE(git_checkout_index)
 
 #endif
 

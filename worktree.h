@@ -73,7 +73,7 @@ namespace php_git2
 
 } // namespace php_git2
 
-static constexpr auto ZIF_GIT_WORKTREE_ADD = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_worktree_add = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_worktree**,
@@ -95,13 +95,13 @@ static constexpr auto ZIF_GIT_WORKTREE_ADD = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1,2,3,4>
     >;
 
-static constexpr auto ZIF_GIT_WORKTREE_FREE = zif_php_git2_function_free<
+static constexpr auto ZIF_git_worktree_free = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_worktree>
         >
     >;
 
-static constexpr auto ZIF_GIT_WORKTREE_IS_LOCKED = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_worktree_is_locked = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         git_buf*,
@@ -113,12 +113,8 @@ static constexpr auto ZIF_GIT_WORKTREE_IS_LOCKED = zif_php_git2_function_rethand
         >,
     php_git2::php_boolean_error_rethandler<int>
     >;
-ZEND_BEGIN_ARG_INFO_EX(git_worktree_is_locked_arginfo,0,0,2)
-    ZEND_ARG_INFO(1,reason)
-    ZEND_ARG_INFO(0,worktree)
-ZEND_END_ARG_INFO()
 
-static constexpr auto ZIF_GIT_WORKTREE_IS_PRUNABLE = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_worktree_is_prunable = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         git_worktree*,
@@ -131,7 +127,7 @@ static constexpr auto ZIF_GIT_WORKTREE_IS_PRUNABLE = zif_php_git2_function_retha
     php_git2::php_boolean_error_rethandler<int>
     >;
 
-static constexpr auto ZIF_GIT_WORKTREE_LIST = zif_php_git2_function<
+static constexpr auto ZIF_git_worktree_list = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_strarray*,
@@ -146,7 +142,7 @@ static constexpr auto ZIF_GIT_WORKTREE_LIST = zif_php_git2_function<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_WORKTREE_LOCK = zif_php_git2_function<
+static constexpr auto ZIF_git_worktree_lock = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_worktree*,
@@ -158,7 +154,7 @@ static constexpr auto ZIF_GIT_WORKTREE_LOCK = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_WORKTREE_LOOKUP = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_worktree_lookup = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_worktree**,
@@ -176,7 +172,7 @@ static constexpr auto ZIF_GIT_WORKTREE_LOOKUP = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_WORKTREE_NAME = zif_php_git2_function<
+static constexpr auto ZIF_git_worktree_name = zif_php_git2_function<
     php_git2::func_wrapper<
         const char*,
         const git_worktree*
@@ -187,7 +183,7 @@ static constexpr auto ZIF_GIT_WORKTREE_NAME = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_WORKTREE_OPEN_FROM_REPOSITORY = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_worktree_open_from_repository = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_worktree**,
@@ -203,7 +199,7 @@ static constexpr auto ZIF_GIT_WORKTREE_OPEN_FROM_REPOSITORY = zif_php_git2_funct
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_WORKTREE_PATH = zif_php_git2_function<
+static constexpr auto ZIF_git_worktree_path = zif_php_git2_function<
     php_git2::func_wrapper<
         const char*,
         const git_worktree*
@@ -214,7 +210,7 @@ static constexpr auto ZIF_GIT_WORKTREE_PATH = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_WORKTREE_PRUNE = zif_php_git2_function<
+static constexpr auto ZIF_git_worktree_prune = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_worktree*,
@@ -226,7 +222,7 @@ static constexpr auto ZIF_GIT_WORKTREE_PRUNE = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_WORKTREE_UNLOCK = zif_php_git2_function<
+static constexpr auto ZIF_git_worktree_unlock = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_worktree*
@@ -236,7 +232,7 @@ static constexpr auto ZIF_GIT_WORKTREE_UNLOCK = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_WORKTREE_VALIDATE = zif_php_git2_function<
+static constexpr auto ZIF_git_worktree_validate = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         const git_worktree*
@@ -246,20 +242,20 @@ static constexpr auto ZIF_GIT_WORKTREE_VALIDATE = zif_php_git2_function<
         >
     >;
 
-#define GIT_WORKTREE_FE                                                 \
-    PHP_GIT2_FE(git_worktree_add,ZIF_GIT_WORKTREE_ADD,NULL)             \
-    PHP_GIT2_FE(git_worktree_free,ZIF_GIT_WORKTREE_FREE,NULL)           \
-    PHP_GIT2_FE(git_worktree_is_locked,ZIF_GIT_WORKTREE_IS_LOCKED,git_worktree_is_locked_arginfo) \
-    PHP_GIT2_FE(git_worktree_is_prunable,ZIF_GIT_WORKTREE_IS_PRUNABLE,NULL) \
-    PHP_GIT2_FE(git_worktree_list,ZIF_GIT_WORKTREE_LIST,NULL)           \
-    PHP_GIT2_FE(git_worktree_lock,ZIF_GIT_WORKTREE_LOCK,NULL)           \
-    PHP_GIT2_FE(git_worktree_lookup,ZIF_GIT_WORKTREE_LOOKUP,NULL)       \
-    PHP_GIT2_FE(git_worktree_name,ZIF_GIT_WORKTREE_NAME,NULL)           \
-    PHP_GIT2_FE(git_worktree_open_from_repository,ZIF_GIT_WORKTREE_OPEN_FROM_REPOSITORY,NULL) \
-    PHP_GIT2_FE(git_worktree_path,ZIF_GIT_WORKTREE_PATH,NULL)           \
-    PHP_GIT2_FE(git_worktree_prune,ZIF_GIT_WORKTREE_PRUNE,NULL)         \
-    PHP_GIT2_FE(git_worktree_unlock,ZIF_GIT_WORKTREE_UNLOCK,NULL)       \
-    PHP_GIT2_FE(git_worktree_validate,ZIF_GIT_WORKTREE_VALIDATE,NULL)
+#define GIT_WORKTREE_FE                             \
+    PHP_GIT2_FE(git_worktree_add)                   \
+    PHP_GIT2_FE(git_worktree_free)                  \
+    PHP_GIT2_FE(git_worktree_is_locked)             \
+    PHP_GIT2_FE(git_worktree_is_prunable)           \
+    PHP_GIT2_FE(git_worktree_list)                  \
+    PHP_GIT2_FE(git_worktree_lock)                  \
+    PHP_GIT2_FE(git_worktree_lookup)                \
+    PHP_GIT2_FE(git_worktree_name)                  \
+    PHP_GIT2_FE(git_worktree_open_from_repository)  \
+    PHP_GIT2_FE(git_worktree_path)                  \
+    PHP_GIT2_FE(git_worktree_prune)                 \
+    PHP_GIT2_FE(git_worktree_unlock)                \
+    PHP_GIT2_FE(git_worktree_validate)
 
 #endif
 

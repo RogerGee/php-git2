@@ -11,7 +11,7 @@ namespace php_git2
 {
 }
 
-static constexpr auto ZIF_GIT_ATTR_ADD_MACRO = zif_php_git2_function<
+static constexpr auto ZIF_git_attr_add_macro = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -24,7 +24,7 @@ static constexpr auto ZIF_GIT_ATTR_ADD_MACRO = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_ATTR_CACHE_FLUSH = zif_php_git2_function<
+static constexpr auto ZIF_git_attr_cache_flush = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*>::func<git_attr_cache_flush>,
@@ -33,7 +33,7 @@ static constexpr auto ZIF_GIT_ATTR_CACHE_FLUSH = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_ATTR_FOREACH = zif_php_git2_function<
+static constexpr auto ZIF_git_attr_foreach = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -53,7 +53,7 @@ static constexpr auto ZIF_GIT_ATTR_FOREACH = zif_php_git2_function<
     php_git2::sequence<0,1,2,3,4>
     >;
 
-static constexpr auto ZIF_GIT_ATTR_GET = zif_php_git2_function<
+static constexpr auto ZIF_git_attr_get = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         const char**,
@@ -73,7 +73,7 @@ static constexpr auto ZIF_GIT_ATTR_GET = zif_php_git2_function<
     php_git2::sequence<0,1,2,3,4>
     >;
 
-// static constexpr auto ZIF_GIT_ATTR_GET_MANY = zif_php_git2_function<
+// static constexpr auto ZIF_git_attr_get_many = zif_php_git2_function<
 //     php_git2::func_wrapper<
 
 //         >::func<git_attr_get_many>,
@@ -86,7 +86,7 @@ static constexpr auto ZIF_GIT_ATTR_GET = zif_php_git2_function<
 //     php_git2::sequence<>
 //     >;
 
-static constexpr auto ZIF_GIT_ATTR_VALUE = zif_php_git2_function<
+static constexpr auto ZIF_git_attr_value = zif_php_git2_function<
     php_git2::func_wrapper<
         git_attr_t,
         const char*>::func<git_attr_value>,
@@ -96,13 +96,13 @@ static constexpr auto ZIF_GIT_ATTR_VALUE = zif_php_git2_function<
     0
     >;
 
-#define GIT_ATTR_FE                                                     \
-    PHP_GIT2_FE(git_attr_add_macro,ZIF_GIT_ATTR_ADD_MACRO,NULL)         \
-    PHP_GIT2_FE(git_attr_cache_flush,ZIF_GIT_ATTR_CACHE_FLUSH,NULL)     \
-    PHP_GIT2_FE(git_attr_foreach,ZIF_GIT_ATTR_FOREACH,NULL)             \
-    PHP_GIT2_FE(git_attr_get,ZIF_GIT_ATTR_GET,NULL)                     \
-    PHP_GIT2_UNIMPLEMENTED(git_attr_get_many,ZIF_GIT_ATTR_GET_MANY,NULL) \
-    PHP_GIT2_FE(git_attr_value,ZIF_GIT_ATTR_VALUE,NULL)
+#define GIT_ATTR_FE                             \
+    PHP_GIT2_FE(git_attr_add_macro)             \
+    PHP_GIT2_FE(git_attr_cache_flush)           \
+    PHP_GIT2_FE(git_attr_foreach)               \
+    PHP_GIT2_FE(git_attr_get)                   \
+    PHP_GIT2_UNIMPLEMENTED(git_attr_get_many)   \
+    PHP_GIT2_FE(git_attr_value)
 
 #endif
 

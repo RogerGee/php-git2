@@ -20,7 +20,7 @@ namespace php_git2
 
 // Functions:
 
-static constexpr auto ZIF_GIT_TAG_ANNOTATION_CREATE = zif_php_git2_function<
+static constexpr auto ZIF_git_tag_annotation_create = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_oid*,
@@ -42,7 +42,7 @@ static constexpr auto ZIF_GIT_TAG_ANNOTATION_CREATE = zif_php_git2_function<
     php_git2::sequence<0,1,2,3,4,5>
     >;
 
-static constexpr auto ZIF_GIT_TAG_CREATE = zif_php_git2_function<
+static constexpr auto ZIF_git_tag_create = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_oid*,
@@ -66,7 +66,7 @@ static constexpr auto ZIF_GIT_TAG_CREATE = zif_php_git2_function<
     php_git2::sequence<0,1,2,3,4,5,6>
     >;
 
-static constexpr auto ZIF_GIT_TAG_CREATE_FROMBUFFER = zif_php_git2_function<
+static constexpr auto ZIF_git_tag_create_frombuffer = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_oid*,
@@ -84,7 +84,7 @@ static constexpr auto ZIF_GIT_TAG_CREATE_FROMBUFFER = zif_php_git2_function<
     php_git2::sequence<0,1,2,3>
     >;
 
-static constexpr auto ZIF_GIT_TAG_CREATE_LIGHTWEIGHT = zif_php_git2_function<
+static constexpr auto ZIF_git_tag_create_lightweight = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_oid*,
@@ -104,7 +104,7 @@ static constexpr auto ZIF_GIT_TAG_CREATE_LIGHTWEIGHT = zif_php_git2_function<
     php_git2::sequence<0,1,2,3,4>
     >;
 
-static constexpr auto ZIF_GIT_TAG_LOOKUP = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_tag_lookup = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_tag**,
@@ -121,7 +121,7 @@ static constexpr auto ZIF_GIT_TAG_LOOKUP = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_TAG_LOOKUP_PREFIX = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_tag_lookup_prefix = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_tag**,
@@ -141,13 +141,13 @@ static constexpr auto ZIF_GIT_TAG_LOOKUP_PREFIX = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1,3,2>
     >;
 
-static constexpr auto ZIF_GIT_TAG_FREE = zif_php_git2_function_free<
+static constexpr auto ZIF_git_tag_free = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_tag>
         >
     >;
 
-static constexpr auto ZIF_GIT_TAG_ID = zif_php_git2_function<
+static constexpr auto ZIF_git_tag_id = zif_php_git2_function<
     php_git2::func_wrapper<
         const git_oid*,
         const git_tag*>::func<git_tag_id>,
@@ -157,7 +157,7 @@ static constexpr auto ZIF_GIT_TAG_ID = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_TAG_TARGET_ID = zif_php_git2_function<
+static constexpr auto ZIF_git_tag_target_id = zif_php_git2_function<
     php_git2::func_wrapper<
         const git_oid*,
         const git_tag*>::func<git_tag_target_id>,
@@ -167,7 +167,7 @@ static constexpr auto ZIF_GIT_TAG_TARGET_ID = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_TAG_MESSAGE = zif_php_git2_function<
+static constexpr auto ZIF_git_tag_message = zif_php_git2_function<
     php_git2::func_wrapper<
         const char*,
         const git_tag*>::func<git_tag_message>,
@@ -177,7 +177,7 @@ static constexpr auto ZIF_GIT_TAG_MESSAGE = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_TAG_NAME = zif_php_git2_function<
+static constexpr auto ZIF_git_tag_name = zif_php_git2_function<
     php_git2::func_wrapper<
         const char*,
         const git_tag*>::func<git_tag_name>,
@@ -187,7 +187,7 @@ static constexpr auto ZIF_GIT_TAG_NAME = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_TAG_OWNER = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_tag_owner = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         git_repository*,
         const git_tag*>::func<git_tag_owner>,
@@ -200,7 +200,7 @@ static constexpr auto ZIF_GIT_TAG_OWNER = zif_php_git2_function_rethandler<
     php_git2::sequence<0>
     >;
 
-static constexpr auto ZIF_GIT_TAG_PEEL = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_tag_peel = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_object**,
@@ -215,7 +215,7 @@ static constexpr auto ZIF_GIT_TAG_PEEL = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_TAG_TARGET = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_tag_target = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_object**,
@@ -230,7 +230,7 @@ static constexpr auto ZIF_GIT_TAG_TARGET = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_TAG_TAGGER = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_tag_tagger = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         const git_signature*,
         const git_tag*>::func<git_tag_tagger>,
@@ -243,7 +243,7 @@ static constexpr auto ZIF_GIT_TAG_TAGGER = zif_php_git2_function_rethandler<
         >
     >;
 
-static constexpr auto ZIF_GIT_TAG_TARGET_TYPE = zif_php_git2_function<
+static constexpr auto ZIF_git_tag_target_type = zif_php_git2_function<
     php_git2::func_wrapper<
         git_object_t,
         const git_tag*>::func<git_tag_target_type>,
@@ -253,7 +253,7 @@ static constexpr auto ZIF_GIT_TAG_TARGET_TYPE = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_TAG_DELETE = zif_php_git2_function<
+static constexpr auto ZIF_git_tag_delete = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -264,7 +264,7 @@ static constexpr auto ZIF_GIT_TAG_DELETE = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_TAG_DUP = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_tag_dup = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_tag**,
@@ -279,7 +279,7 @@ static constexpr auto ZIF_GIT_TAG_DUP = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_TAG_LIST = zif_php_git2_function<
+static constexpr auto ZIF_git_tag_list = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_strarray*,
@@ -293,7 +293,7 @@ static constexpr auto ZIF_GIT_TAG_LIST = zif_php_git2_function<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_TAG_LIST_MATCH = zif_php_git2_function<
+static constexpr auto ZIF_git_tag_list_match = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_strarray*,
@@ -309,7 +309,7 @@ static constexpr auto ZIF_GIT_TAG_LIST_MATCH = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_TAG_FOREACH = zif_php_git2_function<
+static constexpr auto ZIF_git_tag_foreach = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -327,28 +327,28 @@ static constexpr auto ZIF_GIT_TAG_FOREACH = zif_php_git2_function<
 
 // Function Entries:
 
-#define GIT_TAG_FE                                                      \
-    PHP_GIT2_FE(git_tag_annotation_create,ZIF_GIT_TAG_ANNOTATION_CREATE,NULL) \
-    PHP_GIT2_FE(git_tag_create,ZIF_GIT_TAG_CREATE,NULL)                 \
-    PHP_GIT2_FE(git_tag_create_frombuffer,ZIF_GIT_TAG_CREATE_FROMBUFFER,NULL) \
-    PHP_GIT2_FE(git_tag_create_lightweight,ZIF_GIT_TAG_CREATE_LIGHTWEIGHT,NULL) \
-    PHP_GIT2_FE(git_tag_lookup,ZIF_GIT_TAG_LOOKUP,NULL)                 \
-    PHP_GIT2_FE(git_tag_lookup_prefix,ZIF_GIT_TAG_LOOKUP_PREFIX,NULL)   \
-    PHP_GIT2_FE(git_tag_free,ZIF_GIT_TAG_FREE,NULL)                     \
-    PHP_GIT2_FE(git_tag_id,ZIF_GIT_TAG_ID,NULL)                         \
-    PHP_GIT2_FE(git_tag_target_id,ZIF_GIT_TAG_TARGET_ID,NULL)           \
-    PHP_GIT2_FE(git_tag_message,ZIF_GIT_TAG_MESSAGE,NULL)               \
-    PHP_GIT2_FE(git_tag_name,ZIF_GIT_TAG_NAME,NULL)                     \
-    PHP_GIT2_FE(git_tag_owner,ZIF_GIT_TAG_OWNER,NULL)                   \
-    PHP_GIT2_FE(git_tag_peel,ZIF_GIT_TAG_PEEL,NULL)                     \
-    PHP_GIT2_FE(git_tag_target,ZIF_GIT_TAG_TARGET,NULL)                 \
-    PHP_GIT2_FE(git_tag_tagger,ZIF_GIT_TAG_TAGGER,NULL)                 \
-    PHP_GIT2_FE(git_tag_target_type,ZIF_GIT_TAG_TARGET_TYPE,NULL)       \
-    PHP_GIT2_FE(git_tag_delete,ZIF_GIT_TAG_DELETE,NULL)                 \
-    PHP_GIT2_FE(git_tag_dup,ZIF_GIT_TAG_DUP,NULL)                       \
-    PHP_GIT2_FE(git_tag_list,ZIF_GIT_TAG_LIST,NULL)                     \
-    PHP_GIT2_FE(git_tag_list_match,ZIF_GIT_TAG_LIST_MATCH,NULL)         \
-    PHP_GIT2_FE(git_tag_foreach,ZIF_GIT_TAG_FOREACH,NULL)
+#define GIT_TAG_FE                              \
+    PHP_GIT2_FE(git_tag_annotation_create)      \
+    PHP_GIT2_FE(git_tag_create)                 \
+    PHP_GIT2_FE(git_tag_create_frombuffer)      \
+    PHP_GIT2_FE(git_tag_create_lightweight)     \
+    PHP_GIT2_FE(git_tag_lookup)                 \
+    PHP_GIT2_FE(git_tag_lookup_prefix)          \
+    PHP_GIT2_FE(git_tag_free)                   \
+    PHP_GIT2_FE(git_tag_id)                     \
+    PHP_GIT2_FE(git_tag_target_id)              \
+    PHP_GIT2_FE(git_tag_message)                \
+    PHP_GIT2_FE(git_tag_name)                   \
+    PHP_GIT2_FE(git_tag_owner)                  \
+    PHP_GIT2_FE(git_tag_peel)                   \
+    PHP_GIT2_FE(git_tag_target)                 \
+    PHP_GIT2_FE(git_tag_tagger)                 \
+    PHP_GIT2_FE(git_tag_target_type)            \
+    PHP_GIT2_FE(git_tag_delete)                 \
+    PHP_GIT2_FE(git_tag_dup)                    \
+    PHP_GIT2_FE(git_tag_list)                   \
+    PHP_GIT2_FE(git_tag_list_match)             \
+    PHP_GIT2_FE(git_tag_foreach)
 
 #endif
 

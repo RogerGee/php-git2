@@ -12,7 +12,7 @@ namespace php_git2
 
 }
 
-static constexpr auto ZIF_GIT_IGNORE_ADD_RULE = zif_php_git2_function<
+static constexpr auto ZIF_git_ignore_add_rule = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -24,7 +24,7 @@ static constexpr auto ZIF_GIT_IGNORE_ADD_RULE = zif_php_git2_function<
     -1
     >;
 
-static constexpr auto ZIF_GIT_IGNORE_CLEAR_INTERNAL_RULES = zif_php_git2_function<
+static constexpr auto ZIF_git_ignore_clear_internal_rules = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*>::func<git_ignore_clear_internal_rules>,
@@ -34,7 +34,7 @@ static constexpr auto ZIF_GIT_IGNORE_CLEAR_INTERNAL_RULES = zif_php_git2_functio
     -1
     >;
 
-static constexpr auto ZIF_GIT_IGNORE_PATH_IS_IGNORED = zif_php_git2_function<
+static constexpr auto ZIF_git_ignore_path_is_ignored = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         int*,
@@ -50,10 +50,10 @@ static constexpr auto ZIF_GIT_IGNORE_PATH_IS_IGNORED = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-#define GIT_IGNORE_FE                                                   \
-    PHP_GIT2_FE(git_ignore_add_rule,ZIF_GIT_IGNORE_ADD_RULE,NULL)       \
-    PHP_GIT2_FE(git_ignore_clear_internal_rules,ZIF_GIT_IGNORE_CLEAR_INTERNAL_RULES,NULL) \
-    PHP_GIT2_FE(git_ignore_path_is_ignored,ZIF_GIT_IGNORE_PATH_IS_IGNORED,NULL)
+#define GIT_IGNORE_FE                               \
+    PHP_GIT2_FE(git_ignore_add_rule)                \
+    PHP_GIT2_FE(git_ignore_clear_internal_rules)    \
+    PHP_GIT2_FE(git_ignore_path_is_ignored)
 
 #endif
 
