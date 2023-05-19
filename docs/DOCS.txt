@@ -1292,27 +1292,27 @@ git_revparse_single(resource,string)
 [git_annotated_commit]
 ----------------------------------------
 
-git_annotated_commit_from_fetchhead(resource,string,string,string)
+resource git_annotated_commit_from_fetchhead(resource $repo,string $branch_name,string $remote_url,string $oid)
 
     Returns git_annotated_commit resource
 
-git_annotated_commit_from_ref(resource,resource)
+resource git_annotated_commit_from_ref(resource,resource)
 
     Returns git_annotated_commit resource
 
-git_annotated_commit_from_revspec(resource,string)
+resource git_annotated_commit_from_revspec(resource,string)
 
     Returns git_annotated_commit resource
 
-git_annotated_commit_lookup(resource,string)
+resource git_annotated_commit_lookup(resource,string)
 
     Returns git_annotated_commit resource
 
-git_annotated_commit_id(resource)
+string git_annotated_commit_id(resource)
 
     Returns string
 
-git_annotated_commit_free(resource)
+void git_annotated_commit_free(resource)
 
 ----------------------------------------
 [git_branch]

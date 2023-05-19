@@ -381,13 +381,13 @@ namespace php_git2
 // function differently than its C++ name (since the C++ function is a
 // template).
 
-#define PHP_GIT2_FE(name,func,arginfo)          \
+#define PHP_GIT2_FE_EX(name,func,arginfo)       \
     ZEND_FENTRY(name,(func),arginfo,0)
 
-#define PHP_GIT2_FE_ARG(name)                   \
-    PHP_GIT2_FE(name,ZIF_ ## name,arginfo_ ## name)
+#define PHP_GIT2_FE(name)                               \
+    PHP_GIT2_FE_EX(name,ZIF_ ## name,arginfo_ ## name)
 
-#define PHP_GIT2_UNIMPLEMENTED(name,func,arginfo)
+#define PHP_GIT2_UNIMPLEMENTED(name)
 
 // Define the base function template for php_git2. It's name has the typical
 // prefix (though this may be unimportant). We cannot use the normal macros
