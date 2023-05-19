@@ -277,16 +277,8 @@ namespace php_git2
     // RETVAL_* macros from the PHP API that expect a zval in scope called
     // "return_value".
 
-    template<int ReturnPos,typename... Ts>
-    inline typename std::enable_if<ReturnPos == 0,void>::type
-    php_return(char retval,local_pack<Ts...>&,zval* return_value)
-    {
-        char str[2] = {retval,0};
-        RETVAL_STRING(str);
-    }
-
     template<int ReturnPos,typename Rt,typename... Ts>
-    inline typename std::enable_if<ReturnPos == 0 && std::is_integral<Rt>::value,void>::type
+    inline typename std::enable_if<ReturnPos == 0 && (std::is_integral<Rt>::value || std::is_enum<Rt>::value),void>::type
     php_return(Rt retval,local_pack<Ts...>&,zval* return_value)
     {
         RETVAL_LONG(static_cast<zend_long>(retval));
