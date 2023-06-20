@@ -1,15 +1,3 @@
-ZEND_BEGIN_ARG_INFO(arginfo_git2_version,{})
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_git_libgit2_version,{})
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_git_libgit2_prerelease,{})
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_git_libgit2_features,{})
-ZEND_END_ARG_INFO()
-
 ZEND_BEGIN_ARG_INFO_EX(arginfo_git_repository_ident,0,0,2)
     ZEND_ARG_INFO(1,email)
     ZEND_ARG_INFO(0,repo)
