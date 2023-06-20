@@ -127,13 +127,30 @@ zend_function_entry php_git2::functions[] = {
 
 PHP_FUNCTION(git_libgit2_version)
 {
-    char buf[128];
+    int result;
     int major, minor, rev;
+    zval* zmajor;
+    zval* zminor;
+    zval* zrev;
 
-    git_libgit2_version(&major,&minor,&rev);
-    snprintf(buf,sizeof(buf),"%d.%d.%d",major,minor,rev);
+    if (zend_parse_parameters(
+            ZEND_NUM_ARGS(),
+            "z/z/z/",
+            &zmajor,
+            &zminor,
+            &zrev) == FAILURE)
+    {
+        return;
+    }
 
-    RETURN_STRING(buf);
+    result = git_libgit2_version(&major,&minor,&rev);
+    if (result != 0) {
+        php_git2::git_error(result);
+    }
+
+    ZVAL_LONG(zmajor,major);
+    ZVAL_LONG(zminor,minor);
+    ZVAL_LONG(zrev,rev);
 }
 
 PHP_FUNCTION(git2_version)

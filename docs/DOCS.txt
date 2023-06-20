@@ -147,26 +147,18 @@ Functions provided by the extension that are not git2 wrappers have the prefix
 'git2_*'. These are provided as supplements or additions where appropriate.
 
 ----------------------------------------
-[misc]
+[general]
 ----------------------------------------
 
-git2_version()
+string git2_version()
 
-    Gets a string representing the php-git2 and libgit2 version.
+    Gets a string representing both the php-git2 and libgit2 versions.
 
-    Returns string
+void git_libgit2_version(int &$major,int &$minor,int &$rev)
 
-git_libgit2_version()
+int git_libgit2_features()
 
-    Gets the libgit2 version string. The version string has the form "%1.%2.%3"
-    where %1, %2 and %3 are the respective major, minor and revision numbers
-    returned from the underlying call to git_libgit2_version().
-
-    Returns string
-
-git_libgit2_features()
-
-    Returns int
+?string git_libgit2_prerelease()
 
 ----------------------------------------
 [git_repository]
