@@ -19,7 +19,7 @@ class TestRefDbBackend extends PHPSerializedRefDbBackend {
         return parent::lookup($refName);
     }
 
-    public function iterator_new(string $glob) : void {
+    public function iterator_new(string $glob = null) : void {
         $this->called[] = 'iterator_new';
         $this->unit->assertIsStringOrNull($glob);
         parent::iterator_new($glob);
@@ -30,7 +30,7 @@ class TestRefDbBackend extends PHPSerializedRefDbBackend {
         return parent::iterator_next($name);
     }
 
-    public function write($ref,bool $force,array $who,string $message,string $old,string $oldTarget) : void {
+    public function write($ref,bool $force,array $who,?string $message,?string $old,?string $oldTarget) : void {
         $this->called[] = 'write';
         $this->unit->assertResourceHasType($ref,'git_reference');
         $this->unit->assertIsBool($force);
@@ -41,7 +41,7 @@ class TestRefDbBackend extends PHPSerializedRefDbBackend {
         parent::write($ref,$force,$who,$message,$old,$oldTarget);
     }
 
-    public function rename(string $oldName,string $newName,bool $force,array $who,string $message) {
+    public function rename(string $oldName,string $newName,bool $force,array $who,string $message = null) {
         $this->called[] = 'rename';
         $this->unit->assertIsString($oldName);
         $this->unit->assertIsString($newName);
@@ -51,7 +51,7 @@ class TestRefDbBackend extends PHPSerializedRefDbBackend {
         return parent::rename($oldName,$newName,$force,$who,$message);
     }
 
-    public function del(string $refName,string $oldId,string $oldTarget) : void {
+    public function del(string $refName,?string $oldId,?string $oldTarget) : void {
         $this->called[] = 'del';
         $this->unit->assertIsString($refName);
         $this->unit->assertIsStringOrNull($oldId);

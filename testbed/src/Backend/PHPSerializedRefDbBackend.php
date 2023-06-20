@@ -32,7 +32,7 @@ class PHPSerializedRefDbBackend extends \GitRefDBBackend {
      *
      * @param string $glob
      */
-    public function iterator_new(string $glob) : void {
+    public function iterator_new(string $glob = null) : void {
         reset($this->storage);
     }
 
@@ -62,7 +62,7 @@ class PHPSerializedRefDbBackend extends \GitRefDBBackend {
      * @param string $old
      * @param string $oldTarget
      */
-    public function write($ref,bool $force,array $who,string $message,string $old,string $oldTarget) : void {
+    public function write($ref,bool $force,array $who,?string $message,?string $old,?string $oldTarget) : void {
         $name = git_reference_name($ref);
         $target = git_reference_target($ref);
 
@@ -86,7 +86,7 @@ class PHPSerializedRefDbBackend extends \GitRefDBBackend {
      * @param array $who
      * @param string $message
      */
-    public function rename(string $oldName,string $newName,bool $force,array $who,string $message) {
+    public function rename(string $oldName,string $newName,bool $force,array $who,string $message = null) {
         if (!isset($this->storage[$oldName])) {
             throw new Exception("Reference with name '$oldName' does not exist");
         }
@@ -106,7 +106,7 @@ class PHPSerializedRefDbBackend extends \GitRefDBBackend {
      * @param string $oldId
      * @param string $oldTarget
      */
-    public function del(string $refName,string $oldId,string $oldTarget) : void {
+    public function del(string $refName,?string $oldId,?string $oldTarget) : void {
         if (!isset($this->storage[$refName])) {
             throw new Exception("Reference with name '$refName' does not exist");
         }

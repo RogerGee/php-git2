@@ -5,21 +5,21 @@ abstract class GitRefDBBackend {
 
     public function lookup(string $ref_name) : mixed;
 
-    public function iterator_new(string $glob) : void;
+    public function iterator_new(string $glob = null) : void;
 
     public function iterator_next(string &$name) : mixed;
 
     /**
      * @param resource $ref
      */
-    public function write($ref,bool $force,array $who,string $message,string $old,string $old_target) : void;
+    public function write($ref,bool $force,array $who,?string $message,?string $old,?string $old_target) : void;
 
     /**
      * @return resource
      */
-    public function rename(string $old_name,string $new_name,bool $force,array $who,string $message);
+    public function rename(string $old_name,string $new_name,bool $force,array $who,string $message = null);
 
-    public function del(string $ref_name,string $old_id,string $old_target) : void;
+    public function del(string $ref_name,?string $old_id,?string $old_target) : void;
 
     public function compress() : void;
 
