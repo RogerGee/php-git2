@@ -434,7 +434,7 @@ static constexpr auto ZIF_git_commit_create_with_signature = zif_php_git2_functi
         php_git2::php_resource<php_git2::php_git_repository>,
         php_git2::php_string,
         php_git2::php_string,
-        php_git2::php_string
+        php_git2::php_string_nullable
         >,
     1, // Return the git_oid string
     php_git2::sequence<1,2,3,4>,
