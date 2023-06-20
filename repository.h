@@ -9,6 +9,7 @@
 extern "C" {
 #include <git2/sys/repository.h>
 }
+#include "stubs/repository_arginfo.h"
 
 namespace php_git2
 {
@@ -111,15 +112,6 @@ static constexpr auto ZIF_git_repository_open_bare = zif_php_git2_function<
     1,
     php_git2::sequence<1>,
     php_git2::sequence<0,1>
-    >;
-
-static constexpr auto ZIF_git_repository__cleanup = zif_php_git2_function<
-    php_git2::func_wrapper<
-        int,
-        git_repository*>::func<git_repository__cleanup>,
-    php_git2::local_pack<
-        php_git2::php_resource<php_git2::php_git_repository>
-        >
     >;
 
 static constexpr auto ZIF_git_repository_detach_head = zif_php_git2_function<
@@ -622,7 +614,6 @@ static constexpr auto ZIF_git_repository_mergehead_foreach = zif_php_git2_functi
     PHP_GIT2_FE(git_repository_free)                                \
     PHP_GIT2_FE(git_repository_open)                                \
     PHP_GIT2_FE(git_repository_open_bare)                           \
-    PHP_GIT2_FE(git_repository__cleanup)                            \
     PHP_GIT2_FE(git_repository_detach_head)                         \
     PHP_GIT2_FE(git_repository_discover)                            \
     PHP_GIT2_FE(git_repository_get_namespace)                       \

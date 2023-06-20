@@ -150,109 +150,66 @@ Functions provided by the extension that are not git2 wrappers have the prefix
 [general]
 ----------------------------------------
 
-string git2_version()
-
-    Gets a string representing both the php-git2 and libgit2 versions.
-
-void git_libgit2_version(int &$major,int &$minor,int &$rev)
-
 int git_libgit2_features()
 
 ?string git_libgit2_prerelease()
+
+void git_libgit2_version(int &$major,int &$minor,int &$rev)
+
+string git2_version()
+
+    Gets a string representing both the php-git2 and libgit2 versions.
 
 ----------------------------------------
 [git_repository]
 ----------------------------------------
 
-git_repository_init(string,bool)
+resource git_repository_config(resource $repo)
 
-    Returns git_repository resource
+    Returns git_config resource
 
-git_repository_new()
+resource git_repository_config_snapshot(resource $repo)
 
-    Returns git_repository resource
+    Returns git_config resource
 
-git_repository_free(resource)
+int git_repository_detach_head(resource $repo)
 
-git_repository_open(string)
-
-    Returns git_repository resource
-
-git_repository_open_bare(string)
-
-    Returns git_repository resource
-
-git_repository__cleanup(resource)
-
-git_repository_detach_head(resource)
-
-    Returns int
-
-git_repository_fetchhead_foreach(resource,callable,mixed)
-
-  Callback signature: void callback(string $refName,string $remoteUrl,string $oid,bool $isMerge,mixed $payload)
-
-git_repository_mergehead_foreach(resource,callable,mixed)
-
-  Callback signature: void callback(string $oid,mixed $payload)
-
-git_repository_discover(string,bool,string)
+string git_repository_discover(string $start_path,bool $across_fs,string $ceiling_dirs = null)
 
     Returns string
 
-git_repository_get_namespace(resource)
+void git_repository_fetchhead_foreach(resource $repo,callable $callback,mixed $payload)
 
-    Returns string
+  Callback signature:
+    void callback(string $ref_name,string $remote_url,string $oid,bool $is_merge,mixed $payload)
 
-git_repository_hashfile(resource,string,long,string)
+void git_repository_free(resource $repo)
 
-    Returns string
+string git_repository_get_namespace(resource $repo)
 
-git_repository_path(resource)
+string git_repository_hashfile(resource $repo,string $path,int $type,string $as_path = null)
 
-    Returns string
-
-git_repository_odb(resource)
-
-    Returns git_odb resource
-
-git_repository_set_odb(resource,resource)
-
-git_repository_set_head(resource,string)
-
-git_repository_set_head_detached(resource,string)
-
-    Returns bool
-
-git_repository_head(resource)
+resource git_repository_head(resource $repo)
 
     Returns git_reference resource
 
-git_repository_is_empty(resource)
+bool git_repository_head_detached(resource $repo)
 
-    Returns bool
-
-git_repository_is_bare(resource)
-
-    Returns bool
-
-git_repository_is_shallow(resource)
-
-    Returns bool
-
-git_repository_head_detached(resource)
-
-    Returns bool
-
-git_repository_head_unborn(resource)
-
-    Returns bool
+bool git_repository_head_unborn(resource $repo)
 
 string git_repository_ident(string &$email,resource $repo)
 
     Returns the name
 
-git_repository_init_ext(string,array|null)
+resource git_repository_index(resource $repo)
+
+    Returns git_index resource
+
+resource git_repository_init(string $path,bool $is_bare = false)
+
+    Returns git_repository resource
+
+resource git_repository_init_ext(string $path,array $options = null)
 
     The final parameter is an array of options with keys corresponding to the
     git_repository_init_options struct. If you do not specify an option key, it
@@ -266,65 +223,88 @@ git_repository_init_ext(string,array|null)
 
     Returns git_repository resource
 
-git_repository_message(resource)
+bool git_repository_is_bare(resource $repo)
 
-    Returns string or false
+bool git_repository_is_empty(resource $repo)
 
-git_repository_message_remove(resource)
+bool git_repository_is_shallow(resource $repo)
 
-git_repository_open_ext(string|null,int,string)
+void git_repository_mergehead_foreach(resource $repo,callable $callback,mixed $payload)
 
-    Returns git_repository resource
+    Callback signature:
+      void callback(string $oid,mixed $payload)
 
-git_repository_reinit_filesystem(resource,bool)
+string|bool git_repository_message(resource $repo)
 
-git_repository_set_bare(resource)
+    Returns false if no message exists
 
-git_repository_set_head_detached_from_annotated(resource,resource)
+void git_repository_message_remove(resource $repo)
 
-    Returns bool
-
-git_repository_set_ident(resource,string,string)
-
-git_repository_set_namespace(resource,string)
-
-git_repository_set_workdir(resource,string,bool)
-
-git_repository_state(resource)
-
-    Returns int
-
-git_repository_state_cleanup(resource)
-
-git_repository_workdir(resource)
-
-    Returns string
-
-git_repository_wrap_odb(resource)
+resource git_repository_new()
 
     Returns git_repository resource
 
-git_repository_config(resource)
+resource git_repository_odb(resource $repo)
 
-    Returns git_config resource
+    Returns git_odb resource
 
-git_repository_config_snapshot(resource)
+resource git_repository_open(string $path)
 
-    Returns git_config resource
+    Returns git_repository resource
 
-git_repository_set_config(resource,resource)
+resource git_repository_open_bare(string $bare_path)
 
-git_repository_index(resource)
+    Returns git_repository resource
 
-    Returns git_index resource
+resource git_repository_open_ext(?string $path,int $flags,string $ceiling_dirs)
 
-git_repository_set_index(resource,resource)
+    Returns git_repository resource
 
-git_repository_refdb(resource)
+string git_repository_path(resource $repo)
+
+resource git_repository_refdb(resource $repo)
 
     Returns git_refdb resource
 
-git_repository_set_refdb(resource,resource)
+void git_repository_reinit_filesystem(resource $repo,bool $recurse_submodules = true)
+
+void git_repository_set_bare(resource $repo)
+
+void git_repository_set_config(resource $repo,resource $config)
+
+void git_repository_set_head(resource $repo,string $refname)
+
+bool git_repository_set_head_detached(resource $repo,string $committish)
+
+    Returns bool
+
+bool git_repository_set_head_detached_from_annotated(resource $repo,resource $committish)
+
+    $committish must be a resource of type git_annotated_commit
+
+void git_repository_set_ident(resource $repo,string $name,string $email)
+
+void git_repository_set_index(resource $repo,resource $index)
+
+void git_repository_set_namespace(resource $repo,string $namespace)
+
+void git_repository_set_odb(resource $repo,resource $odb)
+
+void git_repository_set_refdb(resource $repo,resource $refdb)
+
+void git_repository_set_workdir(resource $repo,string $workdir,bool $update_gitlink)
+
+int git_repository_state(resource $repo)
+
+void git_repository_state_cleanup(resource $repo)
+
+?string git_repository_workdir(resource $repo)
+
+    Returns NULL if the repository has no workdir (i.e. for a bare repository)
+
+resource git_repository_wrap_odb(resource $odb)
+
+    Returns git_repository resource
 
 ----------------------------------------
 [git_reference]

@@ -255,7 +255,6 @@ static constexpr auto ZIF_git_rebase_operation_entrycount = zif_php_git2_functio
     PHP_GIT2_FE(git_rebase_operation_current)       \
     PHP_GIT2_FE(git_rebase_operation_entrycount)
 
-
 #endif
 
 /*
