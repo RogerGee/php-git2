@@ -10,6 +10,7 @@
 extern "C" {
 #include <git2/sys/refs.h>
 }
+#include "stubs/reference_arginfo.h"
 
 namespace php_git2
 {

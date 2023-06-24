@@ -181,7 +181,7 @@ string git_repository_discover(string $start_path,bool $across_fs,string $ceilin
 void git_repository_fetchhead_foreach(resource $repo,callable $callback,mixed $payload)
 
   Callback signature:
-    void callback(string $ref_name,string $remote_url,string $oid,bool $is_merge,mixed $payload)
+      void callback(string $ref_name,string $remote_url,string $oid,bool $is_merge,mixed $payload)
 
 void git_repository_free(resource $repo)
 
@@ -232,7 +232,7 @@ bool git_repository_is_shallow(resource $repo)
 void git_repository_mergehead_foreach(resource $repo,callable $callback,mixed $payload)
 
     Callback signature:
-      void callback(string $oid,mixed $payload)
+        void callback(string $oid,mixed $payload)
 
 string|bool git_repository_message(resource $repo)
 
@@ -310,163 +310,135 @@ resource git_repository_wrap_odb(resource $odb)
 [git_reference]
 ----------------------------------------
 
-git_reference_list(resource)
-
-    Returns array of string
-
-git_reference_lookup(resource,string)
-
-    Returns git_reference resource
-
-git_reference_free(resource)
-
-git_reference_peel(resource,long)
-
-    Returns git_reference resource
-
-git_reference_name_to_id(resource,string)
-
-    Returns string
-
-git_reference_create(resource,string,string,bool,string)
-
-    Returns git_reference resource
-
-git_reference_create_matching(resource,string,string,bool,string,string)
-
-    Returns git_reference resource
-
-git_reference_target(resource)
-
-    Returns string
-
-git_reference_target_peel(resource)
-
-    Returns string
-
-git_reference_name(resource)
-
-    Returns string
-
 int git_reference_cmp(resource $ref1,resource $ref2)
 
     Returns the same return value as underlying library call.
 
-git_reference__alloc(string,string,string)
+resource git_reference_create(resource $repo,string $name,string $id,bool $force,string $log_message)
 
     Returns git_reference resource
 
-git_reference__alloc_symbolic(string,string)
+resource git_reference_create_matching(resource $repo,string $name,string $id,bool $force,string $current_id,string $log_message)
 
     Returns git_reference resource
 
-git_reference_delete(resource)
+void git_reference_delete(resource $ref)
 
-git_reference_dup(resource)
+resource git_reference_dup(resource $ref)
 
     Returns git_reference resource
 
-git_reference_ensure_log(resource,string)
+resource git_reference_dwim(resource $repo,string $shorthand)
 
-git_reference_has_log(resource,string)
+    Returns git_reference resource
 
-    Returns bool
+void git_reference_ensure_log(resource $repo,string $refname)
 
-git_reference_is_branch(resource)
+void git_reference_foreach(resource $repo,callable $callback,mixed $payload)
 
-    Returns bool
+    Callback signature:
+        void callback(resource $ref,mixed $payload)
 
-git_reference_is_note(resource)
+        The callback should throw on error.
 
-    Returns bool
+void git_reference_foreach_glob(resource $repo,string $glob,callable $callback,mixed $payload)
 
-git_reference_is_remote(resource)
+void git_reference_foreach_name(resource $repo,callable $callback,mixed $payload)
 
-    Returns bool
+    Callback signature:
+        void callback(string $name,mixed $payload)
 
-git_reference_is_tag(resource)
+        The callback should throw on error.
 
-    Returns bool
+void git_reference_free(resource $ref)
 
-git_reference_is_valid_name(string)
+bool git_reference_has_log(resource $repo,string $refname)
 
-    Returns bool
+bool git_reference_is_branch(resource $ref)
 
-git_reference_iterator_new(resource)
+bool git_reference_is_note(resource $ref)
+
+bool git_reference_is_remote(resource $ref)
+
+bool git_reference_is_tag(resource $ref)
+
+bool git_reference_is_valid_name(string $refname)
+
+bool git_reference_iterator_free(resource $iterator)
+
+resource git_reference_iterator_glob_new(resource $repo,string $glob)
 
     Returns git_reference_iterator resource
 
-git_reference_iterator_glob_new(resource)
+resource git_reference_iterator_new(resource $repo)
 
     Returns git_reference_iterator resource
 
-git_reference_next(resource)
+array git_reference_list(resource $repo)
+
+    Returns array of string
+
+resource git_reference_lookup(resource $repo,string $name)
+
+    Returns git_reference resource
+
+string git_reference_name(resource $ref)
+
+string git_reference_name_to_id(resource $repo,string $name)
+
+resource|bool git_reference_next(resource $iter)
 
     Returns git_reference resource or false if iteration is over
 
-git_reference_next_name(resource)
+string|bool git_reference_next_name(resource $iter)
 
     Returns string or false if iteration is over
 
-git_reference_normalize_name(string,int)
+string git_reference_normalize_name(string $name,int $flags)
 
-    Returns string
-
-git_reference_owner(resource)
+resource git_reference_owner(resource $ref)
 
     Returns git_repository resource
 
-git_reference_remove(resource,string)
+resource git_reference_peel(resource $ref,int $type)
 
-git_reference_rename(resource,string,bool,string)
+    Returns git_object resource
 
-    Returns git_reference resource
+void git_reference_remove(resource $repo,string $name)
 
-git_reference_resolve(resource)
-
-    Returns git_reference resource
-
-git_reference_set_target(resource,string,string)
+resource git_reference_rename(resource $ref,string $new_name,bool $force,string $log_message)
 
     Returns git_reference resource
 
-git_reference_shorthand(resource)
-
-    Returns string
-
-git_reference_type(resource)
-
-    Returns int
-
-git_reference_foreach(resource,callable,mixed)
-
-    Callback signature: void callback(resource $ref,mixed $payload)
-
-        The callback should throw on error.
-
-git_reference_foreach_name(resource,callable,mixed)
-
-    Callback signature: void callback(string $name,mixed $payload)
-
-        The callback should throw on error.
-
-git_reference_foreach_glob(resource,string,callable,mixed)
-
-git_reference_symbolic_create(resource,string,string,bool,string)
+resource git_reference_resolve(resource $ref)
 
     Returns git_reference resource
 
-git_reference_symbolic_create_matching(resource,string,string,bool,string,string)
+resource git_reference_set_target(resource $ref,string $id,string $log_message)
 
     Returns git_reference resource
 
-git_reference_symbolic_set_target(resource,string,string)
+string git_reference_shorthand(resource $ref)
+
+resource git_reference_symbolic_create(resource $repo,string $name,string $target,bool $force,string $log_message)
 
     Returns git_reference resource
 
-git_reference_symbolic_target(resource)
+resource git_reference_symbolic_create_matching(resource $repo,string $name,string $target,bool $force,string $current_value,string $log_message)
 
-    Returns string
+    Returns git_reference resource
+
+resource git_reference_symbolic_set_target(resource $ref,string $target,string $log_message)
+
+    Returns git_reference resource
+
+?string git_reference_symbolic_target(resource $ref)
+
+?string git_reference_target(resource $ref)
+
+?string git_reference_target_peel(resource $ref)
+
+int git_reference_type(resource $ref)
 
 ----------------------------------------
 [git_object]
