@@ -7,6 +7,8 @@
 #ifndef PHPGIT2_ATTR_H
 #define PHPGIT2_ATTR_H
 
+#include "stubs/attr_arginfo.h"
+
 namespace php_git2
 {
 }

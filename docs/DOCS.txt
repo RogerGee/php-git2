@@ -161,6 +161,25 @@ string git2_version()
     Gets a string representing both the php-git2 and libgit2 versions.
 
 ----------------------------------------
+[git_attr]
+----------------------------------------
+
+void git_attr_add_macro(resource $repo,string $name,string $values)
+
+void git_attr_cache_flush(resource $repo)
+
+void git_attr_foreach(resource $repo,int $flags,string $path,callable $callback,mixed $payload)
+
+    Callback signature:
+        void callback(string $name,?string $value,mixed $payload)
+
+        The function should throw on error.
+
+string git_attr_get(resource $repo,int $flags,string $path,string $name)
+
+int git_attr_value(string $attr)
+
+----------------------------------------
 [git_repository]
 ----------------------------------------
 
@@ -1915,30 +1934,6 @@ git_ignore_clear_internal_rules(resource)
 git_ignore_path_is_ignored(resource,string)
 
     Returns bool
-
-----------------------------------------
-[git_attr]
-----------------------------------------
-
-git_attr_add_macro(resource,string,string)
-
-git_attr_cache_flush(resource)
-
-git_attr_foreach(resource,int,string,callable,mixed)
-
-    Callback signature: void callback(string $name,string $value,mixed $payload)
-
-        NOTE: $value may be NULL
-
-        The function should throw on error.
-
-git_attr_get(resource,int,string,string)
-
-    Returns string
-
-git_attr_value(string)
-
-    Returns int
 
 ----------------------------------------
 [git_status]
