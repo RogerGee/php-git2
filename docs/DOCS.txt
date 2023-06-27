@@ -349,6 +349,26 @@ void git_checkout_tree(resource $repo,resource $treeish,?array $options = null)
     See notes for git_checkout_head().
 
 ----------------------------------------
+[git_cherrypick]
+----------------------------------------
+
+void git_cherrypick(resource $repo,resource $commit,?array $options = null)
+
+    Parameter $options is an array having the keys of the git_cherrypick_options
+    struct. Any properties that are not specified inherit the defaults provided
+    via calling git_cherrypick_options_init(). You may specify null to use only
+    the defaults.
+
+resource git_cherrypick_commit(resource $repo,resource $cherrypick_commit,resource $our_commit,int $mainline,?array $options = null)
+
+    Parameter $options is an array having the keys of the git_merge_options
+    struct. Any properties that are not specified inherit the defaults provided
+    via calling git_merge_options_init(). You may specify null to use only the
+    defaults.
+
+    Returns git_index resource
+
+----------------------------------------
 [git_repository]
 ----------------------------------------
 
@@ -1972,16 +1992,6 @@ git_status_list_new(resource,array|null)
 git_status_should_ignore(resource,string)
 
     Returns bool
-
-----------------------------------------
-[git_cherrypick]
-----------------------------------------
-
-git_cherrypick(resource,resource,array|null)
-
-git_cherrypick_commit(resource,resource,resource,int,array|null)
-
-    Returns git_index resource
 
 ----------------------------------------
 [git_merge]

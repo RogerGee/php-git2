@@ -6,8 +6,10 @@
 
 #ifndef PHPGIT2_CHERRYPICK_H
 #define PHPGIT2_CHERRYPICK_H
+
 #include "merge.h"
 #include "checkout.h"
+#include "stubs/cherrypick_arginfo.h"
 
 namespace php_git2
 {

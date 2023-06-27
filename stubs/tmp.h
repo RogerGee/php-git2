@@ -927,12 +927,6 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO(arginfo_git_status_should_ignore,{})
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO(arginfo_git_cherrypick,{})
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_git_cherrypick_commit,{})
-ZEND_END_ARG_INFO()
-
 ZEND_BEGIN_ARG_INFO(arginfo_git_merge,{})
 ZEND_END_ARG_INFO()
 
