@@ -9,6 +9,7 @@
 
 #include "checkout.h"
 #include "remote.h"
+#include "stubs/clone_arginfo.h"
 
 namespace php_git2
 {

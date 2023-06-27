@@ -369,6 +369,27 @@ resource git_cherrypick_commit(resource $repo,resource $cherrypick_commit,resour
     Returns git_index resource
 
 ----------------------------------------
+[git_clone]
+----------------------------------------
+
+resource git_clone(string $url,string $local_path,?array $options = null)
+
+    Parameter $options is passed as an array with the keys representing the
+    properties of the git_clone_options struct. The checkout_opts and fetch_opts
+    properties may be arrays to their respective structures. Any properties that
+    are not specified inherit the defaults provided via calling
+    git_clone_init_options(). You may specify null to use only the defaults.
+
+    Callback $options['repository_cb'] signature:
+        resource callback(string $path,bool $bare,mixed $payload)
+
+        The callback should return git_repository resource.
+
+        The callback should throw on error.
+
+    Returns git_repository resource
+
+----------------------------------------
 [git_repository]
 ----------------------------------------
 
@@ -1521,27 +1542,6 @@ git_config_lookup_map_value(array,string)
        inner 3-tuple array containing the git_configmap fields in the order
        [type,str_match,map_value]. The map_value entry is forced to be an
        integer. **
-
-----------------------------------------
-[git_clone]
-----------------------------------------
-
-git_clone(string,string,array|null)
-
-    ** Note: the last parameter (options) is passed as an array with the keys
-       representing the properties of the git_clone_options struct. The
-       checkout_opts and fetch_opts properties may be arrays to their respective
-       structures. Any properties that are not specified inherit the defaults
-       provided via calling git_clone_init_options(). You may specify null to
-       use only the defaults. **
-
-    Callback 'repository_cb' signature: callback(string $path,bool $bare,mixed $payload)
-
-        The callback should return git_repository resource.
-
-        The callback should throw on error.
-
-    Returns git_repository resource
 
 ----------------------------------------
 [git_tag]
