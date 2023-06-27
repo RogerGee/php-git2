@@ -513,24 +513,6 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO(arginfo_git_treebuilder_filter,{})
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO(arginfo_git_blame_file,{})
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_git_blame_buffer,{})
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_git_blame_get_hunk_byindex,{})
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_git_blame_get_hunk_byline,{})
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_git_blame_get_hunk_count,{})
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_git_blame_free,{})
-ZEND_END_ARG_INFO()
-
 ZEND_BEGIN_ARG_INFO(arginfo_git_revparse,{})
 ZEND_END_ARG_INFO()
 

@@ -7,6 +7,8 @@
 #ifndef PHPGIT2_BLAME_H
 #define PHPGIT2_BLAME_H
 
+#include "stubs/blame_arginfo.h"
+
 namespace php_git2
 {
     // Explicitly specialize git2_resource destructor for git_blame.

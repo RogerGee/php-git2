@@ -180,6 +180,56 @@ string git_attr_get(resource $repo,int $flags,string $path,string $name)
 int git_attr_value(string $attr)
 
 ----------------------------------------
+[git_blame]
+----------------------------------------
+
+resource git_blame_buffer(resource $reference,string $buffer)
+
+    Parameter $reference is a resource of type git_blame.
+
+    Returns git_blame resource
+
+resource git_blame_file(resource $repo,string $path,?array $options)
+
+    The final parameter $options is an array of options with keys corresponding
+    to the git_blame_options struct. It may be null if you want to use the
+    defaults.
+
+    Returns git_blame resource
+
+void git_blame_free(resource $blame)
+
+array git_blame_get_hunk_byindex(resource $blame,int $index)
+
+    Note: the return array contains a single dimensional representation of
+    the hunk data. Example:
+
+     array(15) {
+       ["lines_in_hunk"]
+       ["final_commit_id"]
+       ["final_start_line_number"]
+       ["final_signature.name"]
+       ["final_signature.email"]
+       ["final_signature.when.time"]
+       ["final_signature.when.offset"]
+       ["orig_commit_id"]
+       ["orig_path"]
+       ["orig_start_line_number"]
+       ["orig_signature.name"]
+       ["orig_signature.email"]
+       ["orig_signature.when.time"]
+       ["orig_signature.when.offset"]
+       ["boundary"]
+     }
+
+array git_blame_get_hunk_byline(resource $blame,int $lineno)
+
+    See git_blame_get_hunk_by_index() for an example of what the return
+    result looks like.
+
+int git_blame_get_hunk_count(resource $blame)
+
+----------------------------------------
 [git_repository]
 ----------------------------------------
 
@@ -1167,62 +1217,6 @@ git_treebuilder_remove(resource,string)
 git_treebuilder_clear(resource)
 
 git_treebuilder_entrycount(resource)
-
-    Returns int
-
-----------------------------------------
-[git_blame]
-----------------------------------------
-
-git_blame_file(resource,string,array|null)
-
-    ** The final parameter is an array of options with keys corresponding to the
-       git_blame_options struct. It may be null if you want to use the
-       defaults. **
-
-    Returns git_blame resource
-
-git_blame_buffer(resource,string)
-
-    Returns git_blame resource
-
-git_blame_get_hunk_count(resource)
-
-    Returns int
-
-git_blame_get_hunk_byindex(resource,int)
-
-    ** Note: the return array contains a single dimensional representation of
-       the hunk data. Example:
-
-        array(15) {
-          ["lines_in_hunk"]
-          ["final_commit_id"]
-          ["final_start_line_number"]
-          ["final_signature.name"]
-          ["final_signature.email"]
-          ["final_signature.when.time"]
-          ["final_signature.when.offset"]
-          ["orig_commit_id"]
-          ["orig_path"]
-          ["orig_start_line_number"]
-          ["orig_signature.name"]
-          ["orig_signature.email"]
-          ["orig_signature.when.time"]
-          ["orig_signature.when.offset"]
-          ["boundary"]
-        } **
-
-    Returns array
-
-git_blame_get_hunk_byline(resource,int)
-
-    ** See git_blame_get_hunk_by_index() for an example of what the return
-       result looks like. **
-
-    Returns array
-
-git_blame_get_hunk_count(resource)
 
     Returns int
 
