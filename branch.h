@@ -7,6 +7,8 @@
 #ifndef PHPGIT2_BRANCH_H
 #define PHPGIT2_BRANCH_H
 
+#include "stubs/branch_arginfo.h"
+
 namespace php_git2
 {
 

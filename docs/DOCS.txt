@@ -274,6 +274,60 @@ string git_blob_rawcontent(resource $blob)
 int git_blob_rawsize(resource $blob)
 
 ----------------------------------------
+[git_branch]
+----------------------------------------
+
+resource git_branch_create(resource $repo,string $branch_name,resource $target,bool $force)
+
+    Returns git_reference resource
+
+resource git_branch_create_from_annotated(resource $repo,string $branch_name,resource $commit,bool $force)
+
+    Parameter $commit is a resource of type git_annotated_commit.
+
+    Returns git_reference resource
+
+void git_branch_delete(resource $branch)
+
+bool git_branch_is_head(resource $branch)
+
+void git_branch_iterator_free(resource $iter)
+
+    Parameter $iter is a resource of type git_branch_iterator.
+
+resource git_branch_iterator_new(resource $repo,int $flags)
+
+    Returns git_branch_iterator resource
+
+resource git_branch_lookup(resource $repo,string $branch_name,int $branch_type)
+
+    Returns git_reference resource
+
+resource git_branch_move(resource $branch,string $new_branch_name,bool $force)
+
+    Returns git_reference resource
+
+string git_branch_name(resource $branch)
+
+resource|bool git_branch_next(&int $type,resource $iter)
+
+    Parameter $iter is a resource of type git_branch_iterator.
+
+    Returns git_reference resource or false at iter over
+
+void git_branch_set_upstream(resource $branch,?string $branch_name)
+
+resource|bool git_branch_upstream(resource $branch)
+
+    Returns git_reference resource if found, false otherwise
+
+string|bool git_branch_upstream_name(resource $repo,string $refname)
+
+    Returns string if found, false otherwise
+
+string git_branch_upstream_remote(resource $repo,string $refname)
+
+----------------------------------------
 [git_repository]
 ----------------------------------------
 
@@ -1252,58 +1306,6 @@ string git_annotated_commit_id(resource)
     Returns string
 
 void git_annotated_commit_free(resource)
-
-----------------------------------------
-[git_branch]
-----------------------------------------
-
-git_branch_create(resource,string,resource,bool)
-
-    Returns git_reference resource
-
-git_branch_create_from_annotated(resource,string,resource,bool)
-
-    Returns git_reference resource
-
-git_branch_delete(resource)
-
-bool git_branch_is_head(resource $branch)
-
-git_branch_iterator_free(resource)
-
-git_branch_iterator_new(resource,int)
-
-    Returns git_branch_iterator resource
-
-git_branch_next(&int,resource)
-
-    Returns git_reference resource or false at iter over
-
-git_branch_lookup(resource,string,int)
-
-    Returns git_reference resource
-
-git_branch_move(resource,string,bool)
-
-    Returns git_reference resource
-
-git_branch_name(resource)
-
-    Returns string
-
-git_branch_set_upstream(resource,string|null)
-
-git_branch_upstream(resource)
-
-    Returns git_reference resource if found, false otherwise
-
-git_branch_upstream_name(resource,string)
-
-    Returns string if found, false otherwise
-
-git_branch_upstream_remote(resource,string)
-
-    Returns string
 
 ----------------------------------------
 [git_config]
