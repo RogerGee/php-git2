@@ -7,6 +7,8 @@
 #ifndef PHPGIT2_BLOB_H
 #define PHPGIT2_BLOB_H
 
+#include "stubs/blob_arginfo.h"
+
 namespace php_git2
 {
     // Explicitly specialize git2_resource destructor for git_blob.

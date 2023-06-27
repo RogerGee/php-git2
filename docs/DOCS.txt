@@ -230,6 +230,50 @@ array git_blame_get_hunk_byline(resource $blame,int $lineno)
 int git_blame_get_hunk_count(resource $blame)
 
 ----------------------------------------
+[git_blob]
+----------------------------------------
+
+string git_blob_create_frombuffer(resource $repo,string $buffer)
+
+string git_blob_create_fromdisk(resource $repo,string $path)
+
+\GitWritestream git_blob_create_fromstream(resource $repo,?string $hintpath)
+
+string git_blob_create_fromstream_commit(GitWritestream $stream)
+
+string git_blob_create_fromworkdir(resource $repo,string $relative_path)
+
+resource git_blob_dup(resource $blob)
+
+    Returns git_blob resource
+
+string git_blob_filtered_content(resource $blob,string $as_path,bool $check_for_binary_data)
+
+void git_blob_free(resource $blob)
+
+string git_blob_id(resource $blob)
+
+bool git_blob_is_binary(resource $blob)
+
+    Returns bool
+
+resource git_blob_lookup(resource $repo,string $id)
+
+    Returns git_blob resource
+
+resource git_blob_lookup_prefix(resource $repo,string $id)
+
+    Returns resource
+
+resource git_blob_owner(resource $blob)
+
+    Returns git_repository resource
+
+string git_blob_rawcontent(resource $blob)
+
+int git_blob_rawsize(resource $blob)
+
+----------------------------------------
 [git_repository]
 ----------------------------------------
 
@@ -995,68 +1039,6 @@ string git_commit_extract_signature(string &$signed_data_out,resource $repo,stri
     Returns the signature block
 
 git_commit_header_field(resource,string)
-
-    Returns string
-
-----------------------------------------
-[git_blob]
-----------------------------------------
-
-git_blob_create_frombuffer(resource,string)
-
-    Returns string
-
-git_blob_create_fromdisk(resource,string)
-
-    Returns string
-
-git_blob_create_fromworkdir(resource,string)
-
-    Returns string
-
-git_blob_filtered_content(resource,string,bool)
-
-    Returns string
-
-git_blob_free(resource)
-
-git_blob_id(resource)
-
-    Returns string
-
-git_blob_is_binary(resource)
-
-    Returns bool
-
-git_blob_lookup(resource,string)
-
-    Returns git_blob resource
-
-git_blob_lookup_prefix(resource,string)
-
-    Returns resource
-
-git_blob_owner(resource)
-
-    Returns git_repository resource
-
-git_blob_rawcontent(resource)
-
-    Returns string
-
-git_blob_rawsize(resource)
-
-    Returns int
-
-git_blob_dup(resource)
-
-    Returns git_blob resource
-
-git_blob_create_fromstream(resource,string|null)
-
-    Returns object of type GitWritestream
-
-git_blob_create_fromstream_commit(GitWritestream)
 
     Returns string
 
