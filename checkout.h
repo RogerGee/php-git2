@@ -7,6 +7,8 @@
 #ifndef PHPGIT2_CHECKOUT_H
 #define PHPGIT2_CHECKOUT_H
 
+#include "stubs/checkout_arginfo.h"
+
 namespace php_git2
 {
     class php_git_checkout_options:

@@ -328,6 +328,27 @@ string|bool git_branch_upstream_name(resource $repo,string $refname)
 string git_branch_upstream_remote(resource $repo,string $refname)
 
 ----------------------------------------
+[git_checkout]
+----------------------------------------
+
+void git_checkout_head(resource $repo,?array $options = null)
+
+    Note: the last parameter ($options) is passed as an array with the keys
+    matching the properties of the git_checkout_options struct. Any properties
+    that are not specified inherit the defaults provided via calling
+    git_checkout_init_options(). You may specify null to use only the defaults.
+
+void git_checkout_index(resource $repo,resource $index,?array $options = null)
+
+    See notes for git_checkout_head().
+
+void git_checkout_tree(resource $repo,resource $treeish,?array $options = null)
+
+    Parameter $treeish is a resource of type git_object.
+
+    See notes for git_checkout_head().
+
+----------------------------------------
 [git_repository]
 ----------------------------------------
 
@@ -1501,26 +1522,6 @@ git_clone(string,string,array|null)
         The callback should throw on error.
 
     Returns git_repository resource
-
-----------------------------------------
-[git_checkout]
-----------------------------------------
-
-git_checkout_head(resource,array|null)
-
-    ** Note: the last parameter (options) is passed as an array with the keys
-       matching the properties of the git_checkout_options struct. Any
-       properties that are not specified inherit the defaults provided via
-       calling git_checkout_init_options(). You may specify null to use only the
-       defaults. **
-
-git_checkout_tree(resource,resource,array|null)
-
-    ** See notes for git_checkout_head(). **
-
-git_checkout_index(resource,resource,array|null)
-
-    ** See notes for git_checkout_head(). **
 
 ----------------------------------------
 [git_tag]
