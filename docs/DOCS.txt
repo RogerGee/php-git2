@@ -35,7 +35,7 @@ purpose) are determined by the C++ compiler via 'typeid'.
     git_commit
     git_config
     git_config_iterator
-    git_cred
+    git_credential
     git_describe_result
     git_diff
     git_diff_stats
@@ -641,6 +641,42 @@ void git_config_set_string(resource $cfg,string $name,string $value)
 resource git_config_snapshot(resource $cfg)
 
     Returns git_config resource
+
+----------------------------------------
+[git_credential]
+----------------------------------------
+
+Note: all git_credential_* functions are aliased as git_cred_* for backwards
+compatibility. The git_cred_* API is deprecated in libgit2 version 1 and will be
+removed in later versions.
+
+resource git_credential_default_new()
+
+    Returns git_credential resource
+
+void git_credential_free(resource $cred)
+
+bool git_credential_has_username(resource $cred)
+
+resource git_credential_ssh_key_from_agent(string $username)
+
+    Returns git_credential resource
+
+resource git_credential_ssh_key_memory_new(string $username,string $publickey,string $privatekey,string $passphrase)
+
+    Returns git_credential resource
+
+resource git_credential_ssh_key_new(string $username,string $publickey,string $privatekey,string $passphrase)
+
+    Returns git_credential resource
+
+resource git_credential_username_new(string $username)
+
+    Returns git_credential resource
+
+resource git_credential_userpass_plaintext_new(string $username,string $password)
+
+    Returns git_credential resource
 
 ----------------------------------------
 [git_repository]
@@ -2268,7 +2304,7 @@ Callback signatures:
         resource callback(string $url,string $username_from_url,
                     int $allowed_types,mixed $payload)
 
-            Returns git_cred resource or NULL to passthrough
+            Returns git_credential resource or NULL to passthrough
 
     Transport certificate check callback:
 
@@ -2460,48 +2496,6 @@ git_refspec_string(resource)
 git_refspec_transform(resource,string)
 
     Returns string
-
-----------------------------------------
-[git_cred]
-----------------------------------------
-
-git_cred_default_new()
-
-    Returns git_cred resource
-
-git_cred_free(resource)
-
-git_cred_has_username(resource)
-
-    Returns bool
-
-git_cred_ssh_custom_new()
-
-    ** NOT IMPLEMENTED **
-
-git_cred_ssh_interactive_new()
-
-    ** NOT IMPLEMENTED **
-
-git_cred_ssh_key_from_agent(string)
-
-    Returns git_cred resource
-
-git_cred_ssh_key_memory_new(string,string,string,string)
-
-    Returns git_cred resource
-
-git_cred_ssh_key_new(string,string,string,string)
-
-    Returns git_cred resource
-
-git_cred_username_new(string)
-
-    Returns git_cred resource
-
-git_cred_userpass_plaintext_new(string,string)
-
-    Returns git_cred resource
 
 ----------------------------------------
 [git_submodule]

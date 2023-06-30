@@ -7,6 +7,8 @@
 #ifndef PHPGIT2_CREDENTIAL_H
 #define PHPGIT2_CREDENTIAL_H
 
+#include "stubs/credential_arginfo.h"
+
 namespace php_git2
 {
 
