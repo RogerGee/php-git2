@@ -7,6 +7,8 @@
 #ifndef PHPGIT2_DESCRIBE_H
 #define PHPGIT2_DESCRIBE_H
 
+#include "stubs/describe_arginfo.h"
+
 namespace php_git2
 {
     // Specialize resource destructor for git_describe_result

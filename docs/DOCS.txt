@@ -679,6 +679,44 @@ resource git_credential_userpass_plaintext_new(string $username,string $password
     Returns git_credential resource
 
 ----------------------------------------
+[git_describe]
+----------------------------------------
+
+resource git_describe_commit(resource $committish,?array $options = null)
+
+    Parameter $committish is a resource of type git_object.
+
+    Parameter $options is an array corresponding to the git_describe_options
+    struct. Options omitted from the array will default to values provided via
+    git_describe_init_options(). If $options is omitted then default options are
+    passed via git_describe_init_options().
+
+    Returns git_describe_result resource
+
+string git_describe_format(resource $result,?array $options = null)
+
+    Parameter $result is a resource of type git_describe_result.
+
+    Parameter $options is an array corresponding to the
+    git_describe_format_options struct. Options omitted from the array will
+    default to values provided via git_describe_format_options_init(). If
+    $options is omitted then default options are passed via
+    git_describe_format_options_init().
+
+void git_describe_result_free(resource $result)
+
+    Parameter $result is a resource of type git_describe_result.
+
+resource git_describe_workdir(resource $repo,?array $options = null)
+
+    Parameter $options is an array corresponding to the git_describe_options
+    struct. Options omitted from the array will default to values provided via
+    git_describe_init_options(). If $options is omitted then default options are
+    passed via git_describe_init_options().
+
+    Returns git_describe_result resource
+
+----------------------------------------
 [git_repository]
 ----------------------------------------
 
@@ -2167,24 +2205,6 @@ git_patch_size(resource,bool,bool,bool)
 git_patch_to_buf(resource)
 
     Returns string
-
-----------------------------------------
-[git_describe]
-----------------------------------------
-
-git_describe_commit(resource,array|null)
-
-    Returns git_describe_result resource
-
-git_describe_format(resource,array|null)
-
-    Returns string
-
-git_describe_result_free(resource)
-
-git_describe_workdir(resource,array|null)
-
-    Returns git_describe_result resource
 
 ----------------------------------------
 [git_rebase]
