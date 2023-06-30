@@ -379,6 +379,9 @@ namespace php_git2
 #define PHP_GIT2_FE(name)                               \
     PHP_GIT2_FE_EX(name,ZIF_ ## name,arginfo_ ## name)
 
+#define PHP_GIT2_FE_ALIAS(name,alias)                   \
+    PHP_GIT2_FE_EX(alias,ZIF_ ## name,arginfo_ ## name)
+
 #define PHP_GIT2_UNIMPLEMENTED(name)
 
 // Define the base function template for php_git2. It's name has the typical

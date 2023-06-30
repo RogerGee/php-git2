@@ -49,7 +49,7 @@
 #include "stash.h"
 #include "remote.h"
 #include "refspec.h"
-#include "cred.h"
+#include "credential.h"
 #include "clone.h"
 #include "submodule.h"
 #include "worktree.h"
@@ -118,7 +118,7 @@ zend_function_entry php_git2::functions[] = {
     GIT_STASH_FE
     GIT_REMOTE_FE
     GIT_REFSPEC_FE
-    GIT_CRED_FE
+    GIT_CREDENTIAL_FE
     GIT_CLONE_FE
     GIT_SUBMODULE_FE
     GIT_WORKTREE_FE

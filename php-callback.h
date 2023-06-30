@@ -640,9 +640,9 @@ namespace php_git2
 
     struct cred_acquire_callback
     {
-        typedef git_cred_acquire_cb type;
+        typedef git_credential_acquire_cb type;
         static int callback(
-            git_cred** cred,
+            git_credential** cred,
             const char* url,
             const char* username_from_url,
             unsigned int allowed_types,
@@ -693,9 +693,9 @@ namespace php_git2
 
     struct remote_cred_acquire_callback
     {
-        typedef git_cred_acquire_cb type;
+        typedef git_credential_acquire_cb type;
         static int callback(
-            git_cred** cred,
+            git_credential** cred,
             const char* url,
             const char* username_from_url,
             unsigned int allowed_types,
@@ -776,9 +776,9 @@ namespace php_git2
 
     struct proxy_cred_acquire_callback
     {
-        typedef git_cred_acquire_cb type;
+        typedef git_credential_acquire_cb type;
         static int callback(
-            git_cred** cred,
+            git_credential** cred,
             const char* url,
             const char* username_from_url,
             unsigned int allowed_types,

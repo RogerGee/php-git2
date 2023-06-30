@@ -76,7 +76,7 @@ PHP_MINIT_FUNCTION(git2)
         git_commit,
         git_config,
         git_config_iterator,
-        git_cred,
+        git_credential,
         git_describe_result,
         git_diff,
         git_diff_stats,

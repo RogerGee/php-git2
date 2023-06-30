@@ -63,7 +63,7 @@ php-git2-fe.lo: php-git2-fe.cpp \
  stash.h \
  remote.h \
  refspec.h \
- cred.h \
+ credential.h \
  submodule.h \
  worktree.h
 

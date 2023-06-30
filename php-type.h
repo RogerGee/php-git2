@@ -1267,7 +1267,7 @@ namespace php_git2
     using php_git_rebase = git2_resource<git_rebase>;
     using php_git_remote = git2_resource<git_remote>;
     using php_git_refspec = git2_resource<const git_refspec>;
-    using php_git_cred = git2_resource<git_cred>;
+    using php_git_credential = git2_resource<git_credential>;
     using php_git_submodule = git2_resource<git_submodule>;
     using php_git_worktree = git2_resource<git_worktree>;
 

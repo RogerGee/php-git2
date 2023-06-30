@@ -909,7 +909,7 @@ int stash_apply_progress_callback::callback(
 
 // cred_acquire_callback
 
-int cred_acquire_callback::callback(git_cred** cred,
+int cred_acquire_callback::callback(git_credential** cred,
     const char* url,
     const char* username_from_url,
     unsigned int allowed_types,
@@ -926,23 +926,23 @@ int cred_acquire_callback::callback(git_cred** cred,
 
     if (result == GIT_OK) {
         if (Z_TYPE(retval) == IS_RESOURCE) {
-            php_git_cred* resource;
-            resource = reinterpret_cast<php_git_cred*>(
+            php_git_credential* resource;
+            resource = reinterpret_cast<php_git_credential*>(
                 zend_fetch_resource(
                     Z_RES(retval),
                     nullptr,
-                    php_git_cred::resource_le())
+                    php_git_credential::resource_le())
                 );
 
             if (resource == nullptr) {
                 // NOTE: PHP prints warning if resource type didn't match.
                 giterr_set_str(GITERR_INVALID,
                     "Invalid return value: cred_acquire_callback must return "
-                    "git_cred resource");
+                    "git_credential resource");
                 result = GIT_EPHP;
             }
             else if (!resource->is_owner()) {
-                // Check the ownership status for sanity's sake. All git_cred
+                // Check the ownership status for sanity's sake. All git_credential
                 // resources should be owners.
                 giterr_set_str(GITERR_INVALID,
                     "Invalid return value: cred_acquire_callback cannot return "
@@ -1046,7 +1046,7 @@ int remote_completion_callback::callback(
 
 // remote_cred_acquire_callback
 
-int remote_cred_acquire_callback::callback(git_cred** cred,
+int remote_cred_acquire_callback::callback(git_credential** cred,
     const char* url,
     const char* username_from_url,
     unsigned int allowed_types,
@@ -1217,7 +1217,7 @@ int remote_push_negotiation_callback::callback(
 
 // proxy_cred_acquire_callback
 
-int proxy_cred_acquire_callback::callback(git_cred** cred,
+int proxy_cred_acquire_callback::callback(git_credential** cred,
     const char* url,
     const char* username_from_url,
     unsigned int allowed_types,
