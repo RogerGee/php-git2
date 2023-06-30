@@ -6,7 +6,9 @@
 
 #ifndef PHPGIT2_COMMIT_H
 #define PHPGIT2_COMMIT_H
+
 #include <git2/sys/commit.h>
+#include "stubs/commit_arginfo.h"
 
 namespace php_git2
 {

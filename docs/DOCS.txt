@@ -390,6 +390,109 @@ resource git_clone(string $url,string $local_path,?array $options = null)
     Returns git_repository resource
 
 ----------------------------------------
+[git_commit]
+----------------------------------------
+
+string git_commit_amend(resource $commit_to_amend,?string $update_ref,?resource $author,?resource $committer,?string $message_encoding,?string $message,?resource $tree)
+
+    The arguments behave like the C function in that NULL's are disregarded when
+    amending the commit.
+
+resource git_commit_author(resource $commit)
+
+    Returns git_signature resource
+
+string git_commit_body(resource $commit)
+
+resource git_commit_committer(resource $commit)
+
+    Returns git_signature resource
+
+string git_commit_create(resource $repo,?string $update_ref,resource $author,resource $committer,?string $message_encoding,string $message,resource $tree,array $parents)
+
+    Parameter $parents be an array of git_commit resource values.
+
+string git_commit_create_buffer(resource $repo,resource $author,resource $committer,?string $message_encoding,string $message,resource $tree,array $parents)
+
+    Parameter $parents should be an array of git_commit resource values.
+
+string git_commit_create_from_callback(resource $repo,?string $update_ref,resource $author,resource $committer,?string $message_encoding,string $message,string $tree_id,callable $callback,mixed $payload)
+
+    Callback signature:
+        string callback(int $idx,mixed $payload)
+
+        This callback is not designed to report errors. If an error occures,
+        then the calling function will finish and the error will be logged as a
+        warning.
+
+string git_commit_create_from_ids(resource $repo,?string $update_ref,resource $author,resource $committer,?string $message_encoding,string $message,string $tree_id,array $parents)
+
+    Parameter $parents should be a list of strings representing the parent
+    commit OIDs.
+
+string git_commit_create_with_signature(resource $repo,string $commit_content,string $signature,?string $signature_field = null)
+
+resource git_commit_dup(resource $source)
+
+    Parameter $source is a resource of type git_commit.
+
+    Returns git_commit resource
+
+string git_commit_extract_signature(string &$signed_data_out,resource $repo,string $commit_id,string $field = null)
+
+    Returns the signature block
+
+void git_commit_free(resource $commit)
+
+string git_commit_header_field(resource $commit,string $field)
+
+string git_commit_id(resource $commit)
+
+resource git_commit_lookup(resource $repo,string $id)
+
+    Returns git_commit resource
+
+resource git_commit_lookup_prefix(resource $repo,string $id)
+
+    Returns git_commit resource
+
+string git_commit_message(resource $commit)
+
+?string git_commit_message_encoding(resource $commit)
+
+string git_commit_message_raw(resource $commit)
+
+resource git_commit_nth_gen_ancestor(resource $commit,int $n)
+
+    Returns git_commit resource
+
+resource git_commit_owner(resource $commit)
+
+    Returns git_repository resource
+
+resource git_commit_parent(resource $commit,int $n)
+
+    Returns git_commit resource
+
+string git_commit_parent_id(resource $commit,int $n)
+
+int git_commit_parentcount(resource $commit)
+
+string git_commit_raw_header(resource $commit)
+
+string git_commit_summary(resource $commit)
+
+int git_commit_time(resource $commit)
+
+int git_commit_time_offset(resource $commit)
+
+resource git_commit_tree(resource $commit)
+
+    Returns git_tree resource
+
+string git_commit_tree_id(resource $commit)
+
+----------------------------------------
 [git_repository]
 ----------------------------------------
 
@@ -999,162 +1102,6 @@ git_odb_hash(string,int)
     Returns string
 
 git_odb_hashfile(string,int)
-
-    Returns string
-
-----------------------------------------
-[git_commit]
-----------------------------------------
-
-git_commit_lookup(resource,string)
-
-    Returns git_commit resource
-
-git_commit_lookup_prefix(resource,string)
-
-    Returns git_commit resource
-
-git_commit_parentcount(resource)
-
-    Returns int
-
-git_commit_parent_id(resource,int)
-
-    Returns string
-
-git_commit_parent(resource,int)
-
-    Returns git_commit resource
-
-git_commit_nth_gen_ancestor(resource,int)
-
-    Returns git_commit resource
-
-git_commit_id(resource)
-
-    Returns string
-
-git_commit_free(resource)
-
-git_commit_owner(resource)
-
-    Returns git_repository resource
-
-git_commit_tree(resource)
-
-    Returns git_tree resource
-
-git_commit_tree_id(resource)
-
-    Returns string
-
-git_commit_time(resource)
-
-    Returns int
-
-git_commit_time_offset(resource)
-
-    Returns int
-
-git_commit_summary(resource)
-
-    Returns string
-
-git_commit_raw_header(resource)
-
-    Returns string
-
-git_commit_body(resource)
-
-    Returns string
-
-git_commit_message(resource)
-
-    Returns string
-
-git_commit_message_encoding(resource)
-
-    Returns string
-
-git_commit_message_raw(resource)
-
-    Returns string
-
-git_commit_author(resource)
-
-    Returns git_signature resource
-
-git_commit_committer(resource)
-
-    Returns git_signature resource
-
-git_commit_create(resource,string|null,resource,resource,string|null,string,resource,array)
-
-    Example:
-        $oid = git_commit_create($repo,$ref,$author,$committer,
-                                 $encoding,$message,$tree,$parents);
-
-    ** The final parameter should be an array of git_commit resources; the size
-       is not previously passed in the PHP userspace version. **
-
-    Returns string containing the new commit's OID
-
-git_commit_create_from_callback(resource,string|null,resource,resource,string|null,string,string,callable,mixed)
-
-    Example
-        $oid = git_commit_from_callback($repo,$ref,$author,$committer,$encoding,
-                                        $message,$treeId,$callable,$payload);
-
-    Callback signature: string callback(int $idx,mixed $payload)
-
-        This callback is not designed to report errors. If an error occures,
-        then the calling function will finish and the error will be logged as a
-        warning.
-
-    Returns string containing the new commit's OID
-
-git_commit_create_from_ids(resource,string|null,resource,resource,string|null,string,string,array)
-
-    Example
-        $oid = git_commit_from_ids($repo,$ref,$author,$committer,$encoding,
-                                   $message,$treeId,$parents)
-
-    ** The array should be a list of strings representing the parent commit
-       OIDs. **
-
-    Returns string containing the new commit's OID
-
-git_commit_create_buffer(resource,resource,resource,string|null,string,resource,array)
-
-    Example:
-        $data = git_commit_create_buffer($repo,$author,$committer,
-                                         $encoding,$message,$tree,$parents);
-
-    ** The final parameter should be an array of git_commit resources; the size
-       is not previously passed in the PHP userspace version. **
-
-    Returns string containing the commit object
-
-git_commit_create_with_signature(resource,string,string,string)
-
-    Returns string
-
-git_commit_amend(resource,string|null,resource|null,resource|null,string|null,string|null,resource|null)
-
-    ** The arguments behavior like the C function in that NULL's are disregarded
-       when amending the commit. **
-
-    Returns string
-
-git_commit_dup(resource)
-
-    Returns git_commit resource
-
-string git_commit_extract_signature(string &$signed_data_out,resource $repo,string $commit_id,string $field = null)
-
-    Returns the signature block
-
-git_commit_header_field(resource,string)
 
     Returns string
 
