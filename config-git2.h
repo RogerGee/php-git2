@@ -6,9 +6,11 @@
 
 #ifndef PHPGIT2_CONFIG_H
 #define PHPGIT2_CONFIG_H
+
 extern "C" {
 #include <git2/sys/config.h>
 }
+#include "stubs/config_arginfo.h"
 
 namespace php_git2
 {
