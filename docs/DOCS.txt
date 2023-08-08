@@ -871,6 +871,16 @@ resource git_diff_tree_to_workdir_with_index(resource $repo,?resource $old_tree,
     Returns git_diff resource
 
 ----------------------------------------
+[git_ignore]
+----------------------------------------
+
+void git_ignore_add_rule(resource $repo,string $rules)
+
+void git_ignore_clear_internal_rules(resource $repo)
+
+bool git_ignore_path_is_ignored(resource $repo,string $path)
+
+----------------------------------------
 [git_repository]
 ----------------------------------------
 
@@ -1930,18 +1940,6 @@ git_trace_set(int)
 
     ** NOTE: this function uses the standard PHP error log to write traces. This
        only works if your libgit2 was built with tracing enabled. **
-
-----------------------------------------
-[git_ignore]
-----------------------------------------
-
-git_ignore_add_rule(resource,string)
-
-git_ignore_clear_internal_rules(resource)
-
-git_ignore_path_is_ignored(resource,string)
-
-    Returns bool
 
 ----------------------------------------
 [git_status]

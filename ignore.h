@@ -7,6 +7,8 @@
 #ifndef PHPGIT2_IGNORE_H
 #define PHPGIT2_IGNORE_H
 
+#include "stubs/ignore_arginfo.h"
+
 namespace php_git2
 {
 
