@@ -7,6 +7,8 @@
 #ifndef PHPGIT2_DIFF_H
 #define PHPGIT2_DIFF_H
 
+#include "stubs/diff_arginfo.h"
+
 namespace php_git2
 {
     // Specialize resource destructor for git_diff
