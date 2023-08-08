@@ -26,6 +26,22 @@ namespace php_git2
         }
     };
 
+    // Provide a rethandler for converting a char to a PHP string.
+
+    class php_char_string_rethandler
+    {
+    public:
+        template<typename... Ts>
+        bool ret(char retval,zval* return_value,local_pack<Ts...>& pack)
+        {
+            char buffer[8];
+            buffer[0] = retval;
+            buffer[1] = 0;
+            RETVAL_STRING(buffer);
+            return true;
+        }
+    };
+
     // Provide a rethandler for returning a boolean value from a numeric value.
 
     template<typename Numeric>

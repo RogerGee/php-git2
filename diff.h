@@ -685,14 +685,14 @@ static constexpr auto ZIF_git_diff_tree_to_workdir_with_index = zif_php_git2_fun
     php_git2::sequence<0,1,2,3>
     >;
 
-static constexpr auto ZIF_git_diff_status_char = zif_php_git2_function<
+static constexpr auto ZIF_git_diff_status_char = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         char,
         git_delta_t>::func<git_diff_status_char>,
     php_git2::local_pack<
         php_git2::php_long_cast<git_delta_t>
         >,
-    0
+    php_git2::php_char_string_rethandler
     >;
 
 static constexpr auto ZIF_git_diff_num_deltas = zif_php_git2_function<
