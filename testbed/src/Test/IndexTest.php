@@ -63,16 +63,16 @@ final class IndexTest extends RepositoryTestCase {
     }
 
     /**
-     * @phpGitTest git_index_add_frombuffer
+     * @phpGitTest git_index_add_from_buffer
      */
-    public function testAddFrombuffer() {
+    public function testAddFrom_Buffer() {
         $index = static::getRepoIndex();
         $entry = [
             'path' => 'blob',
             'mode' => GIT_FILEMODE_BLOB,
         ];
         $buffer = 'Blob contents from a buffer';
-        $result = git_index_add_frombuffer($index,$entry,$buffer);
+        $result = git_index_add_from_buffer($index,$entry,$buffer);
 
         $this->assertNull($result);
     }

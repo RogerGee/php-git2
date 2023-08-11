@@ -7,6 +7,8 @@
 #ifndef PHPGIT2_INDEX_H
 #define PHPGIT2_INDEX_H
 
+#include "stubs/index_arginfo.h"
+
 namespace php_git2
 {
     // Specialize resource destructor for git_index.
@@ -203,13 +205,13 @@ static constexpr auto ZIF_git_index_add_bypath = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_git_index_add_frombuffer = zif_php_git2_function<
+static constexpr auto ZIF_git_index_add_from_buffer = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_index*,
         const git_index_entry*,
         const void*,
-        size_t>::func<git_index_add_frombuffer>,
+        size_t>::func<git_index_add_from_buffer>,
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_index>,
         php_git2::php_git_index_entry,
@@ -664,7 +666,7 @@ static constexpr auto ZIF_git_index_write_tree_to = zif_php_git2_function<
     PHP_GIT2_FE(git_index_add)                      \
     PHP_GIT2_FE(git_index_add_all)                  \
     PHP_GIT2_FE(git_index_add_bypath)               \
-    PHP_GIT2_FE(git_index_add_frombuffer)           \
+    PHP_GIT2_FE(git_index_add_from_buffer)          \
     PHP_GIT2_FE(git_index_caps)                     \
     PHP_GIT2_FE(git_index_checksum)                 \
     PHP_GIT2_FE(git_index_clear)                    \

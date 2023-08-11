@@ -881,6 +881,116 @@ void git_ignore_clear_internal_rules(resource $repo)
 bool git_ignore_path_is_ignored(resource $repo,string $path)
 
 ----------------------------------------
+[git_index]
+----------------------------------------
+
+void git_index_add(resource $index,array $source_entry)
+
+bool git_index_add_all(resource $index,array $pathspec,int $flags,callable $callback,mixed $paylaod)
+
+    Callback signature: void callback(string $path,string $matched_pathspec,mixed $payload)
+
+        The callback should throw on error and return less than zero to stop
+        iteration early.
+
+    This function returns FALSE if the scan was aborted (i.e. iteration
+    stopped).
+
+void git_index_add_bypath(resource $index,string $path)
+
+void git_index_add_from_buffer(resource $index,array $entry,string $buffer)
+
+int git_index_caps(resource $index)
+
+string git_index_checksum(resource $index)
+
+void git_index_clear(resource $index)
+
+void git_index_conflict_add(resource $index,array $ancestor_entry,array $our_entry,array $their_entry)
+
+void git_index_conflict_cleanup(resource $index)
+
+void git_index_conflict_get(array &$ancestor,array &$ours,array &$theirs,resource $index,string $path)
+
+void git_index_conflict_iterator_free(resource $iter)
+
+resource git_index_conflict_iterator_new(resource $index)
+
+    Returns git_index_conflict_iterator resource
+
+bool git_index_conflict_next(array &$ancestor,array &$ours,array &$theirs,resource $iterator)
+
+    Returns false when iteration is over.
+
+void git_index_conflict_remove(resource $index,string $path)
+
+int git_index_entrycount(resource $index)
+
+bool git_index_entry_is_conflict(array $entry)
+
+int git_index_stage(array $entry)
+
+int git_index_find(resource $index,string $path)
+
+int git_index_find_prefix(resource $index,string $prefix)
+
+void git_index_free(resource $index)
+
+array|bool git_index_get_byindex(resource $index,int $n)
+
+    Returns git_index_entry array, or false if out of bounds
+
+array|bool git_index_get_bypath(resource $index,string $path,int $stage)
+
+    Returns git_index_entry array, or false if does not exist
+
+bool git_index_has_conflicts(resource $index)
+
+resource git_index_new()
+
+    Returns git_index resource
+
+resource git_index_open(string $index_path)
+
+    Returns git_index resource
+
+resource git_index_owner(resource $index)
+
+    Returns git_repository resource
+
+?string git_index_path(resource $index)
+
+void git_index_read(resource $index,bool $force)
+
+void git_index_read_tree(resource $index,resource $tree)
+
+void git_index_remove(resource $index,string $path,int $stage)
+
+bool git_index_remove_all(resource $index,array $pathspec,callable $callback,mixed $payload)
+
+    See git_index_add_all() for callback description.
+
+void git_index_remove_bypath(resource $index,string $path)
+
+void git_index_remove_directory(resource $index,string $dir,int $stage)
+
+void git_index_set_caps(resource $index,int $caps)
+
+void git_index_set_version(resource $index,int $version)
+
+bool git_index_update_all(resource $index,array $pathspec,callable $callback,mixed $payload)
+
+    See git_index_add_all() for callback description.
+
+int git_index_version(resource $index)
+
+void git_index_write(resource $index)
+
+string git_index_write_tree(resource $index)
+
+string git_index_write_tree_to(resource $index,resource $repo)
+
+----------------------------------------
 [git_repository]
 ----------------------------------------
 
@@ -1789,148 +1899,6 @@ git_tag_foreach(resource,callable,mixed)
     Callback signature: void callback(string $name,string $oid,mixed $payload)
 
         The callback should throw on error.
-
-----------------------------------------
-[git_index]
-----------------------------------------
-
-git_index_add(resource,array)
-
-git_index_add_all(resource,array,int,callable,mixed)
-
-    Callback signature: void callback(string $path,string $matched_pathspec,mixed $payload)
-
-        The callback should throw on error and return less than zero to stop
-        iteration early.
-
-    This function returns FALSE if the scan was aborted (i.e. iteration
-    stopped).
-
-    Returns bool
-
-git_index_add_bypath(resource,string)
-
-git_index_add_frombuffer(resource,array,string)
-
-git_index_caps(resource)
-
-    Returns int
-
-git_index_checksum(resource)
-
-    Returns string
-
-git_index_clear(resource)
-
-git_index_conflict_add(resource,array,array,array)
-
-git_index_conflict_cleanup(resource)
-
-void git_index_conflict_get(array &$ancestor,array &$ours,array &$theirs,resource $index,string $path)
-
-
-
-git_index_conflict_iterator_free(resource)
-
-git_index_conflict_iterator_new(resource)
-
-    Returns git_index_conflict_iterator resource
-
-bool git_index_conflict_next(array &$ancestor,array &$ours,array &$theirs,resource $iterator)
-
-    Returns false when iteration is over.
-
-git_index_conflict_remove(resource,string)
-
-git_index_entrycount(resource)
-
-    Returns int
-
-git_index_entry_is_conflict(array)
-
-    Returns boolean
-
-git_index_stage(array)
-
-    Returns int
-
-git_index_find(resource,string)
-
-    Returns int
-
-git_index_find_prefix(resource,string)
-
-    Returns int
-
-git_index_free(resource)
-
-git_index_get_byindex(resource,int)
-
-    Returns git_index_entry array, or false if out of bounds
-
-git_index_get_bypath(resource,string,int)
-
-    Returns git_index_entry array, or false if does not exist
-
-git_index_has_conflicts(resource)
-
-    Returns boolean
-
-git_index_new()
-
-    Returns git_index resource
-
-git_index_open(string)
-
-    Returns git_index resource
-
-git_index_owner(resource)
-
-    Returns git_repository resource
-
-git_index_path(resource)
-
-    Returns string
-
-git_index_read(resource,boolean)
-
-git_index_read_tree(resource,resource)
-
-git_index_remove(resource,string,int)
-
-git_index_remove_all(resource,array,callable,mixed)
-
-    ** See git_index_add_all() for callback description. **
-
-    Returns bool
-
-git_index_remove_bypath(resource,string)
-
-git_index_remove_directory(resource,string,int)
-
-git_index_set_caps(resource,int)
-
-git_index_set_version(resource,int)
-
-git_index_update_all(resource,array,callable,mixed)
-
-    ** See git_index_add_all() for callback description. **
-
-    Returns bool
-
-git_index_version(resource)
-
-    Returns int
-
-git_index_write(resource)
-
-git_index_write_tree(resource)
-
-    Returns string
-
-git_index_write_tree_to(resource,resource)
-
-    Returns string
 
 ----------------------------------------
 [git_trace]
