@@ -991,6 +991,43 @@ string git_index_write_tree(resource $index)
 string git_index_write_tree_to(resource $index,resource $repo)
 
 ----------------------------------------
+[git_indexer]
+----------------------------------------
+
+void git_indexer_append(resource $indexer,string $data)
+
+    Transfer progress is stored in the resource. As such it is not passed to
+    this function. To obtain transfer progress stats, call git2_indexer_stats().
+
+void git_indexer_commit(resource $indexer)
+
+    Transfer progress is stored in the resource. As such it is not passed to
+    this function. To obain transfer progress stats, call git2_indexer_stats().
+
+void git_indexer_free(resource $indexer)
+
+string git_indexer_hash(resource $indexer)
+
+resource git_indexer_new(string $path,int $mode,?resource $odb,?array $options)
+
+    Parameter $options is an associative array matching struct
+    git_indexer_options.
+
+    Return git_indexer resource
+
+array git2_indexer_stats(resource $indexer)
+
+    To avoid the expense of translating a stats object every time an indexer
+    operation is performed, the library allocates an internal
+    git_indexer_progress structure on the resource object; this structure is
+    automatically passed to underlying calls.
+
+    The user may call this function to get the indexer transfer progress stats
+    at any time.
+
+    The return value is an associative array with git_transfer_progress fields.
+
+----------------------------------------
 [git_repository]
 ----------------------------------------
 
@@ -1423,45 +1460,6 @@ git_packbuilder_write(resource,string,int,callable,mixed)
 git_packbuilder_written(resource)
 
     Returns int
-
-----------------------------------------
-[git_indexer]
-----------------------------------------
-
-resource git_indexer_new(string $path,int $mode,?resource $odb,?array $options)
-
-    $options: [
-        'progress_cb' => callable: void callback(array $stats,mixed $payload),
-        'progress_cb_payload' => mixed,
-        'verify' => bool,
-    ]
-
-    Return git_indexer resource
-
-git_indexer_hash(resource)
-
-    Returns string
-
-git_indexer_append(resource,string)
-
-    ** Transfer progress is stored in the resource. As such it is not passed to
-       this function. **
-
-git_indexer_commit(resource)
-
-    ** Transfer progress is stored in the resource. As such it is not passed to
-       this function. **
-
-git_indexer_free(resource)
-
-git2_indexer_stats(resource)
-
-    ** To avoid the expense of translating a stats object every time and indexer
-       operation is performed, the user may call this to get the indexer
-       transfer progress stats at any time. The transfer progress structure is
-       stored in the indexer resource object. **
-
-    Returns array, associative array with git_transfer_progress fields
 
 ----------------------------------------
 [git_odb]

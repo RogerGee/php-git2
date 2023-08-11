@@ -7,6 +7,8 @@
 #ifndef PHPGIT2_INDEXER_H
 #define PHPGIT2_INDEXER_H
 
+#include "stubs/indexer_arginfo.h"
+
 namespace php_git2
 {
     // Specialize resource type destructor.
@@ -243,11 +245,11 @@ static PHP_FUNCTION(git2_indexer_stats)
 // Function Entries:
 
 #define GIT_INDEXER_FE                                      \
-    PHP_GIT2_FE(git_indexer_new)                            \
-    PHP_GIT2_FE(git_indexer_hash)                           \
     PHP_GIT2_FE(git_indexer_append)                         \
     PHP_GIT2_FE(git_indexer_commit)                         \
     PHP_GIT2_FE(git_indexer_free)                           \
+    PHP_GIT2_FE(git_indexer_hash)                           \
+    PHP_GIT2_FE(git_indexer_new)                            \
     PHP_FE(git2_indexer_stats,arginfo_git2_indexer_stats)
 
 #endif
