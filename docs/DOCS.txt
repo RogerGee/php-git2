@@ -161,6 +161,30 @@ string git2_version()
     Gets a string representing both the php-git2 and libgit2 versions.
 
 ----------------------------------------
+[git_annotated_commit]
+----------------------------------------
+
+resource git_annotated_commit_from_fetchhead(resource $repo,string $branch_name,string $remote_url,string $oid)
+
+    Returns git_annotated_commit resource
+
+resource git_annotated_commit_from_ref(resource,resource)
+
+    Returns git_annotated_commit resource
+
+resource git_annotated_commit_from_revspec(resource,string)
+
+    Returns git_annotated_commit resource
+
+resource git_annotated_commit_lookup(resource,string)
+
+    Returns git_annotated_commit resource
+
+string git_annotated_commit_id(resource)
+
+void git_annotated_commit_free(resource)
+
+----------------------------------------
 [git_attr]
 ----------------------------------------
 
@@ -1028,6 +1052,82 @@ array git2_indexer_stats(resource $indexer)
     The return value is an associative array with git_transfer_progress fields.
 
 ----------------------------------------
+[git_merge]
+----------------------------------------
+
+void git_merge(resource $repo,array $their_heads,?array $merge_options,?array $checkout_options)
+
+    Parameter $their_heads is an array of git_annotated_commit resources.
+
+    Parameter $merge_options is an associative array corresponding to
+    git_merge_options. Options are defaulted using git_merge_options_init().
+
+    Parameter $checkout_options in an associative array corresponding to
+    git_checkout_options. Options are defaulted using
+    git_checkout_init_options().
+
+int git_merge_analysis(int &$preference,resource $repo,array $their_heads)
+
+    Parameter $their_heads is an array of git_annotated_commit resources.
+
+    Returns the analysis enumeration result
+
+string git_merge_base(resource $repo,string $one,string $two)
+
+string git_merge_base_many(resource $repo,array $input_array)
+
+    Parameter $input_array is an array of strings.
+
+string git_merge_base_octopus(resource $repo,array $input_array)
+
+    Parameter $input_array is an array of strings.
+
+array git_merge_bases(resource $repo,string $one,string $two)
+
+    Returns an array of string
+
+array git_merge_bases_many(resource $repo,array $input_array)
+
+    Parameter $input_array is an array of strings.
+
+    Returns an array of string
+
+resource git_merge_commits(resource $repo,resource $our_commit,resource $their_commit,?array $merge_options)
+
+    Parameter $merge_options is an associative array corresponding to
+    git_merge_options. Options are defaulted using git_merge_options_init().    
+
+    Returns git_index resource
+
+array git_merge_file(array $ancestor,array $ours,array $theirs,?array $merge_file_options)
+
+    Parameters $ancestor, $ours and $theirs are associative arrays matching the
+    git_merge_file_input struct. The git_merge_file_input array contains a
+    property "ptr" that encapsulates both the "ptr" and "size" fields from the C
+    structure.
+
+    Parameter $merge_file_options is an associative array corresponding to
+    git_merge_file_options. Options are defaulted using
+    git_merge_file_init_options().
+
+    Returns array (git_merge_file_result)
+
+array git_merge_file_from_index(resource $repo,?array $ancestor,array $ours,array $theirs,?array $merge_file_options)
+
+    Parameters $ancestor, $ours and $theirs are associative arrays matching the
+    git_index_entry struct.
+
+    Parameter $merge_file_options is an associative array corresponding to
+    git_merge_file_options. Options are defaulted using
+    git_merge_file_init_options().
+
+    Returns array (git_merge_file_result)
+
+resource git_merge_trees(resource $repo,?resource $ancestor_tree,resource $our_tree,resource $their_tree,?array $merge_options)
+
+    Returns git_index resource
+
+----------------------------------------
 [git_repository]
 ----------------------------------------
 
@@ -1787,32 +1887,6 @@ git_revparse_single(resource,string)
     Returns git_object resource
 
 ----------------------------------------
-[git_annotated_commit]
-----------------------------------------
-
-resource git_annotated_commit_from_fetchhead(resource $repo,string $branch_name,string $remote_url,string $oid)
-
-    Returns git_annotated_commit resource
-
-resource git_annotated_commit_from_ref(resource,resource)
-
-    Returns git_annotated_commit resource
-
-resource git_annotated_commit_from_revspec(resource,string)
-
-    Returns git_annotated_commit resource
-
-resource git_annotated_commit_lookup(resource,string)
-
-    Returns git_annotated_commit resource
-
-string git_annotated_commit_id(resource)
-
-    Returns string
-
-void git_annotated_commit_free(resource)
-
-----------------------------------------
 [git_tag]
 ----------------------------------------
 
@@ -1965,61 +2039,6 @@ git_status_list_new(resource,array|null)
 git_status_should_ignore(resource,string)
 
     Returns bool
-
-----------------------------------------
-[git_merge]
-----------------------------------------
-
-git_merge(resource,array,array|null,array|null)
-
-int git_merge_analysis(int &$preference,resource $repo,array $their_heads)
-
-    Returns the analysis enumeration result
-
-git_merge_base(resource,string,string)
-
-    Returns string
-
-git_merge_base_many(resource,array)
-
-    ** NOTE: the 2nd argument is an array of strings **
-
-    Returns string
-
-git_merge_base_octopus(resource,array)
-
-    ** NOTE: the 2nd argument is an array of strings **
-
-    Returns string
-
-git_merge_bases(resource,string,string)
-
-    Returns array
-
-git_merge_bases_many(resource,array)
-
-    ** NOTE: the 2nd argument is an array of strings **
-
-    Returns array
-
-git_merge_commits(resource,resource,resource,array|null)
-
-    Returns git_index resource
-
-git_merge_file(array,array,array,array|null)
-
-    ** NOTE: the git_merge_file_input contains a member "ptr" that encapsulates
-       both "ptr" and "size" from the C structure. **
-
-    Returns array (git_merge_file_result)
-
-git_merge_file_from_index(resource,array,array,array,array|null)
-
-    Returns array (git_merge_file_result)
-
-git_merge_trees(resource,resource|null,resource,resource,array|null)
-
-    Returns git_index resource
 
 ----------------------------------------
 [git_note]

@@ -6,8 +6,10 @@
 
 #ifndef PHPGIT2_MERGE_H
 #define PHPGIT2_MERGE_H
+
 #include "checkout.h"
 #include "index.h"
+#include "stubs/merge_arginfo.h"
 
 namespace php_git2
 {
