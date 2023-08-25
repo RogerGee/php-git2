@@ -1128,6 +1128,48 @@ resource git_merge_trees(resource $repo,?resource $ancestor_tree,resource $our_t
     Returns git_index resource
 
 ----------------------------------------
+[git_note]
+----------------------------------------
+
+resource git_note_author(resource $note)
+
+    Returns git_signature resource
+
+resource git_note_committer(resource $note)
+
+    Returns git_signature resource
+
+string git_note_create(resource $repo,?string $notes_ref,resource $author,resource $committer,string $oid,string $note,bool $force)
+
+void git_note_foreach(resource $repo,?string $notes_ref,callable $callback,mixed $payload)
+
+    Callback signature: void callback(string $blob_id,string $annotated_object_id,mixed $payload)
+
+void git_note_free(resource $note)
+
+string git_note_id(resource $note)
+
+void git_note_iterator_free(resource $note_iterator)
+
+resource git_note_iterator_new(resource $repo,?string $notes_ref)
+
+    Returns git_note_iterator resource
+
+string git_note_message(resource $note)
+
+    Returns string
+
+string git_note_next(string &$annotated_id,resource $note_iterator)
+
+    Returns the note ID string
+
+resource git_note_read(resource $repo,?string $notes_ref,string $oid)
+
+    Returns git_note resource
+
+void git_note_remove(resource $repo,?string $notes_ref,resource $author,resource $committer,string $oid)
+
+----------------------------------------
 [git_repository]
 ----------------------------------------
 
@@ -2039,50 +2081,6 @@ git_status_list_new(resource,array|null)
 git_status_should_ignore(resource,string)
 
     Returns bool
-
-----------------------------------------
-[git_note]
-----------------------------------------
-
-git_note_author(resource)
-
-    Returns git_signature resource
-
-git_note_committer(resource)
-
-    Returns git_signature resource
-
-git_note_create(resource,string|null,resource,resource,string,string,bool)
-
-    Returns string
-
-git_note_foreach(resource,string|null,callable,mixed)
-
-git_note_free(resource)
-
-git_note_id(resource)
-
-    Returns string
-
-git_note_iterator_free(resource)
-
-git_note_iterator_new(resource,string|null)
-
-    Returns git_note_iterator resource
-
-git_note_message(resource)
-
-    Returns string
-
-string git_note_next(string &$annotated_id,resource $iterator)
-
-    Returns the note ID string
-
-git_note_read(resource,string|null,string)
-
-    Returns git_note resource
-
-git_note_remove(resource,string|null,resource,resource,string)
 
 ----------------------------------------
 [git_reflog]

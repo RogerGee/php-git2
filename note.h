@@ -7,6 +7,8 @@
 #ifndef PHPGIT2_NOTE_H
 #define PHPGIT2_NOTE_H
 
+#include "stubs/note_arginfo.h"
+
 namespace php_git2
 {
 
@@ -21,7 +23,6 @@ namespace php_git2
     {
         git_note_iterator_free(handle);
     }
-
 
 } // namespace php_git2
 
