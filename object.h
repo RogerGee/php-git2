@@ -7,6 +7,8 @@
 #ifndef PHPGIT2_OBJECT_H
 #define PHPGIT2_OBJECT_H
 
+#include "stubs/object_arginfo.h"
+
 namespace php_git2
 {
 

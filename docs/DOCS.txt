@@ -1170,6 +1170,47 @@ resource git_note_read(resource $repo,?string $notes_ref,string $oid)
 void git_note_remove(resource $repo,?string $notes_ref,resource $author,resource $committer,string $oid)
 
 ----------------------------------------
+[git_object]
+----------------------------------------
+resource git_object_dup(resource $object)
+
+    Returns git_object resource
+
+void git_object_free(resource $object)
+
+string git_object_id(resource $object)
+
+resource git_object_lookup(resource $repo,string $id,int $type)
+
+    Returns git_object resource
+
+resource git_object_lookup_bypath(resource $repo,string $path,int $type)
+
+    Returns git_object resource
+
+resource git_object_lookup_prefix(resource $repo,string $id,int $type)
+
+    Returns git_object resource
+
+resource git_object_owner(resource $object)
+
+    Returns git_repository resource
+
+resource git_object_peel(resource $object,int $target_type)
+
+    Returns git_object resource
+
+string git_object_short_id(resource $object)
+
+int git_object_string2type(string $str)
+
+int git_object_type(resource $object)
+
+string git_object_type2string(int $type)
+
+bool git_object_typeisloose(int $type)
+
+----------------------------------------
 [git_repository]
 ----------------------------------------
 
@@ -1448,59 +1489,6 @@ resource git_reference_symbolic_set_target(resource $ref,string $target,string $
 ?string git_reference_target_peel(resource $ref)
 
 int git_reference_type(resource $ref)
-
-----------------------------------------
-[git_object]
-----------------------------------------
-git_object_id(resource)
-
-    Returns string
-
-git_object_lookup(resource,string,int)
-
-    Returns resource
-
-git_object_free(resource)
-
-git_object_peel(resource,int)
-
-    Returns git_object resource
-
-git_object_dup(resource)
-
-    Returns git_object resource
-
-git_object_lookup_bypath(resource,string,int)
-
-    Returns git_object resource
-
-git_object_lookup_prefix(resource,string,int)
-
-    Returns git_object resource
-
-git_object_owner(resource)
-
-    Returns git_repository resource
-
-git_object_short_id(resource)
-
-    Returns string
-
-git_object_string2type(string)
-
-    Returns int
-
-git_object_type(resource)
-
-    Returns int
-
-git_object_type2string(int)
-
-    Returns string
-
-git_object_typeisloose(int)
-
-    Returns bool
 
 ----------------------------------------
 [git_revwalk]
