@@ -1317,6 +1317,59 @@ string git_odb_write(resource $odb,string $data,int $type)
 GitODBWritepack_Internal git_odb_write_pack(resource $odb,callable $progress_callback,mixed $payload)
 
 ----------------------------------------
+[git_packbuilder]
+----------------------------------------
+
+void git_packbuilder_foreach(resource $packbuilder,callable $callback,mixed $payload_or_stream)
+
+    If $payload_or_stream is a PHP stream resource and $callback is null, then
+    the extension will internally write callback data to the stream. (This is a
+    non-standard extension to libgit2 behavior provided by php-git2.)
+
+    Callback signature: bool callback(string $data,int $length,mixed $payload)
+
+        The callback should return false to cancel the transaction.
+
+        The callback should throw on error.
+
+void git_packbuilder_free(resource $packbuilder)
+
+string git_packbuilder_hash(resource $packbuilder)
+
+void git_packbuilder_insert(resource $packbuilder,string $id,?string $name)
+
+void git_packbuilder_insert_commit(resource $packbuilder,string $id)
+
+void git_packbuilder_insert_recur(resource $packbuilder,string $id,?string $name)
+
+void git_packbuilder_insert_tree(resource $packbuilder,string $id)
+
+void git_packbuilder_insert_walk(resource $packbuilder,resource $revwalk)
+
+resource git_packbuilder_new(resource $repo)
+
+    Returns git_packbuilder resource
+
+int git_packbuilder_object_count(resource $packbuilder)
+
+void git_packbuilder_set_callbacks(resource $packbuilder,callable $progress_callback,mixed $payload)
+
+    Callback signature: void callback(int $stage,int $current,int $total,mixed $payload)
+
+        The callback should throw on error.
+
+void git_packbuilder_set_threads(resource $packbuilder,int $n_threads)
+
+void git_packbuilder_write(resource $packbuilder,string $path,int $mode,callable $progress_callback,mixed $payload)
+
+    Callback signature: void callback(array $stats)
+
+        The $stats array has properties of the libgit2 git_transfer_progress
+        struct.
+
+int git_packbuilder_written(resource $packbuilder)
+
+----------------------------------------
 [git_repository]
 ----------------------------------------
 
@@ -1638,64 +1691,6 @@ git_revwalk_push_ref(resource,string)
 git_revwalk_repository(resource)
 
 git_revwalk_simplify_first_parent(resource)
-
-----------------------------------------
-[git_packbuilder]
-----------------------------------------
-
-git_packbuilder_new(resource)
-
-    Returns git_packbuilder resource
-
-git_packbuilder_free(resource)
-
-git_packbuilder_hash(resource)
-
-    Returns string
-
-git_packbuilder_insert_commit(resource,string)
-
-git_packbuilder_insert_walk(resource,resource)
-
-git_packbuilder_insert_recur(resource,string,string|null)
-
-git_packbuilder_insert_tree(resource,string)
-
-git_packbuilder_insert(resource,string,string|null)
-
-git_packbuilder_foreach(resource,callable,mixed)
-
-    If the 3rd parameter is a stream and the 2nd parameter is null, then each
-    call will write the data to the stream.
-
-    Callback signature: void callback(string $data,int $length,mixed $payload)
-
-        The callback should return false to cancel the transaction.
-
-        The callback should throw on error.
-
-git_packbuilder_set_threads(resource,int)
-
-git_packbuilder_set_callbacks(resource,callable,mixed)
-
-    Callback signature: void callback(int $stage,int $current,int $total,mixed $payload)
-
-        The callback should throw on error.
-
-git_packbuilder_object_count(resource)
-
-    Returns int
-
-git_packbuilder_write(resource,string,int,callable,mixed)
-
-    Callback signature: callback(array $stats)
-
-        The $stats array has properties of the libgit2 git_transfer_progress
-        struct.
-
-git_packbuilder_written(resource)
-
-    Returns int
 
 ----------------------------------------
 [git_tree]

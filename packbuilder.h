@@ -7,6 +7,8 @@
 #ifndef PHPGIT2_PACKBUILDER_H
 #define PHPGIT2_PACKBUILDER_H
 
+#include "stubs/packbuilder_arginfo.h"
+
 namespace php_git2
 {
 
