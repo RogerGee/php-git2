@@ -7,6 +7,8 @@
 #ifndef PHPGIT2_ODB_H
 #define PHPGIT2_ODB_H
 
+#include "stubs/odb_arginfo.h"
+
 namespace php_git2
 {
     // Explicitly specialize git2_resource destructor for git_odb and

@@ -1211,6 +1211,112 @@ string git_object_type2string(int $type)
 bool git_object_typeisloose(int $type)
 
 ----------------------------------------
+[git_odb]
+    [git_odb_object]
+----------------------------------------
+
+void git_odb_add_alternate(resource $odb,GitODBBackend $backend,int $priority)
+
+void git_odb_add_backend(resource $odb,GitODBBackend $backend,int $priority)
+
+void git_odb_add_disk_alternate(resource $odb,string $path)
+
+GitODBBackend git_odb_backend_loose(string $objects_dir,int $compression_level,bool $do_fsync,int $dir_mode,int $file_mode)
+
+GitODBBackend git_odb_backend_one_pack(string $index_file)
+
+GitODBBackend git_odb_backend_pack(string $objects_dir)
+
+bool git_odb_exists(resource $odb,string $id)
+
+string git_odb_exists_prefix(resource $odb,string $prefix)
+
+    This function throws when not found or ambiguous. It returns a string when
+    the object is found.
+
+    Returns string
+
+void git_odb_expand_ids(resource $odb,array &$ids)
+
+    This function will return results in the $ids parameter. While this
+    parameter employs reference semantics, it is not technically passed by
+    reference in the implementation.
+
+void git_odb_foreach(resource $odb,callable $callback,mixed $payload)
+
+    Callback signature: bool callback(string $oid,mixed $payload)
+
+        To stop iteration, the callback should return false.
+
+        The callback should throw on error.
+
+void git_odb_free(resource $odb)
+
+GitODBBackend git_odb_get_backend(resource $odb,int $pos)
+
+string git_odb_hash(string $data,int $type)
+
+string git_odb_hashfile(string $path,int $type)
+
+resource git_odb_new()
+
+    Return git_odb resource
+
+int git_odb_num_backends(resource $odb)
+
+string git_odb_object_data(resource $odb_object)
+
+resource git_odb_object_dup(resource $odb_object)
+
+    Returns git_odb_object resource
+
+void git_odb_object_free(resource $odb_object)
+
+string git_odb_object_id(resource $odb_object)
+
+int git_odb_object_size(resource $odb_object)
+
+int git_odb_object_type(resource $odb_object)
+
+resource git_odb_open(string $objects_dir)
+
+    Returns git_odb resource
+
+GitODBStream git_odb_open_rstream(int &$length,int &$type,resource $odb,string $oid)
+
+GitODBStream git_odb_open_wstream(resource $odb,int $size,int $type)
+
+resource git_odb_read(resource $odb,string $id)
+
+    Returns git_odb_object resource
+
+int git_odb_read_header(int &$type,resource $odb,string $id)
+
+    Returns the length of the header
+
+resource git_odb_read_prefix(resource $odb,string $prefix)
+
+    Returns git_odb_object resource
+
+void git_odb_refresh(resource $odb)
+
+string git_odb_stream_finalize_write(GitODBStream $stream)
+
+string git_odb_stream_read(GitODBStream $stream,int $buffer_length)
+
+    Parameter $buffer_length is the length of the buffer to read.
+
+    Returns the read buffer
+
+void git_odb_stream_write(GitODBStream $stream,string $buffer)
+
+string git_odb_write(resource $odb,string $data,int $type)
+
+    Returns the OID result of the write
+
+GitODBWritepack_Internal git_odb_write_pack(resource $odb,callable $progress_callback,mixed $payload)
+
+----------------------------------------
 [git_repository]
 ----------------------------------------
 
@@ -1590,146 +1696,6 @@ git_packbuilder_write(resource,string,int,callable,mixed)
 git_packbuilder_written(resource)
 
     Returns int
-
-----------------------------------------
-[git_odb]
-    [git_odb_object]
-----------------------------------------
-
-git_odb_new()
-
-    Return git_odb resource
-
-git_odb_free(resource)
-
-git_odb_write_pack(resource,callable,mixed)
-
-    ** The 3rd parameter may be null. **
-
-    Returns object instance of type GitODBWritepack_Internal
-
-git_odb_backend_pack(string)
-
-    Returns object instance of type GitODBBackend
-
-git_odb_backend_loose(string,int,bool,int,int)
-
-    Returns object instance of type GitODBBackend
-
-git_odb_backend_one_pack(string)
-
-    Returns object instance of type GitODBBackend
-
-git_odb_open(string)
-
-    Returns git_odb resource
-
-git_odb_write(resource,string,int)
-
-    Returns string
-
-git_odb_read(resource,string)
-
-    Returns git_odb_object resource
-
-int git_odb_read_header(&int $type,resource $odb,string $id)
-
-    Returns the length of the header
-
-git_odb_read_prefix(resource,string)
-
-    Returns git_odb_object resource
-
-git_odb_object_free(resource)
-
-git_odb_object_data(resource)
-
-    Returns string
-
-git_odb_object_id(resource)
-
-    Returns string
-
-git_odb_object_size(resource)
-
-    Returns int
-
-git_odb_object_type(resource)
-
-   Returns int
-
-git_odb_object_dup(resource)
-
-    Returns git_odb_object resource
-
-GitODBStream git_odb_open_rstream(int &$length,int &$type,resource $odb,string $oid)
-
-
-
-git_odb_open_wstream(resource,int,int)
-
-    Returns object instance of type GitODBStream
-
-git_odb_stream_read(GitODBStream,int)
-
-    ** The 2nd parameter is the length of the buffer to allocate. **
-
-    Returns string
-
-git_odb_stream_write(GitODBStream,string)
-
-git_odb_stream_finalize_write(GitODBStream)
-
-    Returns string
-
-git_odb_add_alternate(resource,GitODBBackend,int)
-
-git_odb_add_disk_alternate(resource,string)
-
-git_odb_add_backend(resource,GitODBBackend,int)
-
-git_odb_exists(resource,string)
-
-    Returns bool
-
-git_odb_exists_prefix(resource,string)
-
-    ** This function throws when not found or ambiguous. It returns a string
-       when the object is found. **
-
-    Returns string
-
-void git_odb_expand_ids(resource $odb,array &$ids)
-
-  Note: this function will return results in the $ids parameter. While this
-  parameter employs reference semantics, it is not technically passed by
-  reference in the implementation.
-
-git_odb_foreach(resource,callable,mixed)
-
-    Callback signature: bool callback(string $oid,mixed $payload)
-
-        To stop iteration, the callback should return false.
-
-        The callback should throw on error.
-
-git_odb_refresh(resource)
-
-git_odb_get_backend(resource,int)
-
-    Returns object of type GitODBBackend
-
-git_odb_num_backends(resource)
-
-    Returns int
-
-git_odb_hash(string,int)
-
-    Returns string
-
-git_odb_hashfile(string,int)
-
-    Returns string
 
 ----------------------------------------
 [git_tree]
