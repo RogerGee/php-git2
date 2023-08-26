@@ -95,7 +95,7 @@ void php_resource_base::parse_impl(zval* zvp,int argno)
         throw php_git2_propagated_exception();
     }
 
-    ZVAL_COPY_VALUE(&value,zvp);
+    ZVAL_COPY_VALUE(&value,dummy);
 }
 
 // php_array_base
@@ -110,7 +110,7 @@ void php_array_base::parse_impl(zval* zvp,int argno)
         throw php_git2_propagated_exception();
     }
 
-    ZVAL_COPY_VALUE(&value,zvp);
+    ZVAL_COPY_VALUE(&value,dummy);
 }
 
 // php_option_array
