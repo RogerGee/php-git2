@@ -1424,6 +1424,191 @@ int git_patch_size(resource $patch,bool $include_context,bool $include_hunk_head
 string git_patch_to_buf(resource $patch)
 
 ----------------------------------------
+[git_rebase]
+----------------------------------------
+
+bool git_rebase_abort(resource $rebase)
+
+    Returns true if successful, false if a rebase is not in progress
+
+int git_rebase_commit(string &$id,resource $rebase,?resource $author,resource $committer,string $message_encoding = null,string $message = null)
+
+    Returns the underlying function result
+
+void git_rebase_finish(resource $rebase,?resource $signature)
+
+void git_rebase_free(resource $rebase)
+
+resource git_rebase_init(resource $repo,?resource $branch,?resource $upstream,?resource $onto,?array $options)
+
+    Parameters $branch, $upstream and $onto can either be null or a resource of
+    type git_annotated_commit.
+
+    Parameter $options is an associative array corresponding to the
+    git_rebase_options structure. Options are defaulted using
+    git_rebase_options_init().
+
+    Returns git_rebase resource
+
+resource git_rebase_inmemory_index(resource $rebase)
+
+    Returns git_index resource
+
+array git_rebase_next(resource $rebase)
+
+    Returns a git_rebase_operation array
+
+resource git_rebase_open(resource $repo,?array $options)
+
+    Parameter $options is an associative array corresponding to the
+    git_rebase_options structure. Options are defaulted using
+    git_rebase_options_init().
+
+    Returns git_rebase resource
+
+array git_rebase_operation_byindex(resource $rebase,int $idx)
+
+    Returns a git_rebase_operation array
+
+int git_rebase_operation_current(resource $rebase)
+
+int git_rebase_operation_entrycount(resource $rebase)
+
+----------------------------------------
+[git_reference]
+----------------------------------------
+
+int git_reference_cmp(resource $ref1,resource $ref2)
+
+    Returns the same return value as underlying library call.
+
+resource git_reference_create(resource $repo,string $name,string $id,bool $force,string $log_message)
+
+    Returns git_reference resource
+
+resource git_reference_create_matching(resource $repo,string $name,string $id,bool $force,string $current_id,string $log_message)
+
+    Returns git_reference resource
+
+void git_reference_delete(resource $ref)
+
+resource git_reference_dup(resource $ref)
+
+    Returns git_reference resource
+
+resource git_reference_dwim(resource $repo,string $shorthand)
+
+    Returns git_reference resource
+
+void git_reference_ensure_log(resource $repo,string $refname)
+
+void git_reference_foreach(resource $repo,callable $callback,mixed $payload)
+
+    Callback signature:
+        void callback(resource $ref,mixed $payload)
+
+        The callback should throw on error.
+
+void git_reference_foreach_glob(resource $repo,string $glob,callable $callback,mixed $payload)
+
+void git_reference_foreach_name(resource $repo,callable $callback,mixed $payload)
+
+    Callback signature:
+        void callback(string $name,mixed $payload)
+
+        The callback should throw on error.
+
+void git_reference_free(resource $ref)
+
+bool git_reference_has_log(resource $repo,string $refname)
+
+bool git_reference_is_branch(resource $ref)
+
+bool git_reference_is_note(resource $ref)
+
+bool git_reference_is_remote(resource $ref)
+
+bool git_reference_is_tag(resource $ref)
+
+bool git_reference_is_valid_name(string $refname)
+
+bool git_reference_iterator_free(resource $iterator)
+
+resource git_reference_iterator_glob_new(resource $repo,string $glob)
+
+    Returns git_reference_iterator resource
+
+resource git_reference_iterator_new(resource $repo)
+
+    Returns git_reference_iterator resource
+
+array git_reference_list(resource $repo)
+
+    Returns array of string
+
+resource git_reference_lookup(resource $repo,string $name)
+
+    Returns git_reference resource
+
+string git_reference_name(resource $ref)
+
+string git_reference_name_to_id(resource $repo,string $name)
+
+resource|bool git_reference_next(resource $iter)
+
+    Returns git_reference resource or false if iteration is over
+
+string|bool git_reference_next_name(resource $iter)
+
+    Returns string or false if iteration is over
+
+string git_reference_normalize_name(string $name,int $flags)
+
+resource git_reference_owner(resource $ref)
+
+    Returns git_repository resource
+
+resource git_reference_peel(resource $ref,int $type)
+
+    Returns git_object resource
+
+void git_reference_remove(resource $repo,string $name)
+
+resource git_reference_rename(resource $ref,string $new_name,bool $force,string $log_message)
+
+    Returns git_reference resource
+
+resource git_reference_resolve(resource $ref)
+
+    Returns git_reference resource
+
+resource git_reference_set_target(resource $ref,string $id,string $log_message)
+
+    Returns git_reference resource
+
+string git_reference_shorthand(resource $ref)
+
+resource git_reference_symbolic_create(resource $repo,string $name,string $target,bool $force,string $log_message)
+
+    Returns git_reference resource
+
+resource git_reference_symbolic_create_matching(resource $repo,string $name,string $target,bool $force,string $current_value,string $log_message)
+
+    Returns git_reference resource
+
+resource git_reference_symbolic_set_target(resource $ref,string $target,string $log_message)
+
+    Returns git_reference resource
+
+?string git_reference_symbolic_target(resource $ref)
+
+?string git_reference_target(resource $ref)
+
+?string git_reference_target_peel(resource $ref)
+
+int git_reference_type(resource $ref)
+
+----------------------------------------
 [git_repository]
 ----------------------------------------
 
@@ -1568,140 +1753,6 @@ void git_repository_state_cleanup(resource $repo)
 resource git_repository_wrap_odb(resource $odb)
 
     Returns git_repository resource
-
-----------------------------------------
-[git_reference]
-----------------------------------------
-
-int git_reference_cmp(resource $ref1,resource $ref2)
-
-    Returns the same return value as underlying library call.
-
-resource git_reference_create(resource $repo,string $name,string $id,bool $force,string $log_message)
-
-    Returns git_reference resource
-
-resource git_reference_create_matching(resource $repo,string $name,string $id,bool $force,string $current_id,string $log_message)
-
-    Returns git_reference resource
-
-void git_reference_delete(resource $ref)
-
-resource git_reference_dup(resource $ref)
-
-    Returns git_reference resource
-
-resource git_reference_dwim(resource $repo,string $shorthand)
-
-    Returns git_reference resource
-
-void git_reference_ensure_log(resource $repo,string $refname)
-
-void git_reference_foreach(resource $repo,callable $callback,mixed $payload)
-
-    Callback signature:
-        void callback(resource $ref,mixed $payload)
-
-        The callback should throw on error.
-
-void git_reference_foreach_glob(resource $repo,string $glob,callable $callback,mixed $payload)
-
-void git_reference_foreach_name(resource $repo,callable $callback,mixed $payload)
-
-    Callback signature:
-        void callback(string $name,mixed $payload)
-
-        The callback should throw on error.
-
-void git_reference_free(resource $ref)
-
-bool git_reference_has_log(resource $repo,string $refname)
-
-bool git_reference_is_branch(resource $ref)
-
-bool git_reference_is_note(resource $ref)
-
-bool git_reference_is_remote(resource $ref)
-
-bool git_reference_is_tag(resource $ref)
-
-bool git_reference_is_valid_name(string $refname)
-
-bool git_reference_iterator_free(resource $iterator)
-
-resource git_reference_iterator_glob_new(resource $repo,string $glob)
-
-    Returns git_reference_iterator resource
-
-resource git_reference_iterator_new(resource $repo)
-
-    Returns git_reference_iterator resource
-
-array git_reference_list(resource $repo)
-
-    Returns array of string
-
-resource git_reference_lookup(resource $repo,string $name)
-
-    Returns git_reference resource
-
-string git_reference_name(resource $ref)
-
-string git_reference_name_to_id(resource $repo,string $name)
-
-resource|bool git_reference_next(resource $iter)
-
-    Returns git_reference resource or false if iteration is over
-
-string|bool git_reference_next_name(resource $iter)
-
-    Returns string or false if iteration is over
-
-string git_reference_normalize_name(string $name,int $flags)
-
-resource git_reference_owner(resource $ref)
-
-    Returns git_repository resource
-
-resource git_reference_peel(resource $ref,int $type)
-
-    Returns git_object resource
-
-void git_reference_remove(resource $repo,string $name)
-
-resource git_reference_rename(resource $ref,string $new_name,bool $force,string $log_message)
-
-    Returns git_reference resource
-
-resource git_reference_resolve(resource $ref)
-
-    Returns git_reference resource
-
-resource git_reference_set_target(resource $ref,string $id,string $log_message)
-
-    Returns git_reference resource
-
-string git_reference_shorthand(resource $ref)
-
-resource git_reference_symbolic_create(resource $repo,string $name,string $target,bool $force,string $log_message)
-
-    Returns git_reference resource
-
-resource git_reference_symbolic_create_matching(resource $repo,string $name,string $target,bool $force,string $current_value,string $log_message)
-
-    Returns git_reference resource
-
-resource git_reference_symbolic_set_target(resource $ref,string $target,string $log_message)
-
-    Returns git_reference resource
-
-?string git_reference_symbolic_target(resource $ref)
-
-?string git_reference_target(resource $ref)
-
-?string git_reference_target_peel(resource $ref)
-
-int git_reference_type(resource $ref)
 
 ----------------------------------------
 [git_revwalk]
@@ -2141,50 +2192,6 @@ git_refdb_open(resource)
     Returns git_refdb resource
 
 git_refdb_set_backend(resource,object)
-
-----------------------------------------
-[git_rebase]
-----------------------------------------
-
-git_rebase_abort(resource)
-
-    Returns true if successful, false if a rebase is not in progress
-
-int git_rebase_commit(string &$id,resource $rebase,?resource $author,resource $committer,string $message_encoding = null,string $message = null)
-
-    Returns the underlying function result
-
-git_rebase_finish(resource,resource|null)
-
-git_rebase_free(resource)
-
-git_rebase_init(resource,resource|null,resource|null,resource|null,array|null)
-
-    Returns git_rebase resource
-
-git_rebase_inmemory_index(resource)
-
-    Returns git_index resource
-
-git_rebase_next(resource)
-
-    Returns array
-
-git_rebase_open(resource,array|null)
-
-    Returns git_rebase resource
-
-git_rebase_operation_byindex(resource,int)
-
-    Returns array
-
-git_rebase_operation_current(resource)
-
-    Returns int
-
-git_rebase_operation_entrycount(resource)
-
-    Returns int
 
 ----------------------------------------
 [git_reset]

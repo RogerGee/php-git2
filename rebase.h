@@ -6,8 +6,10 @@
 
 #ifndef PHPGIT2_REBASE_H
 #define PHPGIT2_REBASE_H
+
 #include "merge.h"
 #include "checkout.h"
+#include "stubs/rebase_arginfo.h"
 
 namespace php_git2
 {
