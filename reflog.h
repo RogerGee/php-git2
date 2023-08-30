@@ -7,6 +7,8 @@
 #ifndef PHPGIT2_REFLOG_H
 #define PHPGIT2_REFLOG_H
 
+#include "stubs/reflog_arginfo.h"
+
 namespace php_git2
 {
     // Explicitly specialize git2_resource destructor for git_reference.
