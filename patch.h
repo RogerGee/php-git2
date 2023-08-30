@@ -6,7 +6,9 @@
 
 #ifndef PHPGIT2_PATCH_H
 #define PHPGIT2_PATCH_H
+
 #include "diff.h"
+#include "stubs/patch_arginfo.h"
 
 namespace php_git2
 {

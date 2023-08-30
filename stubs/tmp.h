@@ -316,54 +316,6 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO(arginfo_git_refdb_set_backend,{})
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO(arginfo_git_patch_free,{})
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_git_patch_from_blob_and_buffer,{})
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_git_patch_from_blobs,{})
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_git_patch_from_buffers,{})
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_git_patch_from_diff,{})
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_git_patch_get_delta,{})
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_git_patch_get_hunk,0,0,3)
-    ZEND_ARG_INFO(1,lines_in_hunk)
-    ZEND_ARG_INFO(0,patch)
-    ZEND_ARG_INFO(0,hunk_idx)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_git_patch_get_line_in_hunk,{})
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_git_patch_line_stats,0,0,3)
-    ZEND_ARG_INFO(1,total_additions)
-    ZEND_ARG_INFO(1,total_deletions)
-    ZEND_ARG_INFO(0,patch)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_git_patch_num_hunks,{})
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_git_patch_num_lines_in_hunk,{})
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_git_patch_print,{})
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_git_patch_size,{})
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_git_patch_to_buf,{})
-ZEND_END_ARG_INFO()
-
 ZEND_BEGIN_ARG_INFO(arginfo_git_rebase_abort,{})
 ZEND_END_ARG_INFO()
 

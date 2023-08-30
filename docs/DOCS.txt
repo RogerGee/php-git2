@@ -1370,6 +1370,60 @@ void git_packbuilder_write(resource $packbuilder,string $path,int $mode,callable
 int git_packbuilder_written(resource $packbuilder)
 
 ----------------------------------------
+[git_patch]
+----------------------------------------
+
+void git_patch_free(resource $patch)
+
+resource git_patch_from_blob_and_buffer(?resource $old_blob,?string $old_as_path,?string $buffer,?string $buffer_as_path,?array $options)
+
+    Returns git_patch resource
+
+resource git_patch_from_blobs(?resource $old_blob,?string $old_as_path,?resource $new_blob,?string $new_as_path,?array $options)
+
+    Returns git_patch resource
+
+resource git_patch_from_buffers(?string $old_buffer,?string $old_as_path,?string $new_buffer,?string $new_as_path,?array $options)
+
+    Returns git_patch resource
+
+resource git_patch_from_diff(resource $diff,int $idx)
+
+    Returns git_patch_resource
+
+array git_patch_get_delta(resource $patch)
+
+    Returns an associative array corresponding to the git_diff_delta struct.
+
+array git_patch_get_hunk(int &$lines_in_hunk,resource $patch,int $hunk_idx)
+
+    Returns a git_diff_hunk array
+
+array git_patch_get_line_in_hunk(resource $patch,int $hunk_idx,int $line_of_hunk)
+
+    Returns a git_diff_line array
+
+int git_patch_line_stats(int &$total_additions,int &$total_deletions,resource $patch)
+
+    Returns the total_context value
+
+int git_patch_num_hunks(resource $patch)
+
+int|bool git_patch_num_lines_in_hunk(resource $patch,int $hunk_idx)
+
+    Returns int or false if invalid hunk index
+
+void git_patch_print(resource $patch,callable $callback,mixed $payload)
+
+    Callback signature: void callback(array $delta,array $hunk,array $line,mixed $payload)
+
+        The callback should throw on error.
+
+int git_patch_size(resource $patch,bool $include_context,bool $include_hunk_headers,bool $include_file_headers)
+
+string git_patch_to_buf(resource $patch)
+
+----------------------------------------
 [git_repository]
 ----------------------------------------
 
@@ -2087,66 +2141,6 @@ git_refdb_open(resource)
     Returns git_refdb resource
 
 git_refdb_set_backend(resource,object)
-
-----------------------------------------
-[git_patch]
-----------------------------------------
-
-git_patch_free(resource)
-
-resource git_patch_from_blob_and_buffer(?resource $old_blob,?string $old_as_path,?string $buffer,?string $buffer_as_path,?array $options)
-
-    Returns git_patch resource
-
-git_patch_from_blobs(resource|null,string|null,resource|null,string|null,array|null)
-
-    Returns git_patch resource
-
-git_patch_from_buffers(string|null,string|null,string|null,string|null,array|null)
-
-    Returns git_patch resource
-
-git_patch_from_diff(resource,int)
-
-    Returns git_patch_resource
-
-git_patch_get_delta(resource)
-
-    Returns array
-
-array git_patch_get_hunk(int &$lines_in_hunk,resource $patch,int $hunk_idx)
-
-    Returns a git_diff_hunk array
-
-git_patch_get_line_in_hunk(resource,int,int)
-
-    Returns array
-
-int git_patch_line_stats(int &$total_additions,int &$total_deletions,resource $patch)
-
-    Returns the total_context value
-
-git_patch_num_hunks(resource)
-
-    Returns int
-
-git_patch_num_lines_in_hunk(resource,int)
-
-    Returns int or false if invalid hunk index
-
-git_patch_print(resource,callable,mixed)
-
-    Callback signature: void callback(array $delta,array $hunk,array $line,mixed $payload)
-
-        The callback should throw on error.
-
-git_patch_size(resource,bool,bool,bool)
-
-    Returns int
-
-git_patch_to_buf(resource)
-
-    Returns string
 
 ----------------------------------------
 [git_rebase]
