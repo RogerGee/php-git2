@@ -1475,6 +1475,28 @@ int git_rebase_operation_current(resource $rebase)
 int git_rebase_operation_entrycount(resource $rebase)
 
 ----------------------------------------
+[git_refdb]
+----------------------------------------
+
+GitRefDBBackend_Internal git_refdb_backend_fs(resource $refdb)
+
+    Returns GitRefDBBackend_Internal object
+
+void git_refdb_compress(resource $refdb)
+
+void git_refdb_free(resource $refdb)
+
+resource git_refdb_new(resource $repo)
+
+    Returns git_refdb resource
+
+resource git_refdb_open(resource $repo)
+
+    Returns git_refdb resource
+
+void git_refdb_set_backend(resource $refdb,GitRefDBBackend $backend)
+
+----------------------------------------
 [git_reference]
 ----------------------------------------
 
@@ -2170,28 +2192,6 @@ git_reflog_read(resource,string)
 git_reflog_rename(resource,string,string)
 
 git_reflog_write(resource)
-
-----------------------------------------
-[git_refdb]
-----------------------------------------
-
-git_refdb_backend_fs(resource)
-
-    Returns GitRefDBBackend_Internal object
-
-git_refdb_compress(resource)
-
-git_refdb_free(resource)
-
-git_refdb_new(resource)
-
-    Returns git_refdb resource
-
-git_refdb_open(resource)
-
-    Returns git_refdb resource
-
-git_refdb_set_backend(resource,object)
 
 ----------------------------------------
 [git_reset]

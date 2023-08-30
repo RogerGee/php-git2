@@ -298,24 +298,6 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO(arginfo_git_reflog_write,{})
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO(arginfo_git_refdb_backend_fs,{})
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_git_refdb_compress,{})
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_git_refdb_free,{})
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_git_refdb_new,{})
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_git_refdb_open,{})
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_git_refdb_set_backend,{})
-ZEND_END_ARG_INFO()
-
 ZEND_BEGIN_ARG_INFO(arginfo_git_reset,{})
 ZEND_END_ARG_INFO()
 
