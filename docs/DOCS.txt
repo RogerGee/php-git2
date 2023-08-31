@@ -1679,6 +1679,193 @@ string git_refspec_string(resource $refspec)
 string git_refspec_transform(resource $refspec,string $name)
 
 ----------------------------------------
+[git_remote]
+----------------------------------------
+
+Callback signatures:
+
+    Transport message callback:
+
+        bool callback(string $str,mixed $payload)
+
+            If the function returns non-null and false, then the operation is
+            aborted.
+
+    Completion callback:
+
+        void callback(int $type,mixed $payload)
+
+    Credential acquire callback:
+
+        ?resource callback(
+            string $url,
+            string $username_from_url,
+            int $allowed_types,
+            mixed $payload
+        )
+
+            Returns git_credential resource or NULL to passthrough
+
+    Transport certificate check callback:
+
+        bool callback(array $cert,bool $valid,string $host,mixed $payload)
+
+    Transfer progress callback:
+
+        void callback(array $stats,mixed $payload)
+
+        Same as for git_indexer_new
+
+    Update tips callback:
+
+        void callback(string $refname,string $a,string $b,mixed $payload)
+
+    Packbuilder progress callback:
+
+        See git_packbuilder notes
+
+        void callback(int $stage,int $current,int $total,mixed $payload)
+
+    Push transfer progress callback:
+
+        void callback(int $current,int $total,int $bytes,mixed $payload)
+
+    Push update reference callback:
+
+        void callback(string $refname,string $status,mixed $payload)
+
+    Push negotiation callback:
+
+        void callback(array $updates,mixed $payload)
+
+    The transport callback is not implemented at this time since we do not yet
+    implement custom transports.
+
+void git_remote_add_fetch(resource $repo,string $remote,string $refspec)
+
+void git_remote_add_push(resource $repo,string $remote,string $refspec)
+
+int git_remote_autotag(resource $remote)
+
+void git_remote_connect(resource $remote,int $direction,?array $callbacks,?array $proxy_options,?array $custom_headers)
+
+    Parameter $callbacks is an associative array corresponding to
+    git_remote_callbacks.
+
+    Parameter $proxy_options is an associative array corresponding to
+    git_proxy_options. Options are defaulted using git_proxy_init_options().
+
+    Parameter $custom_headers is an array of strings.
+
+bool git_remote_connected(resource $remote)
+
+resource git_remote_create(resource $repo,string $name,string $url)
+
+    Returns git_remote resource
+
+resource git_remote_create_anonymous(resource $repo,string $url)
+
+    Returns git_remote resource
+
+resource git_remote_create_with_fetchspec(resource $repo,string $name,string $url,string $fetchspec)
+
+    Returns git_remote resource
+
+string git_remote_default_branch(resource $remote)
+
+void git_remote_delete(resource $repo,string $name)
+
+void git_remote_disconnect(resource $remote)
+
+void git_remote_download(resource $remote,?array $refspecs,?array $fetch_options)
+
+    Parameter $fetch_options is an associative array corresponding to
+    git_fetch_options. Options are defaulted using git_fetch_init_options().
+
+resource git_remote_dup(resource $remote)
+
+    Returns git_remote resource
+
+void git_remote_fetch(resource $remote,?array $refspecs,?array $fetch_options,?string $reflog_message)
+
+    Parameter $refspecs is an array of strings.
+
+    Parameter $fetch_options is an associative array corresponding to
+    git_fetch_options. Options are defaulted using git_fetch_init_options().
+
+void git_remote_free(resource $remote)
+
+array git_remote_get_fetch_refspecs(resource $remote)
+
+array git_remote_get_push_refspecs(resource $remote)
+
+resource git_remote_get_refspec(resource $remote,int $n)
+
+    Returns git_refspec resource
+
+bool git_remote_is_valid_name(string $remote_name)
+
+array git_remote_list(resource $repo)
+
+resource git_remote_lookup(resource $repo,string $name)
+
+    Returns git_remote resource
+
+array git_remote_ls(resource $remote)
+
+    Returns an indexed array of git_remote_head arrays
+
+string git_remote_name(resource $remote)
+
+resource git_remote_owner(resource $remote)
+
+    Returns git_repository resource
+
+void git_remote_prune(resource $remote,?array $callbacks)
+
+    Parameter $callbacks is an associative array corresponding to
+    git_remote_callbacks.
+
+void git_remote_prune_refs(resource $remote)
+
+void git_remote_push(resource $remote,?array $refspecs,?array $push_options)
+
+    Parameter $refspecs is an array of string.
+
+    Parameter $push_options is an associative array corresponding to
+    git_push_options. Options are defaulted using git_push_init_options().
+
+string git_remote_pushurl(resource $remote)
+
+int git_remote_refspec_count(resource $remote)
+
+array git_remote_rename(resource $repo,string $name,string $new_name)
+
+void git_remote_set_autotag(resource $repo,string $remote,int $value)
+
+void git_remote_set_pushurl(resource $repo,string $remote,string $url)
+
+void git_remote_set_url(resource $repo,string $remote,string $url)
+
+array git_remote_stats(resource $remote)
+
+void git_remote_stop(resource $remote)
+
+void git_remote_update_tips(resource $remote,?array $callbacks,bool $update_fetchhead,int $download_tags,?string $reflog_message)
+
+    Parameter $callbacks is an associative array corresponding to
+    git_remote_callbacks.
+
+void git_remote_upload(resource $remote,?array $refspecs,?array $push_options)
+
+    Parameter $refspecs is an array of string.
+
+    Parameter $push_options is an associative array corresponding to
+    git_push_options. Options are defaulted using git_push_init_options().
+
+string git_remote_url(resource $remote)
+
+----------------------------------------
 [git_repository]
 ----------------------------------------
 
@@ -2257,181 +2444,6 @@ git_stash_pop(resource,int,array|null)
 git_stash_save(resource,resource,string,int)
 
     Returns int
-
-----------------------------------------
-[git_remote]
-----------------------------------------
-
-Callback signatures:
-
-    Transport message callback:
-
-        bool callback(string $str,mixed $payload)
-
-            If the function returns non-null and false, then the operation is
-            aborted.
-
-    Completion callback:
-
-        void callback(int $type,mixed $payload)
-
-    Credential acquire callback:
-
-        resource callback(string $url,string $username_from_url,
-                    int $allowed_types,mixed $payload)
-
-            Returns git_credential resource or NULL to passthrough
-
-    Transport certificate check callback:
-
-        bool callback(array $cert,bool $valid,string $host,mixed $payload)
-
-    Transfer progress callback:
-
-        Same as for git_indexer_new:
-
-                void callback(array $stats,mixed $payload)
-
-    Update tips callback:
-
-        void callback(string $refname,string $a,string $b,mixed $payload)
-
-    Packbuilder progress callback:
-
-        See git_packbuilder notes
-
-        void callback(int $stage,int $current,int $total,mixed $payload)
-
-    Push transfer progress callback:
-
-        void callback(int $current,int $total,int $bytes,mixed $payload)
-
-    Push update reference callback:
-
-        void callback(string $refname,string $status,mixed $payload)
-
-    Push negotiation callback:
-
-        void callback(array $updates,mixed $payload)
-
-    NOTE: the transport callback is not implemented at this time since we do not
-    yet implement custom transports.
-
-git_remote_add_fetch(resource,string,string)
-
-git_remote_add_push(resource,string,string)
-
-git_remote_autotag(resource)
-
-    Returns int
-
-git_remote_connect(resource,int,array|null,array|null,array|null)
-
-git_remote_connected(resource)
-
-    Returns bool
-
-git_remote_create(resource,string,string)
-
-    Returns git_remote resource
-
-git_remote_create_anonymous(resource,string)
-
-    Returns git_remote resource
-
-git_remote_create_with_fetchspec(resource,string,string,string)
-
-    Returns git_remote resource
-
-git_remote_default_branch(resource)
-
-    Returns string
-
-git_remote_delete(resource,string)
-
-git_remote_disconnect(resource)
-
-git_remote_download(resource,null|array,array|null)
-
-git_remote_dup(resource)
-
-    Returns git_remote resource
-
-git_remote_fetch(resource,array|null,array|null,string|null)
-
-git_remote_free(resource)
-
-git_remote_get_fetch_refspecs(resource)
-
-    Returns array
-
-git_remote_get_push_refspecs(resource)
-
-    Returns array
-
-git_remote_get_refspec(resource)
-
-    Returns git_refspec resource
-
-git_remote_is_valid_name(string)
-
-    Returns bool
-
-git_remote_list(resource)
-
-    Returns array
-
-git_remote_lookup(resource,string)
-
-    Returns git_remote resource
-
-git_remote_ls(resource)
-
-    Returns array
-
-git_remote_name(resource)
-
-    Returns string
-
-git_remote_owner(resource)
-
-    Returns git_repository resource
-
-git_remote_prune(resource,array|null)
-
-git_remote_prune_refs(resource)
-
-git_remote_push(resource,array|null,array|null)
-
-git_remote_pushurl(resource)
-
-git_remote_refspec_count(resource)
-
-    Returns int
-
-git_remote_rename(resource,string,string)
-
-    Returns array
-
-git_remote_set_autotag(resource,string,int)
-
-git_remote_set_pushurl(resource,string,string)
-
-git_remote_set_url(resource,string,string)
-
-git_remote_stats(resource)
-
-    Returns array
-
-git_remote_stop(resource)
-
-git_remote_update_tips(resource,array|null,bool,int,string|null)
-
-git_remote_upload(resource,array|null,array|null)
-
-git_remote_url(resource)
-
-    Returns string
 
 ----------------------------------------
 [git_submodule]

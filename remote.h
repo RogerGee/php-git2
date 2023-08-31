@@ -7,6 +7,8 @@
 #ifndef PHPGIT2_REMOTE_H
 #define PHPGIT2_REMOTE_H
 
+#include "stubs/remote_arginfo.h"
+
 namespace php_git2
 {
     // Explicitly specialize git2_resource destructor for git_remote.
