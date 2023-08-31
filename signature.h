@@ -7,6 +7,8 @@
 #ifndef PHPGIT2_SIGNATURE_H
 #define PHPGIT2_SIGNATURE_H
 
+#include "stubs/signature_arginfo.h"
+
 namespace php_git2
 {
     // Explicitly specialize git2_resource destructor for git_signature.

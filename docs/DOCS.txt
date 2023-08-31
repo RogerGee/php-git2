@@ -2113,6 +2113,42 @@ void git_revwalk_simplify_first_parent(resource $revwalk)
 void git_revwalk_sorting(resource $revwalk,int $sort_mode)
 
 ----------------------------------------
+[git_signature]
+----------------------------------------
+
+resource git_signature_default(resource $repo)
+
+    Returns git_signature resource
+
+resource git_signature_dup(resource $signature)
+
+    Returns git_signature resource
+
+void git_signature_free(resource $signature)
+
+resource git_signature_from_buffer(string $buffer)
+
+    Returns git_signature resource
+
+resource git_signature_new(string $name,string $email,int $time,int $offset)
+
+    Returns git_signature resource
+
+resource git_signature_now(string $name,string $email)
+
+    Returns git_signature resource
+
+array git2_signature_convert(resource $signature)
+
+    Returns an associative array corresponding to the git_signature
+    structure. The associative array has the following keys:
+
+        - name
+        - email
+        - when.time
+        - when.offset
+
+----------------------------------------
 [git_tree]
     [git_tree_entry]
 ----------------------------------------
@@ -2194,44 +2230,6 @@ git_tree_walk(resource,int,callable,mixed)
     Callback signature: void callback(string $root,resource $entry,mixed $payload)
 
         The callback should throw on error.
-
-----------------------------------------
-[git_signature]
-----------------------------------------
-
-git_signature_new(string,string,long,long)
-
-    Returns git_signature resource
-
-git_signature_free(resource)
-
-git_signature_dup(resource)
-
-    Returns git_signature resource
-
-git_signature_default(resource)
-
-    Returns git_signature resource
-
-git_signature_now(string,string)
-
-    Returns git_signature resource
-
-git_signature_from_buffer(string)
-
-    Returns git_signature resource
-
-git2_signature_convert(resource)
-
-    Gets an associative array corresponding to the git_signature structure. The
-    associative array has the following keys:
-
-        - name
-        - email
-        - when.time
-        - when.offset
-
-    Returns array
 
 ----------------------------------------
 [git_treebuilder]
