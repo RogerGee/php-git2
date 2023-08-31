@@ -2312,6 +2312,68 @@ string git_submodule_url(resource $submodule)
 ?string git_submodule_wd_id(resource $submodule)
 
 ----------------------------------------
+[git_tag]
+----------------------------------------
+
+string git_tag_annotation_create(resource $repo,string $tag_name,resource $target,resource $tagger,string $message)
+
+string git_tag_create(resource $repo,string $tag_name,resource $target,resource $tagger,string $message,bool $force)
+
+string git_tag_create_frombuffer(resource $repo,string $buffer,bool $force)
+
+string git_tag_create_lightweight(resource $repo,string $tag_name,resource $target,bool $buffer)
+
+void git_tag_delete(resource $repo,string $tag_name)
+
+resource git_tag_dup(resource $tag)
+
+    Returns git_tag resource
+
+void git_tag_foreach(resource $repo,callable $callback,mixed $payload)
+
+    Callback signature: void callback(string $name,string $oid,mixed $payload)
+
+        The callback should throw on error.
+
+void git_tag_free(resource $tag)
+
+string git_tag_id(resource $tag)
+
+array git_tag_list(resource $repo)
+
+array git_tag_list_match(string $pattern,resource $repo)
+
+resource git_tag_lookup(resource $repo,string $id)
+
+    Returns git_tag resource
+
+resource git_tag_lookup_prefix(resource $repo,string $id_prefix)
+
+    Returns git_tag resource
+
+?string git_tag_message(resource $tag)
+
+string git_tag_name(resource $tag)
+
+resource git_tag_owner(resource $tag)
+
+    Returns git_repository resource
+
+resource git_tag_peel(resource $tag)
+
+    Returns git_object resource
+
+?resource git_tag_tagger(resource $tag)
+
+resource git_tag_target(resource $tag)
+
+    Returns git_object resource
+
+string git_tag_target_id(resource $tag)
+
+int git_tag_target_type(resource $tag)
+
+----------------------------------------
 [git_tree]
     [git_tree_entry]
 ----------------------------------------
@@ -2432,92 +2494,6 @@ git_treebuilder_clear(resource)
 git_treebuilder_entrycount(resource)
 
     Returns int
-
-----------------------------------------
-[git_tag]
-----------------------------------------
-
-git_tag_annotation_create(resource,string,resource,resource,string)
-
-    Returns string
-
-git_tag_create(resource,string,resource,resource,string,bool)
-
-    Returns string
-
-git_tag_create_frombuffer(resource,string,bool)
-
-    Returns string
-
-git_tag_create_lightweight(resource,string,resource,bool)
-
-    Returns string
-
-git_tag_lookup(resource,string)
-
-    Returns git_tag resource
-
-git_tag_lookup_prefix(resource,string)
-
-    Returns git_tag resource
-
-git_tag_free(resource)
-
-git_tag_id(resource)
-
-    Returns string
-
-git_tag_target_id(resource)
-
-    Returns string
-
-git_tag_message(resource)
-
-    Returns string
-
-git_tag_name(resource)
-
-    Returns string
-
-git_tag_owner(resource)
-
-    Returns git_repository resource
-
-git_tag_peel(resource)
-
-    Returns git_object resource
-
-git_tag_target(resource)
-
-    Returns git_object resource
-
-git_tag_tagger(resource)
-
-    Returns git_signature resource (or null)
-
-git_tag_target_type(resource)
-
-    Returns int
-
-git_tag_delete(resource,string)
-
-git_tag_dup(resource)
-
-    Returns git_tag resource
-
-git_tag_list(resource)
-
-    Returns array
-
-git_tag_list_match(resource,string)
-
-    Returns array
-
-git_tag_foreach(resource,callable,mixed)
-
-    Callback signature: void callback(string $name,string $oid,mixed $payload)
-
-        The callback should throw on error.
 
 ----------------------------------------
 [git_trace]

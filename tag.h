@@ -7,6 +7,8 @@
 #ifndef PHPGIT2_TAG_H
 #define PHPGIT2_TAG_H
 
+#include "stubs/tag_arginfo.h"
+
 namespace php_git2
 {
 
