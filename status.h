@@ -6,7 +6,9 @@
 
 #ifndef PHPGIT2_STATUS_H
 #define PHPGIT2_STATUS_H
+
 #include "diff.h"
+#include "stubs/status_arginfo.h"
 
 namespace php_git2
 {

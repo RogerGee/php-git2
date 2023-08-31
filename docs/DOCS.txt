@@ -2187,6 +2187,55 @@ void git_stash_pop(resource $repo,int $index,?array $stash_apply_options)
 string git_stash_save(resource $repo,resource $signature,string $message,int $flags)
 
 ----------------------------------------
+[git_status]
+----------------------------------------
+
+array git_status_byindex(resource $statuslist,int $idx)
+
+    ** The return array has the following structure: **
+
+        array(3) {
+          ["status"]
+          ["head_to_index"]
+            // git_diff_delta array
+          ["index_to_workdir"]
+            // git_diff_delta array
+        }
+
+    Returns a git_status_entry array
+
+?int|bool git_status_file(resource $repo,string $path)
+
+    The function returns:
+
+        - int: if the path was successfully found, the return value is an
+               integer bitmask containing the status flags
+        - null: the path was ambiguous
+        - false: the path was not found
+
+void git_status_foreach(resource $repo,callable $callback,mixed $payload)
+
+    Callback signature: void callback(string $path,int $status_flag,mixed $payload)
+
+        The function should throw on error.
+
+void git_status_foreach_ext(resource $repo,?array $status_options,callable $callback,mixed $payload)
+
+    See notes on git_status_foreach() for callback signature.
+
+int git_status_list_entrycount(resource $statuslist)
+
+void git_status_list_free(resource $statuslist)
+
+array git_status_list_get_perfdata(resource $statuslist)
+
+resource git_status_list_new(resource $repo,?array $status_options)
+
+    Returns git_status_list resource
+
+bool git_status_should_ignore(resource $repo,string $path)
+
+----------------------------------------
 [git_tree]
     [git_tree_entry]
 ----------------------------------------
@@ -2402,65 +2451,6 @@ git_trace_set(int)
 
     ** NOTE: this function uses the standard PHP error log to write traces. This
        only works if your libgit2 was built with tracing enabled. **
-
-----------------------------------------
-[git_status]
-----------------------------------------
-
-git_status_byindex(resource,int)
-
-    ** The return array has the following structure: **
-
-        array(3) {
-          ["status"]
-          ["head_to_index"]
-            // git_diff_delta array
-          ["index_to_workdir"]
-            // git_diff_delta array
-        }
-
-    Returns array
-
-git_status_file(resource,string)
-
-    The function returns:
-
-        - int: if the path was successfully found, the return value is an
-               integer bitmask containing the status flags
-        - null: the path was ambiguous
-        - false: the path was not found
-
-    Returns mixed
-
-git_status_foreach(resource,callable,mixed)
-
-    Callback signature: void callback(string $path,int $status_flag,mixed $payload)
-
-        The function should throw on error.
-
-git_status_foreach_ext(resource,array,callable,mixed)
-
-    See notes on git_status_foreach() for callback signature.
-
-git_status_list_entrycount(resource)
-
-    Returns int
-
-git_status_list_free(resource)
-
-git_status_list_get_perfdata(resource)
-
-    Returns array
-
-git_status_list_new(resource,array|null)
-
-    ** Note: The options array is optional. **
-
-    Returns resource
-
-git_status_should_ignore(resource,string)
-
-    Returns bool
 
 ----------------------------------------
 [git_submodule]
