@@ -2068,45 +2068,49 @@ resource git_revparse_single(resource $repo,string $spec)
 ----------------------------------------
 [git_revwalk]
 ----------------------------------------
-git_revwalk_new(resource)
+void git_revwalk_add_hide_cb(resource $revwalk,callable $callback,mixed $payload)
 
-git_revwalk_push(resource,string)
-
-git_revwalk_next(resource)
-
-    Returns string or false when on iterover
-
-git_revwalk_hide(resource,string)
-
-git_revwalk_sorting(resource,int)
-
-git_revwalk_reset(resource)
-
-git_revwalk_free(resource)
-
-git_revwalk_add_hide_cb(resource,callable,mixed)
-
-    Callback signature: void callback(string $commitId,mixed $payload)
+    Callback signature: void callback(string $commit_id,mixed $payload)
 
         The function should throw on error.
 
-git_revwalk_hide_glob(resource,string)
+void git_revwalk_free(resource $revwalk)
 
-git_revwalk_hide_head(resource)
+void git_revwalk_hide(resource $revwalk,string $commit_id)
 
-git_revwalk_hide_ref(resource,string)
+void git_revwalk_hide_glob(resource $revwalk,string $glob)
 
-git_revwalk_push_glob(resource,string)
+void git_revwalk_hide_head(resource $revwalk)
 
-git_revwalk_push_head(resource)
+void git_revwalk_hide_ref(resource $revwalk,string $refname)
 
-git_revwalk_push_range(resource,string)
+resource git_revwalk_new(resource $repo)
 
-git_revwalk_push_ref(resource,string)
+    Returns git_revwalk resource
 
-git_revwalk_repository(resource)
+string|bool git_revwalk_next(resource $revwalk)
 
-git_revwalk_simplify_first_parent(resource)
+    Returns string or false when on iterover
+
+void git_revwalk_push(resource $revwalk,string $id)
+
+void git_revwalk_push_glob(resource $revwalk,string $glob)
+
+void git_revwalk_push_head(resource $revwalk)
+
+void git_revwalk_push_range(resource $revwalk,string $range)
+
+void git_revwalk_push_ref(resource $revwalk,string $refname)
+
+resource git_revwalk_repository(resource $revwalk)
+
+    Returns git_repository resource
+
+void git_revwalk_reset(resource $revwalk)
+
+void git_revwalk_simplify_first_parent(resource $revwalk)
+
+void git_revwalk_sorting(resource $revwalk,int $sort_mode)
 
 ----------------------------------------
 [git_tree]

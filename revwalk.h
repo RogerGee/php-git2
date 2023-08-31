@@ -7,6 +7,8 @@
 #ifndef PHPGIT2_REVWALK_H
 #define PHPGIT2_REVWALK_H
 
+#include "stubs/revwalk_arginfo.h"
+
 namespace php_git2
 {
     // Explicitly specialize git2_resource destructor for git_revwalk.
