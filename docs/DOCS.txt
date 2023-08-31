@@ -2044,6 +2044,28 @@ resource git_revert_commit(resource $repo,resource $revert_commit,resource $our_
     Returns git_index resource
 
 ----------------------------------------
+[git_revparse]
+----------------------------------------
+
+array git_revparse(resource $repo,string $spec)
+
+    The return array contains the fields of the revspec structure. Example:
+
+        array(3) {
+          ["from"]  resource of type git_object (may be null)
+          ["to"]    resource of type git_object (may be null)
+          ["flags"] int
+        }
+
+resource git_revparse_ext(?resource &$reference,resource $repo,string $spec)
+
+    Returns a git_object resource
+
+resource git_revparse_single(resource $repo,string $spec)
+
+    Returns git_object resource
+
+----------------------------------------
 [git_revwalk]
 ----------------------------------------
 git_revwalk_new(resource)
@@ -2245,31 +2267,6 @@ git_treebuilder_clear(resource)
 git_treebuilder_entrycount(resource)
 
     Returns int
-
-----------------------------------------
-[git_revparse]
-----------------------------------------
-
-git_revparse(resource,string)
-
-    ** Note: the return array contains the fields of the revspec
-       structure. Example:
-
-        array(3) {
-          ["from"]  resource of type git_object (may be null)
-          ["to"]    resource of type git_object (may be null)
-          ["flags"] int
-        } **
-
-    Returns array
-
-resource git_revparse_ext(?resource &$reference,resource $repo,string $spec)
-
-    Returns a git_object resource
-
-git_revparse_single(resource,string)
-
-    Returns git_object resource
 
 ----------------------------------------
 [git_tag]

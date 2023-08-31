@@ -166,18 +166,6 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO(arginfo_git_treebuilder_filter,{})
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO(arginfo_git_revparse,{})
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_git_revparse_ext,0,0,2)
-    ZEND_ARG_INFO(1,reference)
-    ZEND_ARG_INFO(0,repo)
-    ZEND_ARG_INFO(0,spec)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_git_revparse_single,{})
-ZEND_END_ARG_INFO()
-
 ZEND_BEGIN_ARG_INFO(arginfo_git_tag_annotation_create,{})
 ZEND_END_ARG_INFO()
 

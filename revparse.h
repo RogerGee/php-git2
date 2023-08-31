@@ -7,6 +7,8 @@
 #ifndef PHPGIT2_REVPARSE_H
 #define PHPGIT2_REVPARSE_H
 
+#include "stubs/revparse_arginfo.h"
+
 namespace php_git2
 {
     // Define a type for creating a new refspec and converting it to a PHP array
