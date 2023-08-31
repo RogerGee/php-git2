@@ -6,7 +6,9 @@
 
 #ifndef PHPGIT2_STASH_H
 #define PHPGIT2_STASH_H
+
 #include "checkout.h"
+#include "stubs/stash_arginfo.h"
 
 namespace php_git2
 {
