@@ -2026,6 +2026,24 @@ void git_reset_default(resource $repo,?resource $target_object,array $pathspecs)
 void git_reset_from_annotated(resource $repo,resource $annotated_commit,int $reset_type,?array $checkout_options)
 
 ----------------------------------------
+[git_revert]
+----------------------------------------
+
+void git_revert(resource $repo,resource $commit,?array $revert_options)
+
+    Parameter $revert_options is an associative array corresponding to
+    git_revert_options. Options are defaulted using git_revert_options_init().
+
+resource git_revert_commit(resource $repo,resource $revert_commit,resource $our_commit,int $mainline,?array $merge_options)
+
+    Parameter $merge_options is an array having the keys of the
+    git_merge_options struct. Any properties that are not specified inherit the
+    defaults provided via calling git_merge_options_init(). You may specify null
+    to use only the defaults.
+
+    Returns git_index resource
+
+----------------------------------------
 [git_revwalk]
 ----------------------------------------
 git_revwalk_new(resource)
@@ -2406,16 +2424,6 @@ git_status_list_new(resource,array|null)
 git_status_should_ignore(resource,string)
 
     Returns bool
-
-----------------------------------------
-[git_revert]
-----------------------------------------
-
-git_revert(resource,resource,array|null)
-
-git_revert_commit(resource,resource,resource,int,array|null)
-
-    Returns git_index resource
 
 ----------------------------------------
 [git_stash]

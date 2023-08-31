@@ -6,7 +6,9 @@
 
 #ifndef PHPGIT2_REVERT_H
 #define PHPGIT2_REVERT_H
+
 #include "merge.h"
+#include "stubs/revert_arginfo.h"
 
 namespace php_git2
 {
