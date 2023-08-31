@@ -7,6 +7,8 @@
 #ifndef PHPGIT2_TRACE_H
 #define PHPGIT2_TRACE_H
 
+#include "stubs/trace_arginfo.h"
+
 namespace php_git2
 {
 }

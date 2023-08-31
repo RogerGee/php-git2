@@ -2374,6 +2374,17 @@ string git_tag_target_id(resource $tag)
 int git_tag_target_type(resource $tag)
 
 ----------------------------------------
+[git_trace]
+----------------------------------------
+
+void git_trace_set(int $level)
+
+    This function uses the standard PHP error log to write traces instead of a
+    callback function.
+
+    This function will only work if your libgit2 was built with tracing enabled.
+
+----------------------------------------
 [git_tree]
     [git_tree_entry]
 ----------------------------------------
@@ -2494,15 +2505,6 @@ git_treebuilder_clear(resource)
 git_treebuilder_entrycount(resource)
 
     Returns int
-
-----------------------------------------
-[git_trace]
-----------------------------------------
-
-git_trace_set(int)
-
-    ** NOTE: this function uses the standard PHP error log to write traces. This
-       only works if your libgit2 was built with tracing enabled. **
 
 ----------------------------------------
 [git_worktree]
