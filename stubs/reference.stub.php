@@ -1,6 +1,16 @@
 <?php
 
 /**
+ * @return resource
+ */
+function git_reference__alloc(string $name,string $oid,?string $peel) {}
+
+/**
+ * @return resource
+ */
+function git_reference__alloc_symbolic(string $name,string $target) {}
+
+/**
  * @param resource $ref1
  * @param resource $ref2
  */

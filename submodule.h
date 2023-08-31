@@ -6,8 +6,10 @@
 
 #ifndef PHPGIT2_SUBMODULE_H
 #define PHPGIT2_SUBMODULE_H
+
 #include "checkout.h"
 #include "remote.h"
+#include "stubs/submodule_arginfo.h"
 
 namespace php_git2
 {

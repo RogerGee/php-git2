@@ -1,5 +1,16 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: 43c1bedad06e3a85416c08e0ca05334eaec61ec1 */
+ * Stub hash: d4fdd9d5617930da56da1563f33fbb0b9ce22525 */
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_git_reference__alloc, 0, 0, 3)
+	ZEND_ARG_TYPE_INFO(0, name, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, oid, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, peel, IS_STRING, 1)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_git_reference__alloc_symbolic, 0, 0, 2)
+	ZEND_ARG_TYPE_INFO(0, name, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, target, IS_STRING, 0)
+ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_git_reference_cmp, 0, 2, IS_LONG, 0)
 	ZEND_ARG_INFO(0, ref1)

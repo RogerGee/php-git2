@@ -2236,6 +2236,82 @@ resource git_status_list_new(resource $repo,?array $status_options)
 bool git_status_should_ignore(resource $repo,string $path)
 
 ----------------------------------------
+[git_submodule]
+----------------------------------------
+
+void git_submodule_add_finalize(resource $submodule)
+
+resource git_submodule_add_setup(resource $repo,string $url,string $path,bool $use_gitlink)
+
+    Returns git_submodule resource
+
+void git_submodule_add_to_index(resource $submodule,bool $write_index)
+
+string git_submodule_branch(resource $submodule)
+
+int git_submodule_fetch_recurse_submodules(resource $submodule)
+
+void git_submodule_foreach(resource $repo,callable $callback,mixed $payload)
+
+void git_submodule_free(resource $submodule)
+
+?string git_submodule_head_id(resource $submodule)
+
+int git_submodule_ignore(resource $submodule)
+
+?string git_submodule_index_id(resource $submodule)
+
+void git_submodule_init(resource $submodule,bool $overwrite)
+
+int git_submodule_location(resource $submodule)
+
+resource git_submodule_lookup(resource $repo,string $name)
+
+    Returns git_submodule resource
+
+string git_submodule_name(resource $submodule)
+
+resource git_submodule_open(resource $submodule)
+
+    Returns git_repository resource
+
+resource git_submodule_owner(resource $submodule)
+
+    Returns git_repository resource
+
+string git_submodule_path(resource $submodule)
+
+void git_submodule_reload(resource $submodule,bool $force)
+
+resource git_submodule_repo_init(resource $submodule,bool $use_gitlink)
+
+    Returns git_repository resource
+
+string git_submodule_resolve_url(resource $repo,string $url)
+
+void git_submodule_set_branch(resource $repo,string $name,string $branch)
+
+void git_submodule_set_fetch_recurse_submodules(resource $repo,string $name,int $fetch_recurse_submodules)
+
+void git_submodule_set_ignore(resource $repo,string $name,int $ignore)
+
+void git_submodule_set_update(resource $repo,string $name,int $update)
+
+void git_submodule_set_url(resource $repo,string $name,string $url)
+
+int git_submodule_status(resource $repo,string $name,int $ignore)
+
+void git_submodule_sync(resource $submodule)
+
+void git_submodule_update(resource $submodule,bool $init,?array $submodule_update_options)
+
+int git_submodule_update_strategy(resource $submodule)
+
+string git_submodule_url(resource $submodule)
+
+?string git_submodule_wd_id(resource $submodule)
+
+----------------------------------------
 [git_tree]
     [git_tree_entry]
 ----------------------------------------
@@ -2451,108 +2527,6 @@ git_trace_set(int)
 
     ** NOTE: this function uses the standard PHP error log to write traces. This
        only works if your libgit2 was built with tracing enabled. **
-
-----------------------------------------
-[git_submodule]
-----------------------------------------
-
-git_submodule_add_finalize(resource)
-
-git_submodule_add_setup(resource,string,string,bool)
-
-    Returns git_submodule resource
-
-git_submodule_add_to_index(resource,bool)
-
-git_submodule_branch(resource)
-
-    Returns string
-
-git_submodule_fetch_recurse_submodules(resource)
-
-    Returns int
-
-git_submodule_foreach(resource,callable,mixed)
-
-git_submodule_free(resource)
-
-git_submodule_head_id(resource)
-
-    Returns string
-
-git_submodule_ignore(resource)
-
-    Returns int
-
-git_submodule_index_id(resource)
-
-    Returns string
-
-git_submodule_init(resource,bool)
-
-git_submodule_location(resource,string)
-
-    Returns int
-
-git_submodule_lookup(resource,string)
-
-    Returns git_submodule resource
-
-git_submodule_name(resource)
-
-    Returns string
-
-git_submodule_open(resource)
-
-    Returns git_repository resource
-
-git_submodule_owner(resource)
-
-    Returns git_repository resource
-
-git_submodule_path(resource)
-
-    Returns string
-
-git_submodule_reload(resource,bool)
-
-git_submodule_repo_init(resource,bool)
-
-    Returns git_repository resource
-
-git_submodule_resolve_url(resource,string)
-
-    Returns string
-
-git_submodule_set_branch(resource,string,string)
-
-git_submodule_set_fetch_recurse_submodules(resource,string,int)
-
-git_submodule_set_ignore(resource,string,int)
-
-git_submodule_set_update(resource,string,int)
-
-git_submodule_set_url(resource,string,string)
-
-git_submodule_status(resource,string,int)
-
-    Returns int
-
-git_submodule_sync(resource)
-
-git_submodule_update(resource,bool,array|null)
-
-git_submodule_update_strategy(resource)
-
-    Returns int
-
-git_submodule_url(resource)
-
-    Returns string
-
-git_submodule_wd_id(resource)
-
-    Returns string
 
 ----------------------------------------
 [git_worktree]
