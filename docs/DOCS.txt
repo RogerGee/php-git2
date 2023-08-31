@@ -1497,32 +1497,6 @@ resource git_refdb_open(resource $repo)
 void git_refdb_set_backend(resource $refdb,GitRefDBBackend $backend)
 
 ----------------------------------------
-[git_reflog]
-----------------------------------------
-
-void git_reflog_append(resource $reflog,string $id,resource $committer,?string $msg)
-
-void git_reflog_delete(resource $repo,string $name)
-
-bool git_reflog_drop(resource $reflog,int $idx,bool $rewrite_previous_entry)
-
-array git_reflog_entry_byindex(resource $reflog,int $idx)
-
-    Returns a git_reflog_entry array
-
-int git_reflog_entrycount(resource $reflog)
-
-void git_reflog_free(resource $reflog)
-
-resource git_reflog_read(resource $repo,string $name)
-
-    Returns git_reflog resource
-
-void git_reflog_rename(resource $repo,string $old_name,string $name)
-
-void git_reflog_write(resource $reflog)
-
-----------------------------------------
 [git_reference]
 ----------------------------------------
 
@@ -1655,6 +1629,54 @@ resource git_reference_symbolic_set_target(resource $ref,string $target,string $
 ?string git_reference_target_peel(resource $ref)
 
 int git_reference_type(resource $ref)
+
+----------------------------------------
+[git_reflog]
+----------------------------------------
+
+void git_reflog_append(resource $reflog,string $id,resource $committer,?string $msg)
+
+void git_reflog_delete(resource $repo,string $name)
+
+bool git_reflog_drop(resource $reflog,int $idx,bool $rewrite_previous_entry)
+
+array git_reflog_entry_byindex(resource $reflog,int $idx)
+
+    Returns a git_reflog_entry array
+
+int git_reflog_entrycount(resource $reflog)
+
+void git_reflog_free(resource $reflog)
+
+resource git_reflog_read(resource $repo,string $name)
+
+    Returns git_reflog resource
+
+void git_reflog_rename(resource $repo,string $old_name,string $name)
+
+void git_reflog_write(resource $reflog)
+
+----------------------------------------
+[git_refspec]
+----------------------------------------
+
+int git_refspec_direction(resource $refspec)
+
+string git_refspec_dst(resource $refspec)
+
+bool git_refspec_dst_matches(resource $refspec,string $refname)
+
+bool git_refspec_force(resource $refspec)
+
+string git_refspec_rtransform(resource $refspec,string $name)
+
+string git_refspec_src(resource $refspec)
+
+bool git_refspec_src_matches(resource $refspec,string $refname)
+
+string git_refspec_string(resource $refspec)
+
+string git_refspec_transform(resource $refspec,string $name)
 
 ----------------------------------------
 [git_repository]
@@ -2408,46 +2430,6 @@ git_remote_update_tips(resource,array|null,bool,int,string|null)
 git_remote_upload(resource,array|null,array|null)
 
 git_remote_url(resource)
-
-    Returns string
-
-----------------------------------------
-[git_refspec]
-----------------------------------------
-
-git_refspec_direction(resource)
-
-    Returns int
-
-git_refspec_dst(resource)
-
-    Returns string
-
-git_refspec_dst_matches(resource,string)
-
-    Returns bool
-
-git_refspec_force(resource)
-
-    Returns bool
-
-git_refspec_rtransform(resource,string)
-
-    Returns string
-
-git_refspec_src(resource)
-
-    Returns string
-
-git_refspec_src_matches(resource,string)
-
-    Returns bool
-
-git_refspec_string(resource)
-
-    Returns string
-
-git_refspec_transform(resource,string)
 
     Returns string
 

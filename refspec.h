@@ -7,6 +7,8 @@
 #ifndef PHPGIT2_REFSPEC_H
 #define PHPGIT2_REFSPEC_H
 
+#include "stubs/refspec_arginfo.h"
+
 namespace php_git2
 {
     // Explicitly specialize git2_resource destructor for git_refspec.
