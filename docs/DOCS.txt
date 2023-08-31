@@ -2012,6 +2012,20 @@ resource git_repository_wrap_odb(resource $odb)
     Returns git_repository resource
 
 ----------------------------------------
+[git_reset]
+----------------------------------------
+
+void git_reset(resource $repo,resource $target_object,int $reset_type,?array $checkout_options)
+
+    Parameter $checkout_options is an associative array corresponding to
+    git_checkout_options. Options are defaulted using
+    git_checkout_options_init().
+
+void git_reset_default(resource $repo,?resource $target_object,array $pathspecs)
+
+void git_reset_from_annotated(resource $repo,resource $annotated_commit,int $reset_type,?array $checkout_options)
+
+----------------------------------------
 [git_revwalk]
 ----------------------------------------
 git_revwalk_new(resource)
@@ -2392,16 +2406,6 @@ git_status_list_new(resource,array|null)
 git_status_should_ignore(resource,string)
 
     Returns bool
-
-----------------------------------------
-[git_reset]
-----------------------------------------
-
-git_reset(resource,resource,int,array|null)
-
-git_reset_default(resource,resource|null,array)
-
-git_reset_from_annotated(resource,resource,int,array)
 
 ----------------------------------------
 [git_revert]

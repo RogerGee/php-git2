@@ -6,7 +6,9 @@
 
 #ifndef PHPGIT2_RESET_H
 #define PHPGIT2_RESET_H
+
 #include "checkout.h"
+#include "stubs/reset_arginfo.h"
 
 namespace php_git2
 {

@@ -62,6 +62,7 @@ php-git2-fe.lo: php-git2-fe.cpp \
  rebase.h \
  stash.h \
  remote.h \
+ reset.h \
  refspec.h \
  credential.h \
  submodule.h \
