@@ -793,6 +793,11 @@ namespace php_git2
     class php_git_oid
     {
     public:
+        php_git_oid()
+        {
+            memset(&oid,0,sizeof(git_oid));
+        }
+
         git_oid* byval_git2()
         {
             return &oid;
