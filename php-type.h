@@ -120,7 +120,7 @@ namespace php_git2
                 throw php_git2_propagated_exception();
             }
 
-            ZVAL_COPY_VALUE(&value,zvp);
+            ZVAL_LONG(&value,dummy);
         }
     };
 
@@ -154,7 +154,7 @@ namespace php_git2
                 throw php_git2_propagated_exception();
             }
 
-            ZVAL_COPY_VALUE(&value,zvp);
+            ZVAL_BOOL(&value,dummy);
         }
     };
 
@@ -184,7 +184,7 @@ namespace php_git2
                 throw php_git2_propagated_exception();
             }
 
-            ZVAL_COPY_VALUE(&value,zvp);
+            ZVAL_DOUBLE(&value,dummy);
         }
     };
 
@@ -207,16 +207,15 @@ namespace php_git2
     protected:
         virtual void parse_impl(zval* zvp,int argno)
         {
-            char* s;
-            size_t l;
             int result;
+            zend_string* dummy;
 
-            result = zend_parse_parameter(ZEND_PARSE_PARAMS_THROW,argno,zvp,"s",&s,&l);
+            result = zend_parse_parameter(ZEND_PARSE_PARAMS_THROW,argno,zvp,"S",&dummy);
             if (result == FAILURE) {
                 throw php_git2_propagated_exception();
             }
 
-            ZVAL_COPY_VALUE(&value,zvp);
+            ZVAL_STR(&value,dummy);
         }
     };
 
