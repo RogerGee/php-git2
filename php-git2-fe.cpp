@@ -10,7 +10,6 @@
 #include "php-rethandler.h"
 #include "stubs/git2_arginfo.h"
 #include "stubs/libgit2_arginfo.h"
-#include "stubs/tmp.h"
 #include "repository.h"
 #include "reference.h"
 #include "object.h"

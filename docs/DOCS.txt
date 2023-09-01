@@ -2389,79 +2389,67 @@ void git_trace_set(int $level)
     [git_tree_entry]
 ----------------------------------------
 
-git_tree_dup(resource)
+resource git_tree_dup(resource $tree)
 
     Returns git_tree resource
 
-git_tree_entrycount(resource)
+?resource git_tree_entry_byid(resource $tree,string $id)
 
-    Returns int
+    Returns git_tree_entry resource or null
 
-git_tree_free(resource)
+?resource git_tree_entry_byindex(resource $tree,int $idx)
 
-git_tree_id(resource)
+    Returns git_tree_entry resource or null
 
-    Returns string
+?resource git_tree_entry_byname(resource $tree,string $filename)
 
-git_tree_lookup(resource,string)
+    Returns git_tree_entry resource or null
+
+resource git_tree_entry_bypath(resource $tree,string $path)
+
+    Returns git_tree_entry resource
+
+int git_tree_entry_cmp(resource $tree_entry_1,resource $tree_entry_2)
+
+resource git_tree_entry_dup(resource $tree_entry)
+
+    Returns git_tree_entry resource
+
+int git_tree_entry_filemode(resource $tree_entry)
+
+int git_tree_entry_filemode_raw(resource $tree_entry)
+
+void git_tree_entry_free(resource $tree_entry)
+
+string git_tree_entry_id(resource $tree_entry)
+
+string git_tree_entry_name(resource $tree_entry)
+
+resource git_tree_entry_to_object(resource $repo,resource $tree_entry)
+
+    Returns git_object resource
+
+int git_tree_entry_type(resource $tree_entry)
+
+int git_tree_entrycount(resource $tree)
+
+void git_tree_free(resource $tree)
+
+string git_tree_id(resource $tree)
+
+resource git_tree_lookup(resource $repo,string $id)
 
     Returns git_tree resource
 
-git_tree_lookup_prefix(resource,string)
+resource git_tree_lookup_prefix(resource $repo,string $id_prefix)
 
     Returns git_tree resource
 
-git_tree_owner(resource)
+resource git_tree_owner(resource $tree)
 
     Returns git_repository resource
 
-git_tree_entry_free(resource)
-
-git_tree_entry_byid(resource,string)
-
-    Returns git_tree_entry resource or null
-
-git_tree_entry_byindex(resource,int)
-
-    Returns git_tree_entry resource or null
-
-git_tree_entry_byname(resource,string)
-
-    Returns git_tree_entry resource or null
-
-git_tree_entry_bypath(resource,string)
-
-    Returns git_tree_entry resource
-
-git_tree_entry_dup(resource)
-
-    Returns git_tree_entry resource
-
-git_tree_entry_filemode(resource)
-
-    Returns int
-
-git_tree_entry_filemode_raw(resource)
-
-    Returns int
-
-git_tree_entry_name(resource)
-
-    Returns string
-
-git_tree_entry_cmp(resource,resource)
-
-    Returns int
-
-git_tree_entry_id(resource)
-
-    Returns string
-
-git_tree_entry_type(resource)
-
-    Returns int
-
-git_tree_walk(resource,int,callable,mixed)
+void git_tree_walk(resource $tree,int $mode,callable $callback,mixed $payload)
 
     Callback signature: void callback(string $root,resource $entry,mixed $payload)
 
@@ -2471,40 +2459,36 @@ git_tree_walk(resource,int,callable,mixed)
 [git_treebuilder]
 ----------------------------------------
 
-git_treebuilder_new(resource,resource|null)
+void git_treebuilder_clear(resource $treebuilder)
 
-    Returns git_treebuilder resource
+int git_treebuilder_entrycount(resource $treebuilder)
 
-git_treebuilder_free(resource)
-
-git_treebuilder_filter(callable,mixed)
+void git_treebuilder_filter(resource $treebuilder,callable $callback,mixed $payload)
 
     Callback signature:
         bool callback(array $entry,mixed $payload)
 
-        Returns FALSE to filter (i.e. remove) the entry.
+        Returns false to filter (i.e. remove) the entry.
 
-git_treebuilder_write(resource)
+void git_treebuilder_free(resource $treebuilder)
 
-    Returns string
-
-git_treebuilder_insert(resource,string,string,int)
-
-    ** Note: this function always returns the tree entry. **
+resource git_treebuilder_get(resource $treebuilder,string $filename)
 
     Returns git_tree_entry resource
 
-git_treebuilder_get(resource,string)
+resource git_treebuilder_insert(resource $treebuilder,string $filename,string $id,int $filemode)
+
+    This function always returns the tree entry.
 
     Returns git_tree_entry resource
 
-git_treebuilder_remove(resource,string)
+resource git_treebuilder_new(resource $repo,?resource $tree)
 
-git_treebuilder_clear(resource)
+    Returns git_treebuilder resource
 
-git_treebuilder_entrycount(resource)
+void git_treebuilder_remove(resource $treebuilder,string $filename)
 
-    Returns int
+string git_treebuilder_write(resource $treebuilder)
 
 ----------------------------------------
 [git_worktree]

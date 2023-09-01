@@ -7,6 +7,8 @@
 #ifndef PHPGIT2_TREE_H
 #define PHPGIT2_TREE_H
 
+#include "stubs/tree_arginfo.h"
+
 namespace php_git2
 {
     // Provide specializations for git2_resource destructors.

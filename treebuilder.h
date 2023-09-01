@@ -6,7 +6,9 @@
 
 #ifndef PHPGIT2_TREEBUILDER_H
 #define PHPGIT2_TREEBUILDER_H
+
 #include "tree.h"
+#include "stubs/treebuilder_arginfo.h"
 
 namespace php_git2
 {

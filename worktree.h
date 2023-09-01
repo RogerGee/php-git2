@@ -6,7 +6,9 @@
 
 #ifndef PHPGIT2_WORKTREE_H
 #define PHPGIT2_WORKTREE_H
+
 #include "checkout.h"
+#include "stubs/worktree_arginfo.h"
 
 namespace php_git2
 {
