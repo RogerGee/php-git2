@@ -305,7 +305,7 @@ final class RemoteTest extends RepositoryBareTestCase {
             '+refs/heads/master:refs/remotes/origin/master',
         ];
         $opts = [
-            'download_tags' => true,
+            'download_tags' => GIT_REMOTE_DOWNLOAD_TAGS_ALL,
         ];
         $reflogMessage = 'Fetch master from origin';
         $result = git_remote_fetch($remote,$refspecs,$opts,$reflogMessage);
@@ -446,7 +446,7 @@ final class RemoteTest extends RepositoryBareTestCase {
     public function testUpdateTips($remote) {
         $callbacks = null;
         $updateFetchhead = true;
-        $downloadTags = true;
+        $downloadTags = GIT_REMOTE_DOWNLOAD_TAGS_ALL;
         $reflogMessage = 'Update tips test';
         $result = git_remote_update_tips(
             $remote,
