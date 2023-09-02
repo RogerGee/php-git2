@@ -19,7 +19,7 @@ class TestConfigBackend extends PHPSerializedConfigBackend {
         parent::open($level,$repo);
     }
 
-    public function get(string $name) : array {
+    public function get(string $name) : array|bool {
         $this->called[] = 'get';
         $this->unit->assertIsString($name);
         return parent::get($name);
@@ -59,7 +59,7 @@ class TestConfigBackend extends PHPSerializedConfigBackend {
         return new CallbackPayload;
     }
 
-    public function iterator_next($context) : mixed {
+    public function iterator_next($context) : array|bool {
         $this->called[] = 'iterator_next';
         $this->unit->assertInstanceOf(CallbackPayload::class,$context);
         return parent::iterator_next($context);

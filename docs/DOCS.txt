@@ -2716,11 +2716,11 @@ abstract class GitConfigBackend:
 
         void open(int $level,resource $repo)
 
-        array get(string $key)
+        array|bool get(string $key)
 
             This method returns array with properties 'name', 'value' and
             'level' corresponding to git_config_entry. If the method fails
-            lookup, it should return false or some falsy value (e.g. 0, null).
+            lookup, it should return false.
 
             If 'level' is not specified in the return array, then level defaults
             to GIT_CONFIG_LEVEL_APP.
@@ -2736,17 +2736,18 @@ abstract class GitConfigBackend:
         mixed iterator_new()
 
             This method should initialize the object for a new
-            iteration. Iteration will call the iterator_next() method. This
-            method may optionally return a context value to identify the
-            iterator. This is largely not useful since git2 config iteration is
-            currently only synchronous.
+            iteration. Iteration will call the iterator_next() method. The
+            return value is interpreted as a context value that is passed to
+            iterator_next(). The context value may be null if context is not
+            required. (This is largely not useful since git2 config iteration is
+            currently only synchronous when used by the library.)
 
-        array iterator_next(mixed $context)
+        array|bool iterator_next(mixed $context)
 
             This method should return the next config value. The return value is
             the same as for the get() method.
 
-            The $context argument holds any value returned from a previous call
+            The $context argument holds the value returned from a previous call
             to iterator_new().
 
             This method must return false when iteration is over.

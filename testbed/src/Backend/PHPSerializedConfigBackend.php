@@ -24,7 +24,7 @@ class PHPSerializedConfigBackend extends \GitConfigBackend {
         }
     }
 
-    public function get(string $name) : array {
+    public function get(string $name) : array|bool {
         if (!isset($this->storage[$name][0])) {
             return false;
         }
@@ -109,15 +109,18 @@ class PHPSerializedConfigBackend extends \GitConfigBackend {
 
     public function iterator_new() : mixed {
         $this->iterator = $this->storage;
+        return null;
     }
 
-    public function iterator_next($context) : mixed {
+    public function iterator_next($context) : array|bool {
         if ($this->iterator === false) {
             return false;
         }
 
         $value = current($this->iterator);
-        next($this->iterator);
+        if (next($this->iterator) === false) {
+            $this->iterator = false;
+        }
 
         return $value[0];
     }

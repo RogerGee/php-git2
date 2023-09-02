@@ -6,7 +6,7 @@ abstract class GitConfigBackend {
      */
     public function open(int $level,$repo) : void;
 
-    public function get(string $key) : array;
+    public function get(string $key) : array|bool;
 
     public function set(string $key,string $value) : void;
 
@@ -18,7 +18,7 @@ abstract class GitConfigBackend {
 
     public function iterator_new() : mixed;
 
-    public function iterator_next(mixed $context) : mixed;
+    public function iterator_next(mixed $context) : array|bool;
 
     public function snapshot() : \GitConfigBackend;
 
