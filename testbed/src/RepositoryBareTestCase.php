@@ -3,6 +3,8 @@
 namespace PhpGit2;
 
 class RepositoryBareTestCase extends TestCase {
+    static $__repo;
+
     public static function setUpBeforeClass() : void {
         parent::setUpBeforeClass();
 
@@ -11,15 +13,16 @@ class RepositoryBareTestCase extends TestCase {
         $basePath = static::makePath();
 
         static::copyRecursive($src,$dst,$basePath);
+
+        self::$__repo = null;
     }
 
     protected static function getRepository() {
-        static $repo;
-        if (!isset($repo)) {
+        if (!isset(self::$__repo)) {
             $path = static::makePath('repo.git');
-            $repo = git_repository_open_bare($path);
+            self::$__repo = git_repository_open_bare($path);
         }
 
-        return $repo;
+        return self::$__repo;
     }
 }
