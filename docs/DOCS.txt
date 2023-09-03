@@ -156,13 +156,7 @@ git2_version()
 
     Returns string
 
-git_libgit2_version()
-
-    Gets the libgit2 version string. The version string has the form "%1.%2.%3"
-    where %1, %2 and %3 are the respective major, minor and revision numbers
-    returned from the underlying call to git_libgit2_version().
-
-    Returns string
+git_libgit2_version(int&,int&,int&)
 
 git_libgit2_features()
 

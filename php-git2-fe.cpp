@@ -55,13 +55,19 @@
 static PHP_FUNCTION(git_libgit2_version);
 static PHP_FUNCTION(git2_version);
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_git_libgit2_version, 0, 0, 3)
+    ZEND_ARG_PASS_INFO(1)
+    ZEND_ARG_PASS_INFO(1)
+    ZEND_ARG_PASS_INFO(1)
+ZEND_END_ARG_INFO()
+
 // Functions exported by this extension into PHP.
 zend_function_entry php_git2::functions[] = {
     // Functions that do not directly wrap libgit2 exports:
     PHP_FE(git2_version,NULL)
 
     // General libgit2 functions:
-    PHP_FE(git_libgit2_version,NULL)
+    PHP_FE(git_libgit2_version,arginfo_git_libgit2_version)
     PHP_GIT2_FE(git_libgit2_prerelease,
         (zif_php_git2_function<
             func_wrapper<const char*>::func<git_libgit2_prerelease>,
@@ -124,13 +130,30 @@ zend_function_entry php_git2::functions[] = {
 
 PHP_FUNCTION(git_libgit2_version)
 {
-    char buf[128];
+    int result;
     int major, minor, rev;
+    zval* zmajor;
+    zval* zminor;
+    zval* zrev;
 
-    git_libgit2_version(&major,&minor,&rev);
-    snprintf(buf,sizeof(buf),"%d.%d.%d",major,minor,rev);
+    if (zend_parse_parameters(
+            ZEND_NUM_ARGS(),
+            "z/z/z/",
+            &zmajor,
+            &zminor,
+            &zrev) == FAILURE)
+    {
+        return;
+    }
 
-    RETURN_STRING(buf);
+    result = git_libgit2_version(&major,&minor,&rev);
+    if (result != 0) {
+        php_git2::git_error(result);
+    }
+
+    ZVAL_LONG(zmajor,major);
+    ZVAL_LONG(zminor,minor);
+    ZVAL_LONG(zrev,rev);
 }
 
 PHP_FUNCTION(git2_version)

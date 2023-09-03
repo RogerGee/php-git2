@@ -79,9 +79,12 @@ final class GeneralTest extends RepositoryTestCase {
      * @phpGitTest git_libgit2_version
      */
     public function testLibgit2Version() {
-        $result = git_libgit2_version();
+        $result = git_libgit2_version($major,$minor,$rev);
 
-        $this->assertIsString($result);
+        $this->assertNull($result);
+        $this->assertIsInt($major);
+        $this->assertIsInt($minor);
+        $this->assertIsInt($rev);
     }
 
     /**
