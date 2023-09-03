@@ -2,11 +2,11 @@
 
 This project provides a PHP extension implementing bindings for [`libgit2`](https://github.com/libgit2/libgit2). You can use this library to build native Git tooling directly into your PHP application.
 
-This branch targets PHP 7. See other branches for other PHP major versions. Please note that this project no longer supports versions before PHP 7.
+This branch targets PHP 7. See other branches for other PHP major versions. Please note that this project no longer supports versions before PHP 8. This is the last release for PHP 7.
 
 Primary author:
 
-> Roger Gee <rpg11a@acu.edu>
+> [Roger Gee](https://github.com/RogerGee)
 
 ## Versioning
 
@@ -14,7 +14,7 @@ Since we do not bundle the `libgit2` dependency, it's up to the user to provide 
 
 | `php-git2` | `libgit2` | Notes |
 | -------- | ------- | ------- |
-| `2.0.0` | `^1.5.0` | Under active development; `libgit2` is now stable |
+| `2.0.0` | `^1.5.0` | `libgit2` API is now stable |
 | `1.0.0`  | `0.25.1` | `libgit2` is unstable, so `v1` exclusively uses `0.25.1` |
 
 The entries in the table above denote the `libgit2` version requirement for a particular `php-git2` release. An entry is only added when a new version of `libgit2` is required.
@@ -25,7 +25,7 @@ In theory, you should be able to use any version that fits the constraint (and p
 
 This project maintains multiple branches for different major versions of PHP. Look for a branch named `phpX/master` for PHP version `X`. Branch `master` will point to the latest `phpX/master` that is supported. Maintenance and development branches are organized similarly (e.g. `php7/develop`).
 
-A release is issued for each PHP version separately. Look for tags organized under PHP version (e.g. `php7/v1.0.0`). A release branch may exist for extended maintenance on a particular major version release (e.g. `php7/v1`). Threaded (i.e. ZTS) and non-threaded versions are part of the extension configuration when it is built, so they exist under the same release.
+A release is issued for each PHP version separately. Look for tags organized under PHP version (e.g. `php7/v1.0.0`). A release branch may exist for extended maintenance on a particular major version release (e.g. `php7/v1`).
 
 ## API Coverage
 
@@ -98,10 +98,10 @@ Ensure that you configure the correct version of `libgit2` for the extension ver
 
 **Example: building with static library**
 
-In this example, I've built and installed `libgit2` under `/usr/local/libgit2-25` as a static library. (Note: the static library must be installed as `lib/libgit2.a` under the distribution. Also, make sure the library was compiled with position-independent code if building a shared extension.) Now I can build `php-git2` using this static library:
+In this example, I've built and installed `libgit2` under `/usr/local/libgit2` as a static library. (Note: the static library must be installed as `lib/libgit2.a` under the distribution. Also, make sure the library was compiled with position-independent code if building a shared extension.) Now I can build `php-git2` using this static library:
 
 ~~~
-$ ./configure --with-git2=/usr/local/libgit2-25 --with-git2-static LDFLAGS="-lssh2"
+$ ./configure --with-git2=/usr/local/libgit2 --with-git2-static LDFLAGS="-lssh2"
 $ make
 ~~~
 
@@ -134,10 +134,11 @@ This configuration will produce a huge binary, but it will be easier to trace. I
 
 This project does not officially support Windows at this time. With this said, there shouldn't be anything preventing the extension from building and running on Windows; we just haven't worked out any of the inevitable, platform-specific issues.
 
-## Roadmap
+## Roadmap (PHP 7)
 
-- Improve unit testing (Fall 2022): COMPLETE
-- Update to `libgit2` version 1: IN PROGRESS
-- Add support for custom `libgit2` memory allocator utilizing PHP's memory allocation functionality: PENDING
-- Add support for PHP 8: PENDING
-- Create phpdoc files to generate documentation site: PENDING
+| Item | Status |
+| -- | -- |
+| Improve unit testing | Complete (October 2022) |
+| Update to `libgit2` version 1 | Complete (January 2023) |
+
+There will be no more PHP 7 releases.
