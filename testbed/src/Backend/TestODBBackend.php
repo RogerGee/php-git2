@@ -11,13 +11,13 @@ use PhpGit2\Utility\TestWrapperTrait;
 class TestODBBackend extends PHPSerializedODBBackend {
     use TestWrapperTrait;
 
-    public function read(&$type,string $oid) : string {
+    public function read(&$type,string $oid) : string|bool {
         $this->called[] = 'read';
         $this->unit->assertIsString($oid);
         return parent::read($type,$oid);
     }
 
-    public function read_prefix(&$fullOid,&$type,string $abbrevOid) : string {
+    public function read_prefix(&$fullOid,&$type,string $abbrevOid) : string|bool {
         $this->called[] = 'read_prefix';
         $this->unit->assertIsString($abbrevOid);
         return parent::read_prefix($fullOid,$type,$abbrevOid);

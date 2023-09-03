@@ -16,7 +16,7 @@ class PHPSerializedODBBackend extends \GitODBBackend {
      * @return string
      *  The object contents.
      */
-    public function read(&$type,string $oid) : string {
+    public function read(&$type,string $oid) : string|bool {
         if (isset($this->storage[$oid])) {
             $record = $this->storage[$oid];
             $type = $record['t'];
@@ -39,7 +39,7 @@ class PHPSerializedODBBackend extends \GitODBBackend {
      * @return string
      *  The object contents.
      */
-    public function read_prefix(&$fullOid,&$type,string $abbrevOid) : string {
+    public function read_prefix(&$fullOid,&$type,string $abbrevOid) : string|bool {
         $i = 0;
         $keys = array_keys($this->storage);
         while ($i < count($keys)) {
