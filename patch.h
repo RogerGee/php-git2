@@ -6,7 +6,9 @@
 
 #ifndef PHPGIT2_PATCH_H
 #define PHPGIT2_PATCH_H
+
 #include "diff.h"
+#include "stubs/patch_arginfo.h"
 
 namespace php_git2
 {
@@ -56,13 +58,13 @@ namespace php_git2
 
 // Funtions
 
-static constexpr auto ZIF_GIT_PATCH_FREE = zif_php_git2_function_free<
+static constexpr auto ZIF_git_patch_free = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_patch>
         >
     >;
 
-static constexpr auto ZIF_GIT_PATCH_FROM_BLOB_AND_BUFFER = zif_php_git2_function<
+static constexpr auto ZIF_git_patch_from_blob_and_buffer = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_patch**,
@@ -88,7 +90,7 @@ static constexpr auto ZIF_GIT_PATCH_FROM_BLOB_AND_BUFFER = zif_php_git2_function
     php_git2::sequence<0,1,2,4,3,5,6>
     >;
 
-static constexpr auto ZIF_GIT_PATCH_FROM_BLOBS = zif_php_git2_function<
+static constexpr auto ZIF_git_patch_from_blobs = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_patch**,
@@ -110,7 +112,7 @@ static constexpr auto ZIF_GIT_PATCH_FROM_BLOBS = zif_php_git2_function<
     php_git2::sequence<0,1,2,3,4,5>
     >;
 
-static constexpr auto ZIF_GIT_PATCH_FROM_BUFFERS = zif_php_git2_function<
+static constexpr auto ZIF_git_patch_from_buffers = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_patch**,
@@ -140,7 +142,7 @@ static constexpr auto ZIF_GIT_PATCH_FROM_BUFFERS = zif_php_git2_function<
     php_git2::sequence<0,2,1,3,5,4,6,7>
     >;
 
-static constexpr auto ZIF_GIT_PATCH_FROM_DIFF = zif_php_git2_function<
+static constexpr auto ZIF_git_patch_from_diff = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_patch**,
@@ -156,7 +158,7 @@ static constexpr auto ZIF_GIT_PATCH_FROM_DIFF = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_PATCH_GET_DELTA = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_patch_get_delta = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         const git_diff_delta*,
         const git_patch*>::func<git_patch_get_delta>,
@@ -168,7 +170,7 @@ static constexpr auto ZIF_GIT_PATCH_GET_DELTA = zif_php_git2_function_rethandler
         >
     >;
 
-static constexpr auto ZIF_GIT_PATCH_GET_HUNK = zif_php_git2_function<
+static constexpr auto ZIF_git_patch_get_hunk = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         const git_diff_hunk**,
@@ -185,11 +187,8 @@ static constexpr auto ZIF_GIT_PATCH_GET_HUNK = zif_php_git2_function<
     php_git2::sequence<1,2,3>,
     php_git2::sequence<0,1,2,3>
     >;
-ZEND_BEGIN_ARG_INFO_EX(git_patch_get_hunk_arginfo,0,0,3)
-    ZEND_ARG_PASS_INFO(1)
-ZEND_END_ARG_INFO()
 
-static constexpr auto ZIF_GIT_PATCH_GET_LINE_IN_HUNK = zif_php_git2_function<
+static constexpr auto ZIF_git_patch_get_line_in_hunk = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         const git_diff_line**,
@@ -207,7 +206,7 @@ static constexpr auto ZIF_GIT_PATCH_GET_LINE_IN_HUNK = zif_php_git2_function<
     php_git2::sequence<0,1,2,3>
     >;
 
-static constexpr auto ZIF_GIT_PATCH_LINE_STATS = zif_php_git2_function<
+static constexpr auto ZIF_git_patch_line_stats = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         size_t*,
@@ -224,12 +223,8 @@ static constexpr auto ZIF_GIT_PATCH_LINE_STATS = zif_php_git2_function<
     php_git2::sequence<1,2,3>,
     php_git2::sequence<0,1,2,3>
     >;
-ZEND_BEGIN_ARG_INFO_EX(git_patch_line_stats_arginfo,0,0,3)
-    ZEND_ARG_PASS_INFO(1)
-    ZEND_ARG_PASS_INFO(1)
-ZEND_END_ARG_INFO()
 
-static constexpr auto ZIF_GIT_PATCH_NUM_HUNKS = zif_php_git2_function<
+static constexpr auto ZIF_git_patch_num_hunks = zif_php_git2_function<
     php_git2::func_wrapper<
         size_t,
         const git_patch*>::func<git_patch_num_hunks>,
@@ -239,7 +234,7 @@ static constexpr auto ZIF_GIT_PATCH_NUM_HUNKS = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_PATCH_NUM_LINES_IN_HUNK = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_patch_num_lines_in_hunk = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         const git_patch*,
@@ -251,7 +246,7 @@ static constexpr auto ZIF_GIT_PATCH_NUM_LINES_IN_HUNK = zif_php_git2_function_re
     php_git2::php_notfound_retval_rethandler
     >;
 
-static constexpr auto ZIF_GIT_PATCH_PRINT = zif_php_git2_function<
+static constexpr auto ZIF_git_patch_print = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_patch*,
@@ -267,7 +262,7 @@ static constexpr auto ZIF_GIT_PATCH_PRINT = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_PATCH_SIZE = zif_php_git2_function<
+static constexpr auto ZIF_git_patch_size = zif_php_git2_function<
     php_git2::func_wrapper<
         size_t,
         git_patch*,
@@ -283,7 +278,7 @@ static constexpr auto ZIF_GIT_PATCH_SIZE = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_PATCH_TO_BUF = zif_php_git2_function<
+static constexpr auto ZIF_git_patch_to_buf = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_buf*,
@@ -299,21 +294,21 @@ static constexpr auto ZIF_GIT_PATCH_TO_BUF = zif_php_git2_function<
 
 // Function Entries
 
-#define GIT_PATCH_FE                                                    \
-    PHP_GIT2_FE(git_patch_free,ZIF_GIT_PATCH_FREE,NULL)                 \
-    PHP_GIT2_FE(git_patch_from_blob_and_buffer,ZIF_GIT_PATCH_FROM_BLOB_AND_BUFFER,NULL) \
-    PHP_GIT2_FE(git_patch_from_blobs,ZIF_GIT_PATCH_FROM_BLOBS,NULL)     \
-    PHP_GIT2_FE(git_patch_from_buffers,ZIF_GIT_PATCH_FROM_BUFFERS,NULL) \
-    PHP_GIT2_FE(git_patch_from_diff,ZIF_GIT_PATCH_FROM_DIFF,NULL)       \
-    PHP_GIT2_FE(git_patch_get_delta,ZIF_GIT_PATCH_GET_DELTA,NULL)       \
-    PHP_GIT2_FE(git_patch_get_hunk,ZIF_GIT_PATCH_GET_HUNK,git_patch_get_hunk_arginfo) \
-    PHP_GIT2_FE(git_patch_get_line_in_hunk,ZIF_GIT_PATCH_GET_LINE_IN_HUNK,NULL) \
-    PHP_GIT2_FE(git_patch_line_stats,ZIF_GIT_PATCH_LINE_STATS,git_patch_line_stats_arginfo) \
-    PHP_GIT2_FE(git_patch_num_hunks,ZIF_GIT_PATCH_NUM_HUNKS,NULL)       \
-    PHP_GIT2_FE(git_patch_num_lines_in_hunk,ZIF_GIT_PATCH_NUM_LINES_IN_HUNK,NULL) \
-    PHP_GIT2_FE(git_patch_print,ZIF_GIT_PATCH_PRINT,NULL)               \
-    PHP_GIT2_FE(git_patch_size,ZIF_GIT_PATCH_SIZE,NULL)                 \
-    PHP_GIT2_FE(git_patch_to_buf,ZIF_GIT_PATCH_TO_BUF,NULL)
+#define GIT_PATCH_FE                            \
+    PHP_GIT2_FE(git_patch_free)                 \
+    PHP_GIT2_FE(git_patch_from_blob_and_buffer) \
+    PHP_GIT2_FE(git_patch_from_blobs)           \
+    PHP_GIT2_FE(git_patch_from_buffers)         \
+    PHP_GIT2_FE(git_patch_from_diff)            \
+    PHP_GIT2_FE(git_patch_get_delta)            \
+    PHP_GIT2_FE(git_patch_get_hunk)             \
+    PHP_GIT2_FE(git_patch_get_line_in_hunk)     \
+    PHP_GIT2_FE(git_patch_line_stats)           \
+    PHP_GIT2_FE(git_patch_num_hunks)            \
+    PHP_GIT2_FE(git_patch_num_lines_in_hunk)    \
+    PHP_GIT2_FE(git_patch_print)                \
+    PHP_GIT2_FE(git_patch_size)                 \
+    PHP_GIT2_FE(git_patch_to_buf)
 
 #endif
 

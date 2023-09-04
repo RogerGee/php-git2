@@ -1,0 +1,31 @@
+/* This is a generated file, edit the .stub.php file instead.
+ * Stub hash: fd7afec542b1719ce53853cd3816c04d1ee26fd0 */
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_git_attr_add_macro, 0, 3, IS_VOID, 0)
+	ZEND_ARG_INFO(0, repo)
+	ZEND_ARG_TYPE_INFO(0, name, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, values, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_git_attr_cache_flush, 0, 1, IS_VOID, 0)
+	ZEND_ARG_INFO(0, repo)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_git_attr_foreach, 0, 5, IS_VOID, 0)
+	ZEND_ARG_INFO(0, repo)
+	ZEND_ARG_TYPE_INFO(0, flags, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, path, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, callback, IS_CALLABLE, 0)
+	ZEND_ARG_TYPE_INFO(0, payload, IS_MIXED, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_git_attr_get, 0, 4, IS_STRING, 0)
+	ZEND_ARG_INFO(0, repo)
+	ZEND_ARG_TYPE_INFO(0, flags, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, path, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, name, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_git_attr_value, 0, 1, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, attr, IS_STRING, 0)
+ZEND_END_ARG_INFO()

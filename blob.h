@@ -7,6 +7,8 @@
 #ifndef PHPGIT2_BLOB_H
 #define PHPGIT2_BLOB_H
 
+#include "stubs/blob_arginfo.h"
+
 namespace php_git2
 {
     // Explicitly specialize git2_resource destructor for git_blob.
@@ -106,7 +108,7 @@ namespace php_git2
 
 #endif
 
-static constexpr auto ZIF_GIT_BLOB_CREATE_FROMBUFFER = zif_php_git2_function<
+static constexpr auto ZIF_git_blob_create_frombuffer = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_oid*,
@@ -125,7 +127,7 @@ static constexpr auto ZIF_GIT_BLOB_CREATE_FROMBUFFER = zif_php_git2_function<
     php_git2::sequence<0,1,3,2>
     >;
 
-static constexpr auto ZIF_GIT_BLOB_CREATE_FROMDISK = zif_php_git2_function<
+static constexpr auto ZIF_git_blob_create_fromdisk = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_oid*,
@@ -142,7 +144,7 @@ static constexpr auto ZIF_GIT_BLOB_CREATE_FROMDISK = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_BLOB_CREATE_FROMWORKDIR = zif_php_git2_function<
+static constexpr auto ZIF_git_blob_create_fromworkdir = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_oid*,
@@ -159,7 +161,7 @@ static constexpr auto ZIF_GIT_BLOB_CREATE_FROMWORKDIR = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_BLOB_FILTERED_CONTENT = zif_php_git2_function<
+static constexpr auto ZIF_git_blob_filtered_content = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_buf*,
@@ -178,13 +180,13 @@ static constexpr auto ZIF_GIT_BLOB_FILTERED_CONTENT = zif_php_git2_function<
     php_git2::sequence<0,1,2,3>
     >;
 
-static constexpr auto ZIF_GIT_BLOB_FREE = zif_php_git2_function_free<
+static constexpr auto ZIF_git_blob_free = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_blob>
         >
     >;
 
-static constexpr auto ZIF_GIT_BLOB_ID = zif_php_git2_function<
+static constexpr auto ZIF_git_blob_id = zif_php_git2_function<
     php_git2::func_wrapper<
         const git_oid*,
         const git_blob*
@@ -195,7 +197,7 @@ static constexpr auto ZIF_GIT_BLOB_ID = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_BLOB_IS_BINARY = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_blob_is_binary = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         const git_blob*
@@ -206,7 +208,7 @@ static constexpr auto ZIF_GIT_BLOB_IS_BINARY = zif_php_git2_function_rethandler<
     php_git2::php_boolean_rethandler<int>
     >;
 
-static constexpr auto ZIF_GIT_BLOB_LOOKUP = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_blob_lookup = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_blob**,
@@ -224,7 +226,7 @@ static constexpr auto ZIF_GIT_BLOB_LOOKUP = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_BLOB_LOOKUP_PREFIX = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_blob_lookup_prefix = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_blob**,
@@ -245,7 +247,7 @@ static constexpr auto ZIF_GIT_BLOB_LOOKUP_PREFIX = zif_php_git2_function_setdeps
     php_git2::sequence<0,1,3,2>
     >;
 
-static constexpr auto ZIF_GIT_BLOB_OWNER = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_blob_owner = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         git_repository*,
         const git_blob*
@@ -259,7 +261,7 @@ static constexpr auto ZIF_GIT_BLOB_OWNER = zif_php_git2_function_rethandler<
     php_git2::sequence<0>
     >;
 
-static constexpr auto ZIF_GIT_BLOB_RAWCONTENT = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_blob_rawcontent = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         const void*,
         const git_blob*
@@ -270,7 +272,7 @@ static constexpr auto ZIF_GIT_BLOB_RAWCONTENT = zif_php_git2_function_rethandler
     php_git2::php_git_blob_rawcontent_rethandler
     >;
 
-static constexpr auto ZIF_GIT_BLOB_RAWSIZE = zif_php_git2_function<
+static constexpr auto ZIF_git_blob_rawsize = zif_php_git2_function<
     php_git2::func_wrapper<
         git_object_size_t,
         const git_blob*
@@ -281,7 +283,7 @@ static constexpr auto ZIF_GIT_BLOB_RAWSIZE = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_BLOB_DUP = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_blob_dup = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_blob**,
@@ -297,7 +299,7 @@ static constexpr auto ZIF_GIT_BLOB_DUP = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_BLOB_CREATE_FROMSTREAM = zif_php_git2_function<
+static constexpr auto ZIF_git_blob_create_fromstream = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_writestream**,
@@ -314,7 +316,7 @@ static constexpr auto ZIF_GIT_BLOB_CREATE_FROMSTREAM = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_BLOB_CREATE_FROMSTREAM_COMMIT = zif_php_git2_function<
+static constexpr auto ZIF_git_blob_create_fromstream_commit = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_oid*,
@@ -329,22 +331,22 @@ static constexpr auto ZIF_GIT_BLOB_CREATE_FROMSTREAM_COMMIT = zif_php_git2_funct
     php_git2::sequence<0,1>
     >;
 
-#define GIT_BLOB_FE                                                     \
-    PHP_GIT2_FE(git_blob_create_frombuffer,ZIF_GIT_BLOB_CREATE_FROMBUFFER,NULL) \
-    PHP_GIT2_FE(git_blob_create_fromdisk,ZIF_GIT_BLOB_CREATE_FROMDISK,NULL) \
-    PHP_GIT2_FE(git_blob_create_fromworkdir,ZIF_GIT_BLOB_CREATE_FROMWORKDIR,NULL) \
-    PHP_GIT2_FE(git_blob_filtered_content,ZIF_GIT_BLOB_FILTERED_CONTENT,NULL) \
-    PHP_GIT2_FE(git_blob_free,ZIF_GIT_BLOB_FREE,NULL)                   \
-    PHP_GIT2_FE(git_blob_id,ZIF_GIT_BLOB_ID,NULL)                       \
-    PHP_GIT2_FE(git_blob_is_binary,ZIF_GIT_BLOB_IS_BINARY,NULL)         \
-    PHP_GIT2_FE(git_blob_lookup,ZIF_GIT_BLOB_LOOKUP,NULL)               \
-    PHP_GIT2_FE(git_blob_lookup_prefix,ZIF_GIT_BLOB_LOOKUP_PREFIX,NULL) \
-    PHP_GIT2_FE(git_blob_owner,ZIF_GIT_BLOB_OWNER,NULL)                 \
-    PHP_GIT2_FE(git_blob_rawcontent,ZIF_GIT_BLOB_RAWCONTENT,NULL)       \
-    PHP_GIT2_FE(git_blob_rawsize,ZIF_GIT_BLOB_RAWSIZE,NULL)             \
-    PHP_GIT2_FE(git_blob_dup,ZIF_GIT_BLOB_DUP,NULL)                     \
-    PHP_GIT2_FE(git_blob_create_fromstream,ZIF_GIT_BLOB_CREATE_FROMSTREAM,NULL) \
-    PHP_GIT2_FE(git_blob_create_fromstream_commit,ZIF_GIT_BLOB_CREATE_FROMSTREAM_COMMIT,NULL)
+#define GIT_BLOB_FE                                 \
+    PHP_GIT2_FE(git_blob_create_frombuffer)         \
+    PHP_GIT2_FE(git_blob_create_fromdisk)           \
+    PHP_GIT2_FE(git_blob_create_fromworkdir)        \
+    PHP_GIT2_FE(git_blob_filtered_content)          \
+    PHP_GIT2_FE(git_blob_free)                      \
+    PHP_GIT2_FE(git_blob_id)                        \
+    PHP_GIT2_FE(git_blob_is_binary)                 \
+    PHP_GIT2_FE(git_blob_lookup)                    \
+    PHP_GIT2_FE(git_blob_lookup_prefix)             \
+    PHP_GIT2_FE(git_blob_owner)                     \
+    PHP_GIT2_FE(git_blob_rawcontent)                \
+    PHP_GIT2_FE(git_blob_rawsize)                   \
+    PHP_GIT2_FE(git_blob_dup)                       \
+    PHP_GIT2_FE(git_blob_create_fromstream)         \
+    PHP_GIT2_FE(git_blob_create_fromstream_commit)
 
 /*
  * Local Variables:

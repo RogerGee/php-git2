@@ -5,6 +5,7 @@
  */
 
 #include "php-object.h"
+#include "stubs/GitRefDBBackend_arginfo.h"
 using namespace php_git2;
 
 // Class entry
@@ -13,9 +14,6 @@ static PHP_METHOD(GitRefDBBackend_Internal,exists);
 static PHP_METHOD(GitRefDBBackend_Internal,lookup);
 static PHP_METHOD(GitRefDBBackend_Internal,iterator_new);
 static PHP_METHOD(GitRefDBBackend_Internal,iterator_next);
-ZEND_BEGIN_ARG_INFO_EX(GitRefDBBackend_Internal_iterator_next_arginfo,0,0,1)
-    ZEND_ARG_PASS_INFO(1)
-ZEND_END_ARG_INFO()
 static PHP_METHOD(GitRefDBBackend_Internal,write);
 static PHP_METHOD(GitRefDBBackend_Internal,rename);
 static PHP_METHOD(GitRefDBBackend_Internal,del);
@@ -30,24 +28,102 @@ static PHP_METHOD(GitRefDBBackend_Internal,lock);
 static PHP_METHOD(GitRefDBBackend_Internal,unlock);
 
 zend_function_entry php_git2::refdb_backend_internal_methods[] = {
-    PHP_ME(GitRefDBBackend_Internal,exists,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitRefDBBackend_Internal,lookup,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitRefDBBackend_Internal,iterator_new,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitRefDBBackend_Internal,iterator_next,
-        GitRefDBBackend_Internal_iterator_next_arginfo,
-        ZEND_ACC_PUBLIC)
-    PHP_ME(GitRefDBBackend_Internal,write,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitRefDBBackend_Internal,rename,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitRefDBBackend_Internal,del,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitRefDBBackend_Internal,compress,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitRefDBBackend_Internal,has_log,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitRefDBBackend_Internal,ensure_log,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitRefDBBackend_Internal,reflog_read,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitRefDBBackend_Internal,reflog_write,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitRefDBBackend_Internal,reflog_rename,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitRefDBBackend_Internal,reflog_delete,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitRefDBBackend_Internal,lock,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitRefDBBackend_Internal,unlock,NULL,ZEND_ACC_PUBLIC)
+    PHP_ME(
+        GitRefDBBackend_Internal,
+        exists,
+        arginfo_class_GitRefDBBackend_exists,
+        ZEND_ACC_PUBLIC
+        )
+    PHP_ME(
+        GitRefDBBackend_Internal,
+        lookup,
+        arginfo_class_GitRefDBBackend_lookup,
+        ZEND_ACC_PUBLIC
+        )
+    PHP_ME(
+        GitRefDBBackend_Internal,
+        iterator_new,
+        arginfo_class_GitRefDBBackend_iterator_new,
+        ZEND_ACC_PUBLIC
+        )
+    PHP_ME(
+        GitRefDBBackend_Internal,
+        iterator_next,
+        arginfo_class_GitRefDBBackend_iterator_next,
+        ZEND_ACC_PUBLIC
+        )
+    PHP_ME(
+        GitRefDBBackend_Internal,
+        write,
+        arginfo_class_GitRefDBBackend_write,
+        ZEND_ACC_PUBLIC
+        )
+    PHP_ME(
+        GitRefDBBackend_Internal,
+        rename,
+        arginfo_class_GitRefDBBackend_rename,
+        ZEND_ACC_PUBLIC
+        )
+    PHP_ME(
+        GitRefDBBackend_Internal,
+        del,
+        arginfo_class_GitRefDBBackend_del,
+        ZEND_ACC_PUBLIC
+        )
+    PHP_ME(
+        GitRefDBBackend_Internal,
+        compress,
+        arginfo_class_GitRefDBBackend_compress,
+        ZEND_ACC_PUBLIC
+        )
+    PHP_ME(
+        GitRefDBBackend_Internal,
+        has_log,
+        arginfo_class_GitRefDBBackend_has_log,
+        ZEND_ACC_PUBLIC
+        )
+    PHP_ME(
+        GitRefDBBackend_Internal,
+        ensure_log,
+        arginfo_class_GitRefDBBackend_ensure_log,
+        ZEND_ACC_PUBLIC
+        )
+    PHP_ME(
+        GitRefDBBackend_Internal,
+        reflog_read,
+        arginfo_class_GitRefDBBackend_reflog_read,
+        ZEND_ACC_PUBLIC
+        )
+    PHP_ME(
+        GitRefDBBackend_Internal,
+        reflog_write,
+        arginfo_class_GitRefDBBackend_reflog_write,
+        ZEND_ACC_PUBLIC
+        )
+    PHP_ME(
+        GitRefDBBackend_Internal,
+        reflog_rename,
+        arginfo_class_GitRefDBBackend_reflog_rename,
+        ZEND_ACC_PUBLIC
+        )
+    PHP_ME(
+        GitRefDBBackend_Internal,
+        reflog_delete,
+        arginfo_class_GitRefDBBackend_reflog_delete,
+        ZEND_ACC_PUBLIC
+        )
+    PHP_ME(
+        GitRefDBBackend_Internal,
+        lock,
+        arginfo_class_GitRefDBBackend_lock,
+        ZEND_ACC_PUBLIC
+        )
+    PHP_ME(
+        GitRefDBBackend_Internal,
+        unlock,
+        arginfo_class_GitRefDBBackend_unlock,
+        ZEND_ACC_PUBLIC
+        )
     PHP_FE_END
 };
 

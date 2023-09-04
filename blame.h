@@ -7,6 +7,8 @@
 #ifndef PHPGIT2_BLAME_H
 #define PHPGIT2_BLAME_H
 
+#include "stubs/blame_arginfo.h"
+
 namespace php_git2
 {
     // Explicitly specialize git2_resource destructor for git_blame.
@@ -70,7 +72,7 @@ namespace php_git2
 
 // Functions:
 
-static constexpr auto ZIF_GIT_BLAME_FILE = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_blame_file = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_blame**,
@@ -90,7 +92,7 @@ static constexpr auto ZIF_GIT_BLAME_FILE = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1,2,3>
     >;
 
-static constexpr auto ZIF_GIT_BLAME_GET_HUNK_BYINDEX = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_blame_get_hunk_byindex = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         const git_blame_hunk*,
         git_blame*,
@@ -105,7 +107,7 @@ static constexpr auto ZIF_GIT_BLAME_GET_HUNK_BYINDEX = zif_php_git2_function_ret
         php_git2::php_long_cast<size_t> >
     >;
 
-static constexpr auto ZIF_GIT_BLAME_GET_HUNK_BYLINE = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_blame_get_hunk_byline = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         const git_blame_hunk*,
         git_blame*,
@@ -120,7 +122,7 @@ static constexpr auto ZIF_GIT_BLAME_GET_HUNK_BYLINE = zif_php_git2_function_reth
         php_git2::php_long_cast<size_t> >
     >;
 
-static constexpr auto ZIF_GIT_BLAME_GET_HUNK_COUNT = zif_php_git2_function<
+static constexpr auto ZIF_git_blame_get_hunk_count = zif_php_git2_function<
     php_git2::func_wrapper<
         uint32_t,
         git_blame*
@@ -131,7 +133,7 @@ static constexpr auto ZIF_GIT_BLAME_GET_HUNK_COUNT = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_BLAME_BUFFER = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_blame_buffer = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_blame**,
@@ -151,7 +153,7 @@ static constexpr auto ZIF_GIT_BLAME_BUFFER = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1,3,2>
     >;
 
-static constexpr auto ZIF_GIT_BLAME_FREE = zif_php_git2_function_free<
+static constexpr auto ZIF_git_blame_free = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_blame>
         >
@@ -159,13 +161,13 @@ static constexpr auto ZIF_GIT_BLAME_FREE = zif_php_git2_function_free<
 
 // Function Entries:
 
-#define GIT_BLAME_FE                                                    \
-    PHP_GIT2_FE(git_blame_file,ZIF_GIT_BLAME_FILE,NULL)                 \
-    PHP_GIT2_FE(git_blame_buffer,ZIF_GIT_BLAME_BUFFER,NULL)             \
-    PHP_GIT2_FE(git_blame_get_hunk_byindex,ZIF_GIT_BLAME_GET_HUNK_BYINDEX,NULL) \
-    PHP_GIT2_FE(git_blame_get_hunk_byline,ZIF_GIT_BLAME_GET_HUNK_BYLINE,NULL) \
-    PHP_GIT2_FE(git_blame_get_hunk_count,ZIF_GIT_BLAME_GET_HUNK_COUNT,NULL) \
-    PHP_GIT2_FE(git_blame_free,ZIF_GIT_BLAME_FREE,NULL)
+#define GIT_BLAME_FE                            \
+    PHP_GIT2_FE(git_blame_file)                 \
+    PHP_GIT2_FE(git_blame_buffer)               \
+    PHP_GIT2_FE(git_blame_get_hunk_byindex)     \
+    PHP_GIT2_FE(git_blame_get_hunk_byline)      \
+    PHP_GIT2_FE(git_blame_get_hunk_count)       \
+    PHP_GIT2_FE(git_blame_free)
 
 #endif
 

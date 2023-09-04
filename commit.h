@@ -6,7 +6,9 @@
 
 #ifndef PHPGIT2_COMMIT_H
 #define PHPGIT2_COMMIT_H
+
 #include <git2/sys/commit.h>
+#include "stubs/commit_arginfo.h"
 
 namespace php_git2
 {
@@ -33,7 +35,7 @@ namespace php_git2
 
 // Functions:
 
-static constexpr auto ZIF_GIT_COMMIT_LOOKUP = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_commit_lookup = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_commit**,
@@ -50,7 +52,7 @@ static constexpr auto ZIF_GIT_COMMIT_LOOKUP = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_COMMIT_LOOKUP_PREFIX = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_commit_lookup_prefix = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_commit**,
@@ -70,7 +72,7 @@ static constexpr auto ZIF_GIT_COMMIT_LOOKUP_PREFIX = zif_php_git2_function_setde
     php_git2::sequence<0,1,3,2>
     >;
 
-static constexpr auto ZIF_GIT_COMMIT_PARENTCOUNT = zif_php_git2_function<
+static constexpr auto ZIF_git_commit_parentcount = zif_php_git2_function<
     php_git2::func_wrapper<
         unsigned int,
         const git_commit*>::func<git_commit_parentcount>,
@@ -80,7 +82,7 @@ static constexpr auto ZIF_GIT_COMMIT_PARENTCOUNT = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_COMMIT_PARENT_ID = zif_php_git2_function<
+static constexpr auto ZIF_git_commit_parent_id = zif_php_git2_function<
     php_git2::func_wrapper<
         const git_oid*,
         const git_commit*,
@@ -92,7 +94,7 @@ static constexpr auto ZIF_GIT_COMMIT_PARENT_ID = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_COMMIT_PARENT = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_commit_parent = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_commit**,
@@ -109,7 +111,7 @@ static constexpr auto ZIF_GIT_COMMIT_PARENT = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_COMMIT_NTH_GEN_ANCESTOR = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_commit_nth_gen_ancestor = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_commit**,
@@ -126,7 +128,7 @@ static constexpr auto ZIF_GIT_COMMIT_NTH_GEN_ANCESTOR = zif_php_git2_function_se
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_COMMIT_ID = zif_php_git2_function<
+static constexpr auto ZIF_git_commit_id = zif_php_git2_function<
     php_git2::func_wrapper<
         const git_oid*,
         const git_commit*>::func<git_commit_id>,
@@ -136,13 +138,13 @@ static constexpr auto ZIF_GIT_COMMIT_ID = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_COMMIT_FREE = zif_php_git2_function_free<
+static constexpr auto ZIF_git_commit_free = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_commit>
         >
     >;
 
-static constexpr auto ZIF_GIT_COMMIT_OWNER = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_commit_owner = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         git_repository*,
         const git_commit*>::func<git_commit_owner>,
@@ -155,7 +157,7 @@ static constexpr auto ZIF_GIT_COMMIT_OWNER = zif_php_git2_function_rethandler<
     php_git2::sequence<0>
     >;
 
-static constexpr auto ZIF_GIT_COMMIT_TREE = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_commit_tree = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_tree**,
@@ -171,7 +173,7 @@ static constexpr auto ZIF_GIT_COMMIT_TREE = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_COMMIT_TREE_ID = zif_php_git2_function<
+static constexpr auto ZIF_git_commit_tree_id = zif_php_git2_function<
     php_git2::func_wrapper<
         const git_oid*,
         const git_commit*
@@ -182,7 +184,7 @@ static constexpr auto ZIF_GIT_COMMIT_TREE_ID = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_COMMIT_TIME = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_commit_time = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         git_time_t,
         const git_commit*>::func<git_commit_time>,
@@ -192,7 +194,7 @@ static constexpr auto ZIF_GIT_COMMIT_TIME = zif_php_git2_function_rethandler<
     php_git2::php_numeric_rethandler<git_time_t>
     >;
 
-static constexpr auto ZIF_GIT_COMMIT_TIME_OFFSET = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_commit_time_offset = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         const git_commit*>::func<git_commit_time_offset>,
@@ -202,7 +204,7 @@ static constexpr auto ZIF_GIT_COMMIT_TIME_OFFSET = zif_php_git2_function_rethand
     php_git2::php_numeric_rethandler<int>
     >;
 
-static constexpr auto ZIF_GIT_COMMIT_SUMMARY = zif_php_git2_function<
+static constexpr auto ZIF_git_commit_summary = zif_php_git2_function<
     php_git2::func_wrapper<
         const char*,
         git_commit*>::func<git_commit_summary>,
@@ -212,7 +214,7 @@ static constexpr auto ZIF_GIT_COMMIT_SUMMARY = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_COMMIT_RAW_HEADER = zif_php_git2_function<
+static constexpr auto ZIF_git_commit_raw_header = zif_php_git2_function<
     php_git2::func_wrapper<
         const char*,
         const git_commit*>::func<git_commit_raw_header>,
@@ -222,7 +224,7 @@ static constexpr auto ZIF_GIT_COMMIT_RAW_HEADER = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_COMMIT_BODY = zif_php_git2_function<
+static constexpr auto ZIF_git_commit_body = zif_php_git2_function<
     php_git2::func_wrapper<
         const char*,
         git_commit*>::func<git_commit_body>,
@@ -232,7 +234,7 @@ static constexpr auto ZIF_GIT_COMMIT_BODY = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_COMMIT_MESSAGE = zif_php_git2_function<
+static constexpr auto ZIF_git_commit_message = zif_php_git2_function<
     php_git2::func_wrapper<
         const char*,
         const git_commit*>::func<git_commit_message>,
@@ -242,7 +244,7 @@ static constexpr auto ZIF_GIT_COMMIT_MESSAGE = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_COMMIT_MESSAGE_ENCODING = zif_php_git2_function<
+static constexpr auto ZIF_git_commit_message_encoding = zif_php_git2_function<
     php_git2::func_wrapper<
         const char*,
         const git_commit*>::func<git_commit_message_encoding>,
@@ -252,7 +254,7 @@ static constexpr auto ZIF_GIT_COMMIT_MESSAGE_ENCODING = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_COMMIT_MESSAGE_RAW = zif_php_git2_function<
+static constexpr auto ZIF_git_commit_message_raw = zif_php_git2_function<
     php_git2::func_wrapper<
         const char*,
         const git_commit*>::func<git_commit_message_raw>,
@@ -262,7 +264,7 @@ static constexpr auto ZIF_GIT_COMMIT_MESSAGE_RAW = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_COMMIT_AUTHOR = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_commit_author = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         const git_signature*,
         const git_commit*>::func<git_commit_author>,
@@ -275,7 +277,7 @@ static constexpr auto ZIF_GIT_COMMIT_AUTHOR = zif_php_git2_function_rethandler<
         >
     >;
 
-static constexpr auto ZIF_GIT_COMMIT_COMMITTER = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_commit_committer = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         const git_signature*,
         const git_commit*>::func<git_commit_committer>,
@@ -288,7 +290,7 @@ static constexpr auto ZIF_GIT_COMMIT_COMMITTER = zif_php_git2_function_rethandle
         >
     >;
 
-static constexpr auto ZIF_GIT_COMMIT_CREATE = zif_php_git2_function<
+static constexpr auto ZIF_git_commit_create = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_oid*,
@@ -323,7 +325,7 @@ static constexpr auto ZIF_GIT_COMMIT_CREATE = zif_php_git2_function<
     php_git2::sequence<0,1,2,3,4,5,6,7,8,9>
     >;
 
-static constexpr auto ZIF_GIT_COMMIT_CREATE_BUFFER = zif_php_git2_function<
+static constexpr auto ZIF_git_commit_create_buffer = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_buf*,
@@ -356,7 +358,7 @@ static constexpr auto ZIF_GIT_COMMIT_CREATE_BUFFER = zif_php_git2_function<
     php_git2::sequence<0,1,2,3,4,5,6,7,8>
     >;
 
-static constexpr auto ZIF_GIT_COMMIT_CREATE_FROM_CALLBACK = zif_php_git2_function<
+static constexpr auto ZIF_git_commit_create_from_callback = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_oid*,
@@ -386,7 +388,7 @@ static constexpr auto ZIF_GIT_COMMIT_CREATE_FROM_CALLBACK = zif_php_git2_functio
     php_git2::sequence<0,1,2,3,4,5,6,7,8,9>
     >;
 
-static constexpr auto ZIF_GIT_COMMIT_CREATE_FROM_IDS = zif_php_git2_function<
+static constexpr auto ZIF_git_commit_create_from_ids = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_oid*,
@@ -421,7 +423,7 @@ static constexpr auto ZIF_GIT_COMMIT_CREATE_FROM_IDS = zif_php_git2_function<
     php_git2::sequence<0,1,2,3,4,5,6,7,8,9>
     >;
 
-static constexpr auto ZIF_GIT_COMMIT_CREATE_WITH_SIGNATURE = zif_php_git2_function<
+static constexpr auto ZIF_git_commit_create_with_signature = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_oid*,
@@ -434,14 +436,14 @@ static constexpr auto ZIF_GIT_COMMIT_CREATE_WITH_SIGNATURE = zif_php_git2_functi
         php_git2::php_resource<php_git2::php_git_repository>,
         php_git2::php_string,
         php_git2::php_string,
-        php_git2::php_string
+        php_git2::php_string_nullable
         >,
     1, // Return the git_oid string
     php_git2::sequence<1,2,3,4>,
     php_git2::sequence<0,1,2,3,4>
     >;
 
-static constexpr auto ZIF_GIT_COMMIT_AMEND = zif_php_git2_function<
+static constexpr auto ZIF_git_commit_amend = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_oid*,
@@ -467,7 +469,7 @@ static constexpr auto ZIF_GIT_COMMIT_AMEND = zif_php_git2_function<
     php_git2::sequence<0,1,2,3,4,5,6,7>
     >;
 
-static constexpr auto ZIF_GIT_COMMIT_DUP = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_commit_dup = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_commit**,
@@ -483,7 +485,7 @@ static constexpr auto ZIF_GIT_COMMIT_DUP = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_COMMIT_EXTRACT_SIGNATURE = zif_php_git2_function<
+static constexpr auto ZIF_git_commit_extract_signature = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_buf*,
@@ -502,11 +504,8 @@ static constexpr auto ZIF_GIT_COMMIT_EXTRACT_SIGNATURE = zif_php_git2_function<
     php_git2::sequence<1,2,3,4>,
     php_git2::sequence<0,1,2,3,4>
     >;
-ZEND_BEGIN_ARG_INFO_EX(git_commit_extract_signature_arginfo,0,0,4)
-    ZEND_ARG_PASS_INFO(1)
-ZEND_END_ARG_INFO()
 
-static constexpr auto ZIF_GIT_COMMIT_HEADER_FIELD = zif_php_git2_function<
+static constexpr auto ZIF_git_commit_header_field = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_buf*,
@@ -524,37 +523,37 @@ static constexpr auto ZIF_GIT_COMMIT_HEADER_FIELD = zif_php_git2_function<
 
 // Function Entries:
 
-#define GIT_COMMIT_FE                                                   \
-    PHP_GIT2_FE(git_commit_lookup,ZIF_GIT_COMMIT_LOOKUP,NULL)           \
-    PHP_GIT2_FE(git_commit_lookup_prefix,ZIF_GIT_COMMIT_LOOKUP_PREFIX,NULL) \
-    PHP_GIT2_FE(git_commit_parentcount,ZIF_GIT_COMMIT_PARENTCOUNT,NULL) \
-    PHP_GIT2_FE(git_commit_parent_id,ZIF_GIT_COMMIT_PARENT_ID,NULL)     \
-    PHP_GIT2_FE(git_commit_parent,ZIF_GIT_COMMIT_PARENT,NULL)           \
-    PHP_GIT2_FE(git_commit_nth_gen_ancestor,ZIF_GIT_COMMIT_NTH_GEN_ANCESTOR,NULL) \
-    PHP_GIT2_FE(git_commit_id,ZIF_GIT_COMMIT_ID,NULL)                   \
-    PHP_GIT2_FE(git_commit_free,ZIF_GIT_COMMIT_FREE,NULL)               \
-    PHP_GIT2_FE(git_commit_owner,ZIF_GIT_COMMIT_OWNER,NULL)             \
-    PHP_GIT2_FE(git_commit_tree,ZIF_GIT_COMMIT_TREE,NULL)               \
-    PHP_GIT2_FE(git_commit_tree_id,ZIF_GIT_COMMIT_TREE_ID,NULL)         \
-    PHP_GIT2_FE(git_commit_time,ZIF_GIT_COMMIT_TIME,NULL)               \
-    PHP_GIT2_FE(git_commit_time_offset,ZIF_GIT_COMMIT_TIME_OFFSET,NULL) \
-    PHP_GIT2_FE(git_commit_summary,ZIF_GIT_COMMIT_SUMMARY,NULL)         \
-    PHP_GIT2_FE(git_commit_raw_header,ZIF_GIT_COMMIT_RAW_HEADER,NULL)   \
-    PHP_GIT2_FE(git_commit_body,ZIF_GIT_COMMIT_BODY,NULL)               \
-    PHP_GIT2_FE(git_commit_message,ZIF_GIT_COMMIT_MESSAGE,NULL)         \
-    PHP_GIT2_FE(git_commit_message_encoding,ZIF_GIT_COMMIT_MESSAGE_ENCODING,NULL) \
-    PHP_GIT2_FE(git_commit_message_raw,ZIF_GIT_COMMIT_MESSAGE_RAW,NULL) \
-    PHP_GIT2_FE(git_commit_author,ZIF_GIT_COMMIT_AUTHOR,NULL)           \
-    PHP_GIT2_FE(git_commit_committer,ZIF_GIT_COMMIT_COMMITTER,NULL)     \
-    PHP_GIT2_FE(git_commit_create,ZIF_GIT_COMMIT_CREATE,NULL)           \
-    PHP_GIT2_FE(git_commit_create_buffer,ZIF_GIT_COMMIT_CREATE_BUFFER,NULL) \
-    PHP_GIT2_FE(git_commit_create_with_signature,ZIF_GIT_COMMIT_CREATE_WITH_SIGNATURE,NULL) \
-    PHP_GIT2_FE(git_commit_create_from_callback,ZIF_GIT_COMMIT_CREATE_FROM_CALLBACK,NULL) \
-    PHP_GIT2_FE(git_commit_create_from_ids,ZIF_GIT_COMMIT_CREATE_FROM_IDS,NULL) \
-    PHP_GIT2_FE(git_commit_amend,ZIF_GIT_COMMIT_AMEND,NULL)             \
-    PHP_GIT2_FE(git_commit_dup,ZIF_GIT_COMMIT_DUP,NULL)                 \
-    PHP_GIT2_FE(git_commit_extract_signature,ZIF_GIT_COMMIT_EXTRACT_SIGNATURE,git_commit_extract_signature_arginfo) \
-    PHP_GIT2_FE(git_commit_header_field,ZIF_GIT_COMMIT_HEADER_FIELD,NULL)
+#define GIT_COMMIT_FE                               \
+    PHP_GIT2_FE(git_commit_lookup)                  \
+    PHP_GIT2_FE(git_commit_lookup_prefix)           \
+    PHP_GIT2_FE(git_commit_parentcount)             \
+    PHP_GIT2_FE(git_commit_parent_id)               \
+    PHP_GIT2_FE(git_commit_parent)                  \
+    PHP_GIT2_FE(git_commit_nth_gen_ancestor)        \
+    PHP_GIT2_FE(git_commit_id)                      \
+    PHP_GIT2_FE(git_commit_free)                    \
+    PHP_GIT2_FE(git_commit_owner)                   \
+    PHP_GIT2_FE(git_commit_tree)                    \
+    PHP_GIT2_FE(git_commit_tree_id)                 \
+    PHP_GIT2_FE(git_commit_time)                    \
+    PHP_GIT2_FE(git_commit_time_offset)             \
+    PHP_GIT2_FE(git_commit_summary)                 \
+    PHP_GIT2_FE(git_commit_raw_header)              \
+    PHP_GIT2_FE(git_commit_body)                    \
+    PHP_GIT2_FE(git_commit_message)                 \
+    PHP_GIT2_FE(git_commit_message_encoding)        \
+    PHP_GIT2_FE(git_commit_message_raw)             \
+    PHP_GIT2_FE(git_commit_author)                  \
+    PHP_GIT2_FE(git_commit_committer)               \
+    PHP_GIT2_FE(git_commit_create)                  \
+    PHP_GIT2_FE(git_commit_create_buffer)           \
+    PHP_GIT2_FE(git_commit_create_with_signature)   \
+    PHP_GIT2_FE(git_commit_create_from_callback)    \
+    PHP_GIT2_FE(git_commit_create_from_ids)         \
+    PHP_GIT2_FE(git_commit_amend)                   \
+    PHP_GIT2_FE(git_commit_dup)                     \
+    PHP_GIT2_FE(git_commit_extract_signature)       \
+    PHP_GIT2_FE(git_commit_header_field)
 
 #endif
 

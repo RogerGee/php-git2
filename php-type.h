@@ -120,7 +120,7 @@ namespace php_git2
                 throw php_git2_propagated_exception();
             }
 
-            ZVAL_COPY_VALUE(&value,zvp);
+            ZVAL_LONG(&value,dummy);
         }
     };
 
@@ -137,10 +137,10 @@ namespace php_git2
         void ret(zval* return_value) const
         {
             if (Z_TYPE(value) == IS_TRUE) {
-                RETURN_TRUE
+                RETURN_TRUE;
             }
 
-            RETURN_FALSE
+            RETURN_FALSE;
         }
 
     private:
@@ -154,7 +154,7 @@ namespace php_git2
                 throw php_git2_propagated_exception();
             }
 
-            ZVAL_COPY_VALUE(&value,zvp);
+            ZVAL_BOOL(&value,dummy);
         }
     };
 
@@ -184,7 +184,7 @@ namespace php_git2
                 throw php_git2_propagated_exception();
             }
 
-            ZVAL_COPY_VALUE(&value,zvp);
+            ZVAL_DOUBLE(&value,dummy);
         }
     };
 
@@ -207,16 +207,15 @@ namespace php_git2
     protected:
         virtual void parse_impl(zval* zvp,int argno)
         {
-            char* s;
-            size_t l;
             int result;
+            zend_string* dummy;
 
-            result = zend_parse_parameter(ZEND_PARSE_PARAMS_THROW,argno,zvp,"s",&s,&l);
+            result = zend_parse_parameter(ZEND_PARSE_PARAMS_THROW,argno,zvp,"S",&dummy);
             if (result == FAILURE) {
                 throw php_git2_propagated_exception();
             }
 
-            ZVAL_COPY_VALUE(&value,zvp);
+            ZVAL_STR(&value,dummy);
         }
     };
 
@@ -446,10 +445,10 @@ namespace php_git2
         void ret(zval* return_value)
         {
             if (get_value()) {
-                RETURN_TRUE
+                RETURN_TRUE;
             }
 
-            RETURN_FALSE
+            RETURN_FALSE;
         }
 
     protected:
@@ -794,6 +793,11 @@ namespace php_git2
     class php_git_oid
     {
     public:
+        php_git_oid()
+        {
+            memset(&oid,0,sizeof(git_oid));
+        }
+
         git_oid* byval_git2()
         {
             return &oid;
@@ -1267,7 +1271,7 @@ namespace php_git2
     using php_git_rebase = git2_resource<git_rebase>;
     using php_git_remote = git2_resource<git_remote>;
     using php_git_refspec = git2_resource<const git_refspec>;
-    using php_git_cred = git2_resource<git_cred>;
+    using php_git_credential = git2_resource<git_credential>;
     using php_git_submodule = git2_resource<git_submodule>;
     using php_git_worktree = git2_resource<git_worktree>;
 

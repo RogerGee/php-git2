@@ -12,7 +12,7 @@ class PHPSerializedRefDbBackend extends \GitRefDBBackend {
      *
      * @return bool
      */
-    public function exists($refName) {
+    public function exists(string $refName) : bool {
         return isset($this->storage[$refName]);
     }
 
@@ -23,7 +23,7 @@ class PHPSerializedRefDbBackend extends \GitRefDBBackend {
      *
      * @return string
      */
-    public function lookup($refName) {
+    public function lookup(string $refName) : mixed {
         return $this->storage[$refName];
     }
 
@@ -32,7 +32,7 @@ class PHPSerializedRefDbBackend extends \GitRefDBBackend {
      *
      * @param string $glob
      */
-    public function iterator_new($glob) {
+    public function iterator_new(string $glob = null) : void {
         reset($this->storage);
     }
 
@@ -43,7 +43,7 @@ class PHPSerializedRefDbBackend extends \GitRefDBBackend {
      *
      * @return string
      */
-    public function iterator_next(&$name) {
+    public function iterator_next(&$name) : mixed {
         $name = key($this->storage);
         $oid = current($this->storage);
 
@@ -62,7 +62,7 @@ class PHPSerializedRefDbBackend extends \GitRefDBBackend {
      * @param string $old
      * @param string $oldTarget
      */
-    public function write($ref,$force,$who,$message,$old,$oldTarget) {
+    public function write($ref,bool $force,array $who,?string $message,?string $old,?string $oldTarget) : void {
         $name = git_reference_name($ref);
         $target = git_reference_target($ref);
 
@@ -86,7 +86,7 @@ class PHPSerializedRefDbBackend extends \GitRefDBBackend {
      * @param array $who
      * @param string $message
      */
-    public function rename($oldName,$newName,$force,$who,$message) {
+    public function rename(string $oldName,string $newName,bool $force,array $who,string $message = null) {
         if (!isset($this->storage[$oldName])) {
             throw new Exception("Reference with name '$oldName' does not exist");
         }
@@ -106,7 +106,7 @@ class PHPSerializedRefDbBackend extends \GitRefDBBackend {
      * @param string $oldId
      * @param string $oldTarget
      */
-    public function del($refName,$oldId,$oldTarget) {
+    public function del(string $refName,?string $oldId,?string $oldTarget) : void {
         if (!isset($this->storage[$refName])) {
             throw new Exception("Reference with name '$refName' does not exist");
         }
@@ -120,49 +120,49 @@ class PHPSerializedRefDbBackend extends \GitRefDBBackend {
     /**
      * Implements GitRefDbBackend::compress().
      */
-    public function compress() {
+    public function compress() : void {
         // Compression is not relevant here.
     }
 
     /**
      * Implements GitRefDbBackend::has_log().
      */
-    public function has_log($refname) {
+    public function has_log(string $refname) : bool {
         throw new Exception('Reflogs are not implemented by this backend');
     }
 
     /**
      * Implements GitRefDbBackend::ensure_log().
      */
-    public function ensure_log($refname) {
+    public function ensure_log(string $refname) : void {
         throw new Exception('Reflogs are not implemented by this backend');
     }
 
     /**
      * Implements GitRefDbBackend::reflog_write().
      */
-    public function reflog_write($name) {
+    public function reflog_write($reflog) : void {
         throw new Exception('Reflogs are not implemented by this backend');
     }
 
     /**
      * Implements GitRefDbBackend::reflog_read().
      */
-    public function reflog_read($name) {
+    public function reflog_read($name) : array {
         throw new Exception('Reflogs are not implemented by this backend');
     }
 
     /**
      * Implements GitRefDbBackend::reflog_rename().
      */
-    public function reflog_rename($oldName,$newName) {
+    public function reflog_rename(string $oldName,string $newName) : void {
         throw new Exception('Reflogs are not implemented by this backend');
     }
 
     /**
      * Implements GitRefDbBackend::reflog_delete().
      */
-    public function reflog_delete($name) {
+    public function reflog_delete(string $name) : void {
         throw new Exception('Reflogs are not implemented by this backend');
     }
 

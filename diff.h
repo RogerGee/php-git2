@@ -7,6 +7,8 @@
 #ifndef PHPGIT2_DIFF_H
 #define PHPGIT2_DIFF_H
 
+#include "stubs/diff_arginfo.h"
+
 namespace php_git2
 {
     // Specialize resource destructor for git_diff
@@ -366,13 +368,13 @@ namespace php_git2
 
 // Functions:
 
-static constexpr auto ZIF_GIT_DIFF_FREE = zif_php_git2_function_free<
+static constexpr auto ZIF_git_diff_free = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_diff>
         >
     >;
 
-static constexpr auto ZIF_GIT_DIFF_BLOB_TO_BUFFER = zif_php_git2_function<
+static constexpr auto ZIF_git_diff_blob_to_buffer = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         const git_blob*,
@@ -408,7 +410,7 @@ static constexpr auto ZIF_GIT_DIFF_BLOB_TO_BUFFER = zif_php_git2_function<
     php_git2::sequence<0,1,3,2,4,5,6,7,8,9,10>
     >;
 
-static constexpr auto ZIF_GIT_DIFF_BLOBS = zif_php_git2_function<
+static constexpr auto ZIF_git_diff_blobs = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         const git_blob*,
@@ -439,7 +441,7 @@ static constexpr auto ZIF_GIT_DIFF_BLOBS = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_DIFF_BUFFERS = zif_php_git2_function<
+static constexpr auto ZIF_git_diff_buffers = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         const void*,
@@ -477,7 +479,7 @@ static constexpr auto ZIF_GIT_DIFF_BUFFERS = zif_php_git2_function<
     php_git2::sequence<1,0,2,4,3,5,6,7,8,9,10,11>
     >;
 
-static constexpr auto ZIF_GIT_DIFF_COMMIT_AS_EMAIL = zif_php_git2_function<
+static constexpr auto ZIF_git_diff_commit_as_email = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_buf*,
@@ -501,7 +503,7 @@ static constexpr auto ZIF_GIT_DIFF_COMMIT_AS_EMAIL = zif_php_git2_function<
     php_git2::sequence<0,1,2,3,4,5,6>
     >;
 
-static constexpr auto ZIF_GIT_DIFF_FROM_BUFFER = zif_php_git2_function<
+static constexpr auto ZIF_git_diff_from_buffer = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_diff**,
@@ -517,7 +519,7 @@ static constexpr auto ZIF_GIT_DIFF_FROM_BUFFER = zif_php_git2_function<
     php_git2::sequence<0,2,1>
     >;
 
-static constexpr auto ZIF_GIT_DIFF_PRINT = zif_php_git2_function<
+static constexpr auto ZIF_git_diff_print = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_diff*,
@@ -532,7 +534,7 @@ static constexpr auto ZIF_GIT_DIFF_PRINT = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_DIFF_GET_DELTA = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_diff_get_delta = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         const git_diff_delta*,
         const git_diff*,
@@ -549,7 +551,7 @@ static constexpr auto ZIF_GIT_DIFF_GET_DELTA = zif_php_git2_function_rethandler<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_DIFF_GET_PERFDATA = zif_php_git2_function<
+static constexpr auto ZIF_git_diff_get_perfdata = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_diff_perfdata*,
@@ -563,7 +565,7 @@ static constexpr auto ZIF_GIT_DIFF_GET_PERFDATA = zif_php_git2_function<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_DIFF_IS_SORTED_ICASE = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_diff_is_sorted_icase = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         const git_diff*>::func<git_diff_is_sorted_icase>,
@@ -573,7 +575,7 @@ static constexpr auto ZIF_GIT_DIFF_IS_SORTED_ICASE = zif_php_git2_function_retha
     php_git2::php_boolean_rethandler<int>
     >;
 
-static constexpr auto ZIF_GIT_DIFF_FOREACH = zif_php_git2_function<
+static constexpr auto ZIF_git_diff_foreach = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_diff*,
@@ -596,7 +598,7 @@ static constexpr auto ZIF_GIT_DIFF_FOREACH = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_DIFF_MERGE = zif_php_git2_function<
+static constexpr auto ZIF_git_diff_merge = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_diff*,
@@ -608,7 +610,7 @@ static constexpr auto ZIF_GIT_DIFF_MERGE = zif_php_git2_function<
     -1
     >;
 
-static constexpr auto ZIF_GIT_DIFF_TO_BUF = zif_php_git2_function<
+static constexpr auto ZIF_git_diff_to_buf = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_buf*,
@@ -624,7 +626,7 @@ static constexpr auto ZIF_GIT_DIFF_TO_BUF = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_DIFF_TREE_TO_TREE = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_diff_tree_to_tree = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_diff**,
@@ -645,7 +647,7 @@ static constexpr auto ZIF_GIT_DIFF_TREE_TO_TREE = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1,2,3,4>
     >;
 
-static constexpr auto ZIF_GIT_DIFF_TREE_TO_WORKDIR = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_diff_tree_to_workdir = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_diff**,
@@ -664,7 +666,7 @@ static constexpr auto ZIF_GIT_DIFF_TREE_TO_WORKDIR = zif_php_git2_function_setde
     php_git2::sequence<0,1,2,3>
     >;
 
-static constexpr auto ZIF_GIT_DIFF_TREE_TO_WORKDIR_WITH_INDEX = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_diff_tree_to_workdir_with_index = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_diff**,
@@ -683,17 +685,17 @@ static constexpr auto ZIF_GIT_DIFF_TREE_TO_WORKDIR_WITH_INDEX = zif_php_git2_fun
     php_git2::sequence<0,1,2,3>
     >;
 
-static constexpr auto ZIF_GIT_DIFF_STATUS_CHAR = zif_php_git2_function<
+static constexpr auto ZIF_git_diff_status_char = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         char,
         git_delta_t>::func<git_diff_status_char>,
     php_git2::local_pack<
         php_git2::php_long_cast<git_delta_t>
         >,
-    0
+    php_git2::php_char_string_rethandler
     >;
 
-static constexpr auto ZIF_GIT_DIFF_NUM_DELTAS = zif_php_git2_function<
+static constexpr auto ZIF_git_diff_num_deltas = zif_php_git2_function<
     php_git2::func_wrapper<
         size_t,
         const git_diff*>::func<git_diff_num_deltas>,
@@ -703,7 +705,7 @@ static constexpr auto ZIF_GIT_DIFF_NUM_DELTAS = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_DIFF_NUM_DELTAS_OF_TYPE = zif_php_git2_function<
+static constexpr auto ZIF_git_diff_num_deltas_of_type = zif_php_git2_function<
     php_git2::func_wrapper<
         size_t,
         const git_diff*,
@@ -715,7 +717,7 @@ static constexpr auto ZIF_GIT_DIFF_NUM_DELTAS_OF_TYPE = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_DIFF_FIND_SIMILAR = zif_php_git2_function<
+static constexpr auto ZIF_git_diff_find_similar = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_diff*,
@@ -726,7 +728,7 @@ static constexpr auto ZIF_GIT_DIFF_FIND_SIMILAR = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_DIFF_GET_STATS = zif_php_git2_function<
+static constexpr auto ZIF_git_diff_get_stats = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_diff_stats**,
@@ -740,13 +742,13 @@ static constexpr auto ZIF_GIT_DIFF_GET_STATS = zif_php_git2_function<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_DIFF_STATS_FREE = zif_php_git2_function_free<
+static constexpr auto ZIF_git_diff_stats_free = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_diff_stats>
         >
     >;
 
-static constexpr auto ZIF_GIT_DIFF_STATS_DELETIONS = zif_php_git2_function<
+static constexpr auto ZIF_git_diff_stats_deletions = zif_php_git2_function<
     php_git2::func_wrapper<
         size_t,
         const git_diff_stats*>::func<git_diff_stats_deletions>,
@@ -756,7 +758,7 @@ static constexpr auto ZIF_GIT_DIFF_STATS_DELETIONS = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_DIFF_STATS_FILES_CHANGED = zif_php_git2_function<
+static constexpr auto ZIF_git_diff_stats_files_changed = zif_php_git2_function<
     php_git2::func_wrapper<
         size_t,
         const git_diff_stats*>::func<git_diff_stats_files_changed>,
@@ -766,7 +768,7 @@ static constexpr auto ZIF_GIT_DIFF_STATS_FILES_CHANGED = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_DIFF_STATS_INSERTIONS = zif_php_git2_function<
+static constexpr auto ZIF_git_diff_stats_insertions = zif_php_git2_function<
     php_git2::func_wrapper<
         size_t,
         const git_diff_stats*>::func<git_diff_stats_insertions>,
@@ -776,7 +778,7 @@ static constexpr auto ZIF_GIT_DIFF_STATS_INSERTIONS = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_DIFF_STATS_TO_BUF = zif_php_git2_function<
+static constexpr auto ZIF_git_diff_stats_to_buf = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_buf*,
@@ -794,7 +796,7 @@ static constexpr auto ZIF_GIT_DIFF_STATS_TO_BUF = zif_php_git2_function<
     php_git2::sequence<0,1,2,3>
     >;
 
-static constexpr auto ZIF_GIT_DIFF_FORMAT_EMAIL = zif_php_git2_function<
+static constexpr auto ZIF_git_diff_format_email = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_buf*,
@@ -810,7 +812,7 @@ static constexpr auto ZIF_GIT_DIFF_FORMAT_EMAIL = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_DIFF_INDEX_TO_INDEX = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_diff_index_to_index = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_diff**,
@@ -831,7 +833,7 @@ static constexpr auto ZIF_GIT_DIFF_INDEX_TO_INDEX = zif_php_git2_function_setdep
     php_git2::sequence<0,1,2,3,4>
     >;
 
-static constexpr auto ZIF_GIT_DIFF_TREE_TO_INDEX = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_diff_tree_to_index = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_diff**,
@@ -852,7 +854,7 @@ static constexpr auto ZIF_GIT_DIFF_TREE_TO_INDEX = zif_php_git2_function_setdeps
     php_git2::sequence<0,1,2,3,4>
     >;
 
-static constexpr auto ZIF_GIT_DIFF_INDEX_TO_WORKDIR = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_diff_index_to_workdir = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_diff**,
@@ -873,37 +875,37 @@ static constexpr auto ZIF_GIT_DIFF_INDEX_TO_WORKDIR = zif_php_git2_function_setd
 
 // Function Entries:
 
-#define GIT_DIFF_FE                                                     \
-    PHP_GIT2_FE(git_diff_free,ZIF_GIT_DIFF_FREE,NULL)                   \
-    PHP_GIT2_FE(git_diff_blob_to_buffer,ZIF_GIT_DIFF_BLOB_TO_BUFFER,NULL) \
-    PHP_GIT2_FE(git_diff_blobs,ZIF_GIT_DIFF_BLOBS,NULL)                 \
-    PHP_GIT2_FE(git_diff_buffers,ZIF_GIT_DIFF_BUFFERS,NULL)             \
-    PHP_GIT2_FE(git_diff_commit_as_email,ZIF_GIT_DIFF_COMMIT_AS_EMAIL,NULL) \
-    PHP_GIT2_FE(git_diff_from_buffer,ZIF_GIT_DIFF_FROM_BUFFER,NULL)     \
-    PHP_GIT2_FE(git_diff_print,ZIF_GIT_DIFF_PRINT,NULL)                 \
-    PHP_GIT2_FE(git_diff_get_delta,ZIF_GIT_DIFF_GET_DELTA,NULL)         \
-    PHP_GIT2_FE(git_diff_get_perfdata,ZIF_GIT_DIFF_GET_PERFDATA,NULL)   \
-    PHP_GIT2_FE(git_diff_is_sorted_icase,ZIF_GIT_DIFF_IS_SORTED_ICASE,NULL) \
-    PHP_GIT2_FE(git_diff_foreach,ZIF_GIT_DIFF_FOREACH,NULL)             \
-    PHP_GIT2_FE(git_diff_merge,ZIF_GIT_DIFF_MERGE,NULL)                 \
-    PHP_GIT2_FE(git_diff_to_buf,ZIF_GIT_DIFF_TO_BUF,NULL)               \
-    PHP_GIT2_FE(git_diff_tree_to_tree,ZIF_GIT_DIFF_TREE_TO_TREE,NULL)   \
-    PHP_GIT2_FE(git_diff_tree_to_workdir,ZIF_GIT_DIFF_TREE_TO_WORKDIR,NULL) \
-    PHP_GIT2_FE(git_diff_tree_to_workdir_with_index,ZIF_GIT_DIFF_TREE_TO_WORKDIR_WITH_INDEX,NULL) \
-    PHP_GIT2_FE(git_diff_status_char,ZIF_GIT_DIFF_STATUS_CHAR,NULL)     \
-    PHP_GIT2_FE(git_diff_num_deltas,ZIF_GIT_DIFF_NUM_DELTAS,NULL)       \
-    PHP_GIT2_FE(git_diff_num_deltas_of_type,ZIF_GIT_DIFF_NUM_DELTAS_OF_TYPE,NULL) \
-    PHP_GIT2_FE(git_diff_find_similar,ZIF_GIT_DIFF_FIND_SIMILAR,NULL)   \
-    PHP_GIT2_FE(git_diff_get_stats,ZIF_GIT_DIFF_GET_STATS,NULL)         \
-    PHP_GIT2_FE(git_diff_stats_free,ZIF_GIT_DIFF_STATS_FREE,NULL)       \
-    PHP_GIT2_FE(git_diff_stats_deletions,ZIF_GIT_DIFF_STATS_DELETIONS,NULL) \
-    PHP_GIT2_FE(git_diff_stats_files_changed,ZIF_GIT_DIFF_STATS_FILES_CHANGED,NULL) \
-    PHP_GIT2_FE(git_diff_stats_insertions,ZIF_GIT_DIFF_STATS_INSERTIONS,NULL) \
-    PHP_GIT2_FE(git_diff_stats_to_buf,ZIF_GIT_DIFF_STATS_TO_BUF,NULL)   \
-    PHP_GIT2_FE(git_diff_format_email,ZIF_GIT_DIFF_FORMAT_EMAIL,NULL)   \
-    PHP_GIT2_FE(git_diff_index_to_index,ZIF_GIT_DIFF_INDEX_TO_INDEX,NULL) \
-    PHP_GIT2_FE(git_diff_tree_to_index,ZIF_GIT_DIFF_TREE_TO_INDEX,NULL) \
-    PHP_GIT2_FE(git_diff_index_to_workdir,ZIF_GIT_DIFF_INDEX_TO_WORKDIR,NULL)
+#define GIT_DIFF_FE                                     \
+    PHP_GIT2_FE(git_diff_free)                          \
+    PHP_GIT2_FE(git_diff_blob_to_buffer)                \
+    PHP_GIT2_FE(git_diff_blobs)                         \
+    PHP_GIT2_FE(git_diff_buffers)                       \
+    PHP_GIT2_FE(git_diff_commit_as_email)               \
+    PHP_GIT2_FE(git_diff_from_buffer)                   \
+    PHP_GIT2_FE(git_diff_print)                         \
+    PHP_GIT2_FE(git_diff_get_delta)                     \
+    PHP_GIT2_FE(git_diff_get_perfdata)                  \
+    PHP_GIT2_FE(git_diff_is_sorted_icase)               \
+    PHP_GIT2_FE(git_diff_foreach)                       \
+    PHP_GIT2_FE(git_diff_merge)                         \
+    PHP_GIT2_FE(git_diff_to_buf)                        \
+    PHP_GIT2_FE(git_diff_tree_to_tree)                  \
+    PHP_GIT2_FE(git_diff_tree_to_workdir)               \
+    PHP_GIT2_FE(git_diff_tree_to_workdir_with_index)    \
+    PHP_GIT2_FE(git_diff_status_char)                   \
+    PHP_GIT2_FE(git_diff_num_deltas)                    \
+    PHP_GIT2_FE(git_diff_num_deltas_of_type)            \
+    PHP_GIT2_FE(git_diff_find_similar)                  \
+    PHP_GIT2_FE(git_diff_get_stats)                     \
+    PHP_GIT2_FE(git_diff_stats_free)                    \
+    PHP_GIT2_FE(git_diff_stats_deletions)               \
+    PHP_GIT2_FE(git_diff_stats_files_changed)           \
+    PHP_GIT2_FE(git_diff_stats_insertions)              \
+    PHP_GIT2_FE(git_diff_stats_to_buf)                  \
+    PHP_GIT2_FE(git_diff_format_email)                  \
+    PHP_GIT2_FE(git_diff_index_to_index)                \
+    PHP_GIT2_FE(git_diff_tree_to_index)                 \
+    PHP_GIT2_FE(git_diff_index_to_workdir)
 
 #endif
 

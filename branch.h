@@ -7,6 +7,8 @@
 #ifndef PHPGIT2_BRANCH_H
 #define PHPGIT2_BRANCH_H
 
+#include "stubs/branch_arginfo.h"
+
 namespace php_git2
 {
 
@@ -20,7 +22,7 @@ namespace php_git2
 
 // Functions:
 
-static constexpr auto ZIF_GIT_BRANCH_CREATE = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_branch_create = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_reference**,
@@ -41,7 +43,7 @@ static constexpr auto ZIF_GIT_BRANCH_CREATE = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1,2,3,4>
     >;
 
-static constexpr auto ZIF_GIT_BRANCH_CREATE_FROM_ANNOTATED = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_branch_create_from_annotated = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_reference**,
@@ -62,7 +64,7 @@ static constexpr auto ZIF_GIT_BRANCH_CREATE_FROM_ANNOTATED = zif_php_git2_functi
     php_git2::sequence<0,1,2,3,4>
     >;
 
-static constexpr auto ZIF_GIT_BRANCH_DELETE = zif_php_git2_function<
+static constexpr auto ZIF_git_branch_delete = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_reference*>::func<git_branch_delete>,
@@ -73,7 +75,7 @@ static constexpr auto ZIF_GIT_BRANCH_DELETE = zif_php_git2_function<
     -1
     >;
 
-static constexpr auto ZIF_GIT_BRANCH_IS_HEAD = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_branch_is_head = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         const git_reference*>::func<git_branch_is_head>,
@@ -83,7 +85,7 @@ static constexpr auto ZIF_GIT_BRANCH_IS_HEAD = zif_php_git2_function_rethandler<
     php_git2::php_boolean_error_rethandler<int>
     >;
 
-static constexpr auto ZIF_GIT_BRANCH_ITERATOR_NEW = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_branch_iterator_new = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_branch_iterator**,
@@ -100,11 +102,11 @@ static constexpr auto ZIF_GIT_BRANCH_ITERATOR_NEW = zif_php_git2_function_setdep
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_BRANCH_ITERATOR_FREE = zif_php_git2_function_free<
+static constexpr auto ZIF_git_branch_iterator_free = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_branch_iterator> > >;
 
-static constexpr auto ZIF_GIT_BRANCH_NEXT = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_branch_next = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         git_reference**,
@@ -119,11 +121,8 @@ static constexpr auto ZIF_GIT_BRANCH_NEXT = zif_php_git2_function_rethandler<
     php_git2::sequence<1,2>,
     php_git2::sequence<0,1,2>
     >;
-ZEND_BEGIN_ARG_INFO_EX(git_branch_next_arginfo,0,0,2)
-    ZEND_ARG_PASS_INFO(1)
-ZEND_END_ARG_INFO()
 
-static constexpr auto ZIF_GIT_BRANCH_LOOKUP = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_branch_lookup = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_reference**,
@@ -142,7 +141,7 @@ static constexpr auto ZIF_GIT_BRANCH_LOOKUP = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1,2,3>
     >;
 
-static constexpr auto ZIF_GIT_BRANCH_MOVE = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_branch_move = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_reference**,
@@ -161,7 +160,7 @@ static constexpr auto ZIF_GIT_BRANCH_MOVE = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1,2,3>
     >;
 
-static constexpr auto ZIF_GIT_BRANCH_NAME = zif_php_git2_function<
+static constexpr auto ZIF_git_branch_name = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         const char**,
@@ -175,7 +174,7 @@ static constexpr auto ZIF_GIT_BRANCH_NAME = zif_php_git2_function<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_BRANCH_SET_UPSTREAM = zif_php_git2_function<
+static constexpr auto ZIF_git_branch_set_upstream = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_reference*,
@@ -187,7 +186,7 @@ static constexpr auto ZIF_GIT_BRANCH_SET_UPSTREAM = zif_php_git2_function<
     -1
     >;
 
-static constexpr auto ZIF_GIT_BRANCH_UPSTREAM = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_branch_upstream = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         git_reference**,
@@ -201,7 +200,7 @@ static constexpr auto ZIF_GIT_BRANCH_UPSTREAM = zif_php_git2_function_rethandler
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_BRANCH_UPSTREAM_NAME = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_branch_upstream_name = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         git_buf*,
@@ -217,7 +216,7 @@ static constexpr auto ZIF_GIT_BRANCH_UPSTREAM_NAME = zif_php_git2_function_retha
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_BRANCH_UPSTREAM_REMOTE = zif_php_git2_function<
+static constexpr auto ZIF_git_branch_upstream_remote = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_buf*,
@@ -235,21 +234,21 @@ static constexpr auto ZIF_GIT_BRANCH_UPSTREAM_REMOTE = zif_php_git2_function<
 
 // Function Entries:
 
-#define GIT_BRANCH_FE                                                   \
-    PHP_GIT2_FE(git_branch_create,ZIF_GIT_BRANCH_CREATE,NULL)           \
-    PHP_GIT2_FE(git_branch_create_from_annotated,ZIF_GIT_BRANCH_CREATE_FROM_ANNOTATED,NULL) \
-    PHP_GIT2_FE(git_branch_delete,ZIF_GIT_BRANCH_DELETE,NULL)           \
-    PHP_GIT2_FE(git_branch_is_head,ZIF_GIT_BRANCH_IS_HEAD,NULL)         \
-    PHP_GIT2_FE(git_branch_iterator_new,ZIF_GIT_BRANCH_ITERATOR_NEW,NULL) \
-    PHP_GIT2_FE(git_branch_iterator_free,ZIF_GIT_BRANCH_ITERATOR_FREE,NULL) \
-    PHP_GIT2_FE(git_branch_next,ZIF_GIT_BRANCH_NEXT,git_branch_next_arginfo) \
-    PHP_GIT2_FE(git_branch_lookup,ZIF_GIT_BRANCH_LOOKUP,NULL)           \
-    PHP_GIT2_FE(git_branch_move,ZIF_GIT_BRANCH_MOVE,NULL)               \
-    PHP_GIT2_FE(git_branch_name,ZIF_GIT_BRANCH_NAME,NULL)               \
-    PHP_GIT2_FE(git_branch_set_upstream,ZIF_GIT_BRANCH_SET_UPSTREAM,NULL) \
-    PHP_GIT2_FE(git_branch_upstream,ZIF_GIT_BRANCH_UPSTREAM,NULL)       \
-    PHP_GIT2_FE(git_branch_upstream_name,ZIF_GIT_BRANCH_UPSTREAM_NAME,NULL) \
-    PHP_GIT2_FE(git_branch_upstream_remote,ZIF_GIT_BRANCH_UPSTREAM_REMOTE,NULL)
+#define GIT_BRANCH_FE                               \
+    PHP_GIT2_FE(git_branch_create)                  \
+    PHP_GIT2_FE(git_branch_create_from_annotated)   \
+    PHP_GIT2_FE(git_branch_delete)                  \
+    PHP_GIT2_FE(git_branch_is_head)                 \
+    PHP_GIT2_FE(git_branch_iterator_new)            \
+    PHP_GIT2_FE(git_branch_iterator_free)           \
+    PHP_GIT2_FE(git_branch_next)                    \
+    PHP_GIT2_FE(git_branch_lookup)                  \
+    PHP_GIT2_FE(git_branch_move)                    \
+    PHP_GIT2_FE(git_branch_name)                    \
+    PHP_GIT2_FE(git_branch_set_upstream)            \
+    PHP_GIT2_FE(git_branch_upstream)                \
+    PHP_GIT2_FE(git_branch_upstream_name)           \
+    PHP_GIT2_FE(git_branch_upstream_remote)
 
 #endif
 

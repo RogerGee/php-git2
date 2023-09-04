@@ -35,7 +35,7 @@ purpose) are determined by the C++ compiler via 'typeid'.
     git_commit
     git_config
     git_config_iterator
-    git_cred
+    git_credential
     git_describe_result
     git_diff
     git_diff_stats
@@ -147,1422 +147,265 @@ Functions provided by the extension that are not git2 wrappers have the prefix
 'git2_*'. These are provided as supplements or additions where appropriate.
 
 ----------------------------------------
-[misc]
+[general]
 ----------------------------------------
 
-git2_version()
+int git_libgit2_features()
 
-    Gets a string representing the php-git2 and libgit2 version.
+?string git_libgit2_prerelease()
 
-    Returns string
+void git_libgit2_version(int &$major,int &$minor,int &$rev)
 
-git_libgit2_version()
+string git2_version()
 
-    Gets the libgit2 version string. The version string has the form "%1.%2.%3"
-    where %1, %2 and %3 are the respective major, minor and revision numbers
-    returned from the underlying call to git_libgit2_version().
-
-    Returns string
-
-git_libgit2_features()
-
-    Returns int
-
-----------------------------------------
-[git_repository]
-----------------------------------------
-
-git_repository_init(string,bool)
-
-    Returns git_repository resource
-
-git_repository_new()
-
-    Returns git_repository resource
-
-git_repository_free(resource)
-
-git_repository_open(string)
-
-    Returns git_repository resource
-
-git_repository_open_bare(string)
-
-    Returns git_repository resource
-
-git_repository__cleanup(resource)
-
-git_repository_detach_head(resource)
-
-    Returns int
-
-git_repository_fetchhead_foreach(resource,callable,mixed)
-
-  Callback signature: void callback(string $refName,string $remoteUrl,string $oid,bool $isMerge,mixed $payload)
-
-git_repository_mergehead_foreach(resource,callable,mixed)
-
-  Callback signature: void callback(string $oid,mixed $payload)
-
-git_repository_discover(string,bool,string)
-
-    Returns string
-
-git_repository_get_namespace(resource)
-
-    Returns string
-
-git_repository_hashfile(resource,string,long,string)
-
-    Returns string
-
-git_repository_path(resource)
-
-    Returns string
-
-git_repository_odb(resource)
-
-    Returns git_odb resource
-
-git_repository_set_odb(resource,resource)
-
-git_repository_set_head(resource,string)
-
-git_repository_set_head_detached(resource,string)
-
-    Returns bool
-
-git_repository_head(resource)
-
-    Returns git_reference resource
-
-git_repository_is_empty(resource)
-
-    Returns bool
-
-git_repository_is_bare(resource)
-
-    Returns bool
-
-git_repository_is_shallow(resource)
-
-    Returns bool
-
-git_repository_head_detached(resource)
-
-    Returns bool
-
-git_repository_head_unborn(resource)
-
-    Returns bool
-
-git_repository_ident(&string,repo)
-
-    ** The returned string is the name. The assigned out-parameter is the
-       email. **
-
-    Returns string
-
-git_repository_init_ext(string,array|null)
-
-    The final parameter is an array of options with keys corresponding to the
-    git_repository_init_options struct. If you do not specify an option key, it
-    will be filled in with the default value supplied via
-    git_repository_init_init_options. It may be null if you want to purely use
-    the defaults.
-
-    NOTE: the git2 extension does not implement
-    git_repository_init_init_options(). Just use an array to pass in init
-    options and it will be initialized for you behind-the-scenes.
-
-    Returns git_repository resource
-
-git_repository_message(resource)
-
-    Returns string or false
-
-git_repository_message_remove(resource)
-
-git_repository_open_ext(string|null,int,string)
-
-    Returns git_repository resource
-
-git_repository_reinit_filesystem(resource,bool)
-
-git_repository_set_bare(resource)
-
-git_repository_set_head_detached_from_annotated(resource,resource)
-
-    Returns bool
-
-git_repository_set_ident(resource,string,string)
-
-git_repository_set_namespace(resource,string)
-
-git_repository_set_workdir(resource,string,bool)
-
-git_repository_state(resource)
-
-    Returns int
-
-git_repository_state_cleanup(resource)
-
-git_repository_workdir(resource)
-
-    Returns string
-
-git_repository_wrap_odb(resource)
-
-    Returns git_repository resource
-
-git_repository_config(resource)
-
-    Returns git_config resource
-
-git_repository_config_snapshot(resource)
-
-    Returns git_config resource
-
-git_repository_set_config(resource,resource)
-
-git_repository_index(resource)
-
-    Returns git_index resource
-
-git_repository_set_index(resource,resource)
-
-git_repository_refdb(resource)
-
-    Returns git_refdb resource
-
-git_repository_set_refdb(resource,resource)
-
-----------------------------------------
-[git_reference]
-----------------------------------------
-
-git_reference_list(resource)
-
-    Returns array of string
-
-git_reference_lookup(resource,string)
-
-    Returns git_reference resource
-
-git_reference_free(resource)
-
-git_reference_peel(resource,long)
-
-    Returns git_reference resource
-
-git_reference_name_to_id(resource,string)
-
-    Returns string
-
-git_reference_create(resource,string,string,bool,string)
-
-    Returns git_reference resource
-
-git_reference_create_matching(resource,string,string,bool,string,string)
-
-    Returns git_reference resource
-
-git_reference_target(resource)
-
-    Returns string
-
-git_reference_target_peel(resource)
-
-    Returns string
-
-git_reference_name(resource)
-
-    Returns string
-
-int git_reference_cmp(resource $ref1,resource $ref2)
-
-    Returns the same return value as underlying library call.
-
-git_reference__alloc(string,string,string)
-
-    Returns git_reference resource
-
-git_reference__alloc_symbolic(string,string)
-
-    Returns git_reference resource
-
-git_reference_delete(resource)
-
-git_reference_dup(resource)
-
-    Returns git_reference resource
-
-git_reference_ensure_log(resource,string)
-
-git_reference_has_log(resource,string)
-
-    Returns bool
-
-git_reference_is_branch(resource)
-
-    Returns bool
-
-git_reference_is_note(resource)
-
-    Returns bool
-
-git_reference_is_remote(resource)
-
-    Returns bool
-
-git_reference_is_tag(resource)
-
-    Returns bool
-
-git_reference_is_valid_name(string)
-
-    Returns bool
-
-git_reference_iterator_new(resource)
-
-    Returns git_reference_iterator resource
-
-git_reference_iterator_glob_new(resource)
-
-    Returns git_reference_iterator resource
-
-git_reference_next(resource)
-
-    Returns git_reference resource or false if iteration is over
-
-git_reference_next_name(resource)
-
-    Returns string or false if iteration is over
-
-git_reference_normalize_name(string,int)
-
-    Returns string
-
-git_reference_owner(resource)
-
-    Returns git_repository resource
-
-git_reference_remove(resource,string)
-
-git_reference_rename(resource,string,bool,string)
-
-    Returns git_reference resource
-
-git_reference_resolve(resource)
-
-    Returns git_reference resource
-
-git_reference_set_target(resource,string,string)
-
-    Returns git_reference resource
-
-git_reference_shorthand(resource)
-
-    Returns string
-
-git_reference_type(resource)
-
-    Returns int
-
-git_reference_foreach(resource,callable,mixed)
-
-    Callback signature: void callback(resource $ref,mixed $payload)
-
-        The callback should throw on error.
-
-git_reference_foreach_name(resource,callable,mixed)
-
-    Callback signature: void callback(string $name,mixed $payload)
-
-        The callback should throw on error.
-
-git_reference_foreach_glob(resource,string,callable,mixed)
-
-git_reference_symbolic_create(resource,string,string,bool,string)
-
-    Returns git_reference resource
-
-git_reference_symbolic_create_matching(resource,string,string,bool,string,string)
-
-    Returns git_reference resource
-
-git_reference_symbolic_set_target(resource,string,string)
-
-    Returns git_reference resource
-
-git_reference_symbolic_target(resource)
-
-    Returns string
-
-----------------------------------------
-[git_object]
-----------------------------------------
-git_object_id(resource)
-
-    Returns string
-
-git_object_lookup(resource,string,int)
-
-    Returns resource
-
-git_object_free(resource)
-
-git_object_peel(resource,int)
-
-    Returns git_object resource
-
-git_object_dup(resource)
-
-    Returns git_object resource
-
-git_object_lookup_bypath(resource,string,int)
-
-    Returns git_object resource
-
-git_object_lookup_prefix(resource,string,int)
-
-    Returns git_object resource
-
-git_object_owner(resource)
-
-    Returns git_repository resource
-
-git_object_short_id(resource)
-
-    Returns string
-
-git_object_string2type(string)
-
-    Returns int
-
-git_object_type(resource)
-
-    Returns int
-
-git_object_type2string(int)
-
-    Returns string
-
-git_object_typeisloose(int)
-
-    Returns bool
-
-----------------------------------------
-[git_revwalk]
-----------------------------------------
-git_revwalk_new(resource)
-
-git_revwalk_push(resource,string)
-
-git_revwalk_next(resource)
-
-    Returns string or false when on iterover
-
-git_revwalk_hide(resource,string)
-
-git_revwalk_sorting(resource,int)
-
-git_revwalk_reset(resource)
-
-git_revwalk_free(resource)
-
-git_revwalk_add_hide_cb(resource,callable,mixed)
-
-    Callback signature: void callback(string $commitId,mixed $payload)
-
-        The function should throw on error.
-
-git_revwalk_hide_glob(resource,string)
-
-git_revwalk_hide_head(resource)
-
-git_revwalk_hide_ref(resource,string)
-
-git_revwalk_push_glob(resource,string)
-
-git_revwalk_push_head(resource)
-
-git_revwalk_push_range(resource,string)
-
-git_revwalk_push_ref(resource,string)
-
-git_revwalk_repository(resource)
-
-git_revwalk_simplify_first_parent(resource)
-
-----------------------------------------
-[git_packbuilder]
-----------------------------------------
-
-git_packbuilder_new(resource)
-
-    Returns git_packbuilder resource
-
-git_packbuilder_free(resource)
-
-git_packbuilder_hash(resource)
-
-    Returns string
-
-git_packbuilder_insert_commit(resource,string)
-
-git_packbuilder_insert_walk(resource,resource)
-
-git_packbuilder_insert_recur(resource,string,string|null)
-
-git_packbuilder_insert_tree(resource,string)
-
-git_packbuilder_insert(resource,string,string|null)
-
-git_packbuilder_foreach(resource,callable,mixed)
-
-    If the 3rd parameter is a stream and the 2nd parameter is null, then each
-    call will write the data to the stream.
-
-    Callback signature: void callback(string $data,int $length,mixed $payload)
-
-        The callback should return false to cancel the transaction.
-
-        The callback should throw on error.
-
-git_packbuilder_set_threads(resource,int)
-
-git_packbuilder_set_callbacks(resource,callable,mixed)
-
-    Callback signature: void callback(int $stage,int $current,int $total,mixed $payload)
-
-        The callback should throw on error.
-
-git_packbuilder_object_count(resource)
-
-    Returns int
-
-git_packbuilder_write(resource,string,int,callable,mixed)
-
-    Callback signature: callback(array $stats)
-
-        The $stats array has properties of the libgit2 git_transfer_progress
-        struct.
-
-git_packbuilder_written(resource)
-
-    Returns int
-
-----------------------------------------
-[git_indexer]
-----------------------------------------
-
-resource git_indexer_new(string $path,int $mode,?resource $odb,?array $options)
-
-    $options: [
-        'progress_cb' => callable: void callback(array $stats,mixed $payload),
-        'progress_cb_payload' => mixed,
-        'verify' => bool,
-    ]
-
-    Return git_indexer resource
-
-git_indexer_hash(resource)
-
-    Returns string
-
-git_indexer_append(resource,string)
-
-    ** Transfer progress is stored in the resource. As such it is not passed to
-       this function. **
-
-git_indexer_commit(resource)
-
-    ** Transfer progress is stored in the resource. As such it is not passed to
-       this function. **
-
-git_indexer_free(resource)
-
-git2_indexer_stats(resource)
-
-    ** To avoid the expense of translating a stats object every time and indexer
-       operation is performed, the user may call this to get the indexer
-       transfer progress stats at any time. The transfer progress structure is
-       stored in the indexer resource object. **
-
-    Returns array, associative array with git_transfer_progress fields
-
-----------------------------------------
-[git_odb]
-    [git_odb_object]
-----------------------------------------
-
-git_odb_new()
-
-    Return git_odb resource
-
-git_odb_free(resource)
-
-git_odb_write_pack(resource,callable,mixed)
-
-    ** The 3rd parameter may be null. **
-
-    Returns object instance of type GitODBWritepack_Internal
-
-git_odb_backend_pack(string)
-
-    Returns object instance of type GitODBBackend
-
-git_odb_backend_loose(string,int,bool,int,int)
-
-    Returns object instance of type GitODBBackend
-
-git_odb_backend_one_pack(string)
-
-    Returns object instance of type GitODBBackend
-
-git_odb_open(string)
-
-    Returns git_odb resource
-
-git_odb_write(resource,string,int)
-
-    Returns string
-
-git_odb_read(resource,string)
-
-    Returns git_odb_object resource
-
-git_odb_read_header(&int,resource,string)
-
-    Returns int (the size of the object)
-
-git_odb_read_prefix(resource,string)
-
-    Returns git_odb_object resource
-
-git_odb_object_free(resource)
-
-git_odb_object_data(resource)
-
-    Returns string
-
-git_odb_object_id(resource)
-
-    Returns string
-
-git_odb_object_size(resource)
-
-    Returns int
-
-git_odb_object_type(resource)
-
-   Returns int
-
-git_odb_object_dup(resource)
-
-    Returns git_odb_object resource
-
-GitODBStream git_odb_open_rstream(int &$len,int &$type,resource $odb,string $oid)
-
-    Returns object instance of type GitODBStream
-
-git_odb_open_wstream(resource,int,int)
-
-    Returns object instance of type GitODBStream
-
-git_odb_stream_read(GitODBStream,int)
-
-    ** The 2nd parameter is the length of the buffer to allocate. **
-
-    Returns string
-
-git_odb_stream_write(GitODBStream,string)
-
-git_odb_stream_finalize_write(GitODBStream)
-
-    Returns string
-
-git_odb_add_alternate(resource,GitODBBackend,int)
-
-git_odb_add_disk_alternate(resource,string)
-
-git_odb_add_backend(resource,GitODBBackend,int)
-
-git_odb_exists(resource,string)
-
-    Returns bool
-
-git_odb_exists_prefix(resource,string)
-
-    ** This function throws when not found or ambiguous. It returns a string
-       when the object is found. **
-
-    Returns string
-
-void git_odb_expand_ids(resource $odb,array &$ids)
-
-  Note: this function will return results in the $ids parameter. While this
-  parameter employs reference semantics, it is not technically passed by
-  reference in the implementation.
-
-git_odb_foreach(resource,callable,mixed)
-
-    Callback signature: bool callback(string $oid,mixed $payload)
-
-        To stop iteration, the callback should return false.
-
-        The callback should throw on error.
-
-git_odb_refresh(resource)
-
-git_odb_get_backend(resource,int)
-
-    Returns object of type GitODBBackend
-
-git_odb_num_backends(resource)
-
-    Returns int
-
-git_odb_hash(string,int)
-
-    Returns string
-
-git_odb_hashfile(string,int)
-
-    Returns string
-
-----------------------------------------
-[git_commit]
-----------------------------------------
-
-git_commit_lookup(resource,string)
-
-    Returns git_commit resource
-
-git_commit_lookup_prefix(resource,string)
-
-    Returns git_commit resource
-
-git_commit_parentcount(resource)
-
-    Returns int
-
-git_commit_parent_id(resource,int)
-
-    Returns string
-
-git_commit_parent(resource,int)
-
-    Returns git_commit resource
-
-git_commit_nth_gen_ancestor(resource,int)
-
-    Returns git_commit resource
-
-git_commit_id(resource)
-
-    Returns string
-
-git_commit_free(resource)
-
-git_commit_owner(resource)
-
-    Returns git_repository resource
-
-git_commit_tree(resource)
-
-    Returns git_tree resource
-
-git_commit_tree_id(resource)
-
-    Returns string
-
-git_commit_time(resource)
-
-    Returns int
-
-git_commit_time_offset(resource)
-
-    Returns int
-
-git_commit_summary(resource)
-
-    Returns string
-
-git_commit_raw_header(resource)
-
-    Returns string
-
-git_commit_body(resource)
-
-    Returns string
-
-git_commit_message(resource)
-
-    Returns string
-
-git_commit_message_encoding(resource)
-
-    Returns string
-
-git_commit_message_raw(resource)
-
-    Returns string
-
-git_commit_author(resource)
-
-    Returns git_signature resource
-
-git_commit_committer(resource)
-
-    Returns git_signature resource
-
-git_commit_create(resource,string|null,resource,resource,string|null,string,resource,array)
-
-    Example:
-        $oid = git_commit_create($repo,$ref,$author,$committer,
-                                 $encoding,$message,$tree,$parents);
-
-    ** The final parameter should be an array of git_commit resources; the size
-       is not previously passed in the PHP userspace version. **
-
-    Returns string containing the new commit's OID
-
-git_commit_create_from_callback(resource,string|null,resource,resource,string|null,string,string,callable,mixed)
-
-    Example
-        $oid = git_commit_from_callback($repo,$ref,$author,$committer,$encoding,
-                                        $message,$treeId,$callable,$payload);
-
-    Callback signature: string callback(int $idx,mixed $payload)
-
-        This callback is not designed to report errors. If an error occures,
-        then the calling function will finish and the error will be logged as a
-        warning.
-
-    Returns string containing the new commit's OID
-
-git_commit_create_from_ids(resource,string|null,resource,resource,string|null,string,string,array)
-
-    Example
-        $oid = git_commit_from_ids($repo,$ref,$author,$committer,$encoding,
-                                   $message,$treeId,$parents)
-
-    ** The array should be a list of strings representing the parent commit
-       OIDs. **
-
-    Returns string containing the new commit's OID
-
-git_commit_create_buffer(resource,resource,resource,string|null,string,resource,array)
-
-    Example:
-        $data = git_commit_create_buffer($repo,$author,$committer,
-                                         $encoding,$message,$tree,$parents);
-
-    ** The final parameter should be an array of git_commit resources; the size
-       is not previously passed in the PHP userspace version. **
-
-    Returns string containing the commit object
-
-git_commit_create_with_signature(resource,string,string,string)
-
-    Returns string
-
-git_commit_amend(resource,string|null,resource|null,resource|null,string|null,string|null,resource|null)
-
-    ** The arguments behavior like the C function in that NULL's are disregarded
-       when amending the commit. **
-
-    Returns string
-
-git_commit_dup(resource)
-
-    Returns git_commit resource
-
-git_commit_extract_signature(&string,resource,string,string|null)
-
-    ** The signed data is written to the string out parameter. The signature is
-       returned. **
-
-    Returns string
-
-git_commit_header_field(resource,string)
-
-    Returns string
-
-----------------------------------------
-[git_blob]
-----------------------------------------
-
-git_blob_create_frombuffer(resource,string)
-
-    Returns string
-
-git_blob_create_fromdisk(resource,string)
-
-    Returns string
-
-git_blob_create_fromworkdir(resource,string)
-
-    Returns string
-
-git_blob_filtered_content(resource,string,bool)
-
-    Returns string
-
-git_blob_free(resource)
-
-git_blob_id(resource)
-
-    Returns string
-
-git_blob_is_binary(resource)
-
-    Returns bool
-
-git_blob_lookup(resource,string)
-
-    Returns git_blob resource
-
-git_blob_lookup_prefix(resource,string)
-
-    Returns resource
-
-git_blob_owner(resource)
-
-    Returns git_repository resource
-
-git_blob_rawcontent(resource)
-
-    Returns string
-
-git_blob_rawsize(resource)
-
-    Returns int
-
-git_blob_dup(resource)
-
-    Returns git_blob resource
-
-git_blob_create_fromstream(resource,string|null)
-
-    Returns object of type GitWritestream
-
-git_blob_create_fromstream_commit(GitWritestream)
-
-    Returns string
-
-----------------------------------------
-[git_tree]
-    [git_tree_entry]
-----------------------------------------
-
-git_tree_dup(resource)
-
-    Returns git_tree resource
-
-git_tree_entrycount(resource)
-
-    Returns int
-
-git_tree_free(resource)
-
-git_tree_id(resource)
-
-    Returns string
-
-git_tree_lookup(resource,string)
-
-    Returns git_tree resource
-
-git_tree_lookup_prefix(resource,string)
-
-    Returns git_tree resource
-
-git_tree_owner(resource)
-
-    Returns git_repository resource
-
-git_tree_entry_free(resource)
-
-git_tree_entry_byid(resource,string)
-
-    Returns git_tree_entry resource or null
-
-git_tree_entry_byindex(resource,int)
-
-    Returns git_tree_entry resource or null
-
-git_tree_entry_byname(resource,string)
-
-    Returns git_tree_entry resource or null
-
-git_tree_entry_bypath(resource,string)
-
-    Returns git_tree_entry resource
-
-git_tree_entry_dup(resource)
-
-    Returns git_tree_entry resource
-
-git_tree_entry_filemode(resource)
-
-    Returns int
-
-git_tree_entry_filemode_raw(resource)
-
-    Returns int
-
-git_tree_entry_name(resource)
-
-    Returns string
-
-git_tree_entry_cmp(resource,resource)
-
-    Returns int
-
-git_tree_entry_id(resource)
-
-    Returns string
-
-git_tree_entry_type(resource)
-
-    Returns int
-
-git_tree_walk(resource,int,callable,mixed)
-
-    Callback signature: void callback(string $root,resource $entry,mixed $payload)
-
-        The callback should throw on error.
-
-----------------------------------------
-[git_signature]
-----------------------------------------
-
-git_signature_new(string,string,long,long)
-
-    Returns git_signature resource
-
-git_signature_free(resource)
-
-git_signature_dup(resource)
-
-    Returns git_signature resource
-
-git_signature_default(resource)
-
-    Returns git_signature resource
-
-git_signature_now(string,string)
-
-    Returns git_signature resource
-
-git_signature_from_buffer(string)
-
-    Returns git_signature resource
-
-git2_signature_convert(resource)
-
-    Gets an associative array corresponding to the git_signature structure. The
-    associative array has the following keys:
-
-        - name
-        - email
-        - when.time
-        - when.offset
-
-    Returns array
-
-----------------------------------------
-[git_treebuilder]
-----------------------------------------
-
-git_treebuilder_new(resource,resource|null)
-
-    Returns git_treebuilder resource
-
-git_treebuilder_free(resource)
-
-git_treebuilder_filter(callable,mixed)
-
-    Callback signature:
-        bool callback(array $entry,mixed $payload)
-
-        Returns FALSE to filter (i.e. remove) the entry.
-
-git_treebuilder_write(resource)
-
-    Returns string
-
-git_treebuilder_insert(resource,string,string,int)
-
-    ** Note: this function always returns the tree entry. **
-
-    Returns git_tree_entry resource
-
-git_treebuilder_get(resource,string)
-
-    Returns git_tree_entry resource
-
-git_treebuilder_remove(resource,string)
-
-git_treebuilder_clear(resource)
-
-git_treebuilder_entrycount(resource)
-
-    Returns int
-
-----------------------------------------
-[git_blame]
-----------------------------------------
-
-git_blame_file(resource,string,array|null)
-
-    ** The final parameter is an array of options with keys corresponding to the
-       git_blame_options struct. It may be null if you want to use the
-       defaults. **
-
-    Returns git_blame resource
-
-git_blame_buffer(resource,string)
-
-    Returns git_blame resource
-
-git_blame_get_hunk_count(resource)
-
-    Returns int
-
-git_blame_get_hunk_byindex(resource,int)
-
-    ** Note: the return array contains a single dimensional representation of
-       the hunk data. Example:
-
-        array(15) {
-          ["lines_in_hunk"]
-          ["final_commit_id"]
-          ["final_start_line_number"]
-          ["final_signature.name"]
-          ["final_signature.email"]
-          ["final_signature.when.time"]
-          ["final_signature.when.offset"]
-          ["orig_commit_id"]
-          ["orig_path"]
-          ["orig_start_line_number"]
-          ["orig_signature.name"]
-          ["orig_signature.email"]
-          ["orig_signature.when.time"]
-          ["orig_signature.when.offset"]
-          ["boundary"]
-        } **
-
-    Returns array
-
-git_blame_get_hunk_byline(resource,int)
-
-    ** See git_blame_get_hunk_by_index() for an example of what the return
-       result looks like. **
-
-    Returns array
-
-git_blame_get_hunk_count(resource)
-
-    Returns int
-
-----------------------------------------
-[git_revparse]
-----------------------------------------
-
-git_revparse(resource,string)
-
-    ** Note: the return array contains the fields of the revspec
-       structure. Example:
-
-        array(3) {
-          ["from"]  resource of type git_object (may be null)
-          ["to"]    resource of type git_object (may be null)
-          ["flags"] int
-        } **
-
-    Returns array
-
-git_revparse_ext(&resource,resource,string)
-
-    ** The first argument is an output parameter. A resource of type
-       git_reference may be written or null. **
-
-    Returns git_object resource
-
-git_revparse_single(resource,string)
-
-    Returns git_object resource
+    Gets a string representing both the php-git2 and libgit2 versions.
 
 ----------------------------------------
 [git_annotated_commit]
 ----------------------------------------
 
-git_annotated_commit_from_fetchhead(resource,string,string,string)
+resource git_annotated_commit_from_fetchhead(resource $repo,string $branch_name,string $remote_url,string $oid)
 
     Returns git_annotated_commit resource
 
-git_annotated_commit_from_ref(resource,resource)
+resource git_annotated_commit_from_ref(resource,resource)
 
     Returns git_annotated_commit resource
 
-git_annotated_commit_from_revspec(resource,string)
+resource git_annotated_commit_from_revspec(resource,string)
 
     Returns git_annotated_commit resource
 
-git_annotated_commit_lookup(resource,string)
+resource git_annotated_commit_lookup(resource,string)
 
     Returns git_annotated_commit resource
 
-git_annotated_commit_id(resource)
+string git_annotated_commit_id(resource)
 
-    Returns string
+void git_annotated_commit_free(resource)
 
-git_annotated_commit_free(resource)
+----------------------------------------
+[git_attr]
+----------------------------------------
+
+void git_attr_add_macro(resource $repo,string $name,string $values)
+
+void git_attr_cache_flush(resource $repo)
+
+void git_attr_foreach(resource $repo,int $flags,string $path,callable $callback,mixed $payload)
+
+    Callback signature:
+        void callback(string $name,?string $value,mixed $payload)
+
+        The function should throw on error.
+
+string git_attr_get(resource $repo,int $flags,string $path,string $name)
+
+int git_attr_value(string $attr)
+
+----------------------------------------
+[git_blame]
+----------------------------------------
+
+resource git_blame_buffer(resource $reference,string $buffer)
+
+    Parameter $reference is a resource of type git_blame.
+
+    Returns git_blame resource
+
+resource git_blame_file(resource $repo,string $path,?array $options)
+
+    The final parameter $options is an array of options with keys corresponding
+    to the git_blame_options struct. It may be null if you want to use the
+    defaults.
+
+    Returns git_blame resource
+
+void git_blame_free(resource $blame)
+
+array git_blame_get_hunk_byindex(resource $blame,int $index)
+
+    Note: the return array contains a single dimensional representation of
+    the hunk data. Example:
+
+     array(15) {
+       ["lines_in_hunk"]
+       ["final_commit_id"]
+       ["final_start_line_number"]
+       ["final_signature.name"]
+       ["final_signature.email"]
+       ["final_signature.when.time"]
+       ["final_signature.when.offset"]
+       ["orig_commit_id"]
+       ["orig_path"]
+       ["orig_start_line_number"]
+       ["orig_signature.name"]
+       ["orig_signature.email"]
+       ["orig_signature.when.time"]
+       ["orig_signature.when.offset"]
+       ["boundary"]
+     }
+
+array git_blame_get_hunk_byline(resource $blame,int $lineno)
+
+    See git_blame_get_hunk_by_index() for an example of what the return
+    result looks like.
+
+int git_blame_get_hunk_count(resource $blame)
+
+----------------------------------------
+[git_blob]
+----------------------------------------
+
+string git_blob_create_frombuffer(resource $repo,string $buffer)
+
+string git_blob_create_fromdisk(resource $repo,string $path)
+
+\GitWritestream git_blob_create_fromstream(resource $repo,?string $hintpath)
+
+string git_blob_create_fromstream_commit(GitWritestream $stream)
+
+string git_blob_create_fromworkdir(resource $repo,string $relative_path)
+
+resource git_blob_dup(resource $blob)
+
+    Returns git_blob resource
+
+string git_blob_filtered_content(resource $blob,string $as_path,bool $check_for_binary_data)
+
+void git_blob_free(resource $blob)
+
+string git_blob_id(resource $blob)
+
+bool git_blob_is_binary(resource $blob)
+
+    Returns bool
+
+resource git_blob_lookup(resource $repo,string $id)
+
+    Returns git_blob resource
+
+resource git_blob_lookup_prefix(resource $repo,string $id)
+
+    Returns resource
+
+resource git_blob_owner(resource $blob)
+
+    Returns git_repository resource
+
+string git_blob_rawcontent(resource $blob)
+
+int git_blob_rawsize(resource $blob)
 
 ----------------------------------------
 [git_branch]
 ----------------------------------------
 
-git_branch_create(resource,string,resource,bool)
+resource git_branch_create(resource $repo,string $branch_name,resource $target,bool $force)
 
     Returns git_reference resource
 
-git_branch_create_from_annotated(resource,string,resource,bool)
+resource git_branch_create_from_annotated(resource $repo,string $branch_name,resource $commit,bool $force)
+
+    Parameter $commit is a resource of type git_annotated_commit.
 
     Returns git_reference resource
 
-git_branch_delete(resource)
+void git_branch_delete(resource $branch)
 
 bool git_branch_is_head(resource $branch)
 
-git_branch_iterator_free(resource)
+void git_branch_iterator_free(resource $iter)
 
-git_branch_iterator_new(resource,int)
+    Parameter $iter is a resource of type git_branch_iterator.
+
+resource git_branch_iterator_new(resource $repo,int $flags)
 
     Returns git_branch_iterator resource
 
-git_branch_next(&int,resource)
+resource git_branch_lookup(resource $repo,string $branch_name,int $branch_type)
+
+    Returns git_reference resource
+
+resource git_branch_move(resource $branch,string $new_branch_name,bool $force)
+
+    Returns git_reference resource
+
+string git_branch_name(resource $branch)
+
+resource|bool git_branch_next(&int $type,resource $iter)
+
+    Parameter $iter is a resource of type git_branch_iterator.
 
     Returns git_reference resource or false at iter over
 
-git_branch_lookup(resource,string,int)
+void git_branch_set_upstream(resource $branch,?string $branch_name)
 
-    Returns git_reference resource
-
-git_branch_move(resource,string,bool)
-
-    Returns git_reference resource
-
-git_branch_name(resource)
-
-    Returns string
-
-git_branch_set_upstream(resource,string|null)
-
-git_branch_upstream(resource)
+resource|bool git_branch_upstream(resource $branch)
 
     Returns git_reference resource if found, false otherwise
 
-git_branch_upstream_name(resource,string)
+string|bool git_branch_upstream_name(resource $repo,string $refname)
 
     Returns string if found, false otherwise
 
-git_branch_upstream_remote(resource,string)
-
-    Returns string
+string git_branch_upstream_remote(resource $repo,string $refname)
 
 ----------------------------------------
-[git_config]
+[git_checkout]
 ----------------------------------------
 
-git_config_new()
+void git_checkout_head(resource $repo,?array $options = null)
 
-    Returns git_config resource
+    Note: the last parameter ($options) is passed as an array with the keys
+    matching the properties of the git_checkout_options struct. Any properties
+    that are not specified inherit the defaults provided via calling
+    git_checkout_init_options(). You may specify null to use only the defaults.
 
-git_config_free(resource)
+void git_checkout_index(resource $repo,resource $index,?array $options = null)
 
-git_config_open_default()
+    See notes for git_checkout_head().
 
-    Returns git_config resource
+void git_checkout_tree(resource $repo,resource $treeish,?array $options = null)
 
-git_config_open_global(resource)
+    Parameter $treeish is a resource of type git_object.
 
-    Returns git_config resource
+    See notes for git_checkout_head().
 
-git_config_open_level(resource,int)
+----------------------------------------
+[git_cherrypick]
+----------------------------------------
 
-    Returns git_config resource
+void git_cherrypick(resource $repo,resource $commit,?array $options = null)
 
-git_config_open_ondisk(resource,string)
+    Parameter $options is an array having the keys of the git_cherrypick_options
+    struct. Any properties that are not specified inherit the defaults provided
+    via calling git_cherrypick_options_init(). You may specify null to use only
+    the defaults.
 
-    Returns git_config resource
+resource git_cherrypick_commit(resource $repo,resource $cherrypick_commit,resource $our_commit,int $mainline,?array $options = null)
 
-git_config_parse_bool(string)
+    Parameter $options is an array having the keys of the git_merge_options
+    struct. Any properties that are not specified inherit the defaults provided
+    via calling git_merge_options_init(). You may specify null to use only the
+    defaults.
 
-    Returns bool
-
-git_config_parse_int32(string)
-
-    Returns int
-
-git_config_parse_int64(string)
-
-    Returns int
-
-git_config_parse_path(string)
-
-    Returns string
-
-git_config_set_bool(resource,string,bool)
-
-git_config_set_int32(resource,string,int)
-
-git_config_set_int64(resource,string,int)
-
-git_config_set_multivar(resource,string,string,string)
-
-git_config_set_string(resource,string,string)
-
-git_config_get_bool(resource,string)
-
-    Returns bool
-
-git_config_get_entry(resource,string)
-
-    ** Note: returns an array with the following structure:
-
-      array(3) {
-        ["name"]
-        ["value"]
-        ["level"]
-      } **
-
-    Returns array
-
-git_config_get_int32(resource,string)
-
-    Returns int
-
-git_config_get_int64(resource,string)
-
-    Returns int
-
-git_config_get_path(resource,string)
-
-    Returns string
-
-git_config_get_string(resource,string)
-
-    Returns string
-
-git_config_get_string_buf(resource,string)
-
-    ** Note: this function is functionally equivalent to
-       git_config_get_string(), except that it can encode binary
-       strings. However binary strings are typically not stored in git config
-       files... **
-
-    Returns string
-
-git_config_delete_entry(resource,string)
-
-git_config_delete_multivar(resource,string,string)
-
-git_config_find_global()
-
-git_config_find_programdata()
-
-git_config_find_system()
-
-git_config_find_xdg()
-
-git_config_snapshot(resource)
-
-    Returns git_config resource
-
-git_config_add_file_ondisk(resource,string,int,bool)
-
-git_config_foreach(resource,callable,mixed)
-
-    Callback signature: bool callback(array $entry,mixed $payload)
-
-        Note: if an iteration of the callback returns TRUE, the operation is
-        considered over and iterator stops.
-
-        The callback should throw on error.
-
-git_config_foreach_match(resource,string,callable,mixed)
-
-    ** See notes for git_config_foreach. **
-
-git_config_get_mapped(resource,string,array)
-
-    ** The array must be an indexed array of 3-tuple array elements, with each
-       inner 3-tuple array containing the git_configmap fields in the order
-       [type,str_match,map_value]. The map_value entry is forced to be an
-       integer. **
-
-    Returns int
-
-git_config_get_multivar_foreach(resource,string,string|null,callable,mixed)
-
-    Callback signature: bool callback(array $entry,mixed $payload)
-
-git_config_add_backend(resource,object,int,bool)
-
-git_config_backend_foreach_match(object,string|null,callable,mixed)
-
-    ** See notes for git_config_foreach. **
-
-git_config_iterator_new(resource)
-
-    Returns git_config_iterator resource
-
-git_config_iterator_new(resource,string,string|null)
-
-    Returns git_config_iterator resource
-
-git_config_iterator_glob_new(resource,string)
-
-    Returns git_config_iterator resource
-
-git_config_multivar_iterator_new(resource,string,string|null)
-
-    Returns git_config_iterator resource
-
-git_config_iterator_free(resource)
-
-git_config_next(resource)
-
-    ** See git_config_get_entry() for details on returned value. **
-
-    Returns array
-
-git_config_lookup_map_value(array,string)
-
-    ** The array must be an indexed array of 3-tuple array elements, with each
-       inner 3-tuple array containing the git_configmap fields in the order
-       [type,str_match,map_value]. The map_value entry is forced to be an
-       integer. **
+    Returns git_index resource
 
 ----------------------------------------
 [git_clone]
 ----------------------------------------
 
-git_clone(string,string,array|null)
+resource git_clone(string $url,string $local_path,?array $options = null)
 
-    ** Note: the last parameter (options) is passed as an array with the keys
-       representing the properties of the git_clone_options struct. The
-       checkout_opts and fetch_opts properties may be arrays to their respective
-       structures. Any properties that are not specified inherit the defaults
-       provided via calling git_clone_init_options(). You may specify null to
-       use only the defaults. **
+    Parameter $options is passed as an array with the keys representing the
+    properties of the git_clone_options struct. The checkout_opts and fetch_opts
+    properties may be arrays to their respective structures. Any properties that
+    are not specified inherit the defaults provided via calling
+    git_clone_init_options(). You may specify null to use only the defaults.
 
-    Callback 'repository_cb' signature: callback(string $path,bool $bare,mixed $payload)
+    Callback $options['repository_cb'] signature:
+        resource callback(string $path,bool $bare,mixed $payload)
 
         The callback should return git_repository resource.
 
@@ -1571,110 +414,331 @@ git_clone(string,string,array|null)
     Returns git_repository resource
 
 ----------------------------------------
-[git_checkout]
+[git_commit]
 ----------------------------------------
 
-git_checkout_head(resource,array|null)
+string git_commit_amend(resource $commit_to_amend,?string $update_ref,?resource $author,?resource $committer,?string $message_encoding,?string $message,?resource $tree)
 
-    ** Note: the last parameter (options) is passed as an array with the keys
-       matching the properties of the git_checkout_options struct. Any
-       properties that are not specified inherit the defaults provided via
-       calling git_checkout_init_options(). You may specify null to use only the
-       defaults. **
+    The arguments behave like the C function in that NULL's are disregarded when
+    amending the commit.
 
-git_checkout_tree(resource,resource,array|null)
+resource git_commit_author(resource $commit)
 
-    ** See notes for git_checkout_head(). **
+    Returns git_signature resource
 
-git_checkout_index(resource,resource,array|null)
+string git_commit_body(resource $commit)
 
-    ** See notes for git_checkout_head(). **
+resource git_commit_committer(resource $commit)
 
-----------------------------------------
-[git_tag]
-----------------------------------------
+    Returns git_signature resource
 
-git_tag_annotation_create(resource,string,resource,resource,string)
+string git_commit_create(resource $repo,?string $update_ref,resource $author,resource $committer,?string $message_encoding,string $message,resource $tree,array $parents)
 
-    Returns string
+    Parameter $parents be an array of git_commit resource values.
 
-git_tag_create(resource,string,resource,resource,string,bool)
+string git_commit_create_buffer(resource $repo,resource $author,resource $committer,?string $message_encoding,string $message,resource $tree,array $parents)
 
-    Returns string
+    Parameter $parents should be an array of git_commit resource values.
 
-git_tag_create_frombuffer(resource,string,bool)
+string git_commit_create_from_callback(resource $repo,?string $update_ref,resource $author,resource $committer,?string $message_encoding,string $message,string $tree_id,callable $callback,mixed $payload)
 
-    Returns string
+    Callback signature:
+        string callback(int $idx,mixed $payload)
 
-git_tag_create_lightweight(resource,string,resource,bool)
+        This callback is not designed to report errors. If an error occures,
+        then the calling function will finish and the error will be logged as a
+        warning.
 
-    Returns string
+string git_commit_create_from_ids(resource $repo,?string $update_ref,resource $author,resource $committer,?string $message_encoding,string $message,string $tree_id,array $parents)
 
-git_tag_lookup(resource,string)
+    Parameter $parents should be a list of strings representing the parent
+    commit OIDs.
 
-    Returns git_tag resource
+string git_commit_create_with_signature(resource $repo,string $commit_content,string $signature,?string $signature_field = null)
 
-git_tag_lookup_prefix(resource,string)
+resource git_commit_dup(resource $source)
 
-    Returns git_tag resource
+    Parameter $source is a resource of type git_commit.
 
-git_tag_free(resource)
+    Returns git_commit resource
 
-git_tag_id(resource)
+string git_commit_extract_signature(string &$signed_data_out,resource $repo,string $commit_id,string $field = null)
 
-    Returns string
+    Returns the signature block
 
-git_tag_target_id(resource)
+void git_commit_free(resource $commit)
 
-    Returns string
+string git_commit_header_field(resource $commit,string $field)
 
-git_tag_message(resource)
+string git_commit_id(resource $commit)
 
-    Returns string
+resource git_commit_lookup(resource $repo,string $id)
 
-git_tag_name(resource)
+    Returns git_commit resource
 
-    Returns string
+resource git_commit_lookup_prefix(resource $repo,string $id)
 
-git_tag_owner(resource)
+    Returns git_commit resource
+
+string git_commit_message(resource $commit)
+
+?string git_commit_message_encoding(resource $commit)
+
+string git_commit_message_raw(resource $commit)
+
+resource git_commit_nth_gen_ancestor(resource $commit,int $n)
+
+    Returns git_commit resource
+
+resource git_commit_owner(resource $commit)
 
     Returns git_repository resource
 
-git_tag_peel(resource)
+resource git_commit_parent(resource $commit,int $n)
 
-    Returns git_object resource
+    Returns git_commit resource
 
-git_tag_target(resource)
+string git_commit_parent_id(resource $commit,int $n)
 
-    Returns git_object resource
+int git_commit_parentcount(resource $commit)
 
-git_tag_tagger(resource)
+string git_commit_raw_header(resource $commit)
 
-    Returns git_signature resource (or null)
+string git_commit_summary(resource $commit)
 
-git_tag_target_type(resource)
+int git_commit_time(resource $commit)
 
-    Returns int
+int git_commit_time_offset(resource $commit)
 
-git_tag_delete(resource,string)
+resource git_commit_tree(resource $commit)
 
-git_tag_dup(resource)
+    Returns git_tree resource
 
-    Returns git_tag resource
+string git_commit_tree_id(resource $commit)
 
-git_tag_list(resource)
+----------------------------------------
+[git_config]
+----------------------------------------
 
-    Returns array
+void git_config_add_backend(resource $cfg,\GitConfigBackend $backend,int $level,?resource $repo,bool $force)
 
-git_tag_list_match(resource,string)
+void git_config_add_file_ondisk(resource $cfg,string $path,int $level,?resource $repo,bool $force)
 
-    Returns array
+void git_config_backend_foreach_match(\GitConfigBackend $backend,?string $regexp,callable $callback,mixed $payload)
 
-git_tag_foreach(resource,callable,mixed)
+    See notes for git_config_foreach.
 
-    Callback signature: void callback(string $name,string $oid,mixed $payload)
+void git_config_delete_entry(resource $cfg,string $name)
+
+void git_config_delete_multivar(resource $cfg,string $name,string $regexp)
+
+string git_config_find_global()
+
+string git_config_find_programdata()
+
+string git_config_find_system()
+
+string git_config_find_xdg()
+
+void git_config_foreach(resource $cfg,callable $callback,mixed $payload)
+
+    Callback signature:
+        bool callback(array $entry,mixed $payload)
+
+        Note: if an iteration of the callback returns TRUE, the operation is
+        considered over and iterator stops.
 
         The callback should throw on error.
+
+void git_config_foreach_match(resource $cfg,string $regexp,callable $callback,mixed $payload)
+
+    See notes for git_config_foreach.
+
+void git_config_free(resource $cfg)
+
+bool git_config_get_bool(resource $cfg,string $name)
+
+array git_config_get_entry(resource $cfg,string $name)
+
+    Returns an array with the following structure:
+
+      array(3) {
+        ["name"]
+        ["value"]
+        ["level"]
+      }
+
+int git_config_get_int32(resource $cfg,string $name)
+
+int git_config_get_int64(resource $cfg,string $name)
+
+int git_config_get_mapped(resource $cfg,string $name,array $maps)
+
+    Parameter $maps must be an indexed array of 3-tuple array elements, with
+    each inner 3-tuple array containing the git_configmap fields in the order
+    [type,str_match,map_value]. The map_value entry is forced to be an integer.
+
+void git_config_get_multivar_foreach(resource $cfg,string $name,?string $regexp,callable $callback,mixed $payload)
+
+    Callback signature:
+        bool callback(array $entry,mixed $payload)
+
+string git_config_get_path(resource $cfg,string $name)
+
+string git_config_get_string(resource $cfg,string $name)
+
+string git_config_get_string_buf(resource $cfg,string $name)
+
+    Note: this function is functionally equivalent to git_config_get_string() in
+    PHP, except that it can encode binary strings. However binary strings are
+    typically not stored in git config files...
+
+void git_config_iterator_free(resource $iter)
+
+    Parameter $iter is a resource of type git_config_iterator.
+
+resource git_config_iterator_glob_new(resource $cfg,string $regexp)
+
+    Returns git_config_iterator resource
+
+resource git_config_iterator_new(resource $cfg)
+
+    Returns git_config_iterator resource
+
+int git_config_lookup_map_value(array $maps,string $value)
+
+    Parameter $maps must be an indexed array of 3-tuple array elements, with
+    each inner 3-tuple array containing the git_configmap fields in the order
+    [type,str_match,map_value]. The map_value entry is forced to be an integer.
+
+resource git_config_multivar_iterator_new(resource $cfg,string $name,?string $regexp)
+
+    Returns git_config_iterator resource
+
+resource git_config_new()
+
+    Returns git_config resource
+
+array|bool git_config_next(resource $iter)
+
+    Parameter $iter is a resource of type git_config_iterator.
+
+    See git_config_get_entry() for details on returned value. Returns FALSE when
+    iteration is over.
+
+resource git_config_open_default()
+
+    Returns git_config resource
+
+resource git_config_open_global(resource $cfg)
+
+    Returns git_config resource
+
+resource git_config_open_level(resource $parent,int $level)
+
+    Parameter $parent is a resource of type git_config.
+
+    Returns git_config resource
+
+resource git_config_open_ondisk(string $path)
+
+    Returns git_config resource
+
+bool git_config_parse_bool(string $value)
+
+int git_config_parse_int32(string $value)
+
+int git_config_parse_int64(string $value)
+
+string git_config_parse_path(string $value)
+
+void git_config_set_bool(resource $cfg,string $name,bool $value)
+
+void git_config_set_int32(resource $cfg,string $name,int $value)
+
+void git_config_set_int64(resource $cfg,string $name,int $value)
+
+void git_config_set_multivar(resource $cfg,string $name,string $regexp,string $value)
+
+void git_config_set_string(resource $cfg,string $name,string $value)
+
+resource git_config_snapshot(resource $cfg)
+
+    Returns git_config resource
+
+----------------------------------------
+[git_credential]
+----------------------------------------
+
+Note: all git_credential_* functions are aliased as git_cred_* for backwards
+compatibility. The git_cred_* API is deprecated in libgit2 version 1 and will be
+removed in later versions.
+
+resource git_credential_default_new()
+
+    Returns git_credential resource
+
+void git_credential_free(resource $cred)
+
+bool git_credential_has_username(resource $cred)
+
+resource git_credential_ssh_key_from_agent(string $username)
+
+    Returns git_credential resource
+
+resource git_credential_ssh_key_memory_new(string $username,string $publickey,string $privatekey,string $passphrase)
+
+    Returns git_credential resource
+
+resource git_credential_ssh_key_new(string $username,string $publickey,string $privatekey,string $passphrase)
+
+    Returns git_credential resource
+
+resource git_credential_username_new(string $username)
+
+    Returns git_credential resource
+
+resource git_credential_userpass_plaintext_new(string $username,string $password)
+
+    Returns git_credential resource
+
+----------------------------------------
+[git_describe]
+----------------------------------------
+
+resource git_describe_commit(resource $committish,?array $options = null)
+
+    Parameter $committish is a resource of type git_object.
+
+    Parameter $options is an array corresponding to the git_describe_options
+    struct. Options omitted from the array will default to values provided via
+    git_describe_init_options(). If $options is omitted then default options are
+    passed via git_describe_init_options().
+
+    Returns git_describe_result resource
+
+string git_describe_format(resource $result,?array $options = null)
+
+    Parameter $result is a resource of type git_describe_result.
+
+    Parameter $options is an array corresponding to the
+    git_describe_format_options struct. Options omitted from the array will
+    default to values provided via git_describe_format_options_init(). If
+    $options is omitted then default options are passed via
+    git_describe_format_options_init().
+
+void git_describe_result_free(resource $result)
+
+    Parameter $result is a resource of type git_describe_result.
+
+resource git_describe_workdir(resource $repo,?array $options = null)
+
+    Parameter $options is an array corresponding to the git_describe_options
+    struct. Options omitted from the array will default to values provided via
+    git_describe_init_options(). If $options is omitted then default options are
+    passed via git_describe_init_options().
+
+    Returns git_describe_result resource
 
 ----------------------------------------
 [git_diff]
@@ -1682,149 +746,171 @@ git_tag_foreach(resource,callable,mixed)
 
 Callback signatures for git_diff functions:
 
-    notify_callback: int callback(resource $diff,array $delta,string $matchedPathspec,mixed $payload)
+    notify_callback:
+        int callback(resource $diff,array $delta,string $matchedPathspec,mixed $payload)
 
         NOTE: Errors generated by this callback cannot be handled and will be
         logged as warnings.
 
-    progress_callback: bool callback(resource $diff,string $oldPath,string $newPath,mixed $payload)
+    progress_callback:
+        bool callback(resource $diff,string $oldPath,string $newPath,mixed $payload)
 
         NOTE: Errors generated by this callback cannot be handled and will be
         logged as warnings.
 
         A return value of FALSE aborts the diff
 
-    file_callback: void callback(array $delta,float $progress,mixed $payload)
+    file_callback:
+        void callback(array $delta,float $progress,mixed $payload)
 
         The callback should throw on error.
 
-    binary_callback: void callback(array $delta,array $binary,mixed $payload)
+    binary_callback:
+        void callback(array $delta,array $binary,mixed $payload)
 
         The callback should throw on error.
 
-    hunk_callback: void callback(array $delta,array $hunk,mixed $payload)
+    hunk_callback:
+        void callback(array $delta,array $hunk,mixed $payload)
 
         The callback should throw on error.
 
-    line_callback: void callback(array $delta,array $hunk,array $line,mixed $payload)
+    line_callback:
+        void callback(array $delta,array $hunk,array $line,mixed $payload)
 
         The callback should throw on error.
 
-git_diff_free(resource)
+void git_diff_blob_to_buffer(?resource $old_blob,?string $old_as_path,?string $buffer,?string $buffer_as_path,?array $options,?callable $file_callback,?callable $binary_callback,?callable $hunk_callback,?callable $line_callback,mixed $payload)
 
-git_diff_blob_to_buffer(resource|null,string|null,string|null,string|null,
-    array|null,callable,callable,callable,callable,mixed)
+    Parameter $options is an array corresponding to git_diff_options. Options
+    are defaulted using git_diff_options_init().
 
-git_diff_blobs(resource|null,string|null,resource|null,string|null,array|null,
-    callable,callable,callable,callable,mixed)
+void git_diff_blobs(?resource $old_blob,?string $old_as_path,?resource $new_blob,?string $new_as_path,?array $options,?callable $file_callback,?callable $binary_callback,?callable $hunk_callback,?callable $line_callback,mixed $payload)
 
-git_diff_buffers(string|null,string|null,string|null,string|null,array|null,
-    callable,callable,callable,callable,mixed)
+    Parameter $options is an array corresponding to git_diff_options. Options
+    are defaulted using git_diff_options_init().
 
-git_diff_commit_as_email(resource,resource,int,int,int,array|null)
+void git_diff_buffers(?string $old_buffer,?string $old_as_path,?string $new_buffer,?string $new_as_path,?array $options,?callable $file_callback,?callable $binary_callback,?callable $hunk_callback,?callable $line_callback,mixed $payload)
 
-git_diff_from_buffer(string)
+    Parameter $options is an array corresponding to git_diff_options. Options
+    are defaulted using git_diff_options_init().
 
-    Returns git_diff resource
+string git_diff_commit_as_email(resource $repo,resource $commit,int $patch_no,int $total_patches,int $flags,?array $options)
 
-git_diff_print(resource,int,callable,mixed)
+    Parameter $options is an array corresponding to git_diff_options. Options
+    are defaulted using git_diff_options_init().
 
-git_diff_get_delta(resource,int)
+void git_diff_find_similar(resource $diff,?array $options)
 
-    Returns array
+    Parameter $options is an array corresponding to
+    git_diff_find_options. Options are defaulted using
+    git_diff_find_options_init().
 
-git_diff_get_perfdata(resource)
+void git_diff_foreach(resource $diff,?callable $file_callback,?callable $binary_callback,?callable $hunk_callback,?callable $line_callback,mixed $payload)
 
-    Returns array
+string git_diff_format_email(resource $diff,?array $options)
 
-git_diff_is_sorted_icase(resource)
+    Parameter $options is an array corresponding to
+    git_diff_format_email_options. Options are defaulted using
+    git_diff_format_email_options_init().
 
-    Returns bool
+    The $options['author'] option can be either an array like those returned
+    from git2_signature_convert() OR a git_signature resource.
 
-git_diff_foreach(resource,callable,callable,callable,callable,mixed)
+void git_diff_free(resource $diff)
 
-git_diff_merge(resource,resource)
-
-git_diff_to_buf(resource,int)
-
-    Returns string
-
-git_diff_tree_to_tree(resource,resource|null,resource|null,array|null)
-
-    Returns git_diff resource
-
-git_diff_tree_to_workdir(resource,resource|null,array|null)
+resource git_diff_from_buffer(string $buffer)
 
     Returns git_diff resource
 
-git_diff_tree_to_workdir_with_index(resource,resource|null,array|null)
+array git_diff_get_delta(resource $diff,int $idx)
 
-    Returns git_diff resource
+array git_diff_get_perfdata(resource $diff)
 
-git_diff_status_char(int)
-
-    Returns string
-
-git_diff_num_deltas(resource)
-
-    Returns int
-
-git_diff_num_deltas_of_type(resource)
-
-    Returns int
-
-git_diff_find_similar(resource,array)
-
-    The options array has the same property names as the libgit2 type.
-
-git_diff_get_stats(resource)
+resource git_diff_get_stats(resource $diff)
 
     Returns git_diff_stats resource
 
-git_diff_stats_free(resource)
+resource git_diff_index_to_index(resource $repo,?resource $old_index,?resource $new_index,?array $options)
 
-git_diff_stats_deletions(resource)
-
-    Returns int
-
-git_diff_stats_insertions(resource)
-
-    Returns int
-
-git_diff_stats_to_buf(resource,int,int)
-
-    Returns string
-
-git_diff_format_email(resource,array)
-
-    ** NOTE: The $opts['author'] option can be either an array like those
-       returned from git2_signature_convert() OR a git_signature resource. **
-
-    Returns string
-
-git_diff_tree_to_tree(resource,resource|null,resource|null,array|null)
+    Parameter $options is an array corresponding to git_diff_options. Options
+    are defaulted using git_diff_options_init().
 
     Returns git_diff resource
 
-git_diff_index_to_index(resource,resource|null,resource|null,array|null)
+resource git_diff_index_to_workdir(resource $repo,?resource $index,?array $options)
 
     Returns git_diff resource
 
-git_diff_tree_to_index(resource,resource|null,resource|null,array|null)
+bool git_diff_is_sorted_icase(resource $diff)
+
+void git_diff_merge(resource $diff_onto,resource $diff_from)
+
+int git_diff_num_deltas(resource $diff)
+
+int git_diff_num_deltas_of_type(resource $diff,int $type)
+
+void git_diff_print(resource $diff,int $format,callable $callback,mixed $payload)
+
+int git_diff_stats_deletions(resource $stats)
+
+int git_diff_stats_files_changed(resource $stats)
+
+void git_diff_stats_free(resource $stats)
+
+int git_diff_stats_insertions(resource $stats)
+
+string git_diff_stats_to_buf(resource $stats,int $format,int $width)
+
+string git_diff_status_char(int $status)
+
+string git_diff_to_buf(resource $diff,int $format)
+
+resource git_diff_tree_to_index(resource $repo,?resource $old_tree,?resource $index,?array $options)
+
+    Parameter $options is an array corresponding to git_diff_options. Options
+    are defaulted using git_diff_options_init().
 
     Returns git_diff resource
 
-git_diff_index_to_workdir(resource,resource|null,array|null)
+resource git_diff_tree_to_tree(resource $repo,?resource $old_tree,?resource $new_tree,?array $options)
+
+    Parameter $options is an array corresponding to git_diff_options. Options
+    are defaulted using git_diff_options_init().
 
     Returns git_diff resource
+
+resource git_diff_tree_to_workdir(resource $repo,?resource $old_tree,?array $options)
+
+    Parameter $options is an array corresponding to git_diff_options. Options
+    are defaulted using git_diff_options_init().
+
+    Returns git_diff resource
+
+resource git_diff_tree_to_workdir_with_index(resource $repo,?resource $old_tree,?array $options)
+
+    Parameter $options is an array corresponding to git_diff_options. Options
+    are defaulted using git_diff_options_init().
+
+    Returns git_diff resource
+
+----------------------------------------
+[git_ignore]
+----------------------------------------
+
+void git_ignore_add_rule(resource $repo,string $rules)
+
+void git_ignore_clear_internal_rules(resource $repo)
+
+bool git_ignore_path_is_ignored(resource $repo,string $path)
 
 ----------------------------------------
 [git_index]
 ----------------------------------------
 
-git_index_add(resource,array)
+void git_index_add(resource $index,array $source_entry)
 
-git_index_add_all(resource,array,int,callable,mixed)
+bool git_index_add_all(resource $index,array $pathspec,int $flags,callable $callback,mixed $paylaod)
 
     Callback signature: void callback(string $path,string $matched_pathspec,mixed $payload)
 
@@ -1834,305 +920,210 @@ git_index_add_all(resource,array,int,callable,mixed)
     This function returns FALSE if the scan was aborted (i.e. iteration
     stopped).
 
-    Returns bool
+void git_index_add_bypath(resource $index,string $path)
 
-git_index_add_bypath(resource,string)
+void git_index_add_from_buffer(resource $index,array $entry,string $buffer)
 
-git_index_add_frombuffer(resource,array,string)
+int git_index_caps(resource $index)
 
-git_index_caps(resource)
+string git_index_checksum(resource $index)
 
-    Returns int
+void git_index_clear(resource $index)
 
-git_index_checksum(resource)
+void git_index_conflict_add(resource $index,array $ancestor_entry,array $our_entry,array $their_entry)
 
-    Returns string
+void git_index_conflict_cleanup(resource $index)
 
-git_index_clear(resource)
+void git_index_conflict_get(array &$ancestor,array &$ours,array &$theirs,resource $index,string $path)
 
-git_index_conflict_add(resource,array,array,array)
+void git_index_conflict_iterator_free(resource $iter)
 
-git_index_conflict_cleanup(resource)
-
-git_index_conflict_get(&array,&array,&array,resource,path)
-
-    ** NOTE: This function signature is the same as the C API. It doesn't have a
-       return value that we care about. **
-
-git_index_conflict_iterator_free(resource)
-
-git_index_conflict_iterator_new(resource)
+resource git_index_conflict_iterator_new(resource $index)
 
     Returns git_index_conflict_iterator resource
 
-git_index_conflict_next(&array,&array,&array,resource)
+bool git_index_conflict_next(array &$ancestor,array &$ours,array &$theirs,resource $iterator)
 
-    ** NOTE: This function signature is the same as the C API. **
+    Returns false when iteration is over.
 
-    ** The function returns false when iteration is over. **
+void git_index_conflict_remove(resource $index,string $path)
 
-    Returns bool
+int git_index_entrycount(resource $index)
 
-git_index_conflict_remove(resource,string)
+bool git_index_entry_is_conflict(array $entry)
 
-git_index_entrycount(resource)
+int git_index_stage(array $entry)
 
-    Returns int
+int git_index_find(resource $index,string $path)
 
-git_index_entry_is_conflict(array)
+int git_index_find_prefix(resource $index,string $prefix)
 
-    Returns boolean
+void git_index_free(resource $index)
 
-git_index_stage(array)
-
-    Returns int
-
-git_index_find(resource,string)
-
-    Returns int
-
-git_index_find_prefix(resource,string)
-
-    Returns int
-
-git_index_free(resource)
-
-git_index_get_byindex(resource,int)
+array|bool git_index_get_byindex(resource $index,int $n)
 
     Returns git_index_entry array, or false if out of bounds
 
-git_index_get_bypath(resource,string,int)
+array|bool git_index_get_bypath(resource $index,string $path,int $stage)
 
     Returns git_index_entry array, or false if does not exist
 
-git_index_has_conflicts(resource)
+bool git_index_has_conflicts(resource $index)
 
-    Returns boolean
-
-git_index_new()
+resource git_index_new()
 
     Returns git_index resource
 
-git_index_open(string)
+resource git_index_open(string $index_path)
 
     Returns git_index resource
 
-git_index_owner(resource)
+resource git_index_owner(resource $index)
 
     Returns git_repository resource
 
-git_index_path(resource)
+?string git_index_path(resource $index)
 
-    Returns string
+void git_index_read(resource $index,bool $force)
 
-git_index_read(resource,boolean)
+void git_index_read_tree(resource $index,resource $tree)
 
-git_index_read_tree(resource,resource)
+void git_index_remove(resource $index,string $path,int $stage)
 
-git_index_remove(resource,string,int)
+bool git_index_remove_all(resource $index,array $pathspec,callable $callback,mixed $payload)
 
-git_index_remove_all(resource,array,callable,mixed)
+    See git_index_add_all() for callback description.
 
-    ** See git_index_add_all() for callback description. **
+void git_index_remove_bypath(resource $index,string $path)
 
-    Returns bool
+void git_index_remove_directory(resource $index,string $dir,int $stage)
 
-git_index_remove_bypath(resource,string)
+void git_index_set_caps(resource $index,int $caps)
 
-git_index_remove_directory(resource,string,int)
+void git_index_set_version(resource $index,int $version)
 
-git_index_set_caps(resource,int)
+bool git_index_update_all(resource $index,array $pathspec,callable $callback,mixed $payload)
 
-git_index_set_version(resource,int)
+    See git_index_add_all() for callback description.
 
-git_index_update_all(resource,array,callable,mixed)
+int git_index_version(resource $index)
 
-    ** See git_index_add_all() for callback description. **
+void git_index_write(resource $index)
 
-    Returns bool
+string git_index_write_tree(resource $index)
 
-git_index_version(resource)
-
-    Returns int
-
-git_index_write(resource)
-
-git_index_write_tree(resource)
-
-    Returns string
-
-git_index_write_tree_to(resource,resource)
-
-    Returns string
+string git_index_write_tree_to(resource $index,resource $repo)
 
 ----------------------------------------
-[git_trace]
+[git_indexer]
 ----------------------------------------
 
-git_trace_set(int)
+void git_indexer_append(resource $indexer,string $data)
 
-    ** NOTE: this function uses the standard PHP error log to write traces. This
-       only works if your libgit2 was built with tracing enabled. **
+    Transfer progress is stored in the resource. As such it is not passed to
+    this function. To obtain transfer progress stats, call git2_indexer_stats().
 
-----------------------------------------
-[git_ignore]
-----------------------------------------
+void git_indexer_commit(resource $indexer)
 
-git_ignore_add_rule(resource,string)
+    Transfer progress is stored in the resource. As such it is not passed to
+    this function. To obain transfer progress stats, call git2_indexer_stats().
 
-git_ignore_clear_internal_rules(resource)
+void git_indexer_free(resource $indexer)
 
-git_ignore_path_is_ignored(resource,string)
+string git_indexer_hash(resource $indexer)
 
-    Returns bool
+resource git_indexer_new(string $path,int $mode,?resource $odb,?array $options)
 
-----------------------------------------
-[git_attr]
-----------------------------------------
+    Parameter $options is an associative array matching struct
+    git_indexer_options.
 
-git_attr_add_macro(resource,string,string)
+    Return git_indexer resource
 
-git_attr_cache_flush(resource)
+array git2_indexer_stats(resource $indexer)
 
-git_attr_foreach(resource,int,string,callable,mixed)
+    To avoid the expense of translating a stats object every time an indexer
+    operation is performed, the library allocates an internal
+    git_indexer_progress structure on the resource object; this structure is
+    automatically passed to underlying calls.
 
-    Callback signature: void callback(string $name,string $value,mixed $payload)
+    The user may call this function to get the indexer transfer progress stats
+    at any time.
 
-        NOTE: $value may be NULL
-
-        The function should throw on error.
-
-git_attr_get(resource,int,string,string)
-
-    Returns string
-
-git_attr_value(string)
-
-    Returns int
-
-----------------------------------------
-[git_status]
-----------------------------------------
-
-git_status_byindex(resource,int)
-
-    ** The return array has the following structure: **
-
-        array(3) {
-          ["status"]
-          ["head_to_index"]
-            // git_diff_delta array
-          ["index_to_workdir"]
-            // git_diff_delta array
-        }
-
-    Returns array
-
-git_status_file(resource,string)
-
-    The function returns:
-
-        - int: if the path was successfully found, the return value is an
-               integer bitmask containing the status flags
-        - null: the path was ambiguous
-        - false: the path was not found
-
-    Returns mixed
-
-git_status_foreach(resource,callable,mixed)
-
-    Callback signature: void callback(string $path,int $status_flag,mixed $payload)
-
-        The function should throw on error.
-
-git_status_foreach_ext(resource,array,callable,mixed)
-
-    See notes on git_status_foreach() for callback signature.
-
-git_status_list_entrycount(resource)
-
-    Returns int
-
-git_status_list_free(resource)
-
-git_status_list_get_perfdata(resource)
-
-    Returns array
-
-git_status_list_new(resource,array|null)
-
-    ** Note: The options array is optional. **
-
-    Returns resource
-
-git_status_should_ignore(resource,string)
-
-    Returns bool
-
-----------------------------------------
-[git_cherrypick]
-----------------------------------------
-
-git_cherrypick(resource,resource,array|null)
-
-git_cherrypick_commit(resource,resource,resource,int,array|null)
-
-    Returns git_index resource
+    The return value is an associative array with git_transfer_progress fields.
 
 ----------------------------------------
 [git_merge]
 ----------------------------------------
 
-git_merge(resource,array,array|null,array|null)
+void git_merge(resource $repo,array $their_heads,?array $merge_options,?array $checkout_options)
 
-git_merge_analysis(&int,resource,array)
+    Parameter $their_heads is an array of git_annotated_commit resources.
 
-    The git_merge_preference_t value is returned throught the first parameter.
+    Parameter $merge_options is an associative array corresponding to
+    git_merge_options. Options are defaulted using git_merge_options_init().
 
-    Returns int (the git_merge_analysis_t value)
+    Parameter $checkout_options in an associative array corresponding to
+    git_checkout_options. Options are defaulted using
+    git_checkout_init_options().
 
-git_merge_base(resource,string,string)
+int git_merge_analysis(int &$preference,resource $repo,array $their_heads)
 
-    Returns string
+    Parameter $their_heads is an array of git_annotated_commit resources.
 
-git_merge_base_many(resource,array)
+    Returns the analysis enumeration result
 
-    ** NOTE: the 2nd argument is an array of strings **
+string git_merge_base(resource $repo,string $one,string $two)
 
-    Returns string
+string git_merge_base_many(resource $repo,array $input_array)
 
-git_merge_base_octopus(resource,array)
+    Parameter $input_array is an array of strings.
 
-    ** NOTE: the 2nd argument is an array of strings **
+string git_merge_base_octopus(resource $repo,array $input_array)
 
-    Returns string
+    Parameter $input_array is an array of strings.
 
-git_merge_bases(resource,string,string)
+array git_merge_bases(resource $repo,string $one,string $two)
 
-    Returns array
+    Returns an array of string
 
-git_merge_bases_many(resource,array)
+array git_merge_bases_many(resource $repo,array $input_array)
 
-    ** NOTE: the 2nd argument is an array of strings **
+    Parameter $input_array is an array of strings.
 
-    Returns array
+    Returns an array of string
 
-git_merge_commits(resource,resource,resource,array|null)
+resource git_merge_commits(resource $repo,resource $our_commit,resource $their_commit,?array $merge_options)
+
+    Parameter $merge_options is an associative array corresponding to
+    git_merge_options. Options are defaulted using git_merge_options_init().    
 
     Returns git_index resource
 
-git_merge_file(array,array,array,array|null)
+array git_merge_file(array $ancestor,array $ours,array $theirs,?array $merge_file_options)
 
-    ** NOTE: the git_merge_file_input contains a member "ptr" that encapsulates
-       both "ptr" and "size" from the C structure. **
+    Parameters $ancestor, $ours and $theirs are associative arrays matching the
+    git_merge_file_input struct. The git_merge_file_input array contains a
+    property "ptr" that encapsulates both the "ptr" and "size" fields from the C
+    structure.
+
+    Parameter $merge_file_options is an associative array corresponding to
+    git_merge_file_options. Options are defaulted using
+    git_merge_file_init_options().
 
     Returns array (git_merge_file_result)
 
-git_merge_file_from_index(resource,array,array,array,array|null)
+array git_merge_file_from_index(resource $repo,?array $ancestor,array $ours,array $theirs,?array $merge_file_options)
+
+    Parameters $ancestor, $ours and $theirs are associative arrays matching the
+    git_index_entry struct.
+
+    Parameter $merge_file_options is an associative array corresponding to
+    git_merge_file_options. Options are defaulted using
+    git_merge_file_init_options().
 
     Returns array (git_merge_file_result)
 
-git_merge_trees(resource,resource|null,resource,resource,array|null)
+resource git_merge_trees(resource $repo,?resource $ancestor_tree,resource $our_tree,resource $their_tree,?array $merge_options)
 
     Returns git_index resource
 
@@ -2140,286 +1131,552 @@ git_merge_trees(resource,resource|null,resource,resource,array|null)
 [git_note]
 ----------------------------------------
 
-git_note_author(resource)
+resource git_note_author(resource $note)
 
     Returns git_signature resource
 
-git_note_committer(resource)
+resource git_note_committer(resource $note)
 
     Returns git_signature resource
 
-git_note_create(resource,string|null,resource,resource,string,string,bool)
+string git_note_create(resource $repo,?string $notes_ref,resource $author,resource $committer,string $oid,string $note,bool $force)
 
-    Returns string
+void git_note_foreach(resource $repo,?string $notes_ref,callable $callback,mixed $payload)
 
-git_note_foreach(resource,string|null,callable,mixed)
+    Callback signature: void callback(string $blob_id,string $annotated_object_id,mixed $payload)
 
-git_note_free(resource)
+void git_note_free(resource $note)
 
-git_note_id(resource)
+string git_note_id(resource $note)
 
-    Returns string
+void git_note_iterator_free(resource $note_iterator)
 
-git_note_iterator_free(resource)
-
-git_note_iterator_new(resource,string|null)
+resource git_note_iterator_new(resource $repo,?string $notes_ref)
 
     Returns git_note_iterator resource
 
-git_note_message(resource)
+string git_note_message(resource $note)
 
     Returns string
 
-git_note_next(&string,resource)
+string git_note_next(string &$annotated_id,resource $note_iterator)
 
-    ** NOTE: This function returns the note_id directly and assigns the
-       annotated_id to the first argument. **
+    Returns the note ID string
 
-    Returns string
-
-git_note_read(resource,string|null,string)
+resource git_note_read(resource $repo,?string $notes_ref,string $oid)
 
     Returns git_note resource
 
-git_note_remove(resource,string|null,resource,resource,string)
+void git_note_remove(resource $repo,?string $notes_ref,resource $author,resource $committer,string $oid)
 
 ----------------------------------------
-[git_reflog]
+[git_object]
+----------------------------------------
+resource git_object_dup(resource $object)
+
+    Returns git_object resource
+
+void git_object_free(resource $object)
+
+string git_object_id(resource $object)
+
+resource git_object_lookup(resource $repo,string $id,int $type)
+
+    Returns git_object resource
+
+resource git_object_lookup_bypath(resource $repo,string $path,int $type)
+
+    Returns git_object resource
+
+resource git_object_lookup_prefix(resource $repo,string $id,int $type)
+
+    Returns git_object resource
+
+resource git_object_owner(resource $object)
+
+    Returns git_repository resource
+
+resource git_object_peel(resource $object,int $target_type)
+
+    Returns git_object resource
+
+string git_object_short_id(resource $object)
+
+int git_object_string2type(string $str)
+
+int git_object_type(resource $object)
+
+string git_object_type2string(int $type)
+
+bool git_object_typeisloose(int $type)
+
+----------------------------------------
+[git_odb]
+    [git_odb_object]
 ----------------------------------------
 
-git_reflog_append(resource,string,resource,string|null)
+void git_odb_add_alternate(resource $odb,GitODBBackend $backend,int $priority)
 
-git_reflog_delete(resource,string)
+void git_odb_add_backend(resource $odb,GitODBBackend $backend,int $priority)
 
-git_reflog_drop(resource,int,bool)
+void git_odb_add_disk_alternate(resource $odb,string $path)
 
-    Returns bool
+GitODBBackend git_odb_backend_loose(string $objects_dir,int $compression_level,bool $do_fsync,int $dir_mode,int $file_mode)
 
-git_reflog_entry_byindex(resource,int)
+GitODBBackend git_odb_backend_one_pack(string $index_file)
 
-    Return structure:
+GitODBBackend git_odb_backend_pack(string $objects_dir)
 
-        - committer
-        - id_new
-        - id_old
-        - message
+bool git_odb_exists(resource $odb,string $id)
 
-    Returns array
+string git_odb_exists_prefix(resource $odb,string $prefix)
 
-git_reflog_entrycount(resource)
+    This function throws when not found or ambiguous. It returns a string when
+    the object is found.
 
-git_reflog_free(resource)
+    Returns string
 
-git_reflog_read(resource,string)
+void git_odb_expand_ids(resource $odb,array &$ids)
 
-    Returns git_reflog resource
+    This function will return results in the $ids parameter. While this
+    parameter employs reference semantics, it is not technically passed by
+    reference in the implementation.
 
-git_reflog_rename(resource,string,string)
+void git_odb_foreach(resource $odb,callable $callback,mixed $payload)
 
-git_reflog_write(resource)
+    Callback signature: bool callback(string $oid,mixed $payload)
+
+        To stop iteration, the callback should return false.
+
+        The callback should throw on error.
+
+void git_odb_free(resource $odb)
+
+GitODBBackend git_odb_get_backend(resource $odb,int $pos)
+
+string git_odb_hash(string $data,int $type)
+
+string git_odb_hashfile(string $path,int $type)
+
+resource git_odb_new()
+
+    Return git_odb resource
+
+int git_odb_num_backends(resource $odb)
+
+string git_odb_object_data(resource $odb_object)
+
+resource git_odb_object_dup(resource $odb_object)
+
+    Returns git_odb_object resource
+
+void git_odb_object_free(resource $odb_object)
+
+string git_odb_object_id(resource $odb_object)
+
+int git_odb_object_size(resource $odb_object)
+
+int git_odb_object_type(resource $odb_object)
+
+resource git_odb_open(string $objects_dir)
+
+    Returns git_odb resource
+
+GitODBStream git_odb_open_rstream(int &$length,int &$type,resource $odb,string $oid)
+
+GitODBStream git_odb_open_wstream(resource $odb,int $size,int $type)
+
+resource git_odb_read(resource $odb,string $id)
+
+    Returns git_odb_object resource
+
+int git_odb_read_header(int &$type,resource $odb,string $id)
+
+    Returns the length of the header
+
+resource git_odb_read_prefix(resource $odb,string $prefix)
+
+    Returns git_odb_object resource
+
+void git_odb_refresh(resource $odb)
+
+string git_odb_stream_finalize_write(GitODBStream $stream)
+
+string git_odb_stream_read(GitODBStream $stream,int $buffer_length)
+
+    Parameter $buffer_length is the length of the buffer to read.
+
+    Returns the read buffer
+
+void git_odb_stream_write(GitODBStream $stream,string $buffer)
+
+string git_odb_write(resource $odb,string $data,int $type)
+
+    Returns the OID result of the write
+
+GitODBWritepack_Internal git_odb_write_pack(resource $odb,callable $progress_callback,mixed $payload)
 
 ----------------------------------------
-[git_refdb]
+[git_packbuilder]
 ----------------------------------------
 
-git_refdb_backend_fs(resource)
+void git_packbuilder_foreach(resource $packbuilder,callable $callback,mixed $payload_or_stream)
 
-    Returns GitRefDBBackend_Internal object
+    If $payload_or_stream is a PHP stream resource and $callback is null, then
+    the extension will internally write callback data to the stream. (This is a
+    non-standard extension to libgit2 behavior provided by php-git2.)
 
-git_refdb_compress(resource)
+    Callback signature: bool callback(string $data,int $length,mixed $payload)
 
-git_refdb_free(resource)
+        The callback should return false to cancel the transaction.
 
-git_refdb_new(resource)
+        The callback should throw on error.
 
-    Returns git_refdb resource
+void git_packbuilder_free(resource $packbuilder)
 
-git_refdb_open(resource)
+string git_packbuilder_hash(resource $packbuilder)
 
-    Returns git_refdb resource
+void git_packbuilder_insert(resource $packbuilder,string $id,?string $name)
 
-git_refdb_set_backend(resource,object)
+void git_packbuilder_insert_commit(resource $packbuilder,string $id)
+
+void git_packbuilder_insert_recur(resource $packbuilder,string $id,?string $name)
+
+void git_packbuilder_insert_tree(resource $packbuilder,string $id)
+
+void git_packbuilder_insert_walk(resource $packbuilder,resource $revwalk)
+
+resource git_packbuilder_new(resource $repo)
+
+    Returns git_packbuilder resource
+
+int git_packbuilder_object_count(resource $packbuilder)
+
+void git_packbuilder_set_callbacks(resource $packbuilder,callable $progress_callback,mixed $payload)
+
+    Callback signature: void callback(int $stage,int $current,int $total,mixed $payload)
+
+        The callback should throw on error.
+
+void git_packbuilder_set_threads(resource $packbuilder,int $n_threads)
+
+void git_packbuilder_write(resource $packbuilder,string $path,int $mode,callable $progress_callback,mixed $payload)
+
+    Callback signature: void callback(array $stats)
+
+        The $stats array has properties of the libgit2 git_transfer_progress
+        struct.
+
+int git_packbuilder_written(resource $packbuilder)
 
 ----------------------------------------
 [git_patch]
 ----------------------------------------
 
-git_patch_free(resource)
+void git_patch_free(resource $patch)
 
 resource git_patch_from_blob_and_buffer(?resource $old_blob,?string $old_as_path,?string $buffer,?string $buffer_as_path,?array $options)
 
     Returns git_patch resource
 
-git_patch_from_blobs(resource|null,string|null,resource|null,string|null,array|null)
+resource git_patch_from_blobs(?resource $old_blob,?string $old_as_path,?resource $new_blob,?string $new_as_path,?array $options)
 
     Returns git_patch resource
 
-git_patch_from_buffers(string|null,string|null,string|null,string|null,array|null)
+resource git_patch_from_buffers(?string $old_buffer,?string $old_as_path,?string $new_buffer,?string $new_as_path,?array $options)
 
     Returns git_patch resource
 
-git_patch_from_diff(resource,int)
+resource git_patch_from_diff(resource $diff,int $idx)
 
     Returns git_patch_resource
 
-git_patch_get_delta(resource)
+array git_patch_get_delta(resource $patch)
 
-    Returns array
+    Returns an associative array corresponding to the git_diff_delta struct.
 
-git_patch_get_hunk(&int,resource,int)
+array git_patch_get_hunk(int &$lines_in_hunk,resource $patch,int $hunk_idx)
 
-    The function will assign the lines_in_hunk to the first parameter.
+    Returns a git_diff_hunk array
 
-    Returns array
+array git_patch_get_line_in_hunk(resource $patch,int $hunk_idx,int $line_of_hunk)
 
-git_patch_get_line_in_hunk(resource,int,int)
+    Returns a git_diff_line array
 
-    Returns array
+int git_patch_line_stats(int &$total_additions,int &$total_deletions,resource $patch)
 
-git_patch_line_stats(&int,&int,resource)
+    Returns the total_context value
 
-    The function returns the total_context value.
+int git_patch_num_hunks(resource $patch)
 
-    The total_additions value is assigned to the first parameter, and the
-    total_deletions value is assigned to the second parameter.
-
-    Returns int
-
-git_patch_num_hunks(resource)
-
-    Returns int
-
-git_patch_num_lines_in_hunk(resource,int)
+int|bool git_patch_num_lines_in_hunk(resource $patch,int $hunk_idx)
 
     Returns int or false if invalid hunk index
 
-git_patch_print(resource,callable,mixed)
+void git_patch_print(resource $patch,callable $callback,mixed $payload)
 
     Callback signature: void callback(array $delta,array $hunk,array $line,mixed $payload)
 
         The callback should throw on error.
 
-git_patch_size(resource,bool,bool,bool)
+int git_patch_size(resource $patch,bool $include_context,bool $include_hunk_headers,bool $include_file_headers)
 
-    Returns int
-
-git_patch_to_buf(resource)
-
-    Returns string
-
-----------------------------------------
-[git_describe]
-----------------------------------------
-
-git_describe_commit(resource,array|null)
-
-    Returns git_describe_result resource
-
-git_describe_format(resource,array|null)
-
-    Returns string
-
-git_describe_result_free(resource)
-
-git_describe_workdir(resource,array|null)
-
-    Returns git_describe_result resource
+string git_patch_to_buf(resource $patch)
 
 ----------------------------------------
 [git_rebase]
 ----------------------------------------
 
-git_rebase_abort(resource)
+bool git_rebase_abort(resource $rebase)
 
     Returns true if successful, false if a rebase is not in progress
 
-git_rebase_commit(&string,resource,resource|null,resource,string|null,string|null)
+int git_rebase_commit(string &$id,resource $rebase,?resource $author,resource $committer,string $message_encoding = null,string $message = null)
 
-    Returns int (same as git2 function, still throws on error)
+    Returns the underlying function result
 
-git_rebase_finish(resource,resource|null)
+void git_rebase_finish(resource $rebase,?resource $signature)
 
-git_rebase_free(resource)
+void git_rebase_free(resource $rebase)
 
-git_rebase_init(resource,resource|null,resource|null,resource|null,array|null)
+resource git_rebase_init(resource $repo,?resource $branch,?resource $upstream,?resource $onto,?array $options)
 
-    Returns git_rebase resource
+    Parameters $branch, $upstream and $onto can either be null or a resource of
+    type git_annotated_commit.
 
-git_rebase_inmemory_index(resource)
-
-    Returns git_index resource
-
-git_rebase_next(resource)
-
-    Returns array
-
-git_rebase_open(resource,array|null)
+    Parameter $options is an associative array corresponding to the
+    git_rebase_options structure. Options are defaulted using
+    git_rebase_options_init().
 
     Returns git_rebase resource
 
-git_rebase_operation_byindex(resource,int)
-
-    Returns array
-
-git_rebase_operation_current(resource)
-
-    Returns int
-
-git_rebase_operation_entrycount(resource)
-
-    Returns int
-
-----------------------------------------
-[git_reset]
-----------------------------------------
-
-git_reset(resource,resource,int,array|null)
-
-git_reset_default(resource,resource|null,array)
-
-git_reset_from_annotated(resource,resource,int,array)
-
-----------------------------------------
-[git_revert]
-----------------------------------------
-
-git_revert(resource,resource,array|null)
-
-git_revert_commit(resource,resource,resource,int,array|null)
+resource git_rebase_inmemory_index(resource $rebase)
 
     Returns git_index resource
 
+array git_rebase_next(resource $rebase)
+
+    Returns a git_rebase_operation array
+
+resource git_rebase_open(resource $repo,?array $options)
+
+    Parameter $options is an associative array corresponding to the
+    git_rebase_options structure. Options are defaulted using
+    git_rebase_options_init().
+
+    Returns git_rebase resource
+
+array git_rebase_operation_byindex(resource $rebase,int $idx)
+
+    Returns a git_rebase_operation array
+
+int git_rebase_operation_current(resource $rebase)
+
+int git_rebase_operation_entrycount(resource $rebase)
+
 ----------------------------------------
-[git_stash]
+[git_refdb]
 ----------------------------------------
 
-Stash apply options callback signature:
+GitRefDBBackend_Internal git_refdb_backend_fs(resource $refdb)
 
-    void callback(int $progress,mixed $payload)
+    Returns GitRefDBBackend_Internal object
 
-        The callback should return false to abort the stash.
+void git_refdb_compress(resource $refdb)
+
+void git_refdb_free(resource $refdb)
+
+resource git_refdb_new(resource $repo)
+
+    Returns git_refdb resource
+
+resource git_refdb_open(resource $repo)
+
+    Returns git_refdb resource
+
+void git_refdb_set_backend(resource $refdb,GitRefDBBackend $backend)
+
+----------------------------------------
+[git_reference]
+----------------------------------------
+
+int git_reference_cmp(resource $ref1,resource $ref2)
+
+    Returns the same return value as underlying library call.
+
+resource git_reference_create(resource $repo,string $name,string $id,bool $force,string $log_message)
+
+    Returns git_reference resource
+
+resource git_reference_create_matching(resource $repo,string $name,string $id,bool $force,string $current_id,string $log_message)
+
+    Returns git_reference resource
+
+void git_reference_delete(resource $ref)
+
+resource git_reference_dup(resource $ref)
+
+    Returns git_reference resource
+
+resource git_reference_dwim(resource $repo,string $shorthand)
+
+    Returns git_reference resource
+
+void git_reference_ensure_log(resource $repo,string $refname)
+
+void git_reference_foreach(resource $repo,callable $callback,mixed $payload)
+
+    Callback signature:
+        void callback(resource $ref,mixed $payload)
 
         The callback should throw on error.
 
-git_stash_apply(resource,int,array|null)
+void git_reference_foreach_glob(resource $repo,string $glob,callable $callback,mixed $payload)
 
-git_stash_drop(resource,int)
-
-git_stash_foreach(resource,callable,mixed)
+void git_reference_foreach_name(resource $repo,callable $callback,mixed $payload)
 
     Callback signature:
+        void callback(string $name,mixed $payload)
 
-        void callback(int $index,string $message,string $stash_id,mixed $payload)
+        The callback should throw on error.
 
-            The callback should return false to stop iteration.
+void git_reference_free(resource $ref)
 
-            The callback should throw on error.
+bool git_reference_has_log(resource $repo,string $refname)
 
-git_stash_pop(resource,int,array|null)
+bool git_reference_is_branch(resource $ref)
 
-git_stash_save(resource,resource,string,int)
+bool git_reference_is_note(resource $ref)
 
-    Returns int
+bool git_reference_is_remote(resource $ref)
+
+bool git_reference_is_tag(resource $ref)
+
+bool git_reference_is_valid_name(string $refname)
+
+bool git_reference_iterator_free(resource $iterator)
+
+resource git_reference_iterator_glob_new(resource $repo,string $glob)
+
+    Returns git_reference_iterator resource
+
+resource git_reference_iterator_new(resource $repo)
+
+    Returns git_reference_iterator resource
+
+array git_reference_list(resource $repo)
+
+    Returns array of string
+
+resource git_reference_lookup(resource $repo,string $name)
+
+    Returns git_reference resource
+
+string git_reference_name(resource $ref)
+
+string git_reference_name_to_id(resource $repo,string $name)
+
+resource|bool git_reference_next(resource $iter)
+
+    Returns git_reference resource or false if iteration is over
+
+string|bool git_reference_next_name(resource $iter)
+
+    Returns string or false if iteration is over
+
+string git_reference_normalize_name(string $name,int $flags)
+
+resource git_reference_owner(resource $ref)
+
+    Returns git_repository resource
+
+resource git_reference_peel(resource $ref,int $type)
+
+    Returns git_object resource
+
+void git_reference_remove(resource $repo,string $name)
+
+resource git_reference_rename(resource $ref,string $new_name,bool $force,string $log_message)
+
+    Returns git_reference resource
+
+resource git_reference_resolve(resource $ref)
+
+    Returns git_reference resource
+
+resource git_reference_set_target(resource $ref,string $id,string $log_message)
+
+    Returns git_reference resource
+
+string git_reference_shorthand(resource $ref)
+
+resource git_reference_symbolic_create(resource $repo,string $name,string $target,bool $force,string $log_message)
+
+    Returns git_reference resource
+
+resource git_reference_symbolic_create_matching(resource $repo,string $name,string $target,bool $force,string $current_value,string $log_message)
+
+    Returns git_reference resource
+
+resource git_reference_symbolic_set_target(resource $ref,string $target,string $log_message)
+
+    Returns git_reference resource
+
+?string git_reference_symbolic_target(resource $ref)
+
+?string git_reference_target(resource $ref)
+
+?string git_reference_target_peel(resource $ref)
+
+int git_reference_type(resource $ref)
+
+----------------------------------------
+[git_reflog]
+----------------------------------------
+
+void git_reflog_append(resource $reflog,string $id,resource $committer,?string $msg)
+
+void git_reflog_delete(resource $repo,string $name)
+
+bool git_reflog_drop(resource $reflog,int $idx,bool $rewrite_previous_entry)
+
+array git_reflog_entry_byindex(resource $reflog,int $idx)
+
+    Returns a git_reflog_entry array
+
+int git_reflog_entrycount(resource $reflog)
+
+void git_reflog_free(resource $reflog)
+
+resource git_reflog_read(resource $repo,string $name)
+
+    Returns git_reflog resource
+
+void git_reflog_rename(resource $repo,string $old_name,string $name)
+
+void git_reflog_write(resource $reflog)
+
+----------------------------------------
+[git_refspec]
+----------------------------------------
+
+int git_refspec_direction(resource $refspec)
+
+string git_refspec_dst(resource $refspec)
+
+bool git_refspec_dst_matches(resource $refspec,string $refname)
+
+bool git_refspec_force(resource $refspec)
+
+string git_refspec_rtransform(resource $refspec,string $name)
+
+string git_refspec_src(resource $refspec)
+
+bool git_refspec_src_matches(resource $refspec,string $refname)
+
+string git_refspec_string(resource $refspec)
+
+string git_refspec_transform(resource $refspec,string $name)
 
 ----------------------------------------
 [git_remote]
@@ -2440,10 +1697,14 @@ Callback signatures:
 
     Credential acquire callback:
 
-        resource callback(string $url,string $username_from_url,
-                    int $allowed_types,mixed $payload)
+        ?resource callback(
+            string $url,
+            string $username_from_url,
+            int $allowed_types,
+            mixed $payload
+        )
 
-            Returns git_cred resource or NULL to passthrough
+            Returns git_credential resource or NULL to passthrough
 
     Transport certificate check callback:
 
@@ -2451,9 +1712,9 @@ Callback signatures:
 
     Transfer progress callback:
 
-        Same as for git_indexer_new:
+        void callback(array $stats,mixed $payload)
 
-                void callback(array $stats,mixed $payload)
+        Same as for git_indexer_new
 
     Update tips callback:
 
@@ -2477,308 +1738,757 @@ Callback signatures:
 
         void callback(array $updates,mixed $payload)
 
-    NOTE: the transport callback is not implemented at this time since we do not
-    yet implement custom transports.
+    The transport callback is not implemented at this time since we do not yet
+    implement custom transports.
 
-git_remote_add_fetch(resource,string,string)
+void git_remote_add_fetch(resource $repo,string $remote,string $refspec)
 
-git_remote_add_push(resource,string,string)
+void git_remote_add_push(resource $repo,string $remote,string $refspec)
 
-git_remote_autotag(resource)
+int git_remote_autotag(resource $remote)
 
-    Returns int
+void git_remote_connect(resource $remote,int $direction,?array $callbacks,?array $proxy_options,?array $custom_headers)
 
-git_remote_connect(resource,int,array|null,array|null,array|null)
+    Parameter $callbacks is an associative array corresponding to
+    git_remote_callbacks.
 
-git_remote_connected(resource)
+    Parameter $proxy_options is an associative array corresponding to
+    git_proxy_options. Options are defaulted using git_proxy_init_options().
 
-    Returns bool
+    Parameter $custom_headers is an array of strings.
 
-git_remote_create(resource,string,string)
+bool git_remote_connected(resource $remote)
 
-    Returns git_remote resource
-
-git_remote_create_anonymous(resource,string)
-
-    Returns git_remote resource
-
-git_remote_create_with_fetchspec(resource,string,string,string)
+resource git_remote_create(resource $repo,string $name,string $url)
 
     Returns git_remote resource
 
-git_remote_default_branch(resource)
-
-    Returns string
-
-git_remote_delete(resource,string)
-
-git_remote_disconnect(resource)
-
-git_remote_download(resource,null|array,array|null)
-
-git_remote_dup(resource)
+resource git_remote_create_anonymous(resource $repo,string $url)
 
     Returns git_remote resource
 
-git_remote_fetch(resource,array|null,array|null,string|null)
+resource git_remote_create_with_fetchspec(resource $repo,string $name,string $url,string $fetchspec)
 
-git_remote_free(resource)
+    Returns git_remote resource
 
-git_remote_get_fetch_refspecs(resource)
+string git_remote_default_branch(resource $remote)
 
-    Returns array
+void git_remote_delete(resource $repo,string $name)
 
-git_remote_get_push_refspecs(resource)
+void git_remote_disconnect(resource $remote)
 
-    Returns array
+void git_remote_download(resource $remote,?array $refspecs,?array $fetch_options)
 
-git_remote_get_refspec(resource)
+    Parameter $fetch_options is an associative array corresponding to
+    git_fetch_options. Options are defaulted using git_fetch_init_options().
+
+resource git_remote_dup(resource $remote)
+
+    Returns git_remote resource
+
+void git_remote_fetch(resource $remote,?array $refspecs,?array $fetch_options,?string $reflog_message)
+
+    Parameter $refspecs is an array of strings.
+
+    Parameter $fetch_options is an associative array corresponding to
+    git_fetch_options. Options are defaulted using git_fetch_init_options().
+
+void git_remote_free(resource $remote)
+
+array git_remote_get_fetch_refspecs(resource $remote)
+
+array git_remote_get_push_refspecs(resource $remote)
+
+resource git_remote_get_refspec(resource $remote,int $n)
 
     Returns git_refspec resource
 
-git_remote_is_valid_name(string)
+bool git_remote_is_valid_name(string $remote_name)
 
-    Returns bool
+array git_remote_list(resource $repo)
 
-git_remote_list(resource)
-
-    Returns array
-
-git_remote_lookup(resource,string)
+resource git_remote_lookup(resource $repo,string $name)
 
     Returns git_remote resource
 
-git_remote_ls(resource)
+array git_remote_ls(resource $remote)
 
-    Returns array
+    Returns an indexed array of git_remote_head arrays
 
-git_remote_name(resource)
+string git_remote_name(resource $remote)
 
-    Returns string
-
-git_remote_owner(resource)
+resource git_remote_owner(resource $remote)
 
     Returns git_repository resource
 
-git_remote_prune(resource,array|null)
+void git_remote_prune(resource $remote,?array $callbacks)
 
-git_remote_prune_refs(resource)
+    Parameter $callbacks is an associative array corresponding to
+    git_remote_callbacks.
 
-git_remote_push(resource,array|null,array|null)
+void git_remote_prune_refs(resource $remote)
 
-git_remote_pushurl(resource)
+void git_remote_push(resource $remote,?array $refspecs,?array $push_options)
 
-git_remote_refspec_count(resource)
+    Parameter $refspecs is an array of string.
 
-    Returns int
+    Parameter $push_options is an associative array corresponding to
+    git_push_options. Options are defaulted using git_push_init_options().
 
-git_remote_rename(resource,string,string)
+string git_remote_pushurl(resource $remote)
 
-    Returns array
+int git_remote_refspec_count(resource $remote)
 
-git_remote_set_autotag(resource,string,int)
+array git_remote_rename(resource $repo,string $name,string $new_name)
 
-git_remote_set_pushurl(resource,string,string)
+void git_remote_set_autotag(resource $repo,string $remote,int $value)
 
-git_remote_set_url(resource,string,string)
+void git_remote_set_pushurl(resource $repo,string $remote,string $url)
 
-git_remote_stats(resource)
+void git_remote_set_url(resource $repo,string $remote,string $url)
 
-    Returns array
+array git_remote_stats(resource $remote)
 
-git_remote_stop(resource)
+void git_remote_stop(resource $remote)
 
-git_remote_update_tips(resource,array|null,bool,int,string|null)
+void git_remote_update_tips(resource $remote,?array $callbacks,bool $update_fetchhead,int $download_tags,?string $reflog_message)
 
-git_remote_upload(resource,array|null,array|null)
+    Parameter $callbacks is an associative array corresponding to
+    git_remote_callbacks.
 
-git_remote_url(resource)
+void git_remote_upload(resource $remote,?array $refspecs,?array $push_options)
+
+    Parameter $refspecs is an array of string.
+
+    Parameter $push_options is an associative array corresponding to
+    git_push_options. Options are defaulted using git_push_init_options().
+
+string git_remote_url(resource $remote)
+
+----------------------------------------
+[git_repository]
+----------------------------------------
+
+resource git_repository_config(resource $repo)
+
+    Returns git_config resource
+
+resource git_repository_config_snapshot(resource $repo)
+
+    Returns git_config resource
+
+int git_repository_detach_head(resource $repo)
+
+string git_repository_discover(string $start_path,bool $across_fs,string $ceiling_dirs = null)
 
     Returns string
 
-----------------------------------------
-[git_refspec]
-----------------------------------------
+void git_repository_fetchhead_foreach(resource $repo,callable $callback,mixed $payload)
 
-git_refspec_direction(resource)
+  Callback signature:
+      void callback(string $ref_name,string $remote_url,string $oid,bool $is_merge,mixed $payload)
 
-    Returns int
+void git_repository_free(resource $repo)
 
-git_refspec_dst(resource)
+string git_repository_get_namespace(resource $repo)
 
-    Returns string
+string git_repository_hashfile(resource $repo,string $path,int $type,string $as_path = null)
 
-git_refspec_dst_matches(resource,string)
+resource git_repository_head(resource $repo)
+
+    Returns git_reference resource
+
+bool git_repository_head_detached(resource $repo)
+
+bool git_repository_head_unborn(resource $repo)
+
+string git_repository_ident(string &$email,resource $repo)
+
+    Returns the name
+
+resource git_repository_index(resource $repo)
+
+    Returns git_index resource
+
+resource git_repository_init(string $path,bool $is_bare = false)
+
+    Returns git_repository resource
+
+resource git_repository_init_ext(string $path,array $options = null)
+
+    The final parameter is an array of options with keys corresponding to the
+    git_repository_init_options struct. If you do not specify an option key, it
+    will be filled in with the default value supplied via
+    git_repository_init_init_options. It may be null if you want to purely use
+    the defaults.
+
+    NOTE: the git2 extension does not implement
+    git_repository_init_init_options(). Just use an array to pass in init
+    options and it will be initialized for you behind-the-scenes.
+
+    Returns git_repository resource
+
+bool git_repository_is_bare(resource $repo)
+
+bool git_repository_is_empty(resource $repo)
+
+bool git_repository_is_shallow(resource $repo)
+
+void git_repository_mergehead_foreach(resource $repo,callable $callback,mixed $payload)
+
+    Callback signature:
+        void callback(string $oid,mixed $payload)
+
+string|bool git_repository_message(resource $repo)
+
+    Returns false if no message exists
+
+void git_repository_message_remove(resource $repo)
+
+resource git_repository_new()
+
+    Returns git_repository resource
+
+resource git_repository_odb(resource $repo)
+
+    Returns git_odb resource
+
+resource git_repository_open(string $path)
+
+    Returns git_repository resource
+
+resource git_repository_open_bare(string $bare_path)
+
+    Returns git_repository resource
+
+resource git_repository_open_ext(?string $path,int $flags,string $ceiling_dirs)
+
+    Returns git_repository resource
+
+string git_repository_path(resource $repo)
+
+resource git_repository_refdb(resource $repo)
+
+    Returns git_refdb resource
+
+void git_repository_reinit_filesystem(resource $repo,bool $recurse_submodules = true)
+
+void git_repository_set_bare(resource $repo)
+
+void git_repository_set_config(resource $repo,resource $config)
+
+void git_repository_set_head(resource $repo,string $refname)
+
+bool git_repository_set_head_detached(resource $repo,string $committish)
 
     Returns bool
 
-git_refspec_force(resource)
+bool git_repository_set_head_detached_from_annotated(resource $repo,resource $committish)
 
-    Returns bool
+    $committish must be a resource of type git_annotated_commit
 
-git_refspec_rtransform(resource,string)
+void git_repository_set_ident(resource $repo,string $name,string $email)
 
-    Returns string
+void git_repository_set_index(resource $repo,resource $index)
 
-git_refspec_src(resource)
+void git_repository_set_namespace(resource $repo,string $namespace)
 
-    Returns string
+void git_repository_set_odb(resource $repo,resource $odb)
 
-git_refspec_src_matches(resource,string)
+void git_repository_set_refdb(resource $repo,resource $refdb)
 
-    Returns bool
+void git_repository_set_workdir(resource $repo,string $workdir,bool $update_gitlink)
 
-git_refspec_string(resource)
+int git_repository_state(resource $repo)
 
-    Returns string
+void git_repository_state_cleanup(resource $repo)
 
-git_refspec_transform(resource,string)
+?string git_repository_workdir(resource $repo)
 
-    Returns string
+    Returns NULL if the repository has no workdir (i.e. for a bare repository)
+
+resource git_repository_wrap_odb(resource $odb)
+
+    Returns git_repository resource
 
 ----------------------------------------
-[git_cred]
+[git_reset]
 ----------------------------------------
 
-git_cred_default_new()
+void git_reset(resource $repo,resource $target_object,int $reset_type,?array $checkout_options)
 
-    Returns git_cred resource
+    Parameter $checkout_options is an associative array corresponding to
+    git_checkout_options. Options are defaulted using
+    git_checkout_options_init().
 
-git_cred_free(resource)
+void git_reset_default(resource $repo,?resource $target_object,array $pathspecs)
 
-git_cred_has_username(resource)
+void git_reset_from_annotated(resource $repo,resource $annotated_commit,int $reset_type,?array $checkout_options)
 
-    Returns bool
+----------------------------------------
+[git_revert]
+----------------------------------------
 
-git_cred_ssh_custom_new()
+void git_revert(resource $repo,resource $commit,?array $revert_options)
 
-    ** NOT IMPLEMENTED **
+    Parameter $revert_options is an associative array corresponding to
+    git_revert_options. Options are defaulted using git_revert_options_init().
 
-git_cred_ssh_interactive_new()
+resource git_revert_commit(resource $repo,resource $revert_commit,resource $our_commit,int $mainline,?array $merge_options)
 
-    ** NOT IMPLEMENTED **
+    Parameter $merge_options is an array having the keys of the
+    git_merge_options struct. Any properties that are not specified inherit the
+    defaults provided via calling git_merge_options_init(). You may specify null
+    to use only the defaults.
 
-git_cred_ssh_key_from_agent(string)
+    Returns git_index resource
 
-    Returns git_cred resource
+----------------------------------------
+[git_revparse]
+----------------------------------------
 
-git_cred_ssh_key_memory_new(string,string,string,string)
+array git_revparse(resource $repo,string $spec)
 
-    Returns git_cred resource
+    The return array contains the fields of the revspec structure. Example:
 
-git_cred_ssh_key_new(string,string,string,string)
+        array(3) {
+          ["from"]  resource of type git_object (may be null)
+          ["to"]    resource of type git_object (may be null)
+          ["flags"] int
+        }
 
-    Returns git_cred resource
+resource git_revparse_ext(?resource &$reference,resource $repo,string $spec)
 
-git_cred_username_new(string)
+    Returns a git_object resource
 
-    Returns git_cred resource
+resource git_revparse_single(resource $repo,string $spec)
 
-git_cred_userpass_plaintext_new(string,string)
+    Returns git_object resource
 
-    Returns git_cred resource
+----------------------------------------
+[git_revwalk]
+----------------------------------------
+void git_revwalk_add_hide_cb(resource $revwalk,callable $callback,mixed $payload)
+
+    Callback signature: void callback(string $commit_id,mixed $payload)
+
+        The function should throw on error.
+
+void git_revwalk_free(resource $revwalk)
+
+void git_revwalk_hide(resource $revwalk,string $commit_id)
+
+void git_revwalk_hide_glob(resource $revwalk,string $glob)
+
+void git_revwalk_hide_head(resource $revwalk)
+
+void git_revwalk_hide_ref(resource $revwalk,string $refname)
+
+resource git_revwalk_new(resource $repo)
+
+    Returns git_revwalk resource
+
+string|bool git_revwalk_next(resource $revwalk)
+
+    Returns string or false when on iterover
+
+void git_revwalk_push(resource $revwalk,string $id)
+
+void git_revwalk_push_glob(resource $revwalk,string $glob)
+
+void git_revwalk_push_head(resource $revwalk)
+
+void git_revwalk_push_range(resource $revwalk,string $range)
+
+void git_revwalk_push_ref(resource $revwalk,string $refname)
+
+resource git_revwalk_repository(resource $revwalk)
+
+    Returns git_repository resource
+
+void git_revwalk_reset(resource $revwalk)
+
+void git_revwalk_simplify_first_parent(resource $revwalk)
+
+void git_revwalk_sorting(resource $revwalk,int $sort_mode)
+
+----------------------------------------
+[git_signature]
+----------------------------------------
+
+resource git_signature_default(resource $repo)
+
+    Returns git_signature resource
+
+resource git_signature_dup(resource $signature)
+
+    Returns git_signature resource
+
+void git_signature_free(resource $signature)
+
+resource git_signature_from_buffer(string $buffer)
+
+    Returns git_signature resource
+
+resource git_signature_new(string $name,string $email,int $time,int $offset)
+
+    Returns git_signature resource
+
+resource git_signature_now(string $name,string $email)
+
+    Returns git_signature resource
+
+array git2_signature_convert(resource $signature)
+
+    Returns an associative array corresponding to the git_signature
+    structure. The associative array has the following keys:
+
+        - name
+        - email
+        - when.time
+        - when.offset
+
+----------------------------------------
+[git_stash]
+----------------------------------------
+
+Stash apply options callback signature:
+
+    void callback(int $progress,mixed $payload)
+
+        The callback should return false to abort the stash.
+
+        The callback should throw on error.
+
+void git_stash_apply(resource $repo,int $index,?array $stash_apply_options)
+
+    Parameter $stash_apply_options is an associative array corresponding to
+    git_stash_apply_options. Options are defaulted using
+    git_stash_apply_options_init().
+
+void git_stash_drop(resource $repo,int $index)
+
+void git_stash_foreach(resource $repo,callable $callback,mixed $payload)
+
+    Callback signature:
+
+        void callback(int $index,string $message,string $stash_id,mixed $payload)
+
+            The callback should return false to stop iteration.
+
+            The callback should throw on error.
+
+void git_stash_pop(resource $repo,int $index,?array $stash_apply_options)
+
+    Parameter $stash_apply_options is an associative array corresponding to
+    git_stash_apply_options. Options are defaulted using
+    git_stash_apply_options_init().
+
+string git_stash_save(resource $repo,resource $signature,string $message,int $flags)
+
+----------------------------------------
+[git_status]
+----------------------------------------
+
+array git_status_byindex(resource $statuslist,int $idx)
+
+    ** The return array has the following structure: **
+
+        array(3) {
+          ["status"]
+          ["head_to_index"]
+            // git_diff_delta array
+          ["index_to_workdir"]
+            // git_diff_delta array
+        }
+
+    Returns a git_status_entry array
+
+?int|bool git_status_file(resource $repo,string $path)
+
+    The function returns:
+
+        - int: if the path was successfully found, the return value is an
+               integer bitmask containing the status flags
+        - null: the path was ambiguous
+        - false: the path was not found
+
+void git_status_foreach(resource $repo,callable $callback,mixed $payload)
+
+    Callback signature: void callback(string $path,int $status_flag,mixed $payload)
+
+        The function should throw on error.
+
+void git_status_foreach_ext(resource $repo,?array $status_options,callable $callback,mixed $payload)
+
+    See notes on git_status_foreach() for callback signature.
+
+int git_status_list_entrycount(resource $statuslist)
+
+void git_status_list_free(resource $statuslist)
+
+array git_status_list_get_perfdata(resource $statuslist)
+
+resource git_status_list_new(resource $repo,?array $status_options)
+
+    Returns git_status_list resource
+
+bool git_status_should_ignore(resource $repo,string $path)
 
 ----------------------------------------
 [git_submodule]
 ----------------------------------------
 
-git_submodule_add_finalize(resource)
+void git_submodule_add_finalize(resource $submodule)
 
-git_submodule_add_setup(resource,string,string,bool)
-
-    Returns git_submodule resource
-
-git_submodule_add_to_index(resource,bool)
-
-git_submodule_branch(resource)
-
-    Returns string
-
-git_submodule_fetch_recurse_submodules(resource)
-
-    Returns int
-
-git_submodule_foreach(resource,callable,mixed)
-
-git_submodule_free(resource)
-
-git_submodule_head_id(resource)
-
-    Returns string
-
-git_submodule_ignore(resource)
-
-    Returns int
-
-git_submodule_index_id(resource)
-
-    Returns string
-
-git_submodule_init(resource,bool)
-
-git_submodule_location(resource,string)
-
-    Returns int
-
-git_submodule_lookup(resource,string)
+resource git_submodule_add_setup(resource $repo,string $url,string $path,bool $use_gitlink)
 
     Returns git_submodule resource
 
-git_submodule_name(resource)
+void git_submodule_add_to_index(resource $submodule,bool $write_index)
 
-    Returns string
+string git_submodule_branch(resource $submodule)
 
-git_submodule_open(resource)
+int git_submodule_fetch_recurse_submodules(resource $submodule)
+
+void git_submodule_foreach(resource $repo,callable $callback,mixed $payload)
+
+void git_submodule_free(resource $submodule)
+
+?string git_submodule_head_id(resource $submodule)
+
+int git_submodule_ignore(resource $submodule)
+
+?string git_submodule_index_id(resource $submodule)
+
+void git_submodule_init(resource $submodule,bool $overwrite)
+
+int git_submodule_location(resource $submodule)
+
+resource git_submodule_lookup(resource $repo,string $name)
+
+    Returns git_submodule resource
+
+string git_submodule_name(resource $submodule)
+
+resource git_submodule_open(resource $submodule)
 
     Returns git_repository resource
 
-git_submodule_owner(resource)
+resource git_submodule_owner(resource $submodule)
 
     Returns git_repository resource
 
-git_submodule_path(resource)
+string git_submodule_path(resource $submodule)
 
-    Returns string
+void git_submodule_reload(resource $submodule,bool $force)
 
-git_submodule_reload(resource,bool)
-
-git_submodule_repo_init(resource,bool)
+resource git_submodule_repo_init(resource $submodule,bool $use_gitlink)
 
     Returns git_repository resource
 
-git_submodule_resolve_url(resource,string)
+string git_submodule_resolve_url(resource $repo,string $url)
 
-    Returns string
+void git_submodule_set_branch(resource $repo,string $name,string $branch)
 
-git_submodule_set_branch(resource,string,string)
+void git_submodule_set_fetch_recurse_submodules(resource $repo,string $name,int $fetch_recurse_submodules)
 
-git_submodule_set_fetch_recurse_submodules(resource,string,int)
+void git_submodule_set_ignore(resource $repo,string $name,int $ignore)
 
-git_submodule_set_ignore(resource,string,int)
+void git_submodule_set_update(resource $repo,string $name,int $update)
 
-git_submodule_set_update(resource,string,int)
+void git_submodule_set_url(resource $repo,string $name,string $url)
 
-git_submodule_set_url(resource,string,string)
+int git_submodule_status(resource $repo,string $name,int $ignore)
 
-git_submodule_status(resource,string,int)
+void git_submodule_sync(resource $submodule)
 
-    Returns int
+void git_submodule_update(resource $submodule,bool $init,?array $submodule_update_options)
 
-git_submodule_sync(resource)
+int git_submodule_update_strategy(resource $submodule)
 
-git_submodule_update(resource,bool,array|null)
+string git_submodule_url(resource $submodule)
 
-git_submodule_update_strategy(resource)
+?string git_submodule_wd_id(resource $submodule)
 
-    Returns int
+----------------------------------------
+[git_tag]
+----------------------------------------
 
-git_submodule_url(resource)
+string git_tag_annotation_create(resource $repo,string $tag_name,resource $target,resource $tagger,string $message)
 
-    Returns string
+string git_tag_create(resource $repo,string $tag_name,resource $target,resource $tagger,string $message,bool $force)
 
-git_submodule_wd_id(resource)
+string git_tag_create_frombuffer(resource $repo,string $buffer,bool $force)
 
-    Returns string
+string git_tag_create_lightweight(resource $repo,string $tag_name,resource $target,bool $buffer)
+
+void git_tag_delete(resource $repo,string $tag_name)
+
+resource git_tag_dup(resource $tag)
+
+    Returns git_tag resource
+
+void git_tag_foreach(resource $repo,callable $callback,mixed $payload)
+
+    Callback signature: void callback(string $name,string $oid,mixed $payload)
+
+        The callback should throw on error.
+
+void git_tag_free(resource $tag)
+
+string git_tag_id(resource $tag)
+
+array git_tag_list(resource $repo)
+
+array git_tag_list_match(string $pattern,resource $repo)
+
+resource git_tag_lookup(resource $repo,string $id)
+
+    Returns git_tag resource
+
+resource git_tag_lookup_prefix(resource $repo,string $id_prefix)
+
+    Returns git_tag resource
+
+?string git_tag_message(resource $tag)
+
+string git_tag_name(resource $tag)
+
+resource git_tag_owner(resource $tag)
+
+    Returns git_repository resource
+
+resource git_tag_peel(resource $tag)
+
+    Returns git_object resource
+
+?resource git_tag_tagger(resource $tag)
+
+resource git_tag_target(resource $tag)
+
+    Returns git_object resource
+
+string git_tag_target_id(resource $tag)
+
+int git_tag_target_type(resource $tag)
+
+----------------------------------------
+[git_trace]
+----------------------------------------
+
+void git_trace_set(int $level)
+
+    This function uses the standard PHP error log to write traces instead of a
+    callback function.
+
+    This function will only work if your libgit2 was built with tracing enabled.
+
+----------------------------------------
+[git_tree]
+    [git_tree_entry]
+----------------------------------------
+
+resource git_tree_dup(resource $tree)
+
+    Returns git_tree resource
+
+?resource git_tree_entry_byid(resource $tree,string $id)
+
+    Returns git_tree_entry resource or null
+
+?resource git_tree_entry_byindex(resource $tree,int $idx)
+
+    Returns git_tree_entry resource or null
+
+?resource git_tree_entry_byname(resource $tree,string $filename)
+
+    Returns git_tree_entry resource or null
+
+resource git_tree_entry_bypath(resource $tree,string $path)
+
+    Returns git_tree_entry resource
+
+int git_tree_entry_cmp(resource $tree_entry_1,resource $tree_entry_2)
+
+resource git_tree_entry_dup(resource $tree_entry)
+
+    Returns git_tree_entry resource
+
+int git_tree_entry_filemode(resource $tree_entry)
+
+int git_tree_entry_filemode_raw(resource $tree_entry)
+
+void git_tree_entry_free(resource $tree_entry)
+
+string git_tree_entry_id(resource $tree_entry)
+
+string git_tree_entry_name(resource $tree_entry)
+
+resource git_tree_entry_to_object(resource $repo,resource $tree_entry)
+
+    Returns git_object resource
+
+int git_tree_entry_type(resource $tree_entry)
+
+int git_tree_entrycount(resource $tree)
+
+void git_tree_free(resource $tree)
+
+string git_tree_id(resource $tree)
+
+resource git_tree_lookup(resource $repo,string $id)
+
+    Returns git_tree resource
+
+resource git_tree_lookup_prefix(resource $repo,string $id_prefix)
+
+    Returns git_tree resource
+
+resource git_tree_owner(resource $tree)
+
+    Returns git_repository resource
+
+void git_tree_walk(resource $tree,int $mode,callable $callback,mixed $payload)
+
+    Callback signature: void callback(string $root,resource $entry,mixed $payload)
+
+        The callback should throw on error.
+
+----------------------------------------
+[git_treebuilder]
+----------------------------------------
+
+void git_treebuilder_clear(resource $treebuilder)
+
+int git_treebuilder_entrycount(resource $treebuilder)
+
+void git_treebuilder_filter(resource $treebuilder,callable $callback,mixed $payload)
+
+    Callback signature:
+        bool callback(array $entry,mixed $payload)
+
+        Returns false to filter (i.e. remove) the entry.
+
+void git_treebuilder_free(resource $treebuilder)
+
+resource git_treebuilder_get(resource $treebuilder,string $filename)
+
+    Returns git_tree_entry resource
+
+resource git_treebuilder_insert(resource $treebuilder,string $filename,string $id,int $filemode)
+
+    This function always returns the tree entry.
+
+    Returns git_tree_entry resource
+
+resource git_treebuilder_new(resource $repo,?resource $tree)
+
+    Returns git_treebuilder resource
+
+void git_treebuilder_remove(resource $treebuilder,string $filename)
+
+string git_treebuilder_write(resource $treebuilder)
 
 ----------------------------------------
 [git_worktree]
@@ -2786,29 +2496,29 @@ git_submodule_wd_id(resource)
 
 resource git_worktree_add(resource $repo,string $name,string $path,?array $opts)
 
-void git_worktree_free(resource $wt)
+void git_worktree_free(resource $worktree)
 
-bool git_worktree_is_locked(string &$reason,resource $wt)
+bool git_worktree_is_locked(string &$reason,resource $worktree)
 
-bool git_worktree_is_prunable(resource $wt,?array $opts)
+bool git_worktree_is_prunable(resource $worktree,?array $opts)
 
 array git_worktree_list(resource $repo)
 
-void git_worktree_lock(resource $wt,string $reason)
+void git_worktree_lock(resource $worktree,string $reason)
 
 resource git_worktree_lookup(resource $repo,string $name)
 
-string git_worktree_name(resource $wt)
+string git_worktree_name(resource $worktree)
 
 resource git_worktree_open_from_repository(resource $repo)
 
-string git_worktree_path(resource $wt)
+string git_worktree_path(resource $worktree)
 
-int git_worktree_prune(resource $wt,?array $opts)
+int git_worktree_prune(resource $worktree,?array $opts)
 
-int git_worktree_unlock(resource $wt)
+int git_worktree_unlock(resource $worktree)
 
-void git_worktree_validate(resource $wt)
+void git_worktree_validate(resource $worktree)
 
   This function will throw an exception when the worktree fails to validate.
 
@@ -2846,7 +2556,7 @@ abstract class GitODBBackend:
 
             The method should write the object type to the $type out parameter.
 
-        string read_prefix(string &$fullOid,int &$type,string $abbrevOid)
+        string read_prefix(string &$full_oid,int &$type,string $abbrev_oid)
 
             Will return oid and type as out parameters respectively.
 
@@ -2856,15 +2566,15 @@ abstract class GitODBBackend:
 
         void write(string $oid,string $data,int $type)
 
-        GitODBStream writestream(int $offset,int $objectType)
+        GitODBStream writestream(int $offset,int $object_type)
 
-        GitODBStream readstream(int &$len_out,int &$type_out,string $oid)
+        GitODBStream readstream(int &$length,int &$type,string $oid)
 
             Return false if object not found.
 
         bool exists(string $oid)
 
-        bool exists_prefix(string &$fullOid,string $prefix)
+        bool exists_prefix(string &$full_oid,string $prefix)
 
         void refresh()
 
@@ -2894,7 +2604,7 @@ abstract class GitODBBackend:
             If the callback returns FALSE (exactly), then the implementation
             should stop the iteration.
 
-        GitODBWritepack writepack(resource $odb,callable $func,mixed $payload)
+        GitODBWritepack writepack(resource $odb,callable $callback,mixed $payload)
 
             Callback signature: int callback(array $stats,mixed $payload)
 
@@ -2920,12 +2630,7 @@ abstract class GitODBWritepack:
 
     methods:
 
-        NOTE: Use the following method signatures when creating/using a custom
-              subclass of GitODBWritepack. If you are using an instance of type
-              GitODBWritepack_Internal, then use the method signatures
-              documented for GitODBWritepack_Internal.
-
-        void append(string $data,array &$stats)
+        void append(array &$stats,string $data)
 
         void commit(array &$stats)
 
@@ -2934,26 +2639,20 @@ final class GitODBWritepack_Internal extends GitODBWritepack
     This class is used to represent an internal ODB writepack. It cannot be
     instantiated directly.
 
-    NOTE: This object maintains its own git_transfer_progress structure
-          internally. This object is implicitly passed to the append() and
-          commit() methods. You can access a readonly version of this data from
-          the $progress property.
+    You can access the transfer progress stats at any time via the $progress
+    property. This is the same value returned via calls to append() and
+    commit().
 
     properties:
 
-        (inherited)
-
+        GitODBBackend $backend
         array $progress
 
     methods:
 
-        NOTE: In this class, the signatures for the append() and commit()
-              methods aredifferent since you do not have to pass in the
-              git_transfer_progress.
+        void append(array &$stats,string $data)
 
-        void append(string $data)
-
-        void commit()
+        void commit(array &$stats)
 
 abstract class GitODBStream:
 
@@ -3017,11 +2716,11 @@ abstract class GitConfigBackend:
 
         void open(int $level,resource $repo)
 
-        array get(string $key)
+        array|bool get(string $key)
 
             This method returns array with properties 'name', 'value' and
             'level' corresponding to git_config_entry. If the method fails
-            lookup, it should return false or some falsy value (e.g. 0, null).
+            lookup, it should return false.
 
             If 'level' is not specified in the return array, then level defaults
             to GIT_CONFIG_LEVEL_APP.
@@ -3037,17 +2736,18 @@ abstract class GitConfigBackend:
         mixed iterator_new()
 
             This method should initialize the object for a new
-            iteration. Iteration will call the iterator_next() method. This
-            method may optionally return a context value to identify the
-            iterator. This is largely not useful since git2 config iteration is
-            currently only synchronous.
+            iteration. Iteration will call the iterator_next() method. The
+            return value is interpreted as a context value that is passed to
+            iterator_next(). The context value may be null if context is not
+            required. (This is largely not useful since git2 config iteration is
+            currently only synchronous when used by the library.)
 
-        array iterator_next(mixed $context)
+        array|bool iterator_next(mixed $context)
 
             This method should return the next config value. The return value is
             the same as for the get() method.
 
-            The $context argument holds any value returned from a previous call
+            The $context argument holds the value returned from a previous call
             to iterator_new().
 
             This method must return false when iteration is over.
@@ -3056,7 +2756,7 @@ abstract class GitConfigBackend:
 
         void lock()
 
-        void unlock(int success)
+        void unlock(bool $success)
 
 abstract class GitRefDBBackend:
 
@@ -3068,18 +2768,28 @@ abstract class GitRefDBBackend:
 
         bool exists(string $ref_name)
 
-        string lookup(string $ref_name)
+        mixed lookup(string $ref_name)
 
-            Method should return string OID or symbolic name.
+            Returns either:
+              a) string value that is interpreted as either a reference OID or
+                 symbolic name
+              b) resource value of type 'git_reference'
 
         void iterator_new(string $glob)
 
-            $glob may be NULL
+            Parameter $glob may be NULL
 
-        string iterator_next(string &$name)
+        mixed iterator_next(string &$name)
 
-            Method should return string OID or symbolic name and assign
-            reference name to $name.
+            Returns either:
+              a) string value that is interpreted as either a reference OID or
+                 symbolic name
+              b) resource value of type 'git_reference'
+
+            Method should assign the reference name to the $name parameter in
+            the case where a string reference OID or symbolic name is
+            returned. If a reference resource is returned, the $name parameter
+            is ignored.
 
             Method should return false when iteration is over.
 
@@ -3133,12 +2843,7 @@ final class GitRefDBBackend_Internal extends GitRefDBBackend:
 
     This class cannot be instantiated directly.
 
-    NOTE: The GitRefDBBackend_Internal does not provide access to the lock()
-    and unlock() methods. They will generate a fatal error if called.
+    This class does not provide access to the lock() and unlock() methods. They
+    will generate a fatal error if called.
 
-    NOTE: The following method signatures listed here represent overloads in
-    this derived class.
-
-    resource lookup(string $refname)
-
-        Returns git_reference resource
+    The lookup() method will always return a resource value.

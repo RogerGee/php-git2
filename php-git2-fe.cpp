@@ -8,6 +8,8 @@
 #include "php-function.h"
 #include "php-object.h"
 #include "php-rethandler.h"
+#include "stubs/git2_arginfo.h"
+#include "stubs/libgit2_arginfo.h"
 #include "repository.h"
 #include "reference.h"
 #include "object.h"
@@ -46,7 +48,7 @@
 #include "stash.h"
 #include "remote.h"
 #include "refspec.h"
-#include "cred.h"
+#include "credential.h"
 #include "clone.h"
 #include "submodule.h"
 #include "worktree.h"
@@ -58,22 +60,22 @@ static PHP_FUNCTION(git2_version);
 // Functions exported by this extension into PHP.
 zend_function_entry php_git2::functions[] = {
     // Functions that do not directly wrap libgit2 exports:
-    PHP_FE(git2_version,NULL)
+    PHP_FE(git2_version,arginfo_git2_version)
 
     // General libgit2 functions:
-    PHP_FE(git_libgit2_version,NULL)
-    PHP_GIT2_FE(git_libgit2_prerelease,
+    PHP_FE(git_libgit2_version,arginfo_git_libgit2_version)
+    PHP_GIT2_FE_EX(git_libgit2_prerelease,
         (zif_php_git2_function<
             func_wrapper<const char*>::func<git_libgit2_prerelease>,
             local_pack<>,
             0 >),
-        NULL)
-    PHP_GIT2_FE(git_libgit2_features,
+        arginfo_git_libgit2_prerelease)
+    PHP_GIT2_FE_EX(git_libgit2_features,
         (zif_php_git2_function<
             func_wrapper<int>::func<git_libgit2_features>,
             local_pack<>,
             0 >),
-        NULL)
+        arginfo_git_libgit2_features)
 
     // Include template specializations for the different library wrappers. The
     // compiler will instantiate these into this compilation unit.
@@ -115,7 +117,7 @@ zend_function_entry php_git2::functions[] = {
     GIT_STASH_FE
     GIT_REMOTE_FE
     GIT_REFSPEC_FE
-    GIT_CRED_FE
+    GIT_CREDENTIAL_FE
     GIT_CLONE_FE
     GIT_SUBMODULE_FE
     GIT_WORKTREE_FE
@@ -124,13 +126,30 @@ zend_function_entry php_git2::functions[] = {
 
 PHP_FUNCTION(git_libgit2_version)
 {
-    char buf[128];
+    int result;
     int major, minor, rev;
+    zval* zmajor;
+    zval* zminor;
+    zval* zrev;
 
-    git_libgit2_version(&major,&minor,&rev);
-    snprintf(buf,sizeof(buf),"%d.%d.%d",major,minor,rev);
+    if (zend_parse_parameters(
+            ZEND_NUM_ARGS(),
+            "z/z/z/",
+            &zmajor,
+            &zminor,
+            &zrev) == FAILURE)
+    {
+        return;
+    }
 
-    RETURN_STRING(buf);
+    result = git_libgit2_version(&major,&minor,&rev);
+    if (result != 0) {
+        php_git2::git_error(result);
+    }
+
+    ZVAL_LONG(zmajor,major);
+    ZVAL_LONG(zminor,minor);
+    ZVAL_LONG(zrev,rev);
 }
 
 PHP_FUNCTION(git2_version)

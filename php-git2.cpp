@@ -22,7 +22,7 @@ static PHP_MSHUTDOWN_FUNCTION(git2);
 static PHP_MINFO_FUNCTION(git2);
 static PHP_RINIT_FUNCTION(git2);
 static PHP_RSHUTDOWN_FUNCTION(git2);
-static int php_git2_post_deactivate();
+static zend_result php_git2_post_deactivate();
 
 // Module entry table.
 zend_module_entry git2_module_entry = {
@@ -76,7 +76,7 @@ PHP_MINIT_FUNCTION(git2)
         git_commit,
         git_config,
         git_config_iterator,
-        git_cred,
+        git_credential,
         git_describe_result,
         git_diff,
         git_diff_stats,
@@ -167,7 +167,7 @@ PHP_RSHUTDOWN_FUNCTION(git2)
     return SUCCESS;
 }
 
-int php_git2_post_deactivate()
+zend_result php_git2_post_deactivate()
 {
     // Deinitialize libgit2. At this point, all resources should have been
     // freed. This means they would call their destructors and all libgit2
@@ -239,7 +239,7 @@ const char* php_exception_wrapper::get_message() const
     zval* msg;
 
     msg = zend_read_property(Z_OBJCE(zex),
-        const_cast<zval*>(&zex),
+        Z_OBJ_P(const_cast<zval*>(&zex)),
         "message",
         sizeof("message")-1,
         1,

@@ -6,8 +6,10 @@
 
 #ifndef PHPGIT2_SUBMODULE_H
 #define PHPGIT2_SUBMODULE_H
+
 #include "checkout.h"
 #include "remote.h"
+#include "stubs/submodule_arginfo.h"
 
 namespace php_git2
 {
@@ -54,7 +56,7 @@ namespace php_git2
 
 // Function template declarations
 
-static constexpr auto ZIF_GIT_SUBMODULE_ADD_FINALIZE = zif_php_git2_function<
+static constexpr auto ZIF_git_submodule_add_finalize = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_submodule*>::func<git_submodule_add_finalize>,
@@ -63,7 +65,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_ADD_FINALIZE = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_SUBMODULE_ADD_SETUP = zif_php_git2_function<
+static constexpr auto ZIF_git_submodule_add_setup = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_submodule**,
@@ -83,7 +85,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_ADD_SETUP = zif_php_git2_function<
     php_git2::sequence<0,1,2,3,4>
     >;
 
-static constexpr auto ZIF_GIT_SUBMODULE_ADD_TO_INDEX = zif_php_git2_function<
+static constexpr auto ZIF_git_submodule_add_to_index = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_submodule*,
@@ -94,7 +96,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_ADD_TO_INDEX = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_SUBMODULE_BRANCH = zif_php_git2_function<
+static constexpr auto ZIF_git_submodule_branch = zif_php_git2_function<
     php_git2::func_wrapper<
         const char*,
         git_submodule*>::func<git_submodule_branch>,
@@ -104,7 +106,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_BRANCH = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_SUBMODULE_FETCH_RECURSE_SUBMODULES = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_submodule_fetch_recurse_submodules = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         git_submodule_recurse_t,
         git_submodule*>::func<git_submodule_fetch_recurse_submodules>,
@@ -114,7 +116,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_FETCH_RECURSE_SUBMODULES = zif_php_git2_
     php_git2::php_numeric_rethandler<git_submodule_recurse_t>
     >;
 
-static constexpr auto ZIF_GIT_SUBMODULE_FOREACH = zif_php_git2_function<
+static constexpr auto ZIF_git_submodule_foreach = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -130,13 +132,13 @@ static constexpr auto ZIF_GIT_SUBMODULE_FOREACH = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_SUBMODULE_FREE = zif_php_git2_function_free<
+static constexpr auto ZIF_git_submodule_free = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_submodule>
         >
     >;
 
-static constexpr auto ZIF_GIT_SUBMODULE_HEAD_ID = zif_php_git2_function<
+static constexpr auto ZIF_git_submodule_head_id = zif_php_git2_function<
     php_git2::func_wrapper<
         const git_oid*,
         git_submodule*>::func<git_submodule_head_id>,
@@ -146,7 +148,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_HEAD_ID = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_SUBMODULE_IGNORE = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_submodule_ignore = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         git_submodule_ignore_t,
         git_submodule*>::func<git_submodule_ignore>,
@@ -156,7 +158,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_IGNORE = zif_php_git2_function_rethandle
     php_git2::php_numeric_rethandler<git_submodule_ignore_t>
     >;
 
-static constexpr auto ZIF_GIT_SUBMODULE_INDEX_ID = zif_php_git2_function<
+static constexpr auto ZIF_git_submodule_index_id = zif_php_git2_function<
     php_git2::func_wrapper<
         const git_oid*,
         git_submodule*>::func<git_submodule_index_id>,
@@ -166,7 +168,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_INDEX_ID = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_SUBMODULE_INIT = zif_php_git2_function<
+static constexpr auto ZIF_git_submodule_init = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_submodule*,
@@ -177,7 +179,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_INIT = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_SUBMODULE_LOCATION = zif_php_git2_function<
+static constexpr auto ZIF_git_submodule_location = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         unsigned int*,
@@ -191,7 +193,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_LOCATION = zif_php_git2_function<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_SUBMODULE_LOOKUP = zif_php_git2_function<
+static constexpr auto ZIF_git_submodule_lookup = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_submodule**,
@@ -207,7 +209,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_LOOKUP = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_SUBMODULE_NAME = zif_php_git2_function<
+static constexpr auto ZIF_git_submodule_name = zif_php_git2_function<
     php_git2::func_wrapper<
         const char*,
         git_submodule*>::func<git_submodule_name>,
@@ -217,7 +219,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_NAME = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_SUBMODULE_OPEN = zif_php_git2_function<
+static constexpr auto ZIF_git_submodule_open = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository**,
@@ -231,7 +233,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_OPEN = zif_php_git2_function<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_SUBMODULE_OWNER = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_submodule_owner = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         git_repository*,
         git_submodule*>::func<git_submodule_owner>,
@@ -244,7 +246,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_OWNER = zif_php_git2_function_rethandler
     php_git2::sequence<0>
     >;
 
-static constexpr auto ZIF_GIT_SUBMODULE_PATH = zif_php_git2_function<
+static constexpr auto ZIF_git_submodule_path = zif_php_git2_function<
     php_git2::func_wrapper<
         const char*,
         git_submodule*>::func<git_submodule_path>,
@@ -254,7 +256,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_PATH = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_SUBMODULE_RELOAD = zif_php_git2_function<
+static constexpr auto ZIF_git_submodule_reload = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_submodule*,
@@ -265,7 +267,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_RELOAD = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_SUBMODULE_REPO_INIT = zif_php_git2_function<
+static constexpr auto ZIF_git_submodule_repo_init = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository**,
@@ -281,7 +283,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_REPO_INIT = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_SUBMODULE_RESOLVE_URL = zif_php_git2_function<
+static constexpr auto ZIF_git_submodule_resolve_url = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_buf*,
@@ -297,7 +299,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_RESOLVE_URL = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_SUBMODULE_SET_BRANCH = zif_php_git2_function<
+static constexpr auto ZIF_git_submodule_set_branch = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -310,7 +312,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_SET_BRANCH = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_SUBMODULE_SET_FETCH_RECURSE_SUBMODULES = zif_php_git2_function<
+static constexpr auto ZIF_git_submodule_set_fetch_recurse_submodules = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -323,7 +325,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_SET_FETCH_RECURSE_SUBMODULES = zif_php_g
         >
     >;
 
-static constexpr auto ZIF_GIT_SUBMODULE_SET_IGNORE = zif_php_git2_function<
+static constexpr auto ZIF_git_submodule_set_ignore = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -336,7 +338,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_SET_IGNORE = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_SUBMODULE_SET_UPDATE = zif_php_git2_function<
+static constexpr auto ZIF_git_submodule_set_update = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -349,7 +351,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_SET_UPDATE = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_SUBMODULE_SET_URL = zif_php_git2_function<
+static constexpr auto ZIF_git_submodule_set_url = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -362,7 +364,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_SET_URL = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_SUBMODULE_STATUS = zif_php_git2_function<
+static constexpr auto ZIF_git_submodule_status = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         unsigned int*,
@@ -380,7 +382,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_STATUS = zif_php_git2_function<
     php_git2::sequence<0,1,2,3>
     >;
 
-static constexpr auto ZIF_GIT_SUBMODULE_SYNC = zif_php_git2_function<
+static constexpr auto ZIF_git_submodule_sync = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_submodule*>::func<git_submodule_sync>,
@@ -389,7 +391,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_SYNC = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_SUBMODULE_UPDATE = zif_php_git2_function<
+static constexpr auto ZIF_git_submodule_update = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_submodule*,
@@ -402,7 +404,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_UPDATE = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_SUBMODULE_UPDATE_STRATEGY = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_submodule_update_strategy = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         git_submodule_update_t,
         git_submodule*>::func<git_submodule_update_strategy>,
@@ -412,7 +414,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_UPDATE_STRATEGY = zif_php_git2_function_
     php_git2::php_numeric_rethandler<git_submodule_update_t>
     >;
 
-static constexpr auto ZIF_GIT_SUBMODULE_URL = zif_php_git2_function<
+static constexpr auto ZIF_git_submodule_url = zif_php_git2_function<
     php_git2::func_wrapper<
         const char*,
         git_submodule*>::func<git_submodule_url>,
@@ -422,7 +424,7 @@ static constexpr auto ZIF_GIT_SUBMODULE_URL = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_SUBMODULE_WD_ID = zif_php_git2_function<
+static constexpr auto ZIF_git_submodule_wd_id = zif_php_git2_function<
     php_git2::func_wrapper<
         const git_oid*,
         git_submodule*>::func<git_submodule_wd_id>,
@@ -434,38 +436,38 @@ static constexpr auto ZIF_GIT_SUBMODULE_WD_ID = zif_php_git2_function<
 
 // Function entry macro
 
-#define GIT_SUBMODULE_FE                                                \
-    PHP_GIT2_FE(git_submodule_add_finalize,ZIF_GIT_SUBMODULE_ADD_FINALIZE,NULL) \
-    PHP_GIT2_FE(git_submodule_add_setup,ZIF_GIT_SUBMODULE_ADD_SETUP,NULL) \
-    PHP_GIT2_FE(git_submodule_add_to_index,ZIF_GIT_SUBMODULE_ADD_TO_INDEX,NULL) \
-    PHP_GIT2_FE(git_submodule_branch,ZIF_GIT_SUBMODULE_BRANCH,NULL)     \
-    PHP_GIT2_FE(git_submodule_fetch_recurse_submodules,ZIF_GIT_SUBMODULE_FETCH_RECURSE_SUBMODULES,NULL) \
-    PHP_GIT2_FE(git_submodule_foreach,ZIF_GIT_SUBMODULE_FOREACH,NULL)   \
-    PHP_GIT2_FE(git_submodule_free,ZIF_GIT_SUBMODULE_FREE,NULL)         \
-    PHP_GIT2_FE(git_submodule_head_id,ZIF_GIT_SUBMODULE_HEAD_ID,NULL)   \
-    PHP_GIT2_FE(git_submodule_ignore,ZIF_GIT_SUBMODULE_IGNORE,NULL)     \
-    PHP_GIT2_FE(git_submodule_index_id,ZIF_GIT_SUBMODULE_INDEX_ID,NULL) \
-    PHP_GIT2_FE(git_submodule_init,ZIF_GIT_SUBMODULE_INIT,NULL)         \
-    PHP_GIT2_FE(git_submodule_location,ZIF_GIT_SUBMODULE_LOCATION,NULL) \
-    PHP_GIT2_FE(git_submodule_lookup,ZIF_GIT_SUBMODULE_LOOKUP,NULL)     \
-    PHP_GIT2_FE(git_submodule_name,ZIF_GIT_SUBMODULE_NAME,NULL)         \
-    PHP_GIT2_FE(git_submodule_open,ZIF_GIT_SUBMODULE_OPEN,NULL)         \
-    PHP_GIT2_FE(git_submodule_owner,ZIF_GIT_SUBMODULE_OWNER,NULL)       \
-    PHP_GIT2_FE(git_submodule_path,ZIF_GIT_SUBMODULE_PATH,NULL)         \
-    PHP_GIT2_FE(git_submodule_reload,ZIF_GIT_SUBMODULE_RELOAD,NULL)     \
-    PHP_GIT2_FE(git_submodule_repo_init,ZIF_GIT_SUBMODULE_REPO_INIT,NULL) \
-    PHP_GIT2_FE(git_submodule_resolve_url,ZIF_GIT_SUBMODULE_RESOLVE_URL,NULL) \
-    PHP_GIT2_FE(git_submodule_set_branch,ZIF_GIT_SUBMODULE_SET_BRANCH,NULL) \
-    PHP_GIT2_FE(git_submodule_set_fetch_recurse_submodules,ZIF_GIT_SUBMODULE_SET_FETCH_RECURSE_SUBMODULES,NULL) \
-    PHP_GIT2_FE(git_submodule_set_ignore,ZIF_GIT_SUBMODULE_SET_IGNORE,NULL) \
-    PHP_GIT2_FE(git_submodule_set_update,ZIF_GIT_SUBMODULE_SET_UPDATE,NULL) \
-    PHP_GIT2_FE(git_submodule_set_url,ZIF_GIT_SUBMODULE_SET_URL,NULL)   \
-    PHP_GIT2_FE(git_submodule_status,ZIF_GIT_SUBMODULE_STATUS,NULL)     \
-    PHP_GIT2_FE(git_submodule_sync,ZIF_GIT_SUBMODULE_SYNC,NULL)         \
-    PHP_GIT2_FE(git_submodule_update,ZIF_GIT_SUBMODULE_UPDATE,NULL)     \
-    PHP_GIT2_FE(git_submodule_update_strategy,ZIF_GIT_SUBMODULE_UPDATE_STRATEGY,NULL) \
-    PHP_GIT2_FE(git_submodule_url,ZIF_GIT_SUBMODULE_URL,NULL)           \
-    PHP_GIT2_FE(git_submodule_wd_id,ZIF_GIT_SUBMODULE_WD_ID,NULL)
+#define GIT_SUBMODULE_FE                                    \
+    PHP_GIT2_FE(git_submodule_add_finalize)                 \
+    PHP_GIT2_FE(git_submodule_add_setup)                    \
+    PHP_GIT2_FE(git_submodule_add_to_index)                 \
+    PHP_GIT2_FE(git_submodule_branch)                       \
+    PHP_GIT2_FE(git_submodule_fetch_recurse_submodules)     \
+    PHP_GIT2_FE(git_submodule_foreach)                      \
+    PHP_GIT2_FE(git_submodule_free)                         \
+    PHP_GIT2_FE(git_submodule_head_id)                      \
+    PHP_GIT2_FE(git_submodule_ignore)                       \
+    PHP_GIT2_FE(git_submodule_index_id)                     \
+    PHP_GIT2_FE(git_submodule_init)                         \
+    PHP_GIT2_FE(git_submodule_location)                     \
+    PHP_GIT2_FE(git_submodule_lookup)                       \
+    PHP_GIT2_FE(git_submodule_name)                         \
+    PHP_GIT2_FE(git_submodule_open)                         \
+    PHP_GIT2_FE(git_submodule_owner)                        \
+    PHP_GIT2_FE(git_submodule_path)                         \
+    PHP_GIT2_FE(git_submodule_reload)                       \
+    PHP_GIT2_FE(git_submodule_repo_init)                    \
+    PHP_GIT2_FE(git_submodule_resolve_url)                  \
+    PHP_GIT2_FE(git_submodule_set_branch)                   \
+    PHP_GIT2_FE(git_submodule_set_fetch_recurse_submodules) \
+    PHP_GIT2_FE(git_submodule_set_ignore)                   \
+    PHP_GIT2_FE(git_submodule_set_update)                   \
+    PHP_GIT2_FE(git_submodule_set_url)                      \
+    PHP_GIT2_FE(git_submodule_status)                       \
+    PHP_GIT2_FE(git_submodule_sync)                         \
+    PHP_GIT2_FE(git_submodule_update)                       \
+    PHP_GIT2_FE(git_submodule_update_strategy)              \
+    PHP_GIT2_FE(git_submodule_url)                          \
+    PHP_GIT2_FE(git_submodule_wd_id)
 
 #endif
 

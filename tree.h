@@ -7,6 +7,8 @@
 #ifndef PHPGIT2_TREE_H
 #define PHPGIT2_TREE_H
 
+#include "stubs/tree_arginfo.h"
+
 namespace php_git2
 {
     // Provide specializations for git2_resource destructors.
@@ -55,13 +57,13 @@ namespace php_git2
 
 // Template declarations for bindings:
 
-static constexpr auto ZIF_GIT_TREE_FREE = zif_php_git2_function_free<
+static constexpr auto ZIF_git_tree_free = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_tree>
         >
     >;
 
-static constexpr auto ZIF_GIT_TREE_ID = zif_php_git2_function<
+static constexpr auto ZIF_git_tree_id = zif_php_git2_function<
     php_git2::func_wrapper<
         const git_oid*,
         const git_tree*
@@ -72,7 +74,7 @@ static constexpr auto ZIF_GIT_TREE_ID = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_TREE_LOOKUP = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_tree_lookup = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_tree**,
@@ -90,7 +92,7 @@ static constexpr auto ZIF_GIT_TREE_LOOKUP = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_TREE_LOOKUP_PREFIX = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_tree_lookup_prefix = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_tree**,
@@ -111,7 +113,7 @@ static constexpr auto ZIF_GIT_TREE_LOOKUP_PREFIX = zif_php_git2_function_setdeps
     php_git2::sequence<0,1,3,2>
     >;
 
-static constexpr auto ZIF_GIT_TREE_OWNER = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_tree_owner = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         git_repository*,
         const git_tree*
@@ -125,7 +127,7 @@ static constexpr auto ZIF_GIT_TREE_OWNER = zif_php_git2_function_rethandler<
     php_git2::sequence<0>
     >;
 
-static constexpr auto ZIF_GIT_TREE_DUP = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_tree_dup = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_tree**,
@@ -141,7 +143,7 @@ static constexpr auto ZIF_GIT_TREE_DUP = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_TREE_ENTRYCOUNT = zif_php_git2_function<
+static constexpr auto ZIF_git_tree_entrycount = zif_php_git2_function<
     php_git2::func_wrapper<
         size_t,
         const git_tree*
@@ -152,13 +154,13 @@ static constexpr auto ZIF_GIT_TREE_ENTRYCOUNT = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_TREE_ENTRY_FREE = zif_php_git2_function_free<
+static constexpr auto ZIF_git_tree_entry_free = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_tree_entry>
         >
     >;
 
-static constexpr auto ZIF_GIT_TREE_ENTRY_BYID = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_tree_entry_byid = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         const git_tree_entry*,
         const git_tree*,
@@ -173,7 +175,7 @@ static constexpr auto ZIF_GIT_TREE_ENTRY_BYID = zif_php_git2_function_rethandler
         >
     >;
 
-static constexpr auto ZIF_GIT_TREE_ENTRY_BYINDEX = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_tree_entry_byindex = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         const git_tree_entry*,
         const git_tree*,
@@ -188,7 +190,7 @@ static constexpr auto ZIF_GIT_TREE_ENTRY_BYINDEX = zif_php_git2_function_rethand
         >
     >;
 
-static constexpr auto ZIF_GIT_TREE_ENTRY_BYNAME = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_tree_entry_byname = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         const git_tree_entry*,
         const git_tree*,
@@ -203,7 +205,7 @@ static constexpr auto ZIF_GIT_TREE_ENTRY_BYNAME = zif_php_git2_function_rethandl
         >
     >;
 
-static constexpr auto ZIF_GIT_TREE_ENTRY_BYPATH = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_tree_entry_bypath = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_tree_entry**,
@@ -220,7 +222,7 @@ static constexpr auto ZIF_GIT_TREE_ENTRY_BYPATH = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_TREE_ENTRY_DUP = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_tree_entry_dup = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_tree_entry**,
@@ -235,7 +237,7 @@ static constexpr auto ZIF_GIT_TREE_ENTRY_DUP = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_TREE_ENTRY_FILEMODE = zif_php_git2_function<
+static constexpr auto ZIF_git_tree_entry_filemode = zif_php_git2_function<
     php_git2::func_wrapper<
         git_filemode_t,
         const git_tree_entry*>::func<git_tree_entry_filemode>,
@@ -245,7 +247,7 @@ static constexpr auto ZIF_GIT_TREE_ENTRY_FILEMODE = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_TREE_ENTRY_FILEMODE_RAW = zif_php_git2_function<
+static constexpr auto ZIF_git_tree_entry_filemode_raw = zif_php_git2_function<
     php_git2::func_wrapper<
         git_filemode_t,
         const git_tree_entry*>::func<git_tree_entry_filemode_raw>,
@@ -255,7 +257,7 @@ static constexpr auto ZIF_GIT_TREE_ENTRY_FILEMODE_RAW = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_TREE_ENTRY_NAME = zif_php_git2_function<
+static constexpr auto ZIF_git_tree_entry_name = zif_php_git2_function<
     php_git2::func_wrapper<
         const char*,
         const git_tree_entry*>::func<git_tree_entry_name>,
@@ -265,7 +267,7 @@ static constexpr auto ZIF_GIT_TREE_ENTRY_NAME = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_TREE_ENTRY_TO_OBJECT = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_tree_entry_to_object = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_object**,
@@ -282,7 +284,7 @@ static constexpr auto ZIF_GIT_TREE_ENTRY_TO_OBJECT = zif_php_git2_function_setde
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_TREE_ENTRY_CMP = zif_php_git2_function<
+static constexpr auto ZIF_git_tree_entry_cmp = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         const git_tree_entry*,
@@ -294,7 +296,7 @@ static constexpr auto ZIF_GIT_TREE_ENTRY_CMP = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_TREE_ENTRY_ID = zif_php_git2_function<
+static constexpr auto ZIF_git_tree_entry_id = zif_php_git2_function<
     php_git2::func_wrapper<
         const git_oid*,
         const git_tree_entry*>::func<git_tree_entry_id>,
@@ -304,7 +306,7 @@ static constexpr auto ZIF_GIT_TREE_ENTRY_ID = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_TREE_ENTRY_TYPE = zif_php_git2_function<
+static constexpr auto ZIF_git_tree_entry_type = zif_php_git2_function<
     php_git2::func_wrapper<
         git_object_t,
         const git_tree_entry*>::func<git_tree_entry_type>,
@@ -314,7 +316,7 @@ static constexpr auto ZIF_GIT_TREE_ENTRY_TYPE = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_TREE_WALK = zif_php_git2_function<
+static constexpr auto ZIF_git_tree_walk = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         const git_tree*,
@@ -334,28 +336,28 @@ static constexpr auto ZIF_GIT_TREE_WALK = zif_php_git2_function<
 
 // PHP function entry macro for this module:
 
-#define GIT_TREE_FE                                                     \
-    PHP_GIT2_FE(git_tree_free,ZIF_GIT_TREE_FREE,NULL)                   \
-    PHP_GIT2_FE(git_tree_id,ZIF_GIT_TREE_ID,NULL)                       \
-    PHP_GIT2_FE(git_tree_lookup,ZIF_GIT_TREE_LOOKUP,NULL)               \
-    PHP_GIT2_FE(git_tree_lookup_prefix,ZIF_GIT_TREE_LOOKUP_PREFIX,NULL) \
-    PHP_GIT2_FE(git_tree_owner,ZIF_GIT_TREE_OWNER,NULL)                 \
-    PHP_GIT2_FE(git_tree_dup,ZIF_GIT_TREE_DUP,NULL)                     \
-    PHP_GIT2_FE(git_tree_entrycount,ZIF_GIT_TREE_ENTRYCOUNT,NULL)       \
-    PHP_GIT2_FE(git_tree_entry_free,ZIF_GIT_TREE_ENTRY_FREE,NULL)       \
-    PHP_GIT2_FE(git_tree_entry_byid,ZIF_GIT_TREE_ENTRY_BYID,NULL)       \
-    PHP_GIT2_FE(git_tree_entry_byindex,ZIF_GIT_TREE_ENTRY_BYINDEX,NULL) \
-    PHP_GIT2_FE(git_tree_entry_byname,ZIF_GIT_TREE_ENTRY_BYNAME,NULL)   \
-    PHP_GIT2_FE(git_tree_entry_bypath,ZIF_GIT_TREE_ENTRY_BYPATH,NULL)   \
-    PHP_GIT2_FE(git_tree_entry_dup,ZIF_GIT_TREE_ENTRY_DUP,NULL)         \
-    PHP_GIT2_FE(git_tree_entry_filemode,ZIF_GIT_TREE_ENTRY_FILEMODE,NULL) \
-    PHP_GIT2_FE(git_tree_entry_filemode_raw,ZIF_GIT_TREE_ENTRY_FILEMODE_RAW,NULL) \
-    PHP_GIT2_FE(git_tree_entry_name,ZIF_GIT_TREE_ENTRY_NAME,NULL)       \
-    PHP_GIT2_FE(git_tree_entry_to_object,ZIF_GIT_TREE_ENTRY_TO_OBJECT,NULL) \
-    PHP_GIT2_FE(git_tree_entry_cmp,ZIF_GIT_TREE_ENTRY_CMP,NULL)         \
-    PHP_GIT2_FE(git_tree_entry_id,ZIF_GIT_TREE_ENTRY_ID,NULL)           \
-    PHP_GIT2_FE(git_tree_entry_type,ZIF_GIT_TREE_ENTRY_TYPE,NULL)       \
-    PHP_GIT2_FE(git_tree_walk,ZIF_GIT_TREE_WALK,NULL)
+#define GIT_TREE_FE                             \
+    PHP_GIT2_FE(git_tree_free)                  \
+    PHP_GIT2_FE(git_tree_id)                    \
+    PHP_GIT2_FE(git_tree_lookup)                \
+    PHP_GIT2_FE(git_tree_lookup_prefix)         \
+    PHP_GIT2_FE(git_tree_owner)                 \
+    PHP_GIT2_FE(git_tree_dup)                   \
+    PHP_GIT2_FE(git_tree_entrycount)            \
+    PHP_GIT2_FE(git_tree_entry_free)            \
+    PHP_GIT2_FE(git_tree_entry_byid)            \
+    PHP_GIT2_FE(git_tree_entry_byindex)         \
+    PHP_GIT2_FE(git_tree_entry_byname)          \
+    PHP_GIT2_FE(git_tree_entry_bypath)          \
+    PHP_GIT2_FE(git_tree_entry_dup)             \
+    PHP_GIT2_FE(git_tree_entry_filemode)        \
+    PHP_GIT2_FE(git_tree_entry_filemode_raw)    \
+    PHP_GIT2_FE(git_tree_entry_name)            \
+    PHP_GIT2_FE(git_tree_entry_to_object)       \
+    PHP_GIT2_FE(git_tree_entry_cmp)             \
+    PHP_GIT2_FE(git_tree_entry_id)              \
+    PHP_GIT2_FE(git_tree_entry_type)            \
+    PHP_GIT2_FE(git_tree_walk)
 
 #endif
 

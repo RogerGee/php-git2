@@ -5,6 +5,7 @@
  */
 
 #include "php-object.h"
+#include "stubs/GitRefDBBackend_arginfo.h"
 #include <cstring>
 extern "C" {
 #include <git2/sys/refs.h>
@@ -143,14 +144,41 @@ static int custom_backend_iterator_next(git_reference** ref,custom_backend_itera
             result = GIT_ITEROVER;
         }
         else {
-            // Deep copy the name into a zval that is kept alive by the iterator.
-            zval_ptr_dtor(&iter->zlast);
-            ZVAL_COPY(&iter->zlast,Z_REFVAL_P(params[0]));
-            convert_to_string(&iter->zlast);
+            if (Z_TYPE_P(retval) == IS_RESOURCE) {
+                // Verify that the returned resource is a git_reference.
+                void* result = zend_fetch_resource(
+                    Z_RES_P(retval),
+                    php_git_reference::resource_name(),
+                    php_git_reference::resource_le()
+                    );
+                if (result == nullptr) {
+                    throw php_git2_propagated_exception();
+                }
 
-            // Return values.
-            convert_to_string(retval);
-            result = reference_from_string(ref,retval,Z_STRVAL(iter->zlast));
+                // Extract reference, duplicate and return.
+                php_git_reference* extract = reinterpret_cast<php_git_reference*>(
+                    Z_RES_VAL_P(retval)
+                    );
+                git_reference_dup(ref,extract->get_handle());
+            }
+            else {
+                // If a non-resource is returned, then we build the result
+                // git_reference from two distinct values:
+                //  1) a string OID or symbolic name (returned from method call)
+                //  2) a string reference name (returned via the first method
+                //     parameter)
+
+                // Deep copy the reference name from the method out parameter
+                // into a zval that is kept alive by the iterator.
+                zval_ptr_dtor(&iter->zlast);
+                ZVAL_COPY(&iter->zlast,Z_REFVAL_P(params[0]));
+                convert_to_string(&iter->zlast);
+
+                // Convert return value to string (in case it needs a cast) and
+                // build the git_reference result value.
+                convert_to_string(retval);
+                result = reference_from_string(ref,retval,Z_STRVAL(iter->zlast));
+            }
         }
     }
 
@@ -196,24 +224,20 @@ static void custom_backend_iterator_free(custom_backend_iterator* iter)
 
 // Custom class handlers
 
-static zval* refdb_backend_read_property(zval* object,
-    zval* member,
+static zval* refdb_backend_read_property(
+    zend_object* object,
+    zend_string* member,
     int type,
     void** cache_slot,
     zval* rv);
-#if PHP_API_VERSION >= 20190902
-static zval* refdb_backend_write_property(zval* object,
-    zval* member,
+static zval* refdb_backend_write_property(
+    zend_object* object,
+    zend_string* member,
     zval* value,
     void** cache_slot);
-#else
-static void refdb_backend_write_property(zval* object,
-    zval* member,
-    zval* value,
-    void** cache_slot);
-#endif
-static int refdb_backend_has_property(zval* object,
-    zval* member,
+static int refdb_backend_has_property(
+    zend_object* object,
+    zend_string* member,
     int has_set_exists,
     void** cache_slot);
 
@@ -221,6 +245,7 @@ static int refdb_backend_has_property(zval* object,
 
 // The following functions are optional so this base class provides an empty
 // implementation.
+
 static PHP_EMPTY_METHOD(GitRefDBBackend,iterator_new);
 static PHP_EMPTY_METHOD(GitRefDBBackend,iterator_next);
 static PHP_EMPTY_METHOD(GitRefDBBackend,compress);
@@ -228,22 +253,91 @@ static PHP_EMPTY_METHOD(GitRefDBBackend,lock);
 static PHP_EMPTY_METHOD(GitRefDBBackend,unlock);
 
 zend_function_entry php_git2::refdb_backend_methods[] = {
-    PHP_ABSTRACT_ME(GitRefDBBackend,exists,NULL)
-    PHP_ABSTRACT_ME(GitRefDBBackend,lookup,NULL)
-    PHP_ME(GitRefDBBackend,iterator_new,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitRefDBBackend,iterator_next,NULL,ZEND_ACC_PUBLIC)
-    PHP_ABSTRACT_ME(GitRefDBBackend,write,NULL)
-    PHP_ABSTRACT_ME(GitRefDBBackend,rename,NULL)
-    PHP_ABSTRACT_ME(GitRefDBBackend,del,NULL)
-    PHP_ME(GitRefDBBackend,compress,NULL,ZEND_ACC_PUBLIC)
-    PHP_ABSTRACT_ME(GitRefDBBackend,has_log,NULL)
-    PHP_ABSTRACT_ME(GitRefDBBackend,ensure_log,NULL)
-    PHP_ABSTRACT_ME(GitRefDBBackend,reflog_read,NULL)
-    PHP_ABSTRACT_ME(GitRefDBBackend,reflog_write,NULL)
-    PHP_ABSTRACT_ME(GitRefDBBackend,reflog_rename,NULL)
-    PHP_ABSTRACT_ME(GitRefDBBackend,reflog_delete,NULL)
-    PHP_ME(GitRefDBBackend,lock,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitRefDBBackend,unlock,NULL,ZEND_ACC_PUBLIC)
+    PHP_ABSTRACT_ME(
+        GitRefDBBackend,
+        exists,
+        arginfo_class_GitRefDBBackend_exists
+        )
+    PHP_ABSTRACT_ME(
+        GitRefDBBackend,
+        lookup,
+        arginfo_class_GitRefDBBackend_lookup
+        )
+    PHP_ME(
+        GitRefDBBackend,
+        iterator_new,
+        arginfo_class_GitRefDBBackend_iterator_new,
+        ZEND_ACC_PUBLIC
+        )
+    PHP_ME(
+        GitRefDBBackend,
+        iterator_next,
+        arginfo_class_GitRefDBBackend_iterator_next,
+        ZEND_ACC_PUBLIC
+        )
+    PHP_ABSTRACT_ME(
+        GitRefDBBackend,
+        write,
+        arginfo_class_GitRefDBBackend_write
+        )
+    PHP_ABSTRACT_ME(
+        GitRefDBBackend,
+        rename,
+        arginfo_class_GitRefDBBackend_rename
+        )
+    PHP_ABSTRACT_ME(
+        GitRefDBBackend,
+        del,
+        arginfo_class_GitRefDBBackend_del
+        )
+    PHP_ME(
+        GitRefDBBackend,
+        compress,
+        arginfo_class_GitRefDBBackend_compress,
+        ZEND_ACC_PUBLIC
+        )
+    PHP_ABSTRACT_ME(
+        GitRefDBBackend,
+        has_log,
+        arginfo_class_GitRefDBBackend_has_log
+        )
+    PHP_ABSTRACT_ME(
+        GitRefDBBackend,
+        ensure_log,
+        arginfo_class_GitRefDBBackend_ensure_log
+        )
+    PHP_ABSTRACT_ME(
+        GitRefDBBackend,
+        reflog_read,
+        arginfo_class_GitRefDBBackend_reflog_read
+        )
+    PHP_ABSTRACT_ME(
+        GitRefDBBackend,
+        reflog_write,
+        arginfo_class_GitRefDBBackend_reflog_write
+        )
+    PHP_ABSTRACT_ME(
+        GitRefDBBackend,
+        reflog_rename,
+        arginfo_class_GitRefDBBackend_reflog_rename
+        )
+    PHP_ABSTRACT_ME(
+        GitRefDBBackend,
+        reflog_delete,
+        arginfo_class_GitRefDBBackend_reflog_delete
+        )
+    PHP_ME(
+        GitRefDBBackend,
+        lock,
+        arginfo_class_GitRefDBBackend_lock,
+        ZEND_ACC_PUBLIC
+        )
+    PHP_ME(
+        GitRefDBBackend,
+        unlock,
+        arginfo_class_GitRefDBBackend_unlock,
+        ZEND_ACC_PUBLIC
+        )
     PHP_FE_END
 };
 
@@ -266,8 +360,9 @@ void php_zend_object<php_refdb_backend_object>::init(zend_class_entry* ce)
 
 // Implementation of custom class handlers
 
-zval* refdb_backend_read_property(zval* object,
-    zval* member,
+zval* refdb_backend_read_property(
+    zend_object* object,
+    zend_string* member,
     int type,
     void** cache_slot,
     zval* rv)
@@ -276,10 +371,9 @@ zval* refdb_backend_read_property(zval* object,
     return std->read_property(object,member,type,cache_slot,rv);
 }
 
-#if PHP_API_VERSION >= 20190902
-
-zval* refdb_backend_write_property(zval* object,
-    zval* member,
+zval* refdb_backend_write_property(
+    zend_object* object,
+    zend_string* member,
     zval* value,
     void** cache_slot)
 {
@@ -287,21 +381,9 @@ zval* refdb_backend_write_property(zval* object,
     return std->write_property(object,member,value,cache_slot);
 }
 
-#else
-
-void refdb_backend_write_property(zval* object,
-    zval* member,
-    zval* value,
-    void** cache_slot)
-{
-    const zend_object_handlers* std = zend_get_std_object_handlers();
-    std->write_property(object,member,value,cache_slot);
-}
-
-#endif
-
-int refdb_backend_has_property(zval* object,
-    zval* member,
+int refdb_backend_has_property(
+    zend_object* object,
+    zend_string* member,
     int has_set_exists,
     void** cache_slot)
 {
@@ -414,8 +496,29 @@ void php_refdb_backend_object::assign_owner(php_git_refdb* newOwner)
 
         // Return reference from method call return value.
 
-        convert_to_string(retval);
-        result = reference_from_string(out,retval,ref_name);
+        if (Z_TYPE_P(retval) == IS_RESOURCE) {
+            // Verify that the returned resource is a git_reference.
+            void* result = zend_fetch_resource(
+                Z_RES_P(retval),
+                php_git_reference::resource_name(),
+                php_git_reference::resource_le()
+                );
+            if (result == nullptr) {
+                throw php_git2_propagated_exception();
+            }
+
+            // Extract reference, duplicate and return.
+            php_git_reference* ref = reinterpret_cast<php_git_reference*>(
+                Z_RES_VAL_P(retval)
+                );
+            git_reference_dup(out,ref->get_handle());
+        }
+        else {
+            // Otherwise, interpret the return value as a string and convert to
+            // reference.
+            convert_to_string(retval);
+            result = reference_from_string(out,retval,ref_name);
+        }
     }
 
     return result;

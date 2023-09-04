@@ -9,10 +9,21 @@ using namespace php_git2;
 
 // Custom class handlers
 
-static int closure_get_closure(zval* obj,
+#if PHP_API_VERSION >= 20220829
+static zend_result closure_get_closure(
+    zend_object* obj,
     zend_class_entry** ce_ptr,
     zend_function** fptr_ptr,
-    zend_object** obj_ptr);
+    zend_object** obj_ptr,
+    zend_bool check_only);
+#else
+static int closure_get_closure(
+    zend_object* obj,
+    zend_class_entry** ce_ptr,
+    zend_function** fptr_ptr,
+    zend_object** obj_ptr,
+    zend_bool check_only);
+#endif
 
 // Class method entries
 
@@ -59,22 +70,29 @@ php_closure_object::~php_closure_object()
 
 // Implementation of custom class handlers
 
-int closure_get_closure(zval* obj,
+#if PHP_API_VERSION >= 20220829
+zend_result closure_get_closure(
+    zend_object* obj,
     zend_class_entry** ce_ptr,
     zend_function** fptr_ptr,
-    zend_object** obj_ptr)
+    zend_object** obj_ptr,
+    zend_bool check_only)
+#else
+int closure_get_closure(
+    zend_object* obj,
+    zend_class_entry** ce_ptr,
+    zend_function** fptr_ptr,
+    zend_object** obj_ptr,
+    zend_bool check_only)
+#endif
 {
-    if (Z_TYPE_P(obj) != IS_OBJECT) {
-        return FAILURE;
-    }
-
     php_closure_object* closure;
     closure = php_zend_object<php_closure_object>::get_storage(obj);
 
     *fptr_ptr = &closure->func;
-    *ce_ptr = Z_OBJCE_P(obj);
+    *ce_ptr = obj->ce;
     if (obj_ptr) {
-        *obj_ptr = Z_OBJ_P(obj);
+        *obj_ptr = obj;
     }
 
     return SUCCESS;

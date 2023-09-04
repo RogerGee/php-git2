@@ -6,7 +6,9 @@
 
 #ifndef PHPGIT2_RESET_H
 #define PHPGIT2_RESET_H
+
 #include "checkout.h"
+#include "stubs/reset_arginfo.h"
 
 namespace php_git2
 {
@@ -14,7 +16,7 @@ namespace php_git2
 
 } // namespace php_git2
 
-static constexpr auto ZIF_GIT_RESET = zif_php_git2_function<
+static constexpr auto ZIF_git_reset = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -29,7 +31,7 @@ static constexpr auto ZIF_GIT_RESET = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_RESET_DEFAULT = zif_php_git2_function<
+static constexpr auto ZIF_git_reset_default = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -42,7 +44,7 @@ static constexpr auto ZIF_GIT_RESET_DEFAULT = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_RESET_FROM_ANNOTATED = zif_php_git2_function<
+static constexpr auto ZIF_git_reset_from_annotated = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -57,10 +59,10 @@ static constexpr auto ZIF_GIT_RESET_FROM_ANNOTATED = zif_php_git2_function<
         >
     >;
 
-#define GIT_RESET_FE                                                    \
-    PHP_GIT2_FE(git_reset,ZIF_GIT_RESET,NULL)                           \
-    PHP_GIT2_FE(git_reset_default,ZIF_GIT_RESET_DEFAULT,NULL)           \
-    PHP_GIT2_FE(git_reset_from_annotated,ZIF_GIT_RESET_FROM_ANNOTATED,NULL)
+#define GIT_RESET_FE                            \
+    PHP_GIT2_FE(git_reset)                      \
+    PHP_GIT2_FE(git_reset_default)              \
+    PHP_GIT2_FE(git_reset_from_annotated)
 
 #endif
 

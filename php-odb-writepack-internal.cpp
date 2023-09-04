@@ -5,6 +5,7 @@
  */
 
 #include "php-object.h"
+#include "stubs/GitODBWritepack_arginfo.h"
 using namespace php_git2;
 
 // Class method entries
@@ -13,35 +14,37 @@ static PHP_METHOD(GitODBWritepack_Internal,append);
 static PHP_METHOD(GitODBWritepack_Internal,commit);
 
 zend_function_entry php_git2::odb_writepack_internal_methods[] = {
-    PHP_ME(GitODBWritepack_Internal,append,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitODBWritepack_Internal,commit,NULL,ZEND_ACC_PUBLIC)
+    PHP_ME(
+        GitODBWritepack_Internal,
+        append,
+        arginfo_class_GitODBWritepack_append,
+        ZEND_ACC_PUBLIC
+        )
+    PHP_ME(
+        GitODBWritepack_Internal,
+        commit,
+        arginfo_class_GitODBWritepack_commit,
+        ZEND_ACC_PUBLIC
+        )
     PHP_FE_END
 };
 
 // Custom class handlers.
 
 static zval* odb_writepack_internal_read_property(
-    zval* object,
-    zval* member,
+    zend_object* object,
+    zend_string* member,
     int type,
     void** cache_slot,
     zval* rv);
-#if PHP_API_VERSION >= 20190902
 static zval* odb_writepack_internal_write_property(
-    zval* object,
-    zval* member,
+    zend_object* object,
+    zend_string* member,
     zval* value,
     void** cache_slot);
-#else
-static void odb_writepack_internal_write_property(
-    zval* object,
-    zval* member,
-    zval* value,
-    void** cache_slot);
-#endif
 static int odb_writepack_internal_has_property(
-    zval* object,
-    zval* member,
+    zend_object* object,
+    zend_string* member,
     int has_set_exists,
     void** cache_slot);
 
@@ -125,32 +128,24 @@ php_odb_writepack_internal_object::~php_odb_writepack_internal_object()
 // Implementation of custom class handlers.
 
 zval* odb_writepack_internal_read_property(
-    zval* object,
-    zval* member,
+    zend_object* object,
+    zend_string* member,
     int type,
     void** cache_slot,
     zval* rv)
 {
     zval* retval = rv;
-    zval tmp_member;
     php_odb_writepack_internal_object* storage;
-
-    // Ensure deep copy of member zval.
-    if (Z_TYPE_P(member) != IS_STRING) {
-        ZVAL_STR(&tmp_member,zval_get_string(member));
-        member = &tmp_member;
-        cache_slot = nullptr;
-    }
 
     // Handle special properties of the git_odb_writepack.
 
     using zend_object_t = php_zend_object<php_odb_writepack_internal_object>;
-    storage = zend_object_t::get_storage(Z_OBJ_P(object));
+    storage = zend_object_t::get_storage(object);
 
-    if (strcmp(Z_STRVAL_P(member),"progress") == 0) {
+    if (strcmp(ZSTR_VAL(member),"progress") == 0) {
         php_git2::convert_transfer_progress(retval,&storage->prog);
     }
-    else if (strcmp(Z_STRVAL_P(member),"backend") == 0
+    else if (strcmp(ZSTR_VAL(member),"backend") == 0
         && Z_TYPE(storage->backend) != IS_UNDEF)
     {
         ZVAL_COPY_VALUE(retval,&storage->backend);
@@ -161,36 +156,22 @@ zval* odb_writepack_internal_read_property(
         retval = (*handler)(object,member,type,cache_slot,rv);
     }
 
-    if (member == &tmp_member) {
-        zval_dtor(member);
-    }
-
     return retval;
 }
 
-#if PHP_API_VERSION >= 20190902
-
 zval* odb_writepack_internal_write_property(
-    zval* object,
-    zval* member,
+    zend_object* object,
+    zend_string* member,
     zval* value,
     void** cache_slot)
 {
     zval* result = value;
-    zval tmp_member;
 
-    // Ensure deep copy of member zval.
-    if (Z_TYPE_P(member) != IS_STRING) {
-        ZVAL_STR(&tmp_member,zval_get_string(member));
-        member = &tmp_member;
-        cache_slot = nullptr;
-    }
-
-    if (strcmp(Z_STRVAL_P(member),"progress") == 0) {
+    if (strcmp(ZSTR_VAL(member),"progress") == 0) {
         zend_throw_error(
             nullptr,
             "Property '%s' of GitODBWritepack_Internal cannot be updated",
-            Z_STRVAL_P(member));
+            ZSTR_VAL(member));
     }
     else {
         // Invoke base class handler.
@@ -198,76 +179,24 @@ zval* odb_writepack_internal_write_property(
         result = (*handler)(object,member,value,cache_slot);
     }
 
-    if (member == &tmp_member) {
-        zval_dtor(member);
-    }
-
     return result;
 }
 
-#else
-
-void odb_writepack_internal_write_property(
-    zval* object,
-    zval* member,
-    zval* value,
-    void** cache_slot)
-{
-    zval tmp_member;
-
-    // Ensure deep copy of member zval.
-    if (Z_TYPE_P(member) != IS_STRING) {
-        ZVAL_STR(&tmp_member,zval_get_string(member));
-        member = &tmp_member;
-        cache_slot = nullptr;
-    }
-
-    if (strcmp(Z_STRVAL_P(member),"progress") == 0) {
-        zend_throw_error(
-            nullptr,
-            "Property '%s' of GitODBWritepack_Internal cannot be updated",
-            Z_STRVAL_P(member));
-    }
-    else {
-        // Invoke base class handler.
-        auto handler = php_zend_object<php_odb_writepack_object>::handlers.write_property;
-        (*handler)(object,member,value,cache_slot);
-    }
-
-    if (member == &tmp_member) {
-        zval_dtor(member);
-    }
-}
-
-#endif
-
 int odb_writepack_internal_has_property(
-    zval* object,
-    zval* member,
+    zend_object* object,
+    zend_string* member,
     int has_set_exists,
     void** cache_slot)
 {
     int result;
-    zval tmp_member;
 
-    // Ensure deep copy of member zval.
-    if (Z_TYPE_P(member) != IS_STRING) {
-        ZVAL_STR(&tmp_member,zval_get_string(member));
-        member = &tmp_member;
-        cache_slot = nullptr;
-    }
-
-    if (strcmp(Z_STRVAL_P(member),"progress") == 0) {
+    if (strcmp(ZSTR_VAL(member),"progress") == 0) {
         result = true;
     }
     else {
         // Invoke base class handler.
         auto handler = php_zend_object<php_odb_writepack_object>::handlers.has_property;
         result = (*handler)(object,member,has_set_exists,cache_slot);
-    }
-
-    if (member == &tmp_member) {
-        zval_dtor(member);
     }
 
     return result;
@@ -278,6 +207,7 @@ int odb_writepack_internal_has_property(
 PHP_METHOD(GitODBWritepack_Internal,append)
 {
     php_bailer bailer;
+    zval* zstats;
     int result;
     char* buf;
     size_t amt;
@@ -287,7 +217,7 @@ PHP_METHOD(GitODBWritepack_Internal,append)
 
     assert(object->writepack != nullptr);
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS(),"s",&buf,&amt) != SUCCESS) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS(),"a/s",&zstats,&buf,&amt) != SUCCESS) {
         return;
     }
 
@@ -296,6 +226,8 @@ PHP_METHOD(GitODBWritepack_Internal,append)
         if (result < 0) {
             php_git2::git_error(result);
         }
+
+        php_git2::convert_transfer_progress(zstats,&object->prog);
 
     } catch (php_git2_exception_base& ex) {
         php_bailout_context ctx(bailer);
@@ -310,17 +242,23 @@ PHP_METHOD(GitODBWritepack_Internal,commit)
 {
     php_bailer bailer;
     int result;
+    zval* zstats;
     php_odb_writepack_internal_object* object;
 
     object = php_zend_object<php_odb_writepack_internal_object>::get_storage(getThis());
-
     assert(object->writepack != nullptr);
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS(),"a/",&zstats) != SUCCESS) {
+        return;
+    }
 
     try {
         result = object->writepack->commit(object->writepack,&object->prog);
         if (result < 0) {
             php_git2::git_error(result);
         }
+
+        php_git2::convert_transfer_progress(zstats,&object->prog);
 
     } catch (php_git2_exception_base& ex) {
         php_bailout_context ctx(bailer);

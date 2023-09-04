@@ -8,6 +8,7 @@
 #define PHPGIT2_FUNCTION_H
 #include "php-type.h"
 #include "php-callback.h"
+#include <type_traits>
 #include <limits>
 #include <utility>
 
@@ -276,38 +277,9 @@ namespace php_git2
     // RETVAL_* macros from the PHP API that expect a zval in scope called
     // "return_value".
 
-    template<int ReturnPos,typename... Ts>
-    inline typename std::enable_if<ReturnPos == 0,void>::type
-    php_return(char retval,local_pack<Ts...>&,zval* return_value)
-    {
-        char str[2] = {retval,0};
-        RETVAL_STRING(str);
-    }
-
-    template<int ReturnPos,typename... Ts>
-    inline typename std::enable_if<ReturnPos == 0,void>::type
-    php_return(zend_long retval,local_pack<Ts...>&,zval* return_value)
-    {
-        RETVAL_LONG(retval);
-    }
-
-    template<int ReturnPos,typename... Ts>
-    inline typename std::enable_if<ReturnPos == 0,void>::type
-    php_return(int retval,local_pack<Ts...>&,zval* return_value)
-    {
-        RETVAL_LONG(static_cast<zend_long>(retval));
-    }
-
-    template<int ReturnPos,typename... Ts>
-    inline typename std::enable_if<ReturnPos == 0,void>::type
-    php_return(unsigned int retval,local_pack<Ts...>&,zval* return_value)
-    {
-        RETVAL_LONG(static_cast<zend_long>(retval));
-    }
-
-    template<int ReturnPos,typename... Ts>
-    inline typename std::enable_if<ReturnPos == 0,void>::type
-    php_return(size_t retval,local_pack<Ts...>&,zval* return_value)
+    template<int ReturnPos,typename Rt,typename... Ts>
+    inline typename std::enable_if<ReturnPos == 0 && (std::is_integral<Rt>::value || std::is_enum<Rt>::value),void>::type
+    php_return(Rt retval,local_pack<Ts...>&,zval* return_value)
     {
         RETVAL_LONG(static_cast<zend_long>(retval));
     }
@@ -401,10 +373,16 @@ namespace php_git2
 // function differently than its C++ name (since the C++ function is a
 // template).
 
-#define PHP_GIT2_FE(name,func,arginfo) \
+#define PHP_GIT2_FE_EX(name,func,arginfo)       \
     ZEND_FENTRY(name,(func),arginfo,0)
 
-#define PHP_GIT2_UNIMPLEMENTED(name,func,arginfo)
+#define PHP_GIT2_FE(name)                               \
+    PHP_GIT2_FE_EX(name,ZIF_ ## name,arginfo_ ## name)
+
+#define PHP_GIT2_FE_ALIAS(name,alias)                   \
+    PHP_GIT2_FE_EX(alias,ZIF_ ## name,arginfo_ ## name)
+
+#define PHP_GIT2_UNIMPLEMENTED(name)
 
 // Define the base function template for php_git2. It's name has the typical
 // prefix (though this may be unimportant). We cannot use the normal macros

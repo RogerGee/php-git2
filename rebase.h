@@ -6,8 +6,10 @@
 
 #ifndef PHPGIT2_REBASE_H
 #define PHPGIT2_REBASE_H
+
 #include "merge.h"
 #include "checkout.h"
+#include "stubs/rebase_arginfo.h"
 
 namespace php_git2
 {
@@ -97,7 +99,7 @@ namespace php_git2
 
 } // php_git2
 
-static constexpr auto ZIF_GIT_REBASE_ABORT = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_rebase_abort = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         git_rebase*>::func<git_rebase_abort>,
@@ -107,7 +109,7 @@ static constexpr auto ZIF_GIT_REBASE_ABORT = zif_php_git2_function_rethandler<
     php_git2::php_boolean_notfound_rethandler
     >;
 
-static constexpr auto ZIF_GIT_REBASE_COMMIT = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_rebase_commit = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         git_oid*,
@@ -126,11 +128,8 @@ static constexpr auto ZIF_GIT_REBASE_COMMIT = zif_php_git2_function_rethandler<
         >,
     php_git2::php_git_rebase_commit_rethandler
     >;
-ZEND_BEGIN_ARG_INFO_EX(git_rebase_commit_arginfo,0,0,6)
-    ZEND_ARG_PASS_INFO(1)
-ZEND_END_ARG_INFO()
 
-static constexpr auto ZIF_GIT_REBASE_FINISH = zif_php_git2_function<
+static constexpr auto ZIF_git_rebase_finish = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_rebase*,
@@ -141,13 +140,13 @@ static constexpr auto ZIF_GIT_REBASE_FINISH = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REBASE_FREE = zif_php_git2_function_free<
+static constexpr auto ZIF_git_rebase_free = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_rebase>
         >
     >;
 
-static constexpr auto ZIF_GIT_REBASE_INIT = zif_php_git2_function<
+static constexpr auto ZIF_git_rebase_init = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_rebase**,
@@ -169,7 +168,7 @@ static constexpr auto ZIF_GIT_REBASE_INIT = zif_php_git2_function<
     php_git2::sequence<0,1,2,3,4,5>
     >;
 
-static constexpr auto ZIF_GIT_REBASE_INMEMORY_INDEX = zif_php_git2_function<
+static constexpr auto ZIF_git_rebase_inmemory_index = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_index**,
@@ -183,7 +182,7 @@ static constexpr auto ZIF_GIT_REBASE_INMEMORY_INDEX = zif_php_git2_function<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_REBASE_NEXT = zif_php_git2_function<
+static constexpr auto ZIF_git_rebase_next = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_rebase_operation**,
@@ -197,7 +196,7 @@ static constexpr auto ZIF_GIT_REBASE_NEXT = zif_php_git2_function<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_REBASE_OPEN = zif_php_git2_function<
+static constexpr auto ZIF_git_rebase_open = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_rebase**,
@@ -213,7 +212,7 @@ static constexpr auto ZIF_GIT_REBASE_OPEN = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_REBASE_OPERATION_BYINDEX = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_rebase_operation_byindex = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         git_rebase_operation*,
         git_rebase*,
@@ -225,7 +224,7 @@ static constexpr auto ZIF_GIT_REBASE_OPERATION_BYINDEX = zif_php_git2_function_r
     php_git2::php_git_rebase_operation_rethandler
     >;
 
-static constexpr auto ZIF_GIT_REBASE_OPERATION_CURRENT = zif_php_git2_function<
+static constexpr auto ZIF_git_rebase_operation_current = zif_php_git2_function<
     php_git2::func_wrapper<
         size_t,
         git_rebase*>::func<git_rebase_operation_current>,
@@ -235,7 +234,7 @@ static constexpr auto ZIF_GIT_REBASE_OPERATION_CURRENT = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_REBASE_OPERATION_ENTRYCOUNT = zif_php_git2_function<
+static constexpr auto ZIF_git_rebase_operation_entrycount = zif_php_git2_function<
     php_git2::func_wrapper<
         size_t,
         git_rebase*>::func<git_rebase_operation_entrycount>,
@@ -245,19 +244,18 @@ static constexpr auto ZIF_GIT_REBASE_OPERATION_ENTRYCOUNT = zif_php_git2_functio
     0
     >;
 
-#define GIT_REBASE_FE                                                   \
-    PHP_GIT2_FE(git_rebase_abort,ZIF_GIT_REBASE_ABORT,NULL)             \
-    PHP_GIT2_FE(git_rebase_commit,ZIF_GIT_REBASE_COMMIT,git_rebase_commit_arginfo) \
-    PHP_GIT2_FE(git_rebase_finish,ZIF_GIT_REBASE_FINISH,NULL)           \
-    PHP_GIT2_FE(git_rebase_free,ZIF_GIT_REBASE_FREE,NULL)               \
-    PHP_GIT2_FE(git_rebase_init,ZIF_GIT_REBASE_INIT,NULL)               \
-    PHP_GIT2_FE(git_rebase_inmemory_index,ZIF_GIT_REBASE_INMEMORY_INDEX,NULL) \
-    PHP_GIT2_FE(git_rebase_next,ZIF_GIT_REBASE_NEXT,NULL)               \
-    PHP_GIT2_FE(git_rebase_open,ZIF_GIT_REBASE_OPEN,NULL)               \
-    PHP_GIT2_FE(git_rebase_operation_byindex,ZIF_GIT_REBASE_OPERATION_BYINDEX,NULL) \
-    PHP_GIT2_FE(git_rebase_operation_current,ZIF_GIT_REBASE_OPERATION_CURRENT,NULL) \
-    PHP_GIT2_FE(git_rebase_operation_entrycount,ZIF_GIT_REBASE_OPERATION_ENTRYCOUNT,NULL)
-
+#define GIT_REBASE_FE                               \
+    PHP_GIT2_FE(git_rebase_abort)                   \
+    PHP_GIT2_FE(git_rebase_commit)                  \
+    PHP_GIT2_FE(git_rebase_finish)                  \
+    PHP_GIT2_FE(git_rebase_free)                    \
+    PHP_GIT2_FE(git_rebase_init)                    \
+    PHP_GIT2_FE(git_rebase_inmemory_index)          \
+    PHP_GIT2_FE(git_rebase_next)                    \
+    PHP_GIT2_FE(git_rebase_open)                    \
+    PHP_GIT2_FE(git_rebase_operation_byindex)       \
+    PHP_GIT2_FE(git_rebase_operation_current)       \
+    PHP_GIT2_FE(git_rebase_operation_entrycount)
 
 #endif
 

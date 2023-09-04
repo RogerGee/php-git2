@@ -26,7 +26,7 @@ extern "C" {
 }
 
 #define PHP_GIT2_EXTNAME "git2"
-#define PHP_GIT2_EXTVER  "2.0.0"
+#define PHP_GIT2_EXTVER  "2.0.0-dev"
 
 // Include the libgit2 headers. They should be installed on the system already.
 extern "C" {
@@ -43,8 +43,9 @@ extern "C" {
 #include <cstdio>
 #include <cstdarg>
 
-// Module globals
+#include "php-shims.h"
 
+// Module globals
 ZEND_BEGIN_MODULE_GLOBALS(git2)
   bool propagateError;
   bool requestActive;

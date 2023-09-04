@@ -7,6 +7,8 @@
 #ifndef PHPGIT2_INDEXER_H
 #define PHPGIT2_INDEXER_H
 
+#include "stubs/indexer_arginfo.h"
+
 namespace php_git2
 {
     // Specialize resource type destructor.
@@ -134,7 +136,7 @@ namespace php_git2
 
 // Functions:
 
-static constexpr auto ZIF_GIT_INDEXER_NEW = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_indexer_new = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_indexer**,
@@ -155,7 +157,7 @@ static constexpr auto ZIF_GIT_INDEXER_NEW = zif_php_git2_function_setdeps<
     php_git2::sequence<1,2,3,4,0>
     >;
 
-static constexpr auto ZIF_GIT_INDEXER_HASH = zif_php_git2_function<
+static constexpr auto ZIF_git_indexer_hash = zif_php_git2_function<
     php_git2::func_wrapper<
         const git_oid*,
         const git_indexer*>::func<git_indexer_hash>,
@@ -165,7 +167,7 @@ static constexpr auto ZIF_GIT_INDEXER_HASH = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_INDEXER_APPEND = zif_php_git2_function<
+static constexpr auto ZIF_git_indexer_append = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_indexer*,
@@ -183,7 +185,7 @@ static constexpr auto ZIF_GIT_INDEXER_APPEND = zif_php_git2_function<
     php_git2::sequence<1,3,2,0>
     >;
 
-static constexpr auto ZIF_GIT_INDEXER_COMMIT = zif_php_git2_function<
+static constexpr auto ZIF_git_indexer_commit = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_indexer*,
@@ -197,7 +199,7 @@ static constexpr auto ZIF_GIT_INDEXER_COMMIT = zif_php_git2_function<
     php_git2::sequence<1,0>
     >;
 
-static constexpr auto ZIF_GIT_INDEXER_FREE = zif_php_git2_function_free<
+static constexpr auto ZIF_git_indexer_free = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_indexer>
         >
@@ -242,13 +244,13 @@ static PHP_FUNCTION(git2_indexer_stats)
 
 // Function Entries:
 
-#define GIT_INDEXER_FE                                          \
-    PHP_GIT2_FE(git_indexer_new,ZIF_GIT_INDEXER_NEW,NULL)       \
-    PHP_GIT2_FE(git_indexer_hash,ZIF_GIT_INDEXER_HASH,NULL)     \
-    PHP_GIT2_FE(git_indexer_append,ZIF_GIT_INDEXER_APPEND,NULL) \
-    PHP_GIT2_FE(git_indexer_commit,ZIF_GIT_INDEXER_COMMIT,NULL) \
-    PHP_GIT2_FE(git_indexer_free,ZIF_GIT_INDEXER_FREE,NULL)     \
-    PHP_FE(git2_indexer_stats,NULL)
+#define GIT_INDEXER_FE                                      \
+    PHP_GIT2_FE(git_indexer_append)                         \
+    PHP_GIT2_FE(git_indexer_commit)                         \
+    PHP_GIT2_FE(git_indexer_free)                           \
+    PHP_GIT2_FE(git_indexer_hash)                           \
+    PHP_GIT2_FE(git_indexer_new)                            \
+    PHP_FE(git2_indexer_stats,arginfo_git2_indexer_stats)
 
 #endif
 

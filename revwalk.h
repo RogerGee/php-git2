@@ -7,6 +7,8 @@
 #ifndef PHPGIT2_REVWALK_H
 #define PHPGIT2_REVWALK_H
 
+#include "stubs/revwalk_arginfo.h"
+
 namespace php_git2
 {
     // Explicitly specialize git2_resource destructor for git_revwalk.
@@ -75,7 +77,7 @@ namespace php_git2
 
 // Functions:
 
-static constexpr auto ZIF_GIT_REVWALK_NEW = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_revwalk_new = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_revwalk**,
@@ -91,7 +93,7 @@ static constexpr auto ZIF_GIT_REVWALK_NEW = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_REVWALK_PUSH = zif_php_git2_function<
+static constexpr auto ZIF_git_revwalk_push = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_revwalk*,
@@ -102,7 +104,7 @@ static constexpr auto ZIF_GIT_REVWALK_PUSH = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REVWALK_NEXT = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_revwalk_next = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         git_oid*,
@@ -116,7 +118,7 @@ static constexpr auto ZIF_GIT_REVWALK_NEXT = zif_php_git2_function_rethandler<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_REVWALK_HIDE = zif_php_git2_function<
+static constexpr auto ZIF_git_revwalk_hide = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_revwalk*,
@@ -127,7 +129,7 @@ static constexpr auto ZIF_GIT_REVWALK_HIDE = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REVWALK_SORTING = zif_php_git2_function<
+static constexpr auto ZIF_git_revwalk_sorting = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_revwalk*,
@@ -135,10 +137,10 @@ static constexpr auto ZIF_GIT_REVWALK_SORTING = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_resource<php_git2::php_git_revwalk>,
         php_git2::php_long
-        > 
+        >
     >;
 
-static constexpr auto ZIF_GIT_REVWALK_RESET = zif_php_git2_function<
+static constexpr auto ZIF_git_revwalk_reset = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_revwalk*>::func<git_revwalk_reset>,
@@ -147,13 +149,13 @@ static constexpr auto ZIF_GIT_REVWALK_RESET = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REVWALK_FREE = zif_php_git2_function_free<
+static constexpr auto ZIF_git_revwalk_free = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_revwalk>
         >
     >;
 
-static constexpr auto ZIF_GIT_REVWALK_ADD_HIDE_CB = zif_php_git2_function<
+static constexpr auto ZIF_git_revwalk_add_hide_cb = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_revwalk*,
@@ -169,7 +171,7 @@ static constexpr auto ZIF_GIT_REVWALK_ADD_HIDE_CB = zif_php_git2_function<
     php_git2::sequence<1,2,0>
     >;
 
-static constexpr auto ZIF_GIT_REVWALK_HIDE_GLOB = zif_php_git2_function<
+static constexpr auto ZIF_git_revwalk_hide_glob = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_revwalk*,
@@ -180,7 +182,7 @@ static constexpr auto ZIF_GIT_REVWALK_HIDE_GLOB = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REVWALK_HIDE_HEAD = zif_php_git2_function<
+static constexpr auto ZIF_git_revwalk_hide_head = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_revwalk*>::func<git_revwalk_hide_head>,
@@ -189,7 +191,7 @@ static constexpr auto ZIF_GIT_REVWALK_HIDE_HEAD = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REVWALK_HIDE_REF = zif_php_git2_function<
+static constexpr auto ZIF_git_revwalk_hide_ref = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_revwalk*,
@@ -200,7 +202,7 @@ static constexpr auto ZIF_GIT_REVWALK_HIDE_REF = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REVWALK_PUSH_GLOB = zif_php_git2_function<
+static constexpr auto ZIF_git_revwalk_push_glob = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_revwalk*,
@@ -211,7 +213,7 @@ static constexpr auto ZIF_GIT_REVWALK_PUSH_GLOB = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REVWALK_PUSH_HEAD = zif_php_git2_function<
+static constexpr auto ZIF_git_revwalk_push_head = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_revwalk*>::func<git_revwalk_push_head>,
@@ -220,7 +222,7 @@ static constexpr auto ZIF_GIT_REVWALK_PUSH_HEAD = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REVWALK_PUSH_RANGE = zif_php_git2_function<
+static constexpr auto ZIF_git_revwalk_push_range = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_revwalk*,
@@ -231,7 +233,7 @@ static constexpr auto ZIF_GIT_REVWALK_PUSH_RANGE = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REVWALK_PUSH_REF = zif_php_git2_function<
+static constexpr auto ZIF_git_revwalk_push_ref = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_revwalk*,
@@ -242,7 +244,7 @@ static constexpr auto ZIF_GIT_REVWALK_PUSH_REF = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REVWALK_REPOSITORY = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_revwalk_repository = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         git_repository*,
         git_revwalk*>::func<git_revwalk_repository>,
@@ -255,7 +257,7 @@ static constexpr auto ZIF_GIT_REVWALK_REPOSITORY = zif_php_git2_function_rethand
     php_git2::sequence<0>
     >;
 
-static constexpr auto ZIF_GIT_REVWALK_SIMPLIFY_FIRST_PARENT = zif_php_git2_function<
+static constexpr auto ZIF_git_revwalk_simplify_first_parent = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_revwalk*>::func<git_revwalk_simplify_first_parent>,
@@ -266,24 +268,24 @@ static constexpr auto ZIF_GIT_REVWALK_SIMPLIFY_FIRST_PARENT = zif_php_git2_funct
 
 // Function Entries:
 
-#define GIT_REVWALK_FE                                              \
-    PHP_GIT2_FE(git_revwalk_new,ZIF_GIT_REVWALK_NEW,NULL)           \
-    PHP_GIT2_FE(git_revwalk_push,ZIF_GIT_REVWALK_PUSH,NULL)         \
-    PHP_GIT2_FE(git_revwalk_next,ZIF_GIT_REVWALK_NEXT,NULL)         \
-    PHP_GIT2_FE(git_revwalk_hide,ZIF_GIT_REVWALK_HIDE,NULL)         \
-    PHP_GIT2_FE(git_revwalk_sorting,ZIF_GIT_REVWALK_SORTING,NULL)       \
-    PHP_GIT2_FE(git_revwalk_reset,ZIF_GIT_REVWALK_RESET,NULL)           \
-    PHP_GIT2_FE(git_revwalk_free,ZIF_GIT_REVWALK_FREE,NULL)             \
-    PHP_GIT2_FE(git_revwalk_add_hide_cb,ZIF_GIT_REVWALK_ADD_HIDE_CB,NULL) \
-    PHP_GIT2_FE(git_revwalk_hide_glob,ZIF_GIT_REVWALK_HIDE_GLOB,NULL)   \
-    PHP_GIT2_FE(git_revwalk_hide_head,ZIF_GIT_REVWALK_HIDE_HEAD,NULL)   \
-    PHP_GIT2_FE(git_revwalk_hide_ref,ZIF_GIT_REVWALK_HIDE_REF,NULL)     \
-    PHP_GIT2_FE(git_revwalk_push_glob,ZIF_GIT_REVWALK_PUSH_GLOB,NULL)   \
-    PHP_GIT2_FE(git_revwalk_push_head,ZIF_GIT_REVWALK_PUSH_HEAD,NULL)   \
-    PHP_GIT2_FE(git_revwalk_push_range,ZIF_GIT_REVWALK_PUSH_RANGE,NULL) \
-    PHP_GIT2_FE(git_revwalk_push_ref,ZIF_GIT_REVWALK_PUSH_REF,NULL)     \
-    PHP_GIT2_FE(git_revwalk_repository,ZIF_GIT_REVWALK_REPOSITORY,NULL) \
-    PHP_GIT2_FE(git_revwalk_simplify_first_parent,ZIF_GIT_REVWALK_SIMPLIFY_FIRST_PARENT,NULL)
+#define GIT_REVWALK_FE                              \
+    PHP_GIT2_FE(git_revwalk_new)                    \
+    PHP_GIT2_FE(git_revwalk_push)                   \
+    PHP_GIT2_FE(git_revwalk_next)                   \
+    PHP_GIT2_FE(git_revwalk_hide)                   \
+    PHP_GIT2_FE(git_revwalk_sorting)                \
+    PHP_GIT2_FE(git_revwalk_reset)                  \
+    PHP_GIT2_FE(git_revwalk_free)                   \
+    PHP_GIT2_FE(git_revwalk_add_hide_cb)            \
+    PHP_GIT2_FE(git_revwalk_hide_glob)              \
+    PHP_GIT2_FE(git_revwalk_hide_head)              \
+    PHP_GIT2_FE(git_revwalk_hide_ref)               \
+    PHP_GIT2_FE(git_revwalk_push_glob)              \
+    PHP_GIT2_FE(git_revwalk_push_head)              \
+    PHP_GIT2_FE(git_revwalk_push_range)             \
+    PHP_GIT2_FE(git_revwalk_push_ref)               \
+    PHP_GIT2_FE(git_revwalk_repository)             \
+    PHP_GIT2_FE(git_revwalk_simplify_first_parent)
 
 #endif
 

@@ -14,7 +14,7 @@ class PHPSerializedConfigBackend extends \GitConfigBackend {
 
     private $iterator = false;
 
-    public function open($level,$repo) {
+    public function open(int $level,$repo) : void {
         $repoPath = git_repository_path($repo);
         if (!$this->readonly && !empty($repoPath)) {
             $this->path = "${repoPath}config.phpserial";
@@ -24,7 +24,7 @@ class PHPSerializedConfigBackend extends \GitConfigBackend {
         }
     }
 
-    public function get($name) {
+    public function get(string $name) : array|bool {
         if (!isset($this->storage[$name][0])) {
             return false;
         }
@@ -36,14 +36,14 @@ class PHPSerializedConfigBackend extends \GitConfigBackend {
         ];
     }
 
-    public function set($name,$value) {
+    public function set(string $name,string $value) : void {
         $this->checkSnapshot();
 
         $this->storage[$name][0] = $value;
         $this->writeOut();
     }
 
-    public function set_multivar($name,$regexp,$value) {
+    public function set_multivar(string $name,string $regexp,string $value) : void {
         $this->checkSnapshot();
 
         if (!isset($this->storage[$name])) {
@@ -72,14 +72,14 @@ class PHPSerializedConfigBackend extends \GitConfigBackend {
         $this->writeOut();
     }
 
-    public function del($name) {
+    public function del(string $name) : void {
         $this->checkSnapshot();
 
         unset($this->storage[$name]);
         $this->writeOut();
     }
 
-    public function del_multivar($name,$regexp) {
+    public function del_multivar(string $name,string $regexp) : void {
         $this->checkSnapshot();
 
         if (!isset($this->storage[$name])) {
@@ -107,22 +107,25 @@ class PHPSerializedConfigBackend extends \GitConfigBackend {
         $this->writeOut();
     }
 
-    public function iterator_new() {
+    public function iterator_new() : mixed {
         $this->iterator = $this->storage;
+        return null;
     }
 
-    public function iterator_next($context) {
+    public function iterator_next($context) : array|bool {
         if ($this->iterator === false) {
             return false;
         }
 
         $value = current($this->iterator);
-        next($this->iterator);
+        if (next($this->iterator) === false) {
+            $this->iterator = false;
+        }
 
         return $value[0];
     }
 
-    public function snapshot() {
+    public function snapshot() : \GitConfigBackend {
         if ($this->readonly) {
             return $this;
         }
@@ -131,11 +134,11 @@ class PHPSerializedConfigBackend extends \GitConfigBackend {
         return $snapshot;
     }
 
-    public function lock() {
+    public function lock() : void {
         $this->locked = true;
     }
 
-    public function unlock() {
+    public function unlock(bool $success) : void {
         $this->locked = false;
 
         if ($this->lockedContent && is_resource($this->file)) {

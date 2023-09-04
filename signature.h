@@ -7,6 +7,8 @@
 #ifndef PHPGIT2_SIGNATURE_H
 #define PHPGIT2_SIGNATURE_H
 
+#include "stubs/signature_arginfo.h"
+
 namespace php_git2
 {
     // Explicitly specialize git2_resource destructor for git_signature.
@@ -19,7 +21,7 @@ namespace php_git2
 
 // Functions:
 
-static constexpr auto ZIF_GIT_SIGNATURE_NEW = zif_php_git2_function<
+static constexpr auto ZIF_git_signature_new = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_signature**,
@@ -39,13 +41,13 @@ static constexpr auto ZIF_GIT_SIGNATURE_NEW = zif_php_git2_function<
     php_git2::sequence<0,1,2,3,4>
     >;
 
-static constexpr auto ZIF_GIT_SIGNATURE_FREE = zif_php_git2_function_free<
+static constexpr auto ZIF_git_signature_free = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_signature>
         >
     >;
 
-static constexpr auto ZIF_GIT_SIGNATURE_DUP = zif_php_git2_function<
+static constexpr auto ZIF_git_signature_dup = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_signature**,
@@ -59,7 +61,7 @@ static constexpr auto ZIF_GIT_SIGNATURE_DUP = zif_php_git2_function<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_SIGNATURE_DEFAULT = zif_php_git2_function<
+static constexpr auto ZIF_git_signature_default = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_signature**,
@@ -73,7 +75,7 @@ static constexpr auto ZIF_GIT_SIGNATURE_DEFAULT = zif_php_git2_function<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_SIGNATURE_NOW = zif_php_git2_function<
+static constexpr auto ZIF_git_signature_now = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_signature**,
@@ -89,7 +91,7 @@ static constexpr auto ZIF_GIT_SIGNATURE_NOW = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_SIGNATURE_FROM_BUFFER = zif_php_git2_function<
+static constexpr auto ZIF_git_signature_from_buffer = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_signature**,
@@ -139,14 +141,14 @@ static PHP_FUNCTION(git2_signature_convert)
 
 // Function Entries:
 
-#define GIT_SIGNATURE_FE                                                \
-    PHP_GIT2_FE(git_signature_new,ZIF_GIT_SIGNATURE_NEW,NULL)           \
-    PHP_GIT2_FE(git_signature_free,ZIF_GIT_SIGNATURE_FREE,NULL)         \
-    PHP_GIT2_FE(git_signature_dup,ZIF_GIT_SIGNATURE_DUP,NULL)           \
-    PHP_GIT2_FE(git_signature_default,ZIF_GIT_SIGNATURE_DEFAULT,NULL)   \
-    PHP_GIT2_FE(git_signature_now,ZIF_GIT_SIGNATURE_NOW,NULL)           \
-    PHP_GIT2_FE(git_signature_from_buffer,ZIF_GIT_SIGNATURE_FROM_BUFFER,NULL) \
-    PHP_FE(git2_signature_convert,NULL)
+#define GIT_SIGNATURE_FE                                            \
+    PHP_GIT2_FE(git_signature_new)                                  \
+    PHP_GIT2_FE(git_signature_free)                                 \
+    PHP_GIT2_FE(git_signature_dup)                                  \
+    PHP_GIT2_FE(git_signature_default)                              \
+    PHP_GIT2_FE(git_signature_now)                                  \
+    PHP_GIT2_FE(git_signature_from_buffer)                          \
+    PHP_FE(git2_signature_convert,arginfo_git2_signature_convert)
 
 #endif
 

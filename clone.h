@@ -9,6 +9,7 @@
 
 #include "checkout.h"
 #include "remote.h"
+#include "stubs/clone_arginfo.h"
 
 namespace php_git2
 {
@@ -66,7 +67,7 @@ namespace php_git2
 
 // Functions:
 
-static constexpr auto ZIF_GIT_CLONE = zif_php_git2_function<
+static constexpr auto ZIF_git_clone = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository**,
@@ -87,7 +88,7 @@ static constexpr auto ZIF_GIT_CLONE = zif_php_git2_function<
 // Function Entries:
 
 #define GIT_CLONE_FE                            \
-    PHP_GIT2_FE(git_clone,ZIF_GIT_CLONE,NULL)
+    PHP_GIT2_FE(git_clone)
 
 #endif
 

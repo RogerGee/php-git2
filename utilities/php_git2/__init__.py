@@ -62,6 +62,8 @@ def get_regex(key):
         regex = re.compile("\s*,\s*")
     elif key == "parse_binding_macro":
         regex = re.compile("PHP_GIT2_FE\(([^)]+)\)")
+    elif key == "parse_binding_macro_alias":
+        regex = re.compile("PHP_GIT2_FE_ALIAS\(([^)]+)\)")
     elif key == "php_file":
         regex = re.compile("^(.+)\.php$")
     elif key == "php_unit_class":
@@ -119,7 +121,8 @@ def generate_function_manifest():
 
 def collect_bindings():
     basepath = "."
-    regex = get_regex("parse_binding_macro")
+    regex_binding = get_regex("parse_binding_macro")
+    regex_binding_alias = get_regex("parse_binding_macro_alias")
 
     results = {}
     def collect_fn(name,path,contents):
@@ -128,13 +131,20 @@ def collect_bindings():
 
         split_regex = get_regex("split_function_arguments")
 
-        for macro in regex.findall(contents):
+        for macro in regex_binding.findall(contents):
             args = split_regex.split(macro)
-            assert len(args) == 3
+            assert len(args) == 1
             results[args[0]] = {
                 "name": args[0],
-                "c-func": args[1],
-                "arginfo": args[2]
+                "aliased": False
+            }
+
+        for macro in regex_binding_alias.findall(contents):
+            args = split_regex.split(macro)
+            assert len(args) == 2
+            results[args[1]] = {
+                "name": args[1],
+                "aliased": args[0]
             }
 
     search_dir_recursive(basepath,collect_fn,depth=0)

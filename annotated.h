@@ -6,6 +6,7 @@
 
 #ifndef PHPGIT2_ANNOTATED_H
 #define PHPGIT2_ANNOTATED_H
+#include "stubs/annotated_arginfo.h"
 
 namespace php_git2
 {
@@ -20,7 +21,7 @@ namespace php_git2
 
 // Functions:
 
-static constexpr auto ZIF_GIT_ANNOTATED_COMMIT_FROM_FETCHHEAD = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_annotated_commit_from_fetchhead = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_annotated_commit**,
@@ -41,7 +42,7 @@ static constexpr auto ZIF_GIT_ANNOTATED_COMMIT_FROM_FETCHHEAD = zif_php_git2_fun
     php_git2::sequence<0,1,2,3,4>
     >;
 
-static constexpr auto ZIF_GIT_ANNOTATED_COMMIT_FROM_REF = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_annotated_commit_from_ref = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_annotated_commit**,
@@ -58,7 +59,7 @@ static constexpr auto ZIF_GIT_ANNOTATED_COMMIT_FROM_REF = zif_php_git2_function_
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_ANNOTATED_COMMIT_FROM_REVSPEC = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_annotated_commit_from_revspec = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_annotated_commit**,
@@ -75,7 +76,7 @@ static constexpr auto ZIF_GIT_ANNOTATED_COMMIT_FROM_REVSPEC = zif_php_git2_funct
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_ANNOTATED_COMMIT_LOOKUP = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_annotated_commit_lookup = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_annotated_commit**,
@@ -92,7 +93,7 @@ static constexpr auto ZIF_GIT_ANNOTATED_COMMIT_LOOKUP = zif_php_git2_function_se
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_ANNOTATED_COMMIT_ID = zif_php_git2_function<
+static constexpr auto ZIF_git_annotated_commit_id = zif_php_git2_function<
     php_git2::func_wrapper<
         const git_oid*,
         const git_annotated_commit*>::func<git_annotated_commit_id>,
@@ -102,7 +103,7 @@ static constexpr auto ZIF_GIT_ANNOTATED_COMMIT_ID = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_ANNOTATED_COMMIT_FREE = zif_php_git2_function_free<
+static constexpr auto ZIF_git_annotated_commit_free = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_annotated_commit>
         >
@@ -110,18 +111,18 @@ static constexpr auto ZIF_GIT_ANNOTATED_COMMIT_FREE = zif_php_git2_function_free
 
 // Function entries:
 
-#define GIT_ANNOTATED_FE                                                \
-    PHP_GIT2_FE(git_annotated_commit_from_fetchhead,ZIF_GIT_ANNOTATED_COMMIT_FROM_FETCHHEAD,NULL) \
-    PHP_GIT2_FE(git_annotated_commit_from_ref,ZIF_GIT_ANNOTATED_COMMIT_FROM_REF,NULL) \
-    PHP_GIT2_FE(git_annotated_commit_from_revspec,ZIF_GIT_ANNOTATED_COMMIT_FROM_REVSPEC,NULL) \
-    PHP_GIT2_FE(git_annotated_commit_lookup,ZIF_GIT_ANNOTATED_COMMIT_LOOKUP,NULL) \
-    PHP_GIT2_FE(git_annotated_commit_id,ZIF_GIT_ANNOTATED_COMMIT_ID,NULL) \
-    PHP_GIT2_FE(git_annotated_commit_free,ZIF_GIT_ANNOTATED_COMMIT_FREE,NULL)
+#define GIT_ANNOTATED_FE                                \
+    PHP_GIT2_FE(git_annotated_commit_from_fetchhead)    \
+    PHP_GIT2_FE(git_annotated_commit_from_ref)          \
+    PHP_GIT2_FE(git_annotated_commit_from_revspec)      \
+    PHP_GIT2_FE(git_annotated_commit_lookup)            \
+    PHP_GIT2_FE(git_annotated_commit_id)                \
+    PHP_GIT2_FE(git_annotated_commit_free)
 
 #endif
 
 /*
- * Local Variables:
+ * Local Variables:11
  * mode:c++
  * indent-tabs-mode:nil
  * tab-width:4

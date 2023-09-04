@@ -9,6 +9,7 @@
 extern "C" {
 #include <git2/sys/repository.h>
 }
+#include "stubs/repository_arginfo.h"
 
 namespace php_git2
 {
@@ -53,7 +54,7 @@ namespace php_git2
 
 // Functions:
 
-static constexpr auto ZIF_GIT_REPOSITORY_INIT = zif_php_git2_function<
+static constexpr auto ZIF_git_repository_init = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository**,
@@ -69,7 +70,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_INIT = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_NEW = zif_php_git2_function<
+static constexpr auto ZIF_git_repository_new = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository**>::func<git_repository_new>,
@@ -81,12 +82,12 @@ static constexpr auto ZIF_GIT_REPOSITORY_NEW = zif_php_git2_function<
     php_git2::sequence<0>
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_FREE = zif_php_git2_function_free<
+static constexpr auto ZIF_git_repository_free = zif_php_git2_function_free<
     php_git2::local_pack<
         php_git2::php_resource_cleanup<php_git2::php_git_repository> >
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_OPEN = zif_php_git2_function<
+static constexpr auto ZIF_git_repository_open = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository**,
@@ -100,7 +101,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_OPEN = zif_php_git2_function<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_OPEN_BARE = zif_php_git2_function<
+static constexpr auto ZIF_git_repository_open_bare = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository**,
@@ -113,16 +114,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_OPEN_BARE = zif_php_git2_function<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY__CLEANUP = zif_php_git2_function<
-    php_git2::func_wrapper<
-        int,
-        git_repository*>::func<git_repository__cleanup>,
-    php_git2::local_pack<
-        php_git2::php_resource<php_git2::php_git_repository>
-        >
-    >;
-
-static constexpr auto ZIF_GIT_REPOSITORY_DETACH_HEAD = zif_php_git2_function<
+static constexpr auto ZIF_git_repository_detach_head = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*>::func<git_repository_detach_head>,
@@ -132,7 +124,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_DETACH_HEAD = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_DISCOVER = zif_php_git2_function<
+static constexpr auto ZIF_git_repository_discover = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_buf*,
@@ -150,7 +142,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_DISCOVER = zif_php_git2_function<
     php_git2::sequence<0,1,2,3>
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_GET_NAMESPACE = zif_php_git2_function<
+static constexpr auto ZIF_git_repository_get_namespace = zif_php_git2_function<
     php_git2::func_wrapper<
         const char*,
         git_repository*>::func<git_repository_get_namespace>,
@@ -159,7 +151,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_GET_NAMESPACE = zif_php_git2_function<
         >,
     0 >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_PATH = zif_php_git2_function<
+static constexpr auto ZIF_git_repository_path = zif_php_git2_function<
     php_git2::func_wrapper<
         const char*,
         const git_repository*>::func<git_repository_path>,
@@ -169,7 +161,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_PATH = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_HASHFILE = zif_php_git2_function<
+static constexpr auto ZIF_git_repository_hashfile = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_oid*,
@@ -189,7 +181,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_HASHFILE = zif_php_git2_function<
     php_git2::sequence<0,1,2,3,4>
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_ODB = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_repository_odb = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_odb**,
@@ -204,7 +196,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_ODB = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_SET_ODB = zif_php_git2_function<
+static constexpr auto ZIF_git_repository_set_odb = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -215,7 +207,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_SET_ODB = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_SET_HEAD = zif_php_git2_function<
+static constexpr auto ZIF_git_repository_set_head = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -228,7 +220,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_SET_HEAD = zif_php_git2_function<
     -1
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_SET_HEAD_DETACHED = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_repository_set_head_detached = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -240,7 +232,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_SET_HEAD_DETACHED = zif_php_git2_functi
     php_git2::php_boolean_notfound_rethandler
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_HEAD = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_repository_head = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_reference**,
@@ -255,7 +247,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_HEAD = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_IS_EMPTY = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_repository_is_empty = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         git_repository*>::func<git_repository_is_empty>,
@@ -265,7 +257,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_IS_EMPTY = zif_php_git2_function_rethan
     php_git2::php_boolean_error_rethandler<int>
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_IS_BARE = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_repository_is_bare = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         const git_repository*>::func<git_repository_is_bare>,
@@ -275,7 +267,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_IS_BARE = zif_php_git2_function_rethand
     php_git2::php_boolean_rethandler<int>
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_IS_SHALLOW = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_repository_is_shallow = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         git_repository*>::func<git_repository_is_shallow>,
@@ -285,7 +277,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_IS_SHALLOW = zif_php_git2_function_reth
     php_git2::php_boolean_rethandler<int>
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_HEAD_DETACHED = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_repository_head_detached = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         git_repository*>::func<git_repository_head_detached>,
@@ -295,7 +287,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_HEAD_DETACHED = zif_php_git2_function_r
     php_git2::php_boolean_error_rethandler<int>
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_HEAD_UNBORN = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_repository_head_unborn = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         git_repository*>::func<git_repository_head_unborn>,
@@ -305,7 +297,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_HEAD_UNBORN = zif_php_git2_function_ret
     php_git2::php_boolean_error_rethandler<int>
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_IDENT = zif_php_git2_function<
+static constexpr auto ZIF_git_repository_ident = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         const char**,
@@ -320,11 +312,8 @@ static constexpr auto ZIF_GIT_REPOSITORY_IDENT = zif_php_git2_function<
     php_git2::sequence<1,2>,
     php_git2::sequence<0,1,2>
     >;
-ZEND_BEGIN_ARG_INFO_EX(git_repository_ident_arginfo,0,0,2)
-    ZEND_ARG_PASS_INFO(1)
-ZEND_END_ARG_INFO()
 
-static constexpr auto ZIF_GIT_REPOSITORY_INIT_EXT = zif_php_git2_function<
+static constexpr auto ZIF_git_repository_init_ext = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository**,
@@ -340,7 +329,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_INIT_EXT = zif_php_git2_function<
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_MESSAGE = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_repository_message = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         git_buf*,
@@ -354,7 +343,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_MESSAGE = zif_php_git2_function_rethand
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_MESSAGE_REMOVE = zif_php_git2_function<
+static constexpr auto ZIF_git_repository_message_remove = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*>::func<git_repository_message_remove>,
@@ -363,7 +352,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_MESSAGE_REMOVE = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_OPEN_EXT = zif_php_git2_function<
+static constexpr auto ZIF_git_repository_open_ext = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository**,
@@ -381,7 +370,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_OPEN_EXT = zif_php_git2_function<
     php_git2::sequence<0,1,2,3>
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_REINIT_FILESYSTEM = zif_php_git2_function<
+static constexpr auto ZIF_git_repository_reinit_filesystem = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -392,7 +381,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_REINIT_FILESYSTEM = zif_php_git2_functi
         >
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_SET_BARE = zif_php_git2_function<
+static constexpr auto ZIF_git_repository_set_bare = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*>::func<git_repository_set_bare>,
@@ -401,7 +390,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_SET_BARE = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_SET_HEAD_DETACHED_FROM_ANNOTATED = zif_php_git2_function_rethandler<
+static constexpr auto ZIF_git_repository_set_head_detached_from_annotated = zif_php_git2_function_rethandler<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -413,7 +402,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_SET_HEAD_DETACHED_FROM_ANNOTATED = zif_
     php_git2::php_boolean_notfound_rethandler
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_SET_IDENT = zif_php_git2_function<
+static constexpr auto ZIF_git_repository_set_ident = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -426,7 +415,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_SET_IDENT = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_SET_NAMESPACE = zif_php_git2_function<
+static constexpr auto ZIF_git_repository_set_namespace = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -437,7 +426,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_SET_NAMESPACE = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_SET_WORKDIR = zif_php_git2_function<
+static constexpr auto ZIF_git_repository_set_workdir = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -450,7 +439,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_SET_WORKDIR = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_STATE = zif_php_git2_function<
+static constexpr auto ZIF_git_repository_state = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*>::func<git_repository_state>,
@@ -460,7 +449,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_STATE = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_STATE_CLEANUP = zif_php_git2_function<
+static constexpr auto ZIF_git_repository_state_cleanup = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*>::func<git_repository_state_cleanup>,
@@ -469,7 +458,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_STATE_CLEANUP = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_WORKDIR = zif_php_git2_function<
+static constexpr auto ZIF_git_repository_workdir = zif_php_git2_function<
     php_git2::func_wrapper<
         const char*,
         const git_repository*>::func<git_repository_workdir>,
@@ -479,7 +468,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_WORKDIR = zif_php_git2_function<
     0
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_WRAP_ODB = zif_php_git2_function<
+static constexpr auto ZIF_git_repository_wrap_odb = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository**,
@@ -493,7 +482,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_WRAP_ODB = zif_php_git2_function<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_CONFIG = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_repository_config = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_config**,
@@ -508,7 +497,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_CONFIG = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_CONFIG_SNAPSHOT = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_repository_config_snapshot = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_config**,
@@ -523,7 +512,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_CONFIG_SNAPSHOT = zif_php_git2_function
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_SET_CONFIG = zif_php_git2_function<
+static constexpr auto ZIF_git_repository_set_config = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -534,7 +523,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_SET_CONFIG = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_INDEX = zif_php_git2_function<
+static constexpr auto ZIF_git_repository_index = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_index**,
@@ -548,7 +537,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_INDEX = zif_php_git2_function<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_SET_INDEX = zif_php_git2_function<
+static constexpr auto ZIF_git_repository_set_index = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -559,7 +548,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_SET_INDEX = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_REFDB = zif_php_git2_function_setdeps<
+static constexpr auto ZIF_git_repository_refdb = zif_php_git2_function_setdeps<
     php_git2::func_wrapper<
         int,
         git_refdb**,
@@ -574,7 +563,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_REFDB = zif_php_git2_function_setdeps<
     php_git2::sequence<0,1>
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_SET_REFDB = zif_php_git2_function<
+static constexpr auto ZIF_git_repository_set_refdb = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -585,7 +574,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_SET_REFDB = zif_php_git2_function<
         >
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_FETCHHEAD_FOREACH = zif_php_git2_function<
+static constexpr auto ZIF_git_repository_fetchhead_foreach = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -601,7 +590,7 @@ static constexpr auto ZIF_GIT_REPOSITORY_FETCHHEAD_FOREACH = zif_php_git2_functi
     php_git2::sequence<0,1,2>
     >;
 
-static constexpr auto ZIF_GIT_REPOSITORY_MERGEHEAD_FOREACH = zif_php_git2_function<
+static constexpr auto ZIF_git_repository_mergehead_foreach = zif_php_git2_function<
     php_git2::func_wrapper<
         int,
         git_repository*,
@@ -619,52 +608,51 @@ static constexpr auto ZIF_GIT_REPOSITORY_MERGEHEAD_FOREACH = zif_php_git2_functi
 
 // Function Entries:
 
-#define GIT_REPOSITORY_FE                                               \
-    PHP_GIT2_FE(git_repository_init,ZIF_GIT_REPOSITORY_INIT,NULL)       \
-    PHP_GIT2_FE(git_repository_new,ZIF_GIT_REPOSITORY_NEW,NULL)         \
-    PHP_GIT2_FE(git_repository_free,ZIF_GIT_REPOSITORY_FREE,NULL)       \
-    PHP_GIT2_FE(git_repository_open,ZIF_GIT_REPOSITORY_OPEN,NULL)       \
-    PHP_GIT2_FE(git_repository_open_bare,ZIF_GIT_REPOSITORY_OPEN_BARE,NULL) \
-    PHP_GIT2_FE(git_repository__cleanup,ZIF_GIT_REPOSITORY__CLEANUP,NULL) \
-    PHP_GIT2_FE(git_repository_detach_head,ZIF_GIT_REPOSITORY_DETACH_HEAD,NULL) \
-    PHP_GIT2_FE(git_repository_discover,ZIF_GIT_REPOSITORY_DISCOVER,NULL) \
-    PHP_GIT2_FE(git_repository_get_namespace,ZIF_GIT_REPOSITORY_GET_NAMESPACE,NULL) \
-    PHP_GIT2_FE(git_repository_path,ZIF_GIT_REPOSITORY_PATH,NULL)       \
-    PHP_GIT2_FE(git_repository_hashfile,ZIF_GIT_REPOSITORY_HASHFILE,NULL) \
-    PHP_GIT2_FE(git_repository_odb,ZIF_GIT_REPOSITORY_ODB,NULL)         \
-    PHP_GIT2_FE(git_repository_set_odb,ZIF_GIT_REPOSITORY_SET_ODB,NULL) \
-    PHP_GIT2_FE(git_repository_set_head,ZIF_GIT_REPOSITORY_SET_HEAD,NULL) \
-    PHP_GIT2_FE(git_repository_set_head_detached,ZIF_GIT_REPOSITORY_SET_HEAD_DETACHED,NULL) \
-    PHP_GIT2_FE(git_repository_head,ZIF_GIT_REPOSITORY_HEAD,NULL)       \
-    PHP_GIT2_FE(git_repository_is_empty,ZIF_GIT_REPOSITORY_IS_EMPTY,NULL) \
-    PHP_GIT2_FE(git_repository_is_bare,ZIF_GIT_REPOSITORY_IS_BARE,NULL) \
-    PHP_GIT2_FE(git_repository_is_shallow,ZIF_GIT_REPOSITORY_IS_SHALLOW,NULL) \
-    PHP_GIT2_FE(git_repository_head_detached,ZIF_GIT_REPOSITORY_HEAD_DETACHED,NULL) \
-    PHP_GIT2_FE(git_repository_head_unborn,ZIF_GIT_REPOSITORY_HEAD_UNBORN,NULL) \
-    PHP_GIT2_FE(git_repository_ident,ZIF_GIT_REPOSITORY_IDENT,git_repository_ident_arginfo) \
-    PHP_GIT2_FE(git_repository_init_ext,ZIF_GIT_REPOSITORY_INIT_EXT,NULL) \
-    PHP_GIT2_FE(git_repository_message,ZIF_GIT_REPOSITORY_MESSAGE,NULL) \
-    PHP_GIT2_FE(git_repository_message_remove,ZIF_GIT_REPOSITORY_MESSAGE_REMOVE,NULL) \
-    PHP_GIT2_FE(git_repository_open_ext,ZIF_GIT_REPOSITORY_OPEN_EXT,NULL) \
-    PHP_GIT2_FE(git_repository_reinit_filesystem,ZIF_GIT_REPOSITORY_REINIT_FILESYSTEM,NULL) \
-    PHP_GIT2_FE(git_repository_set_bare,ZIF_GIT_REPOSITORY_SET_BARE,NULL) \
-    PHP_GIT2_FE(git_repository_set_head_detached_from_annotated,ZIF_GIT_REPOSITORY_SET_HEAD_DETACHED_FROM_ANNOTATED,NULL) \
-    PHP_GIT2_FE(git_repository_set_ident,ZIF_GIT_REPOSITORY_SET_IDENT,NULL) \
-    PHP_GIT2_FE(git_repository_set_namespace,ZIF_GIT_REPOSITORY_SET_NAMESPACE,NULL) \
-    PHP_GIT2_FE(git_repository_set_workdir,ZIF_GIT_REPOSITORY_SET_WORKDIR,NULL) \
-    PHP_GIT2_FE(git_repository_state,ZIF_GIT_REPOSITORY_STATE,NULL)     \
-    PHP_GIT2_FE(git_repository_state_cleanup,ZIF_GIT_REPOSITORY_STATE_CLEANUP,NULL) \
-    PHP_GIT2_FE(git_repository_workdir,ZIF_GIT_REPOSITORY_WORKDIR,NULL) \
-    PHP_GIT2_FE(git_repository_wrap_odb,ZIF_GIT_REPOSITORY_WRAP_ODB,NULL) \
-    PHP_GIT2_FE(git_repository_config,ZIF_GIT_REPOSITORY_CONFIG,NULL)   \
-    PHP_GIT2_FE(git_repository_config_snapshot,ZIF_GIT_REPOSITORY_CONFIG_SNAPSHOT,NULL) \
-    PHP_GIT2_FE(git_repository_set_config,ZIF_GIT_REPOSITORY_SET_CONFIG,NULL) \
-    PHP_GIT2_FE(git_repository_index,ZIF_GIT_REPOSITORY_INDEX,NULL)     \
-    PHP_GIT2_FE(git_repository_set_index,ZIF_GIT_REPOSITORY_SET_INDEX,NULL) \
-    PHP_GIT2_FE(git_repository_refdb,ZIF_GIT_REPOSITORY_REFDB,NULL)     \
-    PHP_GIT2_FE(git_repository_set_refdb,ZIF_GIT_REPOSITORY_SET_REFDB,NULL) \
-    PHP_GIT2_FE(git_repository_fetchhead_foreach,ZIF_GIT_REPOSITORY_FETCHHEAD_FOREACH,NULL) \
-    PHP_GIT2_FE(git_repository_mergehead_foreach,ZIF_GIT_REPOSITORY_MERGEHEAD_FOREACH,NULL)
+#define GIT_REPOSITORY_FE                                           \
+    PHP_GIT2_FE(git_repository_init)                                \
+    PHP_GIT2_FE(git_repository_new)                                 \
+    PHP_GIT2_FE(git_repository_free)                                \
+    PHP_GIT2_FE(git_repository_open)                                \
+    PHP_GIT2_FE(git_repository_open_bare)                           \
+    PHP_GIT2_FE(git_repository_detach_head)                         \
+    PHP_GIT2_FE(git_repository_discover)                            \
+    PHP_GIT2_FE(git_repository_get_namespace)                       \
+    PHP_GIT2_FE(git_repository_path)                                \
+    PHP_GIT2_FE(git_repository_hashfile)                            \
+    PHP_GIT2_FE(git_repository_odb)                                 \
+    PHP_GIT2_FE(git_repository_set_odb)                             \
+    PHP_GIT2_FE(git_repository_set_head)                            \
+    PHP_GIT2_FE(git_repository_set_head_detached)                   \
+    PHP_GIT2_FE(git_repository_head)                                \
+    PHP_GIT2_FE(git_repository_is_empty)                            \
+    PHP_GIT2_FE(git_repository_is_bare)                             \
+    PHP_GIT2_FE(git_repository_is_shallow)                          \
+    PHP_GIT2_FE(git_repository_head_detached)                       \
+    PHP_GIT2_FE(git_repository_head_unborn)                         \
+    PHP_GIT2_FE(git_repository_ident)                               \
+    PHP_GIT2_FE(git_repository_init_ext)                            \
+    PHP_GIT2_FE(git_repository_message)                             \
+    PHP_GIT2_FE(git_repository_message_remove)                      \
+    PHP_GIT2_FE(git_repository_open_ext)                            \
+    PHP_GIT2_FE(git_repository_reinit_filesystem)                   \
+    PHP_GIT2_FE(git_repository_set_bare)                            \
+    PHP_GIT2_FE(git_repository_set_head_detached_from_annotated)    \
+    PHP_GIT2_FE(git_repository_set_ident)                           \
+    PHP_GIT2_FE(git_repository_set_namespace)                       \
+    PHP_GIT2_FE(git_repository_set_workdir)                         \
+    PHP_GIT2_FE(git_repository_state)                               \
+    PHP_GIT2_FE(git_repository_state_cleanup)                       \
+    PHP_GIT2_FE(git_repository_workdir)                             \
+    PHP_GIT2_FE(git_repository_wrap_odb)                            \
+    PHP_GIT2_FE(git_repository_config)                              \
+    PHP_GIT2_FE(git_repository_config_snapshot)                     \
+    PHP_GIT2_FE(git_repository_set_config)                          \
+    PHP_GIT2_FE(git_repository_index)                               \
+    PHP_GIT2_FE(git_repository_set_index)                           \
+    PHP_GIT2_FE(git_repository_refdb)                               \
+    PHP_GIT2_FE(git_repository_set_refdb)                           \
+    PHP_GIT2_FE(git_repository_fetchhead_foreach)                   \
+    PHP_GIT2_FE(git_repository_mergehead_foreach)
 
 #endif
 

@@ -5,14 +5,29 @@
  */
 
 #include "php-object.h"
+#include "stubs/GitWritestream_arginfo.h"
 using namespace php_git2;
 
 // Class method entries
+
 static PHP_METHOD(GitWritestream,write);
 static PHP_METHOD(GitWritestream,close);
+
 zend_function_entry php_git2::writestream_methods[] = {
-    PHP_ME(GitWritestream,write,NULL,ZEND_ACC_PUBLIC)
-    PHP_ME(GitWritestream,close,NULL,ZEND_ACC_PUBLIC)
+    PHP_ME(
+        GitWritestream,
+        write,
+        arginfo_class_GitWritestream_write,
+        ZEND_ACC_PUBLIC
+        )
+
+    PHP_ME(
+        GitWritestream,
+        close,
+        arginfo_class_GitWritestream_close,
+        ZEND_ACC_PUBLIC
+        )
+
     PHP_FE_END
 };
 

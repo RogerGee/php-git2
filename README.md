@@ -2,30 +2,32 @@
 
 This project provides a PHP extension implementing bindings for [`libgit2`](https://github.com/libgit2/libgit2). You can use this library to build native Git tooling directly into your PHP application.
 
-This branch targets PHP 7. See other branches for other PHP major versions. Please note that this project no longer supports versions before PHP 7.
+This branch targets PHP 8. See other branches for other PHP major versions. Please note that this project no longer supports versions before PHP 8.
 
 Primary author:
 
-> Roger Gee <rpg11a@acu.edu>
+> [Roger Gee](https://github.com/RogerGee)
 
 ## Versioning
 
-Since we do not bundle the `libgit2` dependency, it's up to the user to provide the correct version of  `libgit2` when building the extension. The `libgit2` version corresponds indirectly to the version of `php-git2` being built. Consult the following table to determine the correct version of `libgit2` required by `php-git2`:
+Since we do not bundle the `libgit2` dependency, it's up to the user to provide the correct version of  `libgit2` when building (and running) the extension. The `libgit2` version corresponds indirectly to the version of `php-git2` being built. Consult the following table to determine the correct version of `libgit2` required by `php-git2`:
 
 | `php-git2` | `libgit2` | Notes |
 | -------- | ------- | ------- |
-| `2.0.0` | `^1.5.0` | Under active development; `libgit2` is now stable |
-| `1.0.0`  | `0.25.1` | `libgit2` is unstable, so `v1` exclusively uses `0.25.1` |
+| **`2.0.0`** | `^1.5.0` | `libgit2` API is now stable |
+| `1.0.0`  | `0.25.1` | `libgit2` is unstable, so `php-git2@^1.0.0` exclusively uses `0.25.1` |
 
 The entries in the table above denote the `libgit2` version requirement for a particular `php-git2` release. An entry is only added when a new version of `libgit2` is required.
 
-In theory, you should be able to use any version that fits the constraint (and possibly some previous `libgit2` releases within the same major version). The minimum `libgit2` version denoted by the constraint is the one we use to develop and test the release.
+In theory, you should be able to use any version that fits the constraint. The minimum `libgit2` version denoted by the constraint is the one we use to develop and test the corresponding release.
+
+The `php-git2` version corresponds directly to the interfaces and bindings implemented by the extension. Semantic versioning is employed to allow an application to target a correct constraint in its `composer.json` file.
 
 ### Branches
 
-This project maintains multiple branches for different major versions of PHP. Look for a branch named `phpX/master` for PHP version `X`. Branch `master` will point to the latest `phpX/master` that is supported. Maintenance and development branches are organized similarly (e.g. `php7/develop`).
+This project maintains multiple branches for different major versions of PHP. Look for a branch named `phpX/master` for PHP version `X`. Branch `master` will point to the latest `phpX/master` that is supported. Maintenance and development branches are organized similarly (e.g. `php8/develop`).
 
-A release is issued for each PHP version separately. Look for tags organized under PHP version (e.g. `php7/v1.0.0`). A release branch may exist for extended maintenance on a particular major version release (e.g. `php7/v1`). Threaded (i.e. ZTS) and non-threaded versions are part of the extension configuration when it is built, so they exist under the same release.
+A release is issued for each PHP version separately. Look for tags organized under PHP version (e.g. `php8/v2.0.0`). A release branch may exist for extended maintenance on a particular major version release (e.g. `php8/v2`).
 
 ## API Coverage
 
@@ -41,11 +43,12 @@ Our core design principle is to follow the original, `libgit2` C API as closely 
 
 - Most of the opaque `libgit2` data types (i.e. handles) are implemented as resources in PHP userspace:
 	- This allows the PHP API to closely follow the underlying C API.
+	- (Note that in the next major version of this project, we plan to convert all resources to opaque classes. [This seems to be the trend](https://php.watch/articles/resource-object) in other PHP extensions, and it may be that resource types will be deprecated/removed in future versions of PHP.)
 - Functions that return a `libgit2` handle via an output parameter in the C API return a resource via the function return value in the PHP API:
 	- (e.g. `git_repository_open()` returns a `git_repository` resource).
 - Errors are always converted into PHP exceptions
-- Custom interface data structures (e.g. backends) are implemented as PHP classes:
-	- This allows the developer to implement a subclass that easily implements a custom interface.
+- Custom data structures (e.g. backends) are implemented as PHP classes:
+	- This allows the developer to write a subclass that easily implements a custom data structure.
 	- For example, the `git_odb_backend` structure is a class called `GitODBBackend`.
 	- A developer could subclass `GitODBBackend` to provide an alternate storage mechanism for a repository's object database (such as a MySQL or SQLite database)
 - Most other data structures are implemented using arrays
@@ -69,7 +72,7 @@ The extension will keep the `git_repository` object alive behind the scenes sinc
 
 ### Programming methodology
 
-Most of the extension is designed as inline code in header files. We use C++ metaprogramming constructs to generate extension functions. This approach is great for streamlining redundant tasks, separating the prototype for a binding from its implementation and keeping track of API changes. However, it comes with the small drawback of decreased flexibility when implementing unusual or more custom bindings.
+Most of the extension is designed as inline code in header files. (A header file is provided for each major section of the `libgit2` API, such as `git_repository`.) We use C++ metaprogramming constructs to generate extension functions. This approach is great for streamlining redundant tasks, separating the prototype for a binding from its implementation and keeping track of API changes. However, it comes with the small drawback of decreased flexibility when implementing unusual or more custom bindings.
 
 If a binding doesn't "fit the mold" and cannot be implemented using one of the generic binding template function generators, then we recommend the binding be written directly in the header file using the conventional `PHP_FUNCTION` macro.
 
@@ -98,10 +101,10 @@ Ensure that you configure the correct version of `libgit2` for the extension ver
 
 **Example: building with static library**
 
-In this example, I've built and installed `libgit2` under `/usr/local/libgit2-25` as a static library. (Note: the static library must be installed as `lib/libgit2.a` under the distribution. Also, make sure the library was compiled with position-independent code if building a shared extension.) Now I can build `php-git2` using this static library:
+In this example, I've built and installed `libgit2` under `/usr/local/libgit2` as a static library. (Note: the static library must be installed as `lib/libgit2.a` under the distribution. Also, make sure the library was compiled with position-independent code if building a shared extension.) Now I can build `php-git2` using this static library:
 
 ~~~
-$ ./configure --with-git2=/usr/local/libgit2-25 --with-git2-static LDFLAGS="-lssh2"
+$ ./configure --with-git2=/usr/local/libgit2 --with-git2-static LDFLAGS="-lssh2"
 $ make
 ~~~
 
@@ -136,8 +139,11 @@ This project does not officially support Windows at this time. With this said, t
 
 ## Roadmap
 
-- Improve unit testing (Fall 2022): COMPLETE
-- Update to `libgit2` version 1: IN PROGRESS
-- Add support for custom `libgit2` memory allocator utilizing PHP's memory allocation functionality: PENDING
-- Add support for PHP 8: PENDING
-- Create phpdoc files to generate documentation site: PENDING
+| Item | Status |
+| -- | -- |
+| Improve unit testing | Complete (October 2022) |
+| Update to `libgit2` version 1 | Complete (January 2023) |
+| Add support for PHP 8 | Complete (September 2023) |
+| Add support for custom `libgit2` memory allocator utilizing PHP's memory allocation functionality | Pending |
+| Create phpdoc files to generate documentation site | Pending |
+| Convert resource types to opaque object types | Pending |

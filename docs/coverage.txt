@@ -1,11 +1,11 @@
 Summary of coverage:
-  Total git2 functions: 845
-  Total removed functions: 87
-  Total function bindings: 614
-  Total extra function bindings: 1
+  Total git2 functions: 844
+  Total removed functions: 88
+  Total function bindings: 621
+  Total extra function bindings: 2
   Total bindings tested: 472
-  Binding coverage: 72.66%
-  Test coverage: 76.87%
+  Binding coverage: 73.58%
+  Test coverage: 76.01%
   Test coverage (extra): 0.00%
 
 Library Bindings:
@@ -196,18 +196,18 @@ Library Bindings:
   +n git_cred_username_new
   .n git_cred_userpass
   +n git_cred_userpass_plaintext_new
-  .n git_credential_default_new
-  .n git_credential_free
+  +n git_credential_default_new
+  +n git_credential_free
   .n git_credential_get_username
-  .n git_credential_has_username
+  +n git_credential_has_username
   .n git_credential_ssh_custom_new
   .n git_credential_ssh_interactive_new
-  .n git_credential_ssh_key_from_agent
-  .n git_credential_ssh_key_memory_new
-  .n git_credential_ssh_key_new
-  .n git_credential_username_new
+  +n git_credential_ssh_key_from_agent
+  +n git_credential_ssh_key_memory_new
+  +n git_credential_ssh_key_new
+  +n git_credential_username_new
   .n git_credential_userpass
-  .n git_credential_userpass_plaintext_new
+  +n git_credential_userpass_plaintext_new
   +n git_describe_commit
   +n git_describe_format
   .n git_describe_format_options_init
@@ -303,8 +303,8 @@ Library Bindings:
   +T git_index_add
   +T git_index_add_all
   +T git_index_add_bypath
-  .n git_index_add_from_buffer
-  +T git_index_add_frombuffer
+  +T git_index_add_from_buffer
+  .n git_index_add_frombuffer
   +T git_index_caps
   +T git_index_checksum
   +T git_index_clear
@@ -703,7 +703,7 @@ Library Bindings:
   +T git_remote_update_tips
   +T git_remote_upload
   +T git_remote_url
-  +n git_repository__cleanup
+  -- git_repository__cleanup
   .n git_repository_commondir
   +T git_repository_config
   +T git_repository_config_snapshot
