@@ -303,8 +303,8 @@ Library Bindings:
   +T git_index_add
   +T git_index_add_all
   +T git_index_add_bypath
-  .n git_index_add_from_buffer
-  +T git_index_add_frombuffer
+  +T git_index_add_from_buffer
+  .n git_index_add_frombuffer
   +T git_index_caps
   +T git_index_checksum
   +T git_index_clear
