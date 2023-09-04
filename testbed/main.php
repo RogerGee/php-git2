@@ -76,7 +76,7 @@ function discover_project() : string {
         return $dir;
     }
 
-    throw new RuntimeError(
+    throw new RuntimeException(
         'Cannot discover project directory: is the test command '
         .'running from a php-git2 source tree?'
     );
@@ -90,10 +90,10 @@ function set_test_env(string $projectdir) : string {
 
 function main(string $php = 'php',string ...$args) : int {
     if (PHP_MAJOR_VERSION < PHPGIT2_BRANCH_VERSION) {
-        throw new RuntimeError('This project does not support PHP ' . PHP_MAJOR_VERSION . '.');
+        throw new RuntimeException('This project does not support PHP ' . PHP_MAJOR_VERSION . '.');
     }
     if (PHP_MAJOR_VERSION > PHPGIT2_BRANCH_VERSION) {
-        throw new RuntimeError(
+        throw new RuntimeException(
             'Warning! You are running PHP '
               . PHP_MAJOR_VERSION
               . ', but this branch supports PHP '

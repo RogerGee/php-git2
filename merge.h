@@ -83,7 +83,7 @@ namespace php_git2
     // Provide type for git_merge_file_input.
 
     class php_git_merge_file_input:
-        public php_option_array
+        public php_array_base
     {
     public:
         php_git_merge_file_input()
@@ -93,17 +93,13 @@ namespace php_git2
 
         const git_merge_file_input* byval_git2()
         {
-            if (!is_null()) {
-                array_wrapper arr(value);
+            array_wrapper arr(value);
 
-                GIT2_ARRAY_LOOKUP_STRING_WITH_LENGTH(arr,ptr,size,input);
-                GIT2_ARRAY_LOOKUP_STRING_NULLABLE(arr,path,input);
-                GIT2_ARRAY_LOOKUP_LONG(arr,mode,input);
+            GIT2_ARRAY_LOOKUP_STRING_WITH_LENGTH(arr,ptr,size,input);
+            GIT2_ARRAY_LOOKUP_STRING_NULLABLE(arr,path,input);
+            GIT2_ARRAY_LOOKUP_LONG(arr,mode,input);
 
-                return &input;
-            }
-
-            return nullptr;
+            return &input;
         }
 
     private:
@@ -446,7 +442,7 @@ static constexpr auto ZIF_GIT_MERGE_FILE_FROM_INDEX = zif_php_git2_function<
     php_git2::local_pack<
         php_git2::php_git_merge_file_result_ref,
         php_git2::php_resource<php_git2::php_git_repository>,
-        php_git2::php_git_index_entry,
+        php_git2::php_git_index_entry_nullable,
         php_git2::php_git_index_entry,
         php_git2::php_git_index_entry,
         php_git2::php_git_merge_file_options

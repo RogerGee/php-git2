@@ -3,7 +3,8 @@
     "description": "Testbed for php-git2 extension project",
     "type": "project",
     "require": {
-        "phpunit/phpunit": "^9"
+        "phpunit/phpunit": "^9",
+        "php": "^7"
     },
     "license": "MIT",
     "autoload": {

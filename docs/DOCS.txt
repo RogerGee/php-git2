@@ -156,13 +156,7 @@ git2_version()
 
     Returns string
 
-git_libgit2_version()
-
-    Gets the libgit2 version string. The version string has the form "%1.%2.%3"
-    where %1, %2 and %3 are the respective major, minor and revision numbers
-    returned from the underlying call to git_libgit2_version().
-
-    Returns string
+git_libgit2_version(int&,int&,int&)
 
 git_libgit2_features()
 
@@ -2856,9 +2850,9 @@ abstract class GitODBBackend:
 
         void write(string $oid,string $data,int $type)
 
-        GitODBStream writestream(int $offset,int $objectType)
+        GitODBStream writestream(int $offset,int $object_type)
 
-        GitODBStream readstream(int &$len_out,int &$type_out,string $oid)
+        GitODBStream readstream(int &$length,int &$type,string $oid)
 
             Return false if object not found.
 
@@ -2894,7 +2888,7 @@ abstract class GitODBBackend:
             If the callback returns FALSE (exactly), then the implementation
             should stop the iteration.
 
-        GitODBWritepack writepack(resource $odb,callable $func,mixed $payload)
+        GitODBWritepack writepack(resource $odb,callable $callback,mixed $payload)
 
             Callback signature: int callback(array $stats,mixed $payload)
 
@@ -2920,12 +2914,7 @@ abstract class GitODBWritepack:
 
     methods:
 
-        NOTE: Use the following method signatures when creating/using a custom
-              subclass of GitODBWritepack. If you are using an instance of type
-              GitODBWritepack_Internal, then use the method signatures
-              documented for GitODBWritepack_Internal.
-
-        void append(string $data,array &$stats)
+        void append(array &$stats,string $data)
 
         void commit(array &$stats)
 
@@ -2934,26 +2923,20 @@ final class GitODBWritepack_Internal extends GitODBWritepack
     This class is used to represent an internal ODB writepack. It cannot be
     instantiated directly.
 
-    NOTE: This object maintains its own git_transfer_progress structure
-          internally. This object is implicitly passed to the append() and
-          commit() methods. You can access a readonly version of this data from
-          the $progress property.
+    You can access the transfer progress stats at any time via the $progress
+    property. This is the same value returned via calls to append() and
+    commit().
 
     properties:
 
-        (inherited)
-
+        GitODBBackend $backend
         array $progress
 
     methods:
 
-        NOTE: In this class, the signatures for the append() and commit()
-              methods aredifferent since you do not have to pass in the
-              git_transfer_progress.
+        void append(array &$stats,string $data)
 
-        void append(string $data)
-
-        void commit()
+        void commit(array &$stats)
 
 abstract class GitODBStream:
 
