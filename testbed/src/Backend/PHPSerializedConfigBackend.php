@@ -17,7 +17,7 @@ class PHPSerializedConfigBackend extends \GitConfigBackend {
     public function open(int $level,$repo) : void {
         $repoPath = git_repository_path($repo);
         if (!$this->readonly && !empty($repoPath)) {
-            $this->path = "${repoPath}config.phpserial";
+            $this->path = "{$repoPath}config.phpserial";
             $this->level = $level;
             $this->file = fopen($this->path,'c+');
             $this->readIn();
