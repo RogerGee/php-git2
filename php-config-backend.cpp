@@ -12,6 +12,15 @@
 #include <new>
 using namespace php_git2;
 
+// Provide a custom derivation of git_config_entry for config entries created by
+// our backend.
+
+struct git_config_entry_php:
+    git_config_entry
+{
+    char* buffer;
+};
+
 // Custom class handlers
 
 static zval* config_backend_read_property(
@@ -35,12 +44,16 @@ static int config_backend_has_property(
 
 static void custom_backend_entry_free(git_config_entry* ent)
 {
-    efree(ent->payload);
+    // NOTE: 'ent' must be a git_config_entry_php instance.
+
+    efree(reinterpret_cast<git_config_entry_php*>(ent)->buffer);
     efree(ent);
 }
 
 static int set_custom_backend_entry(zval* arr,git_config_entry* ent,const char** err)
 {
+    // NOTE: 'ent' must be a git_config_entry_php instance.
+
     char* buffer;
     zval* zname;
     zval* zvalue;
@@ -101,7 +114,7 @@ static int set_custom_backend_entry(zval* arr,git_config_entry* ent,const char**
 
     ent->level = level;
     ent->free = custom_backend_entry_free;
-    ent->payload = buffer;
+    reinterpret_cast<git_config_entry_php*>(ent)->buffer = buffer;
 
     if (sname != nullptr) {
         zend_string_release(sname);
@@ -160,8 +173,10 @@ static int custom_backend_iterator_next(git_config_entry** out,custom_backend_it
             const char* err;
             git_config_entry* entry;
 
-            entry = (git_config_entry*)emalloc(sizeof(git_config_entry));
-            memset(entry,0,sizeof(git_config_entry));
+            entry = reinterpret_cast<git_config_entry*>(
+                emalloc(sizeof(git_config_entry_php))
+                );
+            memset(entry,0,sizeof(git_config_entry_php));
 
             if (set_custom_backend_entry(retval,entry,&err) == FAILURE) {
                 custom_backend_entry_free(entry);
@@ -349,8 +364,10 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
             const char* err;
             git_config_entry* entry;
 
-            entry = (git_config_entry*)emalloc(sizeof(git_config_entry));
-            memset(entry,0,sizeof(git_config_entry));
+            entry = reinterpret_cast<git_config_entry*>(
+                emalloc(sizeof(git_config_entry_php))
+                );
+            memset(entry,0,sizeof(git_config_entry_php));
 
             if (set_custom_backend_entry(retval,entry,&err) == FAILURE) {
                 custom_backend_entry_free(entry);
