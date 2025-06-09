@@ -496,6 +496,12 @@ namespace php_git2
             return php_git2_config_backend_obj;
         }
 
+#if (LIBGIT2_VER_MAJOR == 1) && (LIBGIT2_VER_MINOR >= 9)
+        using entry_t = git_config_backend_entry;
+#else
+        using entry_t = git_config_entry;
+#endif
+
     private:
         // Provide a custom config_backend derivation that remembers the PHP
         // object to which it's attached.
@@ -520,7 +526,7 @@ namespace php_git2
 
         static int open(git_config_backend* cfg,git_config_level_t level,const git_repository* repo);
 
-        static int get(git_config_backend* cfg,const char* key,git_config_entry** out);
+        static int get(git_config_backend* cfg,const char* key,entry_t** out);
 
         static int set(git_config_backend* cfg,const char* name,const char* value);
 
