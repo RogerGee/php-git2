@@ -24,7 +24,7 @@ namespace php_git2
     // definition of these types handles discrepancies between versions of
     // libgit2.)
 
-#if (LIBGIT2_VER_MAJOR == 1) && (LIBGIT2_VER_MINOR >= 8)
+#if (LIBGIT2_VER_MAJOR == 1) && (LIBGIT2_VER_MINOR == 8)
     using git_commit_array_t = git_commit*const[];
     using php_git_commit_array = php_array<
         php_resource<php_git_commit>,
