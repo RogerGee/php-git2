@@ -30,7 +30,7 @@ final class ConfigTest extends RepositoryBareTestCase {
      */
     public function testAddFileOndisk($config) {
         $path = static::copyFile('resources/git-config.example','git-config');
-        $level = GIT_CONFIG_HIGHEST_LEVEL;
+        $level = GIT_CONFIG_LEVEL_APP;
         $repo = null;
         $force = true;
         $result = git_config_add_file_ondisk($config,$path,$level,$repo,$force);
@@ -46,7 +46,7 @@ final class ConfigTest extends RepositoryBareTestCase {
     public function testAddFileOndisk_WithRepo() {
         $config = git_config_new();
         $path = static::copyFile('resources/git-config.example','git-config-other');
-        $level = GIT_CONFIG_HIGHEST_LEVEL;
+        $level = GIT_CONFIG_LEVEL_APP;
         $repo = static::getRepository();
         $force = true;
         $result = git_config_add_file_ondisk($config,$path,$level,$repo,$force);
@@ -63,7 +63,7 @@ final class ConfigTest extends RepositoryBareTestCase {
         $this->expectExceptionCode(GIT_EEXISTS);
 
         $path = static::makePath('git-config');
-        $level = GIT_CONFIG_HIGHEST_LEVEL;
+        $level = GIT_CONFIG_LEVEL_APP;
         $repo = null;
         $force = false;
         $result = git_config_add_file_ondisk($config,$path,$level,$repo,$force);
