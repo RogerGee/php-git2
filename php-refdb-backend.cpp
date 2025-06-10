@@ -9,7 +9,6 @@
 #include <cstring>
 extern "C" {
 #include <git2/sys/refs.h>
-#include <git2/sys/reflog.h>
 }
 using namespace php_git2;
 
@@ -51,7 +50,7 @@ static int reflog_entry_from_array(git_reflog_entry** out,zval* zarr)
     git_signature* committer;
     const char* msg;
 
-    git_reflog_entry* ent;
+    git_reflog_entry* ent = nullptr;
 
     if (Z_TYPE_P(zarr) != IS_ARRAY) {
         giterr_set_str(GIT_EINVALID,"Reflog entry must be an array");
@@ -90,12 +89,13 @@ static int reflog_entry_from_array(git_reflog_entry** out,zval* zarr)
     }
     msg = arr.get_string();
 
-    ent = git_reflog_entry__alloc();
+    // TODO It is not possible to assign a reflog entry due to lack of support
+    // in libgit2.
+
+    //ent = git_reflog_entry__alloc();
     if (ent == nullptr) {
         return GIT_ERROR;
     }
-
-    // TODO Uh, how do I set the fields on the opaque struct?
 
     UNUSED(oid_old);
     UNUSED(oid_old_len);

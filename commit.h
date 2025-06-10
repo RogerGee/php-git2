@@ -20,9 +20,20 @@ namespace php_git2
         git_commit_free(handle);
     }
 
-    // Provide a type to manage arrays of git_commits.
+    // Provide a type to manage arrays of git_commits. (The conditional
+    // definition of these types handles discrepancies between versions of
+    // libgit2.)
 
+#if (LIBGIT2_VER_MAJOR == 1) && (LIBGIT2_VER_MINOR == 8)
+    using git_commit_array_t = git_commit*const[];
+    using php_git_commit_array = php_array<
+        php_resource<php_git_commit>,
+        php_git_commit::git2_type
+        >;
+#else
+    using git_commit_array_t = const git_commit*[];
     using php_git_commit_array = php_resource_array<php_git_commit>;
+#endif
 
     using php_git_commit_array_length_connector = php_git2::connector_wrapper<
         php_git2::php_array_length_connector<
@@ -302,7 +313,7 @@ static constexpr auto ZIF_git_commit_create = zif_php_git2_function<
         const char*,
         const git_tree*,
         size_t,
-        const git_commit*[]>::func<git_commit_create>,
+        php_git2::git_commit_array_t>::func<git_commit_create>,
     php_git2::local_pack<
         php_git2::php_git_oid,
         php_git2::php_resource<php_git2::php_git_repository>,
@@ -336,7 +347,7 @@ static constexpr auto ZIF_git_commit_create_buffer = zif_php_git2_function<
         const char*,
         const git_tree*,
         size_t,
-        const git_commit*[]>::func<git_commit_create_buffer>,
+        php_git2::git_commit_array_t>::func<git_commit_create_buffer>,
     php_git2::local_pack<
         php_git2::php_git_buf,
         php_git2::php_resource<php_git2::php_git_repository>,

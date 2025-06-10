@@ -17,6 +17,14 @@ namespace php_git2
         git_remote_free(handle);
     }
 
+    // Provide type aliases for handling discrepancies between versions of
+    // libgit2.
+#if (LIBGIT2_VER_MAJOR == 1) && (LIBGIT2_VER_MINOR >= 8)
+    using git_remote_update_flags_t = unsigned int;
+#else
+    using git_remote_update_flags_t = int;
+#endif
+
     class php_git_remote_callbacks:
         public php_option_array
     {
@@ -784,7 +792,7 @@ static constexpr auto ZIF_git_remote_update_tips = zif_php_git2_function<
         int,
         git_remote*,
         const git_remote_callbacks*,
-        int,
+        php_git2::git_remote_update_flags_t,
         git_remote_autotag_option_t,
         const char*>::func<git_remote_update_tips>,
     php_git2::local_pack<

@@ -23,7 +23,7 @@ final class CustomConfigBackendTest extends RepositoryBareTestCase {
 
         $cfg = git_config_new();
         $backend->readonly = 'yes';
-        git_config_add_backend($cfg,$backend,GIT_CONFIG_HIGHEST_LEVEL,null,false);
+        git_config_add_backend($cfg,$backend,GIT_CONFIG_LEVEL_APP,null,false);
 
         // The version property now exists as an integer.
         $this->assertTrue(property_exists($backend,'version'));
@@ -45,7 +45,7 @@ final class CustomConfigBackendTest extends RepositoryBareTestCase {
         git_repository_set_config($repo,$cfg);
 
         $backend = new TestConfigBackend($this);
-        git_config_add_backend($cfg,$backend,GIT_CONFIG_HIGHEST_LEVEL,$repo,false);
+        git_config_add_backend($cfg,$backend,GIT_CONFIG_LEVEL_APP,$repo,false);
 
         git_config_set_bool($cfg,'test.bool1',true);
         git_config_set_bool($cfg,'test.bool2',false);
@@ -72,7 +72,7 @@ final class CustomConfigBackendTest extends RepositoryBareTestCase {
         git_repository_set_config($repo,$cfg);
 
         $backend = new TestConfigBackend($this);
-        git_config_add_backend($cfg,$backend,GIT_CONFIG_HIGHEST_LEVEL,$repo,false);
+        git_config_add_backend($cfg,$backend,GIT_CONFIG_LEVEL_APP,$repo,false);
 
         $cfg = git_config_snapshot($cfg);
         $cloned = TestConfigBackend::getLatest();
@@ -103,7 +103,7 @@ final class CustomConfigBackendTest extends RepositoryBareTestCase {
         git_repository_set_config($repo,$cfg);
 
         $backend = new TestConfigBackend($this);
-        git_config_add_backend($cfg,$backend,GIT_CONFIG_HIGHEST_LEVEL,$repo,false);
+        git_config_add_backend($cfg,$backend,GIT_CONFIG_LEVEL_APP,$repo,false);
 
         git_config_delete_entry($cfg,'test.int322');
 

@@ -12,6 +12,14 @@
 #include <new>
 using namespace php_git2;
 
+// Provide a custom derivation of git_config_entry for config entries created by
+// our backend.
+
+struct git_config_entry_php : php_config_backend_object::entry_t
+{
+    char* buffer;
+};
+
 // Custom class handlers
 
 static zval* config_backend_read_property(
@@ -33,14 +41,18 @@ static int config_backend_has_property(
 
 // Helper functions
 
-static void custom_backend_entry_free(git_config_entry* ent)
+static void custom_backend_entry_free(php_config_backend_object::entry_t* ent)
 {
-    efree(ent->payload);
+    // NOTE: 'ent' must be a git_config_entry_php instance.
+
+    efree(reinterpret_cast<git_config_entry_php*>(ent)->buffer);
     efree(ent);
 }
 
-static int set_custom_backend_entry(zval* arr,git_config_entry* ent,const char** err)
+static int set_custom_backend_entry(zval* arr,php_config_backend_object::entry_t* ent,const char** err)
 {
+    // NOTE: 'ent' must be a git_config_entry_php instance.
+
     char* buffer;
     zval* zname;
     zval* zvalue;
@@ -92,16 +104,23 @@ static int set_custom_backend_entry(zval* arr,git_config_entry* ent,const char**
         value = Z_STR_P(zvalue);
     }
 
-    // Copy name and length into buffer and assign sections to fields.
+    // Assign fields to git_config_entry. Copy name and length into buffer and
+    // assign sections to fields.
     buffer = (char*)emalloc(ZSTR_LEN(name) + ZSTR_LEN(value) + 2);
-    ent->name = buffer;
-    ent->value = buffer + ZSTR_LEN(name) + 1;
     memcpy(buffer,ZSTR_VAL(name),ZSTR_LEN(name)+1);
     memcpy(buffer + ZSTR_LEN(name) + 1,ZSTR_VAL(value),ZSTR_LEN(value)+1);
-
+#if (LIBGIT2_VER_MAJOR == 1) && (LIBGIT2_VER_MINOR >= 9)
+    ent->entry.name = buffer;
+    ent->entry.value = buffer + ZSTR_LEN(name) + 1;
+    ent->entry.level = level;
+#else
+    ent->name = buffer;
+    ent->value = buffer + ZSTR_LEN(name) + 1;
     ent->level = level;
+#endif
+
     ent->free = custom_backend_entry_free;
-    ent->payload = buffer;
+    reinterpret_cast<git_config_entry_php*>(ent)->buffer = buffer;
 
     if (sname != nullptr) {
         zend_string_release(sname);
@@ -139,7 +158,7 @@ static void custom_backend_iterator_free(custom_backend_iterator* iter)
     efree(iter);
 }
 
-static int custom_backend_iterator_next(git_config_entry** out,custom_backend_iterator* iter)
+static int custom_backend_iterator_next(php_config_backend_object::entry_t** out,custom_backend_iterator* iter)
 {
     int result;
     custom_backend_iterator::method_wrapper method("iterator_next",iter);
@@ -158,10 +177,12 @@ static int custom_backend_iterator_next(git_config_entry** out,custom_backend_it
 
         if (Z_TYPE_P(retval) == IS_ARRAY) {
             const char* err;
-            git_config_entry* entry;
+            php_config_backend_object::entry_t* entry;
 
-            entry = (git_config_entry*)emalloc(sizeof(git_config_entry));
-            memset(entry,0,sizeof(git_config_entry));
+            entry = reinterpret_cast<php_config_backend_object::entry_t*>(
+                emalloc(sizeof(git_config_entry_php))
+                );
+            memset(entry,0,sizeof(git_config_entry_php));
 
             if (set_custom_backend_entry(retval,entry,&err) == FAILURE) {
                 custom_backend_entry_free(entry);
@@ -328,7 +349,7 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
 /*static*/ int php_config_backend_object::get(
     git_config_backend* cfg,
     const char* key,
-    git_config_entry** out)
+    php_config_backend_object::entry_t** out)
 {
     int result;
     zval_array<1> params;
@@ -347,10 +368,12 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
 
         if (Z_TYPE_P(retval) == IS_ARRAY) {
             const char* err;
-            git_config_entry* entry;
+            php_config_backend_object::entry_t* entry;
 
-            entry = (git_config_entry*)emalloc(sizeof(git_config_entry));
-            memset(entry,0,sizeof(git_config_entry));
+            entry = reinterpret_cast<php_config_backend_object::entry_t*>(
+                emalloc(sizeof(git_config_entry_php))
+                );
+            memset(entry,0,sizeof(git_config_entry_php));
 
             if (set_custom_backend_entry(retval,entry,&err) == FAILURE) {
                 custom_backend_entry_free(entry);
@@ -490,7 +513,7 @@ void php_config_backend_object::create_custom_backend(zval* zobj,php_git_config*
         iter = (custom_backend_iterator*)emalloc(sizeof(custom_backend_iterator));
         iter->backend = cfg;
         iter->flags = 0;
-        iter->next = (int(*)(git_config_entry**,git_config_iterator*))custom_backend_iterator_next;
+        iter->next = (int(*)(php_config_backend_object::entry_t**,git_config_iterator*))custom_backend_iterator_next;
         iter->free = (void(*)(git_config_iterator*))custom_backend_iterator_free;
 
         ZVAL_COPY(&iter->thisobj,thisobj);
